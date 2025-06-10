@@ -1,0 +1,47 @@
+<div class="p-6 bg-white shadow-md rounded-lg">
+  <h2 class="text-2xl font-semibold mb-4 flex items-center gap-2">
+    📋 รายชื่อผู้ใช้
+    <span class="text-sm text-gray-500">({{ users.length }} รายการ)</span>
+  </h2>
+
+  <!-- 🔍 ช่องค้นหา -->
+  <div class="mb-4">
+    <input
+      type="text"
+      [(ngModel)]="searchTerm"
+      placeholder="ค้นหาด้วยรหัสผู้ใช้..."
+      class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+  </div>
+
+  <!-- ตารางผู้ใช้ -->
+  <div *ngIf="filteredUsers.length > 0" class="overflow-x-auto">
+    <table class="min-w-full border border-gray-300 text-sm text-left">
+      <thead class="bg-gray-100 text-gray-700 uppercase tracking-wider">
+        <tr>
+          <th class="px-4 py-2 border">รหัสผู้ใช้</th>
+          <th class="px-4 py-2 border">ชื่อ</th>
+          <th class="px-4 py-2 border">สิทธิ์</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let user of filteredUsers | paginate: { itemsPerPage: itemsPerPage, currentPage: page }"
+          class="hover:bg-gray-50 transition-colors"
+        >
+          <td class="px-4 py-2 border">{{ user.usrId }}</td>
+          <td class="px-4 py-2 border">{{ user.usrDesc }}</td>
+          <td class="px-4 py-2 border">{{ user.usrLvl }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <pagination-controls
+      *ngIf="filteredUsers.length > itemsPerPage"
+      (pageChange)="page = $event"
+      class="mt-4 flex justify-end"
+    ></pagination-controls>
+  </div>
+
+  <p *ngIf="filteredUsers.length === 0" class="text-gray-500">ไม่พบผู้ใช้ที่ค้นหา</p>
+</div>

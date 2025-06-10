@@ -31,8 +31,9 @@ export class LoginComponent {
 
         if (res.success === true) {
           alert('Login success');
-          // localStorage.setItem('token', res.token);
-          // this.router.navigate(['/dashboard']);
+          sessionStorage.setItem('token', res.token);
+          console.log('✅ token:', res.token);
+          this.router.navigate(['/admin/dashboard']);
         } else {
           this.errorMessage = 'Login failed. Please try again.';
         }
