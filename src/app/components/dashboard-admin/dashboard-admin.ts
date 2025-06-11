@@ -1,44 +1,27 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { ChangeDetectorRef, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser, CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // 👈 ต้องใช้สำหรับ [(ngModel)]
-import { NgxPaginationModule } from 'ngx-pagination';
-import { UserService } from '../../services/user';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule, RouterOutlet } from '@angular/router';
 
 @Component({
   standalone: true,
   selector: 'app-admin-dashboard',
   templateUrl: './dashboard-admin.html',
-  imports: [CommonModule, FormsModule, NgxPaginationModule],
+  imports: [CommonModule, RouterOutlet, RouterModule],
 })
 export class AdminDashboardComponent implements OnInit {
-  users: any[] = [];
-  page = 1;
-  itemsPerPage = 10;
-  searchTerm = '';
-  private platformId = inject(PLATFORM_ID);
+  constructor(private router: Router) {}
 
-  constructor(private userService: UserService, private cdr: ChangeDetectorRef) {}
-
-  ngOnInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      this.loadUsers();
+  ngOnInit(): void {
+    if (typeof window !== 'undefined') {
+      const token = sessionStorage.getItem('token');
+      if (!token) {
+        this.router.navigate(['/login']);
+      }
     }
   }
 
-  loadUsers() {
-    this.userService.getAllUsers().subscribe({
-      next: (res) => {
-        this.users = res;
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.error('❌ ล้มเหลว:', err),
-    });
-  }
-
-  get filteredUsers() {
-    return this.users.filter(user =>
-      user.usrId?.toLowerCase().includes(this.searchTerm.toLowerCase())
-    );
+  logout() {
+    sessionStorage.removeItem('token');
+    this.router.navigate(['/login']);
   }
 }

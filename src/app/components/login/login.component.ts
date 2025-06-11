@@ -33,7 +33,7 @@ export class LoginComponent {
           alert('Login success');
           sessionStorage.setItem('token', res.token);
           console.log('✅ token:', res.token);
-          this.router.navigate(['/admin/dashboard']);
+          this.router.navigate(['/dashboard-admin/users']);
         } else {
           this.errorMessage = 'Login failed. Please try again.';
         }
