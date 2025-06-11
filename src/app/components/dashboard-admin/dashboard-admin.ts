@@ -11,6 +11,15 @@ import { Router, RouterModule, RouterOutlet } from '@angular/router';
 export class AdminDashboardComponent implements OnInit {
   constructor(private router: Router) {}
 
+  sidebarCollapsed = false;
+
+  toggleSidebar() {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
+  }
+
+  
+
+
   ngOnInit(): void {
     if (typeof window !== 'undefined') {
       const token = sessionStorage.getItem('token');

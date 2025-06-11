@@ -30,9 +30,9 @@ export class LoginComponent {
         console.log('📦 API response:', res);
 
         if (res.success === true) {
-          alert('Login success');
+          alert('เข้าสู่ระบบสำเร็จ');
           sessionStorage.setItem('token', res.token);
-          console.log('✅ token:', res.token);
+          // console.log('✅ token:', res.token);
           this.router.navigate(['/dashboard-admin/users']);
         } else {
           this.errorMessage = 'Login failed. Please try again.';

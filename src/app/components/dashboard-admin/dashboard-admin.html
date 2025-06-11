@@ -1,16 +1,29 @@
 <!-- dashboard.component.html -->
 <div class="min-h-screen bg-gray-50">
   <!-- Sidebar -->
-  <aside class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg border-r border-gray-200 z-40">
+  <aside
+    [class]="'fixed left-0 top-0 h-full bg-white shadow-lg border-r border-gray-200 z-40 transition-all duration-300 ' + (sidebarCollapsed ? 'w-16' : 'w-64')">
+
+    <!-- Toggle Button -->
+    <button (click)="toggleSidebar()"
+      class="absolute -right-3 top-6 bg-white border border-gray-200 rounded-full w-6 h-6 flex items-center justify-center hover:bg-gray-50 transition-colors shadow-md z-50">
+      <span
+        [class]="'text-gray-600 text-xs transition-transform duration-300 ' + (sidebarCollapsed ? 'rotate-180' : '')">
+        ◀
+      </span>
+    </button>
+
     <!-- Logo & Title -->
     <div class="p-6 border-b border-gray-200">
       <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
+        <div
+          class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center flex-shrink-0">
           <span class="text-white text-xl">💼</span>
         </div>
-        <div>
-          <h1 class="text-lg font-bold text-gray-800">แผงควบคุม</h1>
-          <p class="text-sm text-gray-500">ผู้ดูแลระบบ</p>
+        <div
+          [class]="'transition-all duration-300 overflow-hidden ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">
+          <h1 class="text-lg font-bold text-gray-800 whitespace-nowrap">แผงควบคุม</h1>
+          <p class="text-sm text-gray-500 whitespace-nowrap">ผู้ดูแลระบบ</p>
         </div>
       </div>
     </div>
@@ -18,76 +31,137 @@
     <!-- Navigation Menu -->
     <nav class="p-4 space-y-2">
       <a routerLink="/dashboard-admin/" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors group">
-        <span class="text-xl">🏠</span>
-        <span class="font-medium">หน้าหลัก</span>
+        [class]="'flex items-center space-x-3 rounded-lg hover:bg-gray-50 transition-colors group relative ' + (sidebarCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3')"
+        [attr.title]="sidebarCollapsed ? 'หน้าหลัก' : null">
+        <span class="text-xl flex-shrink-0">🏠</span>
+        <span
+          [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">หน้าหลัก</span>
+        <!-- Tooltip for collapsed state -->
+        <div *ngIf="sidebarCollapsed"
+          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+          หน้าหลัก
+        </div>
       </a>
 
       <a routerLink="/dashboard-admin/stocks" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors group">
-        <span class="text-xl">📈</span>
-        <span class="font-medium">จัดการหุ้น</span>
+        [class]="'flex items-center space-x-3 rounded-lg hover:bg-gray-50 transition-colors group relative ' + (sidebarCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3')"
+        [attr.title]="sidebarCollapsed ? 'จัดการหุ้น' : null">
+        <span class="text-xl flex-shrink-0">📈</span>
+        <span
+          [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">จัดการหุ้น</span>
+        <div *ngIf="sidebarCollapsed"
+          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+          จัดการหุ้น
+        </div>
       </a>
 
       <a routerLink="/dashboard-admin/transactions"
         routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors group">
-        <span class="text-xl">💳</span>
-        <span class="font-medium">จัดการธุรกรรม</span>
+        [class]="'flex items-center space-x-3 rounded-lg hover:bg-gray-50 transition-colors group relative ' + (sidebarCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3')"
+        [attr.title]="sidebarCollapsed ? 'จัดการธุรกรรม' : null">
+        <span class="text-xl flex-shrink-0">💳</span>
+        <span
+          [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">จัดการธุรกรรม</span>
+        <div *ngIf="sidebarCollapsed"
+          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+          จัดการธุรกรรม
+        </div>
       </a>
 
       <a routerLink="/dashboard-admin/dividends" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors group">
-        <span class="text-xl">💰</span>
-        <span class="font-medium">จัดการเงินปันผล</span>
+        [class]="'flex items-center space-x-3 rounded-lg hover:bg-gray-50 transition-colors group relative ' + (sidebarCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3')"
+        [attr.title]="sidebarCollapsed ? 'จัดการเงินปันผล' : null">
+        <span class="text-xl flex-shrink-0">💰</span>
+        <span
+          [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">จัดการเงินปันผล</span>
+        <div *ngIf="sidebarCollapsed"
+          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+          จัดการเงินปันผล
+        </div>
       </a>
 
       <a routerLink="/dashboard-admin/spin-files" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors group">
-        <span class="text-xl">⚡</span>
-        <span class="font-medium">จัดการไฟล์ SPIN</span>
+        [class]="'flex items-center space-x-3 rounded-lg hover:bg-gray-50 transition-colors group relative ' + (sidebarCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3')"
+        [attr.title]="sidebarCollapsed ? 'จัดการไฟล์ SPIN' : null">
+        <span class="text-xl flex-shrink-0">⚡</span>
+        <span
+          [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">จัดการไฟล์
+          SPIN</span>
+        <div *ngIf="sidebarCollapsed"
+          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+          จัดการไฟล์ SPIN
+        </div>
       </a>
 
       <a routerLink="/dashboard-admin/reports" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors group">
-        <span class="text-xl">📊</span>
-        <span class="font-medium">จัดการรายงาน</span>
+        [class]="'flex items-center space-x-3 rounded-lg hover:bg-gray-50 transition-colors group relative ' + (sidebarCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3')"
+        [attr.title]="sidebarCollapsed ? 'จัดการรายงาน' : null">
+        <span class="text-xl flex-shrink-0">📊</span>
+        <span
+          [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">จัดการรายงาน</span>
+        <div *ngIf="sidebarCollapsed"
+          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+          จัดการรายงาน
+        </div>
       </a>
 
       <a routerLink="/dashboard-admin/system" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors group">
-        <span class="text-xl">⚙️</span>
-        <span class="font-medium">จัดการระบบ</span>
+        [class]="'flex items-center space-x-3 rounded-lg hover:bg-gray-50 transition-colors group relative ' + (sidebarCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3')"
+        [attr.title]="sidebarCollapsed ? 'จัดการระบบ' : null">
+        <span class="text-xl flex-shrink-0">⚙️</span>
+        <span
+          [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">จัดการระบบ</span>
+        <div *ngIf="sidebarCollapsed"
+          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+          จัดการระบบ
+        </div>
       </a>
 
       <a routerLink="/dashboard-admin/files" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors group">
-        <span class="text-xl">📁</span>
-        <span class="font-medium">จัดการไฟล์</span>
+        [class]="'flex items-center space-x-3 rounded-lg hover:bg-gray-50 transition-colors group relative ' + (sidebarCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3')"
+        [attr.title]="sidebarCollapsed ? 'จัดการไฟล์' : null">
+        <span class="text-xl flex-shrink-0">📁</span>
+        <span
+          [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">จัดการไฟล์</span>
+        <div *ngIf="sidebarCollapsed"
+          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+          จัดการไฟล์
+        </div>
       </a>
 
-      <a routerLink="/dashboard-admin/manage-user" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors group">
-        <span class="text-xl">👤</span>
-        <span class="font-medium">จัดการผู้ใช้งาน</span>
+      <a routerLink="/dashboard-admin/manage-user"
+        routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
+        [class]="'flex items-center space-x-3 rounded-lg hover:bg-gray-50 transition-colors group relative ' + (sidebarCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3')"
+        [attr.title]="sidebarCollapsed ? 'จัดการผู้ใช้งาน' : null">
+        <span class="text-xl flex-shrink-0">👤</span>
+        <span
+          [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">จัดการผู้ใช้งาน</span>
+        <div *ngIf="sidebarCollapsed"
+          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+          จัดการผู้ใช้งาน
+        </div>
       </a>
-
     </nav>
 
-
-
     <!-- Logout Button -->
-    <div class="absolute bottom-6 left-4 right-4">
+    <div
+      [class]="'absolute bottom-6 transition-all duration-300 ' + (sidebarCollapsed ? 'left-2 right-2' : 'left-4 right-4')">
       <button (click)="logout()"
-        class="w-full flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors">
-        <span>🚪</span>
-        <span>ออกจากระบบ</span>
+        [class]="'w-full flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors group relative ' + (sidebarCollapsed ? 'justify-center' : 'justify-center')"
+        [attr.title]="sidebarCollapsed ? 'ออกจากระบบ' : null">
+        <span class="flex-shrink-0">🚪</span>
+        <span
+          [class]="'transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">ออกจากระบบ</span>
+        <div *ngIf="sidebarCollapsed"
+          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+          ออกจากระบบ
+        </div>
       </button>
     </div>
   </aside>
 
   <!-- Main Content Area -->
-  <div class="ml-64">
+  <div [class]="'transition-all duration-300 ' + (sidebarCollapsed ? 'ml-16' : 'ml-64')">
     <!-- Top Header -->
     <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4 flex items-center justify-between">
       <div class="flex items-center space-x-4">

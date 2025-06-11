@@ -17,16 +17,26 @@
             <thead class="bg-gray-100 text-gray-700 uppercase tracking-wider">
                 <tr>
                     <th class="px-4 py-2 border">รหัสผู้ใช้</th>
+                    <th class="px-4 py-2 border">รหัสสาขา</th>
                     <th class="px-4 py-2 border">ชื่อ</th>
-                    <th class="px-4 py-2 border">สิทธิ์</th>
+                    <th class="px-4 py-2 border">ระดับการเข้าถึงข้อมูล</th>
+                    <th class="px-4 py-2 border">ระยะเวลาที่รหัสผ่านหมดอายุ (วัน)</th>
+                    <th class="px-4 py-2 border">สถานะ</th>
+                    <th class="px-4 py-2 border">วัน-เวลา ที่เข้าสู่ระบบล่าสุด</th>
+                    <th class="px-4 py-2 border">วันเวลาที่เปลี่ยนรหัสผ่าน</th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let user of filteredUsers | paginate: { itemsPerPage: itemsPerPage, currentPage: page }"
                     class="hover:bg-gray-50 transition-colors">
                     <td class="px-4 py-2 border">{{ user.usrId }}</td>
+                    <td class="px-4 py-2 border">{{ user.usrBrc }}</td>
                     <td class="px-4 py-2 border">{{ user.usrDesc }}</td>
                     <td class="px-4 py-2 border">{{ user.usrLvl }}</td>
+                    <td class="px-4 py-2 border">{{ user.usrPwdexp }}</td>
+                    <td class="px-4 py-2 border">{{ user.stCode }}</td>
+                    <td class="px-4 py-2 border">{{ user.lastaccess }}</td>
+                    <td class="px-4 py-2 border">{{ user.datetimeup  }}</td>
                 </tr>
             </tbody>
         </table>
