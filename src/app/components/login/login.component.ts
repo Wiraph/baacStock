@@ -53,6 +53,8 @@ export class LoginComponent {
             if (res.role === '99') {
               alert('เข้าสู่ระบบสำเร็จ');
               sessionStorage.setItem('token', res.token);
+              sessionStorage.setItem('username', res.userId);
+              sessionStorage.setItem('fullname', res.fullName);
               this.router.navigate(['/dashboard-admin/']);
             } else {
               this.errorMessage = 'คุณไม่มีสิทธิ์เข้าถึงระบบ';
