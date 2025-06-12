@@ -30,117 +30,193 @@
 
     <!-- Navigation Menu -->
     <nav class="p-4 space-y-2">
-      <a routerLink="/dashboard-admin/" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        [class]="'flex items-center space-x-3 rounded-lg hover:bg-gray-50 transition-colors group relative ' + (sidebarCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3')"
-        [attr.title]="sidebarCollapsed ? 'หน้าหลัก' : null">
-        <span class="text-xl flex-shrink-0">🏠</span>
-        <span
-          [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">หน้าหลัก</span>
-        <!-- Tooltip for collapsed state -->
-        <div *ngIf="sidebarCollapsed"
-          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-          หน้าหลัก
-        </div>
-      </a>
 
-      <a routerLink="/dashboard-admin/stocks" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        [class]="'flex items-center space-x-3 rounded-lg hover:bg-gray-50 transition-colors group relative ' + (sidebarCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3')"
-        [attr.title]="sidebarCollapsed ? 'จัดการหุ้น' : null">
-        <span class="text-xl flex-shrink-0">📈</span>
-        <span
-          [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">จัดการหุ้น</span>
-        <div *ngIf="sidebarCollapsed"
-          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-          จัดการหุ้น
+      <!-- แผงควบคุม -->
+      <div class="relative">
+        <div (click)="openMenu('home')"
+          [class]="'w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer ' + (sidebarCollapsed ? 'px-2 justify-center' : '')"
+          [attr.title]="sidebarCollapsed ? 'แผงควบคุม' : null">
+          <div class="flex items-center space-x-3">
+            <span class="text-xl flex-shrink-0">📑</span>
+            <span
+              [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">
+              แผงควบคุม
+            </span>
+          </div>
+          <span *ngIf="!sidebarCollapsed" class="text-sm text-gray-400" [class.rotate-180]="isHomeOpen">▼</span>
         </div>
-      </a>
+        <div *ngIf="isHomeOpen && !sidebarCollapsed" class="ml-10 mt-1 space-y-1">
+          <a *ngFor="let sub of generalMenu" [routerLink]="sub.route" routerLinkActive="text-blue-600"
+            class="block text-sm text-gray-600 hover:text-blue-700 transition-colors">
+            {{ sub.icon }} {{ sub.label }}
+          </a>
+        </div>
+        <div *ngIf="sidebarCollapsed"
+          class="absolute left-full top-0 ml-2 bg-gray-800 text-white text-xs p-2 rounded shadow z-50 whitespace-nowrap">
+          <a *ngFor="let sub of generalMenu" [routerLink]="sub.route" routerLinkActive="text-blue-400"
+            class="block text-sm hover:underline text-white py-1">
+            {{ sub.icon }} {{ sub.label }}
+          </a>
+        </div>
+      </div>
 
-      <a routerLink="/dashboard-admin/transactions"
-        routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        [class]="'flex items-center space-x-3 rounded-lg hover:bg-gray-50 transition-colors group relative ' + (sidebarCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3')"
-        [attr.title]="sidebarCollapsed ? 'จัดการธุรกรรม' : null">
-        <span class="text-xl flex-shrink-0">💳</span>
-        <span
-          [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">จัดการธุรกรรม</span>
-        <div *ngIf="sidebarCollapsed"
-          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-          จัดการธุรกรรม
+      <!-- การขายและใบหุ้น -->
+      <div class="relative">
+        <div (click)="openMenu('sales')"
+          [class]="'w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer ' + (sidebarCollapsed ? 'px-2 justify-center' : '')"
+          [attr.title]="sidebarCollapsed ? 'การขายและใบหุ้น' : null">
+          <div class="flex items-center space-x-3">
+            <span class="text-xl flex-shrink-0">📊</span>
+            <span
+              [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">
+              การขายและใบหุ้น
+            </span>
+          </div>
+          <span *ngIf="!sidebarCollapsed" class="text-sm text-gray-400" [class.rotate-180]="isSalesOpen">▼</span>
         </div>
-      </a>
+        <div *ngIf="isSalesOpen && !sidebarCollapsed" class="ml-10 mt-1 space-y-1">
+          <a *ngFor="let sub of saleMenu" [routerLink]="sub.route" routerLinkActive="text-blue-600"
+            class="block text-sm text-gray-600 hover:text-blue-700 transition-colors">
+            {{ sub.icon }} {{ sub.label }}
+          </a>
+        </div>
+        <div *ngIf="sidebarCollapsed"
+          class="absolute left-full top-0 ml-2 bg-gray-800 text-white text-xs p-2 rounded shadow z-50 whitespace-nowrap">
+          <a *ngFor="let sub of saleMenu" [routerLink]="sub.route" routerLinkActive="text-blue-400"
+            class="block text-sm hover:underline text-white py-1">
+            {{ sub.icon }} {{ sub.label }}
+          </a>
+        </div>
+      </div>
 
-      <a routerLink="/dashboard-admin/dividends" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        [class]="'flex items-center space-x-3 rounded-lg hover:bg-gray-50 transition-colors group relative ' + (sidebarCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3')"
-        [attr.title]="sidebarCollapsed ? 'จัดการเงินปันผล' : null">
-        <span class="text-xl flex-shrink-0">💰</span>
-        <span
-          [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">จัดการเงินปันผล</span>
-        <div *ngIf="sidebarCollapsed"
-          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-          จัดการเงินปันผล
+      <!-- การเงิน -->
+      <div class="relative">
+        <div (click)="openMenu('financial')"
+          [class]="'w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer ' + (sidebarCollapsed ? 'px-2 justify-center' : '')"
+          [attr.title]="sidebarCollapsed ? 'การเงิน' : null">
+          <div class="flex items-center space-x-3">
+            <span class="text-xl flex-shrink-0">💰</span>
+            <span
+              [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">
+              การเงิน
+            </span>
+          </div>
+          <span *ngIf="!sidebarCollapsed" class="text-sm text-gray-400" [class.rotate-180]="isFinancialOpen">▼</span>
         </div>
-      </a>
+        <div *ngIf="isFinancialOpen && !sidebarCollapsed" class="ml-10 mt-1 space-y-1">
+          <a *ngFor="let sub of financialMenu" [routerLink]="sub.route" routerLinkActive="text-blue-600"
+            class="block text-sm text-gray-600 hover:text-blue-700 transition-colors">
+            {{ sub.icon }} {{ sub.label }}
+          </a>
+        </div>
+        <div *ngIf="sidebarCollapsed"
+          class="absolute left-full top-0 ml-2 bg-gray-800 text-white text-xs p-2 rounded shadow z-50 whitespace-nowrap">
+          <a *ngFor="let sub of financialMenu" [routerLink]="sub.route" routerLinkActive="text-blue-400"
+            class="block text-sm hover:underline text-white py-1">
+            {{ sub.icon }} {{ sub.label }}
+          </a>
+        </div>
+      </div>
 
-      <a routerLink="/dashboard-admin/spin-files" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        [class]="'flex items-center space-x-3 rounded-lg hover:bg-gray-50 transition-colors group relative ' + (sidebarCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3')"
-        [attr.title]="sidebarCollapsed ? 'จัดการไฟล์ SPIN' : null">
-        <span class="text-xl flex-shrink-0">⚡</span>
-        <span
-          [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">จัดการไฟล์
-          SPIN</span>
-        <div *ngIf="sidebarCollapsed"
-          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-          จัดการไฟล์ SPIN
+      <!-- ไฟล์ -->
+      <div class="relative">
+        <div (click)="openMenu('file')"
+          [class]="'w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer ' + (sidebarCollapsed ? 'px-2 justify-center' : '')"
+          [attr.title]="sidebarCollapsed ? 'ไฟล์' : null">
+          <div class="flex items-center space-x-3">
+            <span class="text-xl flex-shrink-0">⚡</span>
+            <span
+              [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">
+              ไฟล์
+            </span>
+          </div>
+          <span *ngIf="!sidebarCollapsed" class="text-sm text-gray-400" [class.rotate-180]="isFileOpen">▼</span>
         </div>
-      </a>
+        <div *ngIf="isFileOpen && !sidebarCollapsed" class="ml-10 mt-1 space-y-1">
+          <a *ngFor="let sub of fileMenu" [routerLink]="sub.route" routerLinkActive="text-blue-600"
+            class="block text-sm text-gray-600 hover:text-blue-700 transition-colors">
+            {{ sub.icon }} {{ sub.label }}
+          </a>
+        </div>
+        <div *ngIf="sidebarCollapsed"
+          class="absolute left-full top-0 ml-2 bg-gray-800 text-white text-xs p-2 rounded shadow z-50 whitespace-nowrap">
+          <a *ngFor="let sub of fileMenu" [routerLink]="sub.route" routerLinkActive="text-blue-400"
+            class="block text-sm hover:underline text-white py-1">
+            {{ sub.icon }} {{ sub.label }}
+          </a>
+        </div>
+      </div>
 
-      <a routerLink="/dashboard-admin/reports" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        [class]="'flex items-center space-x-3 rounded-lg hover:bg-gray-50 transition-colors group relative ' + (sidebarCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3')"
-        [attr.title]="sidebarCollapsed ? 'จัดการรายงาน' : null">
-        <span class="text-xl flex-shrink-0">📊</span>
-        <span
-          [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">จัดการรายงาน</span>
-        <div *ngIf="sidebarCollapsed"
-          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-          จัดการรายงาน
+      <!-- รายงาน -->
+      <div class="relative">
+        <div (click)="openMenu('report')"
+          [class]="'w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer ' + (sidebarCollapsed ? 'px-2 justify-center' : '')"
+          [attr.title]="sidebarCollapsed ? 'รายงาน' : null">
+          <div class="flex items-center space-x-3">
+            <span class="text-xl flex-shrink-0">📊</span>
+            <span
+              [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">
+              รายงาน
+            </span>
+          </div>
+          <span *ngIf="!sidebarCollapsed" class="text-sm text-gray-400" [class.rotate-180]="isReportOpen">▼</span>
         </div>
-      </a>
+        <div *ngIf="isReportOpen && !sidebarCollapsed" class="ml-10 mt-1 space-y-1">
+          <a *ngFor="let sub of reportMenu" [routerLink]="sub.route" routerLinkActive="text-blue-600"
+            class="block text-sm text-gray-600 hover:text-blue-700 transition-colors">
+            {{ sub.icon }} {{ sub.label }}
+          </a>
+        </div>
+        <div *ngIf="sidebarCollapsed"
+          class="absolute left-full top-0 ml-2 bg-gray-800 text-white text-xs p-2 rounded shadow z-50 whitespace-nowrap">
+          <a *ngFor="let sub of reportMenu" [routerLink]="sub.route" routerLinkActive="text-blue-400"
+            class="block text-sm hover:underline text-white py-1">
+            {{ sub.icon }} {{ sub.label }}
+          </a>
+        </div>
+      </div>
 
-      <a routerLink="/dashboard-admin/system" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        [class]="'flex items-center space-x-3 rounded-lg hover:bg-gray-50 transition-colors group relative ' + (sidebarCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3')"
-        [attr.title]="sidebarCollapsed ? 'จัดการระบบ' : null">
-        <span class="text-xl flex-shrink-0">⚙️</span>
-        <span
-          [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">จัดการระบบ</span>
-        <div *ngIf="sidebarCollapsed"
-          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-          จัดการระบบ
+      <!-- ระบบ -->
+      <div class="relative">
+        <div (click)="openMenu('system')"
+          [class]="'w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer ' + (sidebarCollapsed ? 'px-2 justify-center' : '')"
+          [attr.title]="sidebarCollapsed ? 'ระบบ' : null">
+          <div class="flex items-center space-x-3">
+            <span class="text-xl flex-shrink-0">🛠️</span>
+            <span
+              [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">
+              ระบบ
+            </span>
+          </div>
+          <span *ngIf="!sidebarCollapsed" class="text-sm text-gray-400" [class.rotate-180]="isSystemOpen">▼</span>
         </div>
-      </a>
+        <div *ngIf="isSystemOpen && !sidebarCollapsed" class="ml-10 mt-1 space-y-1">
+          <ng-container *ngFor="let sub of systemMenu">
+            <!-- ถ้าไม่มี children -->
+            <a *ngIf="!sub.children" [routerLink]="sub.route" routerLinkActive="text-blue-600"
+              class="block text-sm text-gray-500 hover:text-blue-700 transition-colors mb-3">
+              {{ sub.icon }} {{ sub.label }}
+            </a>
 
-      <a routerLink="/dashboard-admin/files" routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        [class]="'flex items-center space-x-3 rounded-lg hover:bg-gray-50 transition-colors group relative ' + (sidebarCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3')"
-        [attr.title]="sidebarCollapsed ? 'จัดการไฟล์' : null">
-        <span class="text-xl flex-shrink-0">📁</span>
-        <span
-          [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">จัดการไฟล์</span>
-        <div *ngIf="sidebarCollapsed"
-          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-          จัดการไฟล์
+            <!-- ถ้ามี children -->
+            <div *ngIf="sub.children" class="space-y-1">
+              <div class="text-sm text-gray-500 font-semibold mt-2">{{ sub.icon }} {{ sub.label }}</div>
+              <a *ngFor="let child of sub.children" [routerLink]="child.route" routerLinkActive="text-blue-600"
+                class="block text-sm text-gray-600 hover:text-blue-700 ml-4 transition-colors">
+                - {{ child.label }}
+              </a>
+            </div>
+          </ng-container>
         </div>
-      </a>
+        <div *ngIf="sidebarCollapsed"
+          class="absolute left-full top-0 ml-2 bg-gray-800 text-white text-xs p-2 rounded shadow z-50 whitespace-nowrap">
+          <a *ngFor="let sub of systemMenu" [routerLink]="sub.route" routerLinkActive="text-blue-400"
+            class="block text-sm hover:underline text-white py-1">
+            {{ sub.icon }} {{ sub.label }}
+          </a>
+        </div>
+      </div>
 
-      <a routerLink="/dashboard-admin/manage-user"
-        routerLinkActive="bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        [class]="'flex items-center space-x-3 rounded-lg hover:bg-gray-50 transition-colors group relative ' + (sidebarCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3')"
-        [attr.title]="sidebarCollapsed ? 'จัดการผู้ใช้งาน' : null">
-        <span class="text-xl flex-shrink-0">👤</span>
-        <span
-          [class]="'font-medium transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">จัดการผู้ใช้งาน</span>
-        <div *ngIf="sidebarCollapsed"
-          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-          จัดการผู้ใช้งาน
-        </div>
-      </a>
     </nav>
 
     <!-- Logout Button -->

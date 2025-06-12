@@ -27,13 +27,13 @@ export class LoginComponent {
 
     this.http.post('http://localhost:5205/api/auth/login', loginData).subscribe({
       next: (res: any) => {
-        console.log('📦 API response:', res);
+        // console.log('📦 API response:', res);
 
         if (res.success === true) {
           alert('เข้าสู่ระบบสำเร็จ');
           sessionStorage.setItem('token', res.token);
           // console.log('✅ token:', res.token);
-          this.router.navigate(['/dashboard-admin/users']);
+          this.router.navigate(['/dashboard-admin/']);
         } else {
           this.errorMessage = 'Login failed. Please try again.';
         }
