@@ -14,7 +14,7 @@ export interface ChangePasswordDto {
 export class UserService {
   private apiUrl = 'http://localhost:5205/api/user';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAllUsers(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
@@ -24,8 +24,16 @@ export class UserService {
     return this.http.delete(`${this.apiUrl}/${userId}`);
   }
 
+
+  // เปลี่ยนรหัสผ่าน
   changePassword(data: ChangePasswordDto): Observable<any> {
     console.log(data);
     return this.http.post(`${this.apiUrl}/change-password`, data);
   }
+
+  // รีเซ็ตรหัสผ่าน
+  resetPassword(userId: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${userId}/reset-password`, {});
+  }
+
 }
