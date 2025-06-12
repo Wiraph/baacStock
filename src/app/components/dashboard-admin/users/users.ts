@@ -43,6 +43,12 @@ export class UsersComponent implements OnInit {
     );
   }
 
+  editUser() {}
+
+  deleteUser() {
+
+  }
+
   logout() {
     sessionStorage.removeItem('token'); // ✅ ลบ JWT ออกจาก storage
     this.router.navigate(['']); // ✅ กลับไปหน้า login
