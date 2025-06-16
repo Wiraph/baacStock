@@ -38,7 +38,8 @@ export class AdminDashboardComponent implements OnInit {
   isHomeOpen = false; // เปิด/ปิด Dropdown
   generalMenu = [
     { icon: '🏠', label: 'Home', route: '/dashboard-admin/' },
-    { icon: '📞', label: 'ติดต่อ', route: '/dashboard-admin/contact' }
+    { icon: '📞', label: 'ติดต่อ', route: '/dashboard-admin/contact' },
+    { icon: '🔎', label: 'ค้นหา/แก้ไข', route: '/dashboard-admin/search-edit' }
   ];
 
   isSalesOpen = false; // เปิด/ปิด Dropdown
@@ -104,6 +105,8 @@ export class AdminDashboardComponent implements OnInit {
 
   logout() {
     sessionStorage.removeItem('token');
+    sessionStorage.removeItem('fullname');
+    sessionStorage.removeItem('username');
     this.router.navigate(['/login']);
   }
 }

@@ -37,7 +37,7 @@ export class LoginComponent {
       password: this.password
     };
 
-    this.http.post('http://localhost:5205/api/auth/login', loginData).subscribe({
+    this.http.post('https://localhost:7089/api/auth/login', loginData).subscribe({
       next: (res: any) => {
         this.loading = false;
 

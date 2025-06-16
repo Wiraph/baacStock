@@ -12,7 +12,7 @@ export interface ChangePasswordDto {
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:5205/api/user';
+  private apiUrl = 'https://localhost:7089/api/user';
 
   constructor(private http: HttpClient) { }
 
@@ -35,5 +35,8 @@ export class UserService {
   resetPassword(userId: string): Observable<any> {
     return this.http.put(`${this.apiUrl}/${userId}/reset-password`, {});
   }
+
+  // ค้นหาลูกค้า
+  
 
 }

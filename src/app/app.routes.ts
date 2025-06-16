@@ -8,6 +8,7 @@ import { ManageUserComponent } from './components/dashboard-admin/manage-user/ma
 import { HomeComponent } from './components/dashboard-admin/home/home';
 import { ContactComponent } from './components/dashboard-admin/contact/contact';
 import { ChangePasswordComponent } from './components/dashboard-admin/change-password/change-password';
+import { SearchEditComponent } from './components/dashboard-admin/search-edit/search-edit';
 
 
 export const routes: Routes = [
@@ -25,7 +26,8 @@ export const routes: Routes = [
       { path: 'stocks', component: StocksComponent }, // ✅ เพิ่มเส้นทางสำหรับ StocksComponent
       { path: 'manage-user', component: ManageUserComponent }, // ✅ เพิ่มเส้นทางสำหรับ ManageUserComponent
       { path: 'contact', component: ContactComponent }, // ✅ เพิ่มเส้นทางสำหรับ ContactComponent
-      { path: 'change-password', component: ChangePasswordComponent } // ✅ เพิ่มเส้นทางสำหรับ ChangePasswordComponent
+      { path: 'change-password', component: ChangePasswordComponent }, // ✅ เพิ่มเส้นทางสำหรับ ChangePasswordComponent
+      { path: 'search-edit', component: SearchEditComponent} // ✅ เพิ่มเส้นทางสำหรับ SearchEditComponent
     ]
   }
 ];
