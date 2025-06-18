@@ -45,6 +45,7 @@ export class AdminDashboardComponent implements OnInit {
   isSalesOpen = false; // เปิด/ปิด Dropdown
   saleMenu = [
     { icon: '🛒', label: 'การขาย', route: '/dashboard-admin/sales' },
+    { icon: '😶‍🌫️', label: 'ขายหุ้นสามัญ', route: '/dashboard-admin/common-shares'},
     { icon: '📄', label: 'การออกใบหุ้นใหม่ โอนเปลี่ยนมือ', route: '/dashboard-admin/issue-transfer' },
     { icon: '✅', label: 'อนุมัติรายการ', route: '/dashboard-admin/approve-transactions' },
     { icon: '📝', label: 'อนุมัติออกใบหุ้น', route: '/dashboard-admin/approve-issue' },

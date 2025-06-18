@@ -9,6 +9,7 @@ import { HomeComponent } from './components/dashboard-admin/home/home';
 import { ContactComponent } from './components/dashboard-admin/contact/contact';
 import { ChangePasswordComponent } from './components/dashboard-admin/change-password/change-password';
 import { SearchEditComponent } from './components/dashboard-admin/search-edit/search-edit';
+import { CommonSharesComponent } from './components/dashboard-admin/common-shares/common-shares';
 
 
 export const routes: Routes = [
@@ -27,7 +28,8 @@ export const routes: Routes = [
       { path: 'manage-user', component: ManageUserComponent }, // ✅ เพิ่มเส้นทางสำหรับ ManageUserComponent
       { path: 'contact', component: ContactComponent }, // ✅ เพิ่มเส้นทางสำหรับ ContactComponent
       { path: 'change-password', component: ChangePasswordComponent }, // ✅ เพิ่มเส้นทางสำหรับ ChangePasswordComponent
-      { path: 'search-edit', component: SearchEditComponent} // ✅ เพิ่มเส้นทางสำหรับ SearchEditComponent
+      { path: 'search-edit', component: SearchEditComponent}, // ✅ เพิ่มเส้นทางสำหรับ SearchEditComponent
+      { path: 'common-shares', component: CommonSharesComponent}
     ]
   }
 ];
