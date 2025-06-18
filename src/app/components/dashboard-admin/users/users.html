@@ -16,27 +16,28 @@
         <table class="min-w-full border border-gray-300 text-sm text-left">
             <thead class="bg-gray-100 text-gray-700 uppercase tracking-wider">
                 <tr>
+                    <th class="px-4 py-2 border">ดำเนินการ</th>
                     <th class="px-4 py-2 border">รหัสผู้ใช้</th>
+                    <th class="px-4 py-2 border">ชื่อ - นามสกุล</th>
+                    <th class="px-4 py-2 border">ระดับการใช้งาน</th>
                     <th class="px-4 py-2 border">รหัสสาขา</th>
-                    <th class="px-4 py-2 border">ชื่อ</th>
-                    <th class="px-4 py-2 border">ระดับการเข้าถึงข้อมูล</th>
-                    <th class="px-4 py-2 border">ระยะเวลาที่รหัสผ่านหมดอายุ (วัน)</th>
-                    <th class="px-4 py-2 border">สถานะ</th>
-                    <th class="px-4 py-2 border">วัน-เวลา ที่เข้าสู่ระบบล่าสุด</th>
-                    <th class="px-4 py-2 border">วันเวลาที่เปลี่ยนรหัสผ่าน</th>
+                    <th class="px-4 py-2 border">ชื่อสาขา</th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let user of filteredUsers | paginate: { itemsPerPage: itemsPerPage, currentPage: page }"
                     class="hover:bg-gray-50 transition-colors">
+                    <td class="px-4 py-2 border">
+                        <button (click)="resetPassword(user.usrId)" class="text-yellow-600 hover:underline">Reset Password</button>
+                        <button (click)="deleteUser()" class="text-orange-600 hover:underline">Reset User and Password</button>
+                        <button (click)="deleteUser()" class="text-red-600 hover:underline">Delete User</button>
+                        <button></button>
+                    </td>
                     <td class="px-4 py-2 border">{{ user.usrId }}</td>
-                    <td class="px-4 py-2 border">{{ user.usrBrc }}</td>
                     <td class="px-4 py-2 border">{{ user.usrDesc }}</td>
-                    <td class="px-4 py-2 border">{{ user.usrLvl }}</td>
-                    <td class="px-4 py-2 border">{{ user.usrPwdexp }}</td>
-                    <td class="px-4 py-2 border">{{ user.stDesc }}</td>
-                    <td class="px-4 py-2 border">{{ user.lastaccess }}</td>
-                    <td class="px-4 py-2 border">{{ user.datetimeup  }}</td>
+                    <td class="px-4 py-2 border">{{ user.lvlDesc }}</td>
+                    <td class="px-4 py-2 border">{{ user.usrBrc }}</td>
+                    <td class="px-4 py-2 border">{{ user.brDesc }}</td>
                 </tr>
             </tbody>
         </table>
