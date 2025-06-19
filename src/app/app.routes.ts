@@ -10,6 +10,9 @@ import { ContactComponent } from './components/dashboard-admin/contact/contact';
 import { ChangePasswordComponent } from './components/dashboard-admin/change-password/change-password';
 import { SearchEditComponent } from './components/dashboard-admin/search-edit/search-edit';
 import { CommonSharesComponent } from './components/dashboard-admin/common-shares/common-shares';
+import { DashboardHeadOfficeComponent } from './components/dashboard-head-office/dashboard-head-office';
+import { HomeHeadOfficeComponent } from './components/dashboard-head-office/home/home';
+import { ChangePasswordHeadOfficeComponent } from './components/dashboard-head-office/change-password/change-password';
 
 
 export const routes: Routes = [
@@ -29,7 +32,18 @@ export const routes: Routes = [
       { path: 'contact', component: ContactComponent }, // ✅ เพิ่มเส้นทางสำหรับ ContactComponent
       { path: 'change-password', component: ChangePasswordComponent }, // ✅ เพิ่มเส้นทางสำหรับ ChangePasswordComponent
       { path: 'search-edit', component: SearchEditComponent}, // ✅ เพิ่มเส้นทางสำหรับ SearchEditComponent
-      { path: 'common-shares', component: CommonSharesComponent}
+      { path: 'common-shares', component: CommonSharesComponent},
+      { path: 'headoffice', component: DashboardHeadOfficeComponent}
+    ]
+  },
+  {
+    path: 'head-office',
+    component: DashboardHeadOfficeComponent,
+    canActivate: [AuthGuard],
+    children: [
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      { path: 'home', component: HomeHeadOfficeComponent},
+      { path: 'change-password', component: ChangePasswordHeadOfficeComponent }
     ]
   }
 ];

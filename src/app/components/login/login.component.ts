@@ -56,7 +56,14 @@ export class LoginComponent {
               sessionStorage.setItem('username', res.userId);
               sessionStorage.setItem('fullname', res.fullName);
               this.router.navigate(['/dashboard-admin/']);
-            } else {
+            } else if (res.role === '89') {
+              alert('เข้าสู่ระบบสำเร็จ');
+              sessionStorage.setItem('token', res.token);
+              sessionStorage.setItem('username', res.userId);
+              sessionStorage.setItem('fullname', res.fullName);
+              this.router.navigate(['/head-office/']);
+            }
+            else {
               this.errorMessage = 'คุณไม่มีสิทธิ์เข้าถึงระบบ';
             }
           }
