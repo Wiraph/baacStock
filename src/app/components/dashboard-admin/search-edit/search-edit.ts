@@ -3,22 +3,55 @@ import { FormsModule } from '@angular/forms';
 import { CustomerService, CustomerSearchDto } from '../../../services/customer';
 import { CommonModule } from '@angular/common';
 import { finalize, firstValueFrom } from 'rxjs';
-import { environment } from '../../../../environments/environments';
+import { StocksComponent } from '../stocks/stocks';
 
 @Component({
   selector: 'app-search-edit',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, StocksComponent],
   templateUrl: './search-edit.html',
   styleUrls: ['./search-edit.css']
 })
 export class SearchEditComponent implements OnInit {
+
+  activeView: string = 'search';
+
+  selectedStockNotes: string[] = [];
+  selectedCusId: string = '';
+  selectedName: string = '';
+  selectedStockList: string[] = [];
+  selectedStatus: string = '';
+
+  setView(view: string, stockNotes?: string[], cusId?: string, fullName?: string, stockList?: any[], statusDesc?: string) {
+    this.activeView = view;
+
+    this.selectedStockNotes = stockNotes ?? [];
+    this.selectedCusId = cusId ?? '';
+    this.selectedName = fullName ?? '';
+    this.selectedStockList = stockList ?? [];
+    this.selectedStatus = statusDesc ?? '';
+
+    console.log("ttttt:",this.selectedStockNotes, this.selectedCusId, this.selectedName, this.selectedStockList, this.selectedStatus);
+  }
+
+
+
+
   criteria: CustomerSearchDto = {
     cusId: '',
     fname: '',
     lname: '',
     stockId: ''
   };
+
+  mapMethodToPayType(method: string): string {
+    switch (method) {
+      case 'account': return '001';
+      case 'cash': return '002';
+      case 'donate': return '003';
+      default: return '';
+    }
+  }
 
   results: any[] = [];
   searched = false;
@@ -29,24 +62,24 @@ export class SearchEditComponent implements OnInit {
     private cd: ChangeDetectorRef
   ) { }
 
-  onSearch() {
-    if (!this.criteria.cusId && !this.criteria.stockId && !this.criteria.fname && !this.criteria.lname) {
-      alert('กรุณากรอกอย่างน้อยหนึ่งช่องก่อนค้นหา');
-      return;
-    }
+  currentPage = 1;
+  pageSize = 20;
+  totalPages = 0;
+
+  onSearch(page: number = 1) {
+    this.currentPage = page;
 
     this.loading = true;
-    this.customerService.searchCustomer(this.criteria)
+    this.customerService.searchCustomer(this.criteria, page, this.pageSize)
       .pipe(finalize(() => {
         this.loading = false;
         this.cd.detectChanges();
       }))
       .subscribe({
-        next: data => {
-          if (!environment.production) {
-            console.log('📦 ข้อมูลที่ได้จาก API:', data);
-          }
-          this.results = data;
+        next: (res: any) => {
+          console.log('🟢 Data loaded after save:', res.data);
+          this.results = res.data;
+          this.totalPages = res.totalPages;
           this.searched = true;
         },
         error: err => {
@@ -120,62 +153,73 @@ export class SearchEditComponent implements OnInit {
   }
 
   async onEdit(item: any) {
-    this.editingItem = JSON.parse(JSON.stringify(item));
-    const addresses = item.address || [];
+    // 🛑 Force reset ก่อน เพื่อให้ Angular render ใหม่ แม้ object เดิม
+    this.editingItem = null;
+    this.showModal = false;
 
-    console.log("✅ addresses จาก item:", addresses);
-    console.log("AccType: ", this.accTypeList);
+    setTimeout(async () => {
+      this.resetForm();
 
-    // 🏠 แยกที่อยู่ตามประเภท
-    this.homeAddress = addresses.find((a: any) => a.addCode === 'HA') || {};
-    this.currentAddress = addresses.find((a: any) => a.addCode === 'CA') || {};
-
-    console.log("🏠 Home Address:", this.homeAddress);
-    console.log("📬 Current Address:", this.currentAddress);
-
-    // 🎯 ดึงข้อมูลปันผลล่าสุด
-    this.stockDividend = item.stockDividend || null;
-    if (this.stockDividend) {
-      const payType = this.stockDividend.stkPayType;
-      if (payType === '001') this.selectedMethod = 'account';
-      else if (payType === '002') this.selectedMethod = 'cash';
-      else if (payType === '003') this.selectedMethod = 'donate';
-      else this.selectedMethod = ''; // fallback
-
-      this.accNo = this.stockDividend.stkAccno || '';
-      this.accName = this.stockDividend.stkAccname || '';
-      this.selectedAccType = this.stockDividend?.stkAcctype || '';
-      this.selectedPayType = this.stockDividend?.stkPayType || '';
-    } else {
-      this.selectedMethod = '';
-      this.accNo = '';
-      this.accName = '';
-      this.selectedAccType = '';
-      this.selectedPayType = '';
-    }
-
-    // 🌐 โหลดอำเภอ/ตำบล
-    try {
-      if (this.homeAddress.prvCode) {
-        this.homeAumphors = await firstValueFrom(this.customerService.getAumphor(this.homeAddress.prvCode)) ?? [];
-        if (this.homeAddress.ampCode) {
-          this.homeTumbons = await firstValueFrom(this.customerService.getTumbons(this.homeAddress.prvCode, this.homeAddress.ampCode)) ?? [];
-        }
+      // หา item ใหม่ (ปลอดภัยกว่า)
+      const freshItem = this.results.find(r => r.cusiD === item.cusiD);
+      if (!freshItem) {
+        alert('ไม่พบข้อมูลลูกค้าที่ต้องการแก้ไข');
+        return;
       }
 
-      if (this.currentAddress.prvCode) {
-        this.currentAumphors = await firstValueFrom(this.customerService.getAumphor(this.currentAddress.prvCode)) ?? [];
-        if (this.currentAddress.ampCode) {
-          this.currentTumbons = await firstValueFrom(this.customerService.getTumbons(this.currentAddress.prvCode, this.currentAddress.ampCode)) ?? [];
-        }
-      }
-    } catch (error) {
-      console.error('❌ Error loading amphur/tumbon:', error);
-    }
+      // ✅ Clone ข้อมูล
+      this.editingItem = {
+        ...freshItem,
+        address: JSON.parse(JSON.stringify(freshItem.address || [])),
+        stockDividend: JSON.parse(JSON.stringify(freshItem.stockDividend || {}))
+      };
 
-    this.showModal = true;
-    this.cd.detectChanges();
+      // ✅ Address
+      const addresses = this.editingItem.address || [];
+      this.homeAddress = addresses.find((a: any) => a.addCode === 'HA') || {};
+      this.currentAddress = addresses.find((a: any) => a.addCode === 'CA') || {};
+
+      // ✅ Dividend
+      this.stockDividend = this.editingItem.stockDividend || null;
+      if (this.stockDividend) {
+        const payType = this.stockDividend.stkPayType;
+        this.selectedMethod = payType === '001' ? 'account' :
+          payType === '002' ? 'cash' :
+            payType === '003' ? 'donate' : '';
+
+        this.accNo = this.stockDividend.stkAccno || '';
+        this.accName = this.stockDividend.stkAccname || '';
+        this.selectedAccType = this.stockDividend.stkAcctype || '';
+        this.selectedPayType = this.stockDividend.stkPayType || '';
+      }
+
+      // ✅ โหลดที่อยู่ (async)
+      try {
+        if (this.homeAddress.prvCode) {
+          this.homeAumphors = await firstValueFrom(this.customerService.getAumphor(this.homeAddress.prvCode));
+          if (this.homeAddress.ampCode) {
+            this.homeTumbons = await firstValueFrom(this.customerService.getTumbons(this.homeAddress.prvCode, this.homeAddress.ampCode));
+          }
+        }
+
+        if (this.currentAddress.prvCode) {
+          this.currentAumphors = await firstValueFrom(this.customerService.getAumphor(this.currentAddress.prvCode));
+          if (this.currentAddress.ampCode) {
+            this.currentTumbons = await firstValueFrom(this.customerService.getTumbons(this.currentAddress.prvCode, this.currentAddress.ampCode));
+          }
+        }
+      } catch (error) {
+        console.error('❌ โหลดที่อยู่ล้มเหลว:', error);
+      }
+
+      // ✅ แสดง modal
+      this.showModal = true;
+      this.cd.detectChanges();
+
+    }, 0); // 📌 สำคัญมาก ให้ Angular reset ก่อน
   }
+
+
 
 
   loadHomeAumphor(prvCode: string) {
@@ -225,11 +269,26 @@ export class SearchEditComponent implements OnInit {
     this.editingItem = null;
   }
 
+  saving = false;
+
   onSaveEdit() {
+
+    if (this.saving) return;
+    this.saving = true
+
     if (!this.editingItem || !this.editingItem.cusiD) {
       alert("ไม่พบข้อมูลลูกค้า");
       return;
     }
+
+    // อัปเดตค่าที่มาจากแบบฟอร์มเงินปันผลเข้า stockDividend
+    this.stockDividend = {
+      ...this.stockDividend,
+      stkAccno: this.accNo,
+      stkAccname: this.accName,
+      stkAcctype: this.selectedAccType,
+      stkPayType: this.mapMethodToPayType(this.selectedMethod)
+    };
 
     const payload = {
       customer: {
@@ -240,6 +299,9 @@ export class SearchEditComponent implements OnInit {
       },
       currentAddress: {
         ...this.currentAddress
+      },
+      stockDividend: {
+        ...this.stockDividend
       }
     };
 
@@ -249,6 +311,8 @@ export class SearchEditComponent implements OnInit {
 
         this.showModal = false;
         this.editingItem = null;
+        this.resetForm();
+        this.saving = false;
 
         // 🔁 refresh ข้อมูลใหม่หลังจาก alert
         setTimeout(() => {
@@ -258,8 +322,25 @@ export class SearchEditComponent implements OnInit {
       error: (error) => {
         console.error("❌ บันทึกข้อมูลไม่สำเร็จ", error);
         alert("❌ เกิดข้อผิดพลาดในการบันทึกข้อมูล\n" + (error?.error?.message || 'ไม่ทราบสาเหตุ'));
+        this.saving = false;
       }
     });
+  }
+
+  resetForm() {
+    this.editingItem = null;
+    this.homeAddress = {};
+    this.currentAddress = {};
+    this.stockDividend = null;
+    this.selectedMethod = '';
+    this.accNo = '';
+    this.accName = '';
+    this.selectedAccType = '';
+    this.selectedPayType = '';
+    this.homeAumphors = [];
+    this.homeTumbons = [];
+    this.currentAumphors = [];
+    this.currentTumbons = [];
   }
 
 
