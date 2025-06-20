@@ -19,11 +19,7 @@ export class CustomerService {
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
-
-  searchCustomer(criteria: CustomerSearchDto): Observable<any[]> {
-    return this.http.post<any[]>(`${this.apiUrl}/search`, criteria, { headers: this.createAuthHeaders() });
-  }
+  ) { }
 
   getAllCustype(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/custype`, { headers: this.createAuthHeaders() });
@@ -55,11 +51,18 @@ export class CustomerService {
     currentAddress: any;
   }): Observable<any> {
     const headers = this.createAuthHeaders();
-    return this.http.put(`${this.apiUrl}/update`, data, {headers});
+    return this.http.put(`${this.apiUrl}/update`, data, { headers });
   }
 
   getAllAcctypes(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/acctyps`, { headers: this.createAuthHeaders() });
+  }
+
+  searchCustomer(criteria: any, page: number, pageSize: number) {
+    return this.http.post<any>(
+      `${this.apiUrl}/search?pageNumber=${page}&pageSize=${pageSize}`,
+      criteria , { headers: this.createAuthHeaders() }
+    );
   }
 
   private createAuthHeaders(): HttpHeaders {

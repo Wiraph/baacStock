@@ -1,19 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ManageUserComponent } from './manage-user';
+import { HomeHeadOfficeComponent } from './home';
 
-describe('ManageUser', () => {
-  let component: ManageUserComponent;
-  let fixture: ComponentFixture<ManageUserComponent>;
+describe('Home', () => {
+  let component: HomeHeadOfficeComponent;
+  let fixture: ComponentFixture<HomeHeadOfficeComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ManageUserComponent]
+      imports: [HomeHeadOfficeComponent]
     })
     .compileComponents();
 
-    
-    fixture = TestBed.createComponent(ManageUserComponent);
+    fixture = TestBed.createComponent(HomeHeadOfficeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

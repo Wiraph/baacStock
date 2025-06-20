@@ -1,19 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ManageUserComponent } from './manage-user';
+import { CommonSharesComponent } from './common-shares';
 
-describe('ManageUser', () => {
-  let component: ManageUserComponent;
-  let fixture: ComponentFixture<ManageUserComponent>;
+describe('CommonShares', () => {
+  let component: CommonSharesComponent;
+  let fixture: ComponentFixture<CommonSharesComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ManageUserComponent]
+      imports: [CommonSharesComponent]
     })
     .compileComponents();
 
-    
-    fixture = TestBed.createComponent(ManageUserComponent);
+    fixture = TestBed.createComponent(CommonSharesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
