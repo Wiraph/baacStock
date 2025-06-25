@@ -33,7 +33,7 @@
       this.stockService.getStocksByCusId(this.cusId).subscribe({
         next: (data) => {
           console.log('📦 ได้ข้อมูลจาก API:', data);
-          this.stockList = data;
+          this.stockList = data.stockList || [];
           console.log('✅ ค่าใน stockList:', this.stockList); // ดูว่าถูกเซตไหม
           this.cd.detectChanges();
         },
@@ -66,6 +66,10 @@
       const pad = (n: number) => n < 10 ? '0' + n : n.toString();
 
       return `${day} ${thaiMonths[month]} ${year + 543} ${pad(hour)}:${pad(minute)}:${pad(second)} น.`;
+    }
+
+    onEditStock(){
+      
     }
 
   }

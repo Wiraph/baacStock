@@ -1,0 +1,220 @@
+<ng-container *ngIf="!loading">
+    <div class="p-6 bg-white rounded shadow text-sm text-gray-800">
+        <h2 class="text-2xl font-bold mb-4">🛠️ แก้ไขข้อมูลลูกค้า (หน้า commonStock)</h2>
+
+        <p class="font-semibold">หมายเหตุ</p>
+        <ul class="mb-7">
+            <li>⚫กรอบสีดำสามารถแก้ไขได้</li>
+            <li>🔵กรอบสีน้ำเงิน<span class="font-bold">ไม่สามารถแก้ไขได้</span></li>
+        </ul>
+
+        <!-- 🔹 ข้อมูลลูกค้า -->
+        <div class="flex flex-row gap-4 mb-6">
+            <div class="mb-4">
+                <label class="block mb-1 text-sm">ประเภทลูกค้า:</label>
+                <select [(ngModel)]="editingItem.cusCode" class="border rounded px-3 py-2">
+                    <option *ngFor="let type of custypeList" [value]="type.cusCode">
+                        {{ type.cusCode }} : {{ type.cusDesc }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="mb-4 block">
+                <label class="text-sm mr-2 whitespace-nowrap">ประเภทผู้ถือหุ้น:</label>
+                <p class="text-blue-600 font-medium text-xl">
+                    ({{ editingItem.cusCodeg }}) {{ editingItem.custypeDesc }}
+                </p>
+            </div>
+        </div>
+
+        <div class="flex gap-4">
+            <div class="mb-4 flex-1">
+                <label class="block mb-1 text-sm">บัตรแสดงตน:</label>
+                <select [(ngModel)]="editingItem.docType" class="w-full border rounded px-3 py-2">
+                    <option *ngFor="let t of doctypeList" [value]="t.docType">{{ t.docDesc }}</option>
+                </select>
+            </div>
+            <div class="mb-4 flex-1">
+                <label class="block mb-1 text-sm">เลขที่:</label>
+                <input [(ngModel)]="editingItem.cusiD" type="text" class="w-full border px-3 py-2 rounded">
+            </div>
+            <div class="mb-4 flex-1">
+                <label class="block mb-1 text-sm">Ref:</label>
+                <input [(ngModel)]="editingItem.brCus" type="text"
+                    class="w-full border px-3 py-2 rounded border-blue-600" disabled>
+            </div>
+        </div>
+
+        <div class="flex gap-4">
+            <div class="mb-4 flex-1">
+                <label class="block mb-1 text-sm">คำนำหน้าชื่อ:</label>
+                <select [(ngModel)]="editingItem.title" class="w-full border rounded px-3 py-2">
+                    <option *ngFor="let tl of titleList" [value]="tl.titleCode">{{ tl.titleDesc }}</option>
+                </select>
+            </div>
+            <div class="mb-4 flex-1">
+                <label class="block mb-1 text-sm">ผู้เสียภาษี:</label>
+                <input [(ngModel)]="editingItem.cusTax" type="text" class="w-full border px-3 py-2 rounded">
+            </div>
+            <div class="mb-4 flex-1">
+                <label class="block mb-1 text-sm">ถือหุ้น:</label>
+                <input [(ngModel)]="editingItem.stockUnitTotal" type="text"
+                    class="w-full border px-3 py-2 rounded border-blue-600" disabled>
+            </div>
+        </div>
+
+        <div class="mb-4 flex-1">
+            <label class="block mb-1 text-sm">ชื่อ:</label>
+            <input [(ngModel)]="editingItem.cusFname" type="text" class="w-full border px-3 py-2 rounded">
+        </div>
+        <div class="mb-4 flex-1">
+            <label class="block mb-1 text-sm">นามสกุล:</label>
+            <input [(ngModel)]="editingItem.cusLname" type="text" class="w-full border px-3 py-2 rounded">
+        </div>
+
+        <div *ngIf="homeAddress" class="mt-7">
+            <h2 class="text-center">ที่อยู่ตามทะเบียนบ้าน</h2>
+            <div class="flex gap-4">
+                <div class="mb-4 flex-1">
+                    <label class="block mb-1 text-sm">เลขที่:</label>
+                    <input [(ngModel)]="homeAddress.houseno" type="text" class="w-full border px-3 py-2 rounded">
+                </div>
+                <div class="mb-4 flex-1">
+                    <label class="block mb-1 text-sm">ซอย:</label>
+                    <input [(ngModel)]="homeAddress.trogSoi" type="text" class="w-full border px-3 py-2 rounded">
+                </div>
+                <div class="mb-4 flex-1">
+                    <label class="block mb-1 text-sm">ถนน:</label>
+                    <input [(ngModel)]="homeAddress.road" type="text" class="w-full border px-3 py-2 rounded">
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <div class="mb-4 flex-1">
+                    <label class="block mb-1 text-sm">จังหวัด:</label>
+                    <select [(ngModel)]="homeAddress.prvCode" (change)="loadHomeAumphor(homeAddress.prvCode)"
+                        class="w-full border rounded px-3 py-2">
+                        <option *ngFor="let pv of provinceList" [value]="pv.prvCode">{{ pv.prvName }}</option>
+                    </select>
+                </div>
+                <div class="mb-4 flex-1">
+                    <label class="block mb-1 text-sm">อำเภอ:</label>
+                    <select [(ngModel)]="homeAddress.ampCode"
+                        (change)="loadHomeTumbon(homeAddress.prvCode, homeAddress.ampCode)"
+                        class="w-full border rounded px-3 py-2">
+                        <option *ngFor="let amp of homeAumphors" [value]="amp.ampCode">{{ amp.ampName }}</option>
+                    </select>
+                </div>
+                <div class="mb-4 flex-1">
+                    <label class="block mb-1 text-sm">ตำบล:</label>
+                    <select [(ngModel)]="homeAddress.tmbCode" (change)="updateHomeZipcode()"
+                        class="w-full border rounded px-3 py-2">
+                        <option *ngFor="let tmb of homeTumbons" [value]="tmb.tmbCode">{{ tmb.tmbName }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <div class="mb-4 flex-1">
+                    <label class="block mb-1 text-sm">รหัสไปรษณีย์:</label>
+                    <input [(ngModel)]="homeAddress.zipcode" type="text"
+                        class="w-full border px-3 py-2 rounded border-blue-600" disabled>
+                </div>
+                <div class="mb-4 flex-1">
+                    <label class="block mb-1 text-sm">โทรศัพท์มือถือ:</label>
+                    <input [(ngModel)]="homeAddress.phone" type="text" class="w-full border px-3 py-2 rounded">
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="currentAddress" class="mt-7">
+            <h2 class="text-center">ที่อยู่ปัจจุบัน</h2>
+            <div class="flex gap-4">
+                <div class="mb-4 flex-1">
+                    <label class="block mb-1 text-sm">เลขที่:</label>
+                    <input [(ngModel)]="currentAddress.houseno" type="text" class="w-full border px-3 py-2 rounded">
+                </div>
+                <div class="mb-4 flex-1">
+                    <label class="block mb-1 text-sm">ซอย:</label>
+                    <input [(ngModel)]="currentAddress.trogSoi" type="text" class="w-full border px-3 py-2 rounded">
+                </div>
+                <div class="mb-4 flex-1">
+                    <label class="block mb-1 text-sm">ถนน:</label>
+                    <input [(ngModel)]="currentAddress.road" type="text" class="w-full border px-3 py-2 rounded">
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <div class="mb-4 flex-1">
+                    <label class="block mb-1 text-sm">จังหวัด:</label>
+                    <select [(ngModel)]="currentAddress.prvCode" (change)="loadCurrentAumphor(currentAddress.prvCode)"
+                        class="w-full border rounded px-3 py-2">
+                        <option *ngFor="let pv of provinceList" [value]="pv.prvCode">{{ pv.prvName }}</option>
+                    </select>
+                </div>
+                <div class="mb-4 flex-1">
+                    <label class="block mb-1 text-sm">อำเภอ:</label>
+                    <select [(ngModel)]="currentAddress.ampCode"
+                        (change)="loadCurrentTumbon(currentAddress.prvCode, currentAddress.ampCode)"
+                        class="w-full border rounded px-3 py-2">
+                        <option *ngFor="let amp of currentAumphors" [value]="amp.ampCode">{{ amp.ampName }}</option>
+                    </select>
+                </div>
+                <div class="mb-4 flex-1">
+                    <label class="block mb-1 text-sm">ตำบล:</label>
+                    <select [(ngModel)]="currentAddress.tmbCode" (change)="updateCurrentZipcode()"
+                        class="w-full border rounded px-3 py-2">
+                        <option *ngFor="let tmb of currentTumbons" [value]="tmb.tmbCode">{{ tmb.tmbName }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <div class="mb-4 flex-1">
+                    <label class="block mb-1 text-sm">รหัสไปรษณีย์:</label>
+                    <input [(ngModel)]="currentAddress.zipcode" type="text"
+                        class="w-full border px-3 py-2 rounded border-blue-600" disabled>
+                </div>
+                <div class="mb-4 flex-1">
+                    <label class="block mb-1 text-sm">โทรศัพท์มือถือ:</label>
+                    <input [(ngModel)]="currentAddress.phone" type="text" class="w-full border px-3 py-2 rounded">
+                </div>
+            </div>
+
+            <div class="mb-4 flex-1">
+                <label class="block mb-1 text-sm">อีเมล:</label>
+                <input [(ngModel)]="currentAddress.addr1" type="text"
+                    class="w-full text-gray-400 border px-3 py-2 rounded border-blue-600" disabled>
+            </div>
+            <div class="mb-4 flex-1">
+                <label class="block mb-1 text-sm">ที่อยู่ 2:</label>
+                <input [(ngModel)]="currentAddress.addr2" type="text"
+                    class="w-full text-gray-400 border px-3 py-2 rounded border-blue-600" disabled>
+            </div>
+        </div>
+
+        <div class="flex justify-end space-x-2 mt-6">
+            <button (click)="onCancelEdit()" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">❌
+                ยกเลิก</button>
+            <button (click)="onSaveEdit()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">💾
+                บันทึก</button>
+        </div>
+    </div>
+
+    <!-- ✅ Loading Overlay แบบโปร่งใส + มองทะลุ + เบลอ -->
+
+</ng-container>
+
+<!-- Loading Overlay -->
+<div *ngIf="loading"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-40 backdrop-blur-sm"
+    style="background-color: rgba(128, 128, 128, 0.7);">
+    <div class="text-center">
+        <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+        </svg>
+        <p class="text-lg text-white font-medium">🔄 กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
+    </div>
+</div>
