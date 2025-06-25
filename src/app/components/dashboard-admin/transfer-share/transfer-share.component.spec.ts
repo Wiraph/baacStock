@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TransferShareComponent } from './transfer-share';
+import { TransferShareComponent } from './transfer-share.component';
 
-describe('TransferShare', () => {
+describe('TransferShareComponent', () => {
   let component: TransferShareComponent;
   let fixture: ComponentFixture<TransferShareComponent>;
 

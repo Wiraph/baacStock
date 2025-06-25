@@ -8,15 +8,17 @@ import { CommonStockComponent } from './common-stock/common-stock';
 import { ResultDefaultComponent } from './result-table/result-default/result-default.component';
 import { ResultCommonStockComponent } from './result-table/result-common-stock/result-common-stock';
 import { ResultNewCertificateComponent } from './result-table/result-new-certificate/result-new-certificate.component';
+import { ResultTranferShareComponent } from './result-table/result-tranfer-share/result-tranfer-share.component';
 @Component({
   standalone: true,
   selector: 'app-search-edit',
   imports: [
-    FormsModule, 
-    CommonModule, 
-    ResultDefaultComponent, 
-    ResultCommonStockComponent, 
-    ResultNewCertificateComponent
+    FormsModule,
+    CommonModule,
+    ResultDefaultComponent,
+    ResultCommonStockComponent,
+    ResultNewCertificateComponent,
+    ResultTranferShareComponent,
   ],
   templateUrl: './search-edit.html',
   styleUrls: ['./search-edit.css']
@@ -84,7 +86,7 @@ export class SearchEditComponent implements OnInit, OnChanges {
       this.titleSearch = 'ขายหุ้นสามัญ';
     } else if (this.InputcreateNewShareCertificate === 'create-new-share-certificate') {
       this.titleSearch = 'ออกใบหุ้นใหม่แทนใบหุ้นที่ชำรุด/สูญหาย';
-    } else if (this.InputtransferShare === 'โอนเปลี่ยนมือ') {
+    } else if (this.InputtransferShare === 'transfer-share') {
       this.titleSearch = 'โอนเปลี่ยนมือ';
     } else {
       this.titleSearch = 'ค้นหา';
@@ -165,6 +167,12 @@ export class SearchEditComponent implements OnInit, OnChanges {
     console.log('🟡 แก้ไขข้อมูล:', item);
   }
 
+  get currentResultType(): string {
+    if (this.InputtransferShare === 'transfer-share') return 'transfer';
+    if (this.InputcreateNewShareCertificate === 'create-new-share-certificate') return 'new-cert';
+    if (this.commonShare === 'common-shares') return 'common';
+    return 'default';
+  }
   get isCommonShares(): boolean {
     return this.commonShare === 'common-shares';
   }
@@ -172,7 +180,7 @@ export class SearchEditComponent implements OnInit, OnChanges {
     return this.InputcreateNewShareCertificate === 'create-new-share-certificate';
   }
   get isTransferShare(): boolean {
-    return this.InputtransferShare === 'โอนเปลี่ยนมือ';
+    return this.InputtransferShare === 'transfer-share';
   }
 
   get totalPages(): number {

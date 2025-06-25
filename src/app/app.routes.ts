@@ -15,7 +15,7 @@ import { HomeHeadOfficeComponent } from './components/dashboard-head-office/home
 import { ChangePasswordHeadOfficeComponent } from './components/dashboard-head-office/change-password/change-password';
 import { PrintSharePurchaseRequestComponent } from './components/dashboard-admin/print-share-purchase-request/print-share-purchase-request';
 import { CratenewsharecertificateComponent } from './components/dashboard-admin/cratenewsharecertificate/cratenewsharecertificate';
-import { TransferShareComponent } from './components/dashboard-admin/cratenewsharecertificate/transfer-share/transfer-share';
+import { TransferShareComponent } from './components/dashboard-admin/transfer-share/transfer-share.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },

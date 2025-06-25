@@ -44,25 +44,30 @@
 
     <!-- ตารางแสดงผลลัพธ์ -->
     <div *ngIf="searched">
-      <!-- ตารางแสดงผลการค้นหาลูกค้า -->
-      <result-default *ngIf="!isCommonShares && !isCreateNewShareCertificate" [results]="results"
-        [currentPage]="currentPage" [pageSize]="pageSize" [totalItems]="totalItems" (edit)="onEdit($event)"
-        (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc)">
-      </result-default>
+      <ng-container [ngSwitch]="currentResultType">
 
-      <!-- ตารางแสดงผลสำหรับหุ้นสามัญ -->
-      <result-common-stock *ngIf="isCommonShares && !isCreateNewShareCertificate" [results]="results"
-        [currentPage]="currentPage" [pageSize]="pageSize" [totalItems]="totalItems" (edit)="onEdit($event)">
-      </result-common-stock>
+        <result-default *ngSwitchCase="'default'" [results]="results" [currentPage]="currentPage" [pageSize]="pageSize"
+          [totalItems]="totalItems" (edit)="onEdit($event)"
+          (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc)">
+        </result-default>
 
-      <!-- ตารางแสดงผลสำหรับการออกใบหุ้นใหม่ -->
-      <result-new-certificate *ngIf="isCreateNewShareCertificate" [results]="results" [currentPage]="currentPage"
-        [pageSize]="pageSize" [totalItems]="totalItems" (edit)="onEdit($event)"
-        (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc)">
-      </result-new-certificate>
+        <result-common-stock *ngSwitchCase="'common'" [results]="results" [currentPage]="currentPage"
+          [pageSize]="pageSize" [totalItems]="totalItems" (edit)="onEdit($event)">
+        </result-common-stock>
 
+        <result-new-certificate *ngSwitchCase="'new-cert'" [results]="results" [currentPage]="currentPage"
+          [pageSize]="pageSize" [totalItems]="totalItems" (edit)="onEdit($event)"
+          (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc)">
+        </result-new-certificate>
 
+        <result-tranfer-share *ngSwitchCase="'transfer'" [results]="results" [currentPage]="currentPage"
+          [pageSize]="pageSize" [totalItems]="totalItems" (edit)="onEdit($event)"
+          (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc)">
+        </result-tranfer-share>
+
+      </ng-container>
     </div>
+
 
     <!-- ปุ่มเปลี่ยนหน้า -->
     <div *ngIf="results.length && totalPages > 1" class="flex justify-center gap-4 mt-4">
