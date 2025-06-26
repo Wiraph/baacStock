@@ -3,12 +3,11 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs';
 import { CustomerService, CustomerSearchDto } from '../../../services/customer';
-import { StocksComponent } from '../stocks/stocks';
-import { CommonStockComponent } from './common-stock/common-stock';
 import { ResultDefaultComponent } from './result-table/result-default/result-default.component';
 import { ResultCommonStockComponent } from './result-table/result-common-stock/result-common-stock';
 import { ResultNewCertificateComponent } from './result-table/result-new-certificate/result-new-certificate.component';
 import { ResultTranferShareComponent } from './result-table/result-tranfer-share/result-tranfer-share.component';
+import { EditCustomerComponent } from '../edit-customer/edit-customer.component';
 @Component({
   standalone: true,
   selector: 'app-search-edit',
@@ -19,6 +18,7 @@ import { ResultTranferShareComponent } from './result-table/result-tranfer-share
     ResultCommonStockComponent,
     ResultNewCertificateComponent,
     ResultTranferShareComponent,
+    EditCustomerComponent
   ],
   templateUrl: './search-edit.html',
   styleUrls: ['./search-edit.css']
@@ -164,8 +164,12 @@ export class SearchEditComponent implements OnInit, OnChanges {
   }
 
   onEdit(item: any) {
-    console.log('🟡 แก้ไขข้อมูล:', item);
+    console.log('✅ รับข้อมูลจากลูก:', item);
+    this.selectedCusId = item.cusId;
+    this.activeView = 'edit';
+    console.log('✅ เปลี่ยนเป็นหน้า edit แล้ว');
   }
+
 
   get currentResultType(): string {
     if (this.InputtransferShare === 'transfer-share') return 'transfer';
@@ -192,4 +196,9 @@ export class SearchEditComponent implements OnInit, OnChanges {
   doctypeList: any[] = [];
   accTypeList: any[] = [];
   provinceList: any[] = [];
+
+  onEditSuccess() {
+    this.setView('search');
+    this.onSearch(this.currentPage);
+  }
 }

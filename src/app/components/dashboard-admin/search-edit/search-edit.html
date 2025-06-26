@@ -103,6 +103,12 @@
   </div>
 </div>
 
+<!-- หน้าแสดงผลลัพธ์ -->
+<div *ngIf="activeView === 'edit'">
+  <app-edit-customer [cusId]="selectedCusId" (back)="setView('search')" (success)="onEditSuccess()"></app-edit-customer>
+</div>
+  
+
 
 <!-- หน้าแสดงหุ้น -->
 <!-- <div *ngIf="activeView === 'stock'">

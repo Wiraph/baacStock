@@ -25,6 +25,10 @@ export class CustomerService {
     return this.http.get<any[]>(`${this.apiUrl}/custype`, { headers: this.createAuthHeaders() });
   }
 
+  getCustomerById(cusId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/edit`, { params: {cusId }, headers: this.createAuthHeaders() });
+  }
+
   getAllDoctype(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/doctype`, { headers: this.createAuthHeaders() });
   }

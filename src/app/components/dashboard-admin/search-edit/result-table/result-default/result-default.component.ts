@@ -18,7 +18,11 @@ export class ResultDefaultComponent {
   @Output() viewStock = new EventEmitter<any>();
 
   onEditClick(item: any) {
-    this.edit.emit(item);
+    const dataToEdit = {
+      cusId: item.cusId
+    };
+    console.log('Data to edit:', dataToEdit);
+    this.edit.emit(dataToEdit  );
   }
 
   onViewStockClick(item: any) {
