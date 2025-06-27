@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } fro
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CustomerService } from '../../../services/customer';
 import { CommonModule } from '@angular/common';
-import { combineLatest } from 'rxjs';
+import { combineLatest, from } from 'rxjs';
 import {
   trigger,
   transition,
@@ -46,7 +46,7 @@ export class EditCustomerComponent implements OnInit {
   @Input() cusId!: string;
   @Output() back = new EventEmitter<void>();
   @Output() success = new EventEmitter<void>();
-  
+
   constructor(
     private fb: FormBuilder,
     private customerService: CustomerService,
@@ -106,6 +106,8 @@ export class EditCustomerComponent implements OnInit {
   ampList: any[] = [];
   tbList: any[] = [];
   accList: any[] = [];
+  brCode = sessionStorage.getItem('brCode') ?? '';
+
 
 
 
@@ -192,12 +194,43 @@ export class EditCustomerComponent implements OnInit {
         phone: ['']
       }),
       stockDividend: this.fb.group({
-        stknote: [''],
-        stkpaytype: [''],
-        stkacctype: [''],
-        stkaccno: [''],
-        stkaccname: [''],
-        hostname: ['']
+        stkNote: [''],
+        stkPayType: [''],
+        stkPayDesc: [''],
+        stkAcctype: [''],
+        stkAccno: [''],
+        stkAccname: [''],
+        hostname: [''],
+        stkNOTEo: [''],
+        stkNOStart: [''],
+        stkNOStop: [''],
+        stkUnit: [''],
+        stkValue: [''],
+        stkDvnBF: [''],
+        stkDvnCUR: [''],
+        stkTaxBF: [''],
+        stkTaxCUR: [''],
+        stkDateInput: [''],
+        stkDateEffect: [''],
+        stkDateIssue: [''],
+        stkDatePrint: [''],
+        stkOwnID: [''],
+        stkType: [''],
+        stkPayStat: [''],
+        stkReqNo: [''],
+        stkSaleBy: [''],
+        stkSaleByTRACCno: [''],
+        stkSaleByTRACCname: [''],
+        stkSaleByCHQno: [''],
+        stkSaleByCHQdat: [''],
+        stkSaleByCHQbnk: [''],
+        stkSaleCHQbrn: [''],
+        stkStatus: [''],
+        stkRemCode: [''],
+        brCode: [''],
+        datetimeup: [''],
+        userid: [''],
+        ipaddress: ['']
       })
     });
   }
@@ -221,7 +254,7 @@ export class EditCustomerComponent implements OnInit {
         this.prvList = prvList;
         this.accList = accList;
         console.log("customer DATA:", customer);
-        console.log("accList DATA:", accList);
+        // console.log("accList DATA:", accList);
 
         // Set ข้อมูลหลักก่อน
         this.customerForm.patchValue({
@@ -239,13 +272,46 @@ export class EditCustomerComponent implements OnInit {
         });
 
         this.customerForm.get('stockDividend')?.patchValue({
-          stknote: customer.stockDividend?.stkNote || '',
-          stkpaytype: customer.stockDividend?.stkPayType || '',
-          stkacctype: customer.stockDividend?.stkAcctype || '',
-          stkaccno: customer.stockDividend?.stkAccno || '',
-          stkaccname: customer.stockDividend?.stkAccname || '',
-          hostname: customer.stockDividend?.hostname || ''
+          stkNote: customer.stockDividend?.stkNote || '',
+          stkPayType: customer.stockDividend?.stkPayType || '',
+          stkPayDesc: customer.stockDividend?.stkPayDesc || '',
+          stkAcctype: customer.stockDividend?.stkAcctype || '',
+          stkAccno: customer.stockDividend?.stkAccno || '',
+          stkAccname: customer.stockDividend?.stkAccname || '',
+          hostname: customer.stockDividend?.hostname || '',
+          stkNOTEo: customer.stockDividend?.stkNOTEo || '',
+          stkNOStart: customer.stockDividend?.stkNOStart || '',
+          stkNOStop: customer.stockDividend?.stkNOStop || '',
+          stkUnit: customer.stockDividend?.stkUnit || null,
+          stkValue: customer.stockDividend?.stkValue || null,
+          stkDvnBF: customer.stockDividend?.stkDvnBF || null,
+          stkDvnCUR: customer.stockDividend?.stkDvnCUR || null,
+          stkTaxBF: customer.stockDividend?.stkTaxBF || null,
+          stkTaxCUR: customer.stockDividend?.stkTaxCUR || null,
+          stkDateInput: customer.stockDividend?.stkDateInput || '',
+          stkDateEffect: customer.stockDividend?.stkDateEffect || '',
+          stkDateIssue: customer.stockDividend?.stkDateIssue || '',
+          stkDatePrint: customer.stockDividend?.stkDatePrint || '',
+          stkOwnID: customer.stockDividend?.stkOwnID || '',
+          stkType: customer.stockDividend?.stkType || '',
+          stkPayStat: customer.stockDividend?.stkPayStat || '',
+          stkReqNo: customer.stockDividend?.stkReqNo || '',
+          stkSaleBy: customer.stockDividend?.stkSaleBy || '',
+          stkSaleByTRACCno: customer.stockDividend?.stkSaleByTRACCno || '',
+          stkSaleByTRACCname: customer.stockDividend?.stkSaleByTRACCname || '',
+          stkSaleByCHQno: customer.stockDividend?.stkSaleByCHQno || '',
+          stkSaleByCHQdat: customer.stockDividend?.stkSaleByCHQdat || '',
+          stkSaleByCHQbnk: customer.stockDividend?.stkSaleByCHQbnk || '',
+          stkSaleCHQbrn: customer.stockDividend?.stkSaleCHQbrn || '',
+          stkStatus: customer.stockDividend?.stkStatus || '',
+          stkRemCode: customer.stockDividend?.stkRemCode || '',
+          brCode: customer.stockDividend?.brCode || '',
+          datetimeup: customer.stockDividend?.datetimeup || '',
+          userid: customer.stockDividend?.userid || '',
+          ipaddress: customer.stockDividend?.ipaddress || ''
         });
+
+
 
         this.isFormInitialized = true;
         console.log(this.customerForm.value);
@@ -369,7 +435,48 @@ export class EditCustomerComponent implements OnInit {
         title: form.title,
       },
       homeAddress: form.addressHa,
-      currentAddress: form.addressCa
+      currentAddress: form.addressCa,
+      stockDividend: {
+        stkNote: form.stockDividend.stkNote,
+        stkPayType: form.stockDividend.stkPayType,
+        stkPayDesc: form.stockDividend.stkPayDesc,
+        stkAcctype: form.stockDividend.stkAcctype,
+        stkAccno: form.stockDividend.stkAccno,
+        stkAccname: form.stockDividend.stkAccname,
+        hostname: form.stockDividend.hostname,
+        stkNOTEo: form.stockDividend.stkNOTEo,
+        stkNOStart: form.stockDividend.stkNOStart,
+        stkNOStop: form.stockDividend.stkNOStop,
+        stkUnit: form.stockDividend.stkUnit,
+        stkValue: form.stockDividend.stkValue,
+        stkDvnBF: form.stockDividend.stkDvnBF,
+        stkDvnCUR: form.stockDividend.stkDvnCUR,
+        stkTaxBF: form.stockDividend.stkTaxBF,
+        stkTaxCUR: form.stockDividend.stkTaxCUR,  
+        stkDateInput: form.stockDividend.stkDateInput,
+        stkDateEffect: form.stockDividend.stkDateEffect,
+        stkDateIssue: form.stockDividend.stkDateIssue,
+        stkDatePrint: form.stockDividend.stkDatePrint,
+        stkOwnID: form.stockDividend.stkOwnID,
+        stkType: form.stockDividend.stkType,
+        stkPayStat: form.stockDividend.stkPayStat,
+        stkReqNo: form.stockDividend.stkReqNo,
+        stkSaleBy: form.stockDividend.stkSaleBy,
+        stkSaleByTRACCno: form.stockDividend.stkSaleByTRACCno,
+        stkSaleByTRACCname: form.stockDividend.stkSaleByTRACCname,
+        stkSaleByCHQno: form.stockDividend.stkSaleByCHQno,
+        stkSaleByCHQdat: form.stockDividend.stkSaleByCHQdat,
+        stkSaleByCHQbnk: form.stockDividend.stkSaleByCHQbnk,
+        stkSaleCHQbrn: form.stockDividend.stkSaleCHQbrn,
+        stkStatus: form.stockDividend.stkStatus,
+        stkRemCode: form.stockDividend.stkRemCode,
+        brCode: form.stockDividend.brCode,
+        datetimeup: form.stockDividend.datetimeup,
+        userid: form.stockDividend.userid,
+        ipaddress: form.stockDividend.ipaddress,
+        logBrCode: this.brCode
+      }
+
     };
 
     console.log("👉 Payload ที่ส่งไป:", customerPayload);
@@ -384,6 +491,7 @@ export class EditCustomerComponent implements OnInit {
         console.error('❌ เกิดข้อผิดพลาด:', err);
         alert('❌ เกิดข้อผิดพลาดในการบันทึก');
         this.loading = false;
+        this.goBack();
       }
     });
   }
