@@ -65,6 +65,7 @@ export class LoginComponent {
         sessionStorage.setItem('token', res.token);
         sessionStorage.setItem('username', res.userId);
         sessionStorage.setItem('fullname', res.fullName);
+        sessionStorage.setItem('brCode', res.brCode);
 
         if (res.role === '99') {
           sessionStorage.setItem('brName', res.brName);
