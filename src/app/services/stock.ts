@@ -8,6 +8,7 @@ export interface StockItem {
   brCode: string;
   stkNote: string;
   stkNoteo?: string;
+  StkRemcode?: string;
   stkNostart?: string;
   stkNostop?: string;
   stkUniT?: number;
@@ -15,6 +16,12 @@ export interface StockItem {
   stkStatus?: string;
   stkDateInput?: string;
   statusDesc?: string;
+  stkOwniD?: string;
+  fullname?: string;
+  stkPayType?: string;
+  stkAcctype?: string;
+  stkAccno?: string;
+  stkAccname?: string;
   datetimeup?: string;
 }
 
@@ -30,10 +37,14 @@ export class StockService {
   ) { }
 
 
-  getStocksByCusId(cusId: string): Observable<StockItem[]> {
+  getStocksByCusId(cusId: string): Observable<{ stockList: StockItem[]; stockUnitTotal: number }> {
     const encodedCusId = encodeURIComponent(cusId);
-    return this.http.get<StockItem[]>(`${this.apiUrl}/by-cusid/?cusId=${encodedCusId}`, { headers: this.createAuthHeaders() });
+    return this.http.get<{ stockList: StockItem[]; stockUnitTotal: number }>(
+      `${this.apiUrl}/by-cusid/?cusId=${encodedCusId}`,
+      { headers: this.createAuthHeaders() }
+    );
   }
+
 
   private createAuthHeaders(): HttpHeaders {
     let token = '';

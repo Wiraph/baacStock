@@ -1,71 +1,130 @@
-  import { Component, Input, SimpleChanges, OnChanges } from '@angular/core';
-  import { CommonModule } from '@angular/common';
-  import { ChangeDetectionStrategy } from '@angular/core';
-  import { StockService, StockItem } from '../../../services/stock';
-  import { ChangeDetectorRef } from '@angular/core';
+import { Component, Input, SimpleChanges, OnChanges, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy } from '@angular/core';
+import { StockService, StockItem } from '../../../services/stock';
+import { ChangeDetectorRef } from '@angular/core';
+import { CustomerService } from '../../../services/customer';
+import { ActivatedRoute, Router } from '@angular/router';
 
-  @Component({
-    standalone: true,
-    selector: 'app-stocks',
-    imports: [CommonModule],
-    templateUrl: './stocks.html',
-    styleUrl: './stocks.css',
-    changeDetection: ChangeDetectionStrategy.Default
-  })
-  export class StocksComponent implements OnChanges {
-    @Input() cusId: string = '';
-    @Input() fullName: string = '';
-    @Input() statusDesc: string = '';
-    @Input() stNotesList: string[] = [];
+@Component({
+  selector: 'app-stocks',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './stocks.html',
+  // styleUrl: ['./stocks.css'],
+  changeDetection: ChangeDetectionStrategy.Default
+})
+export class StocksComponent implements OnChanges {
+  @Input() cusId: string = '';
+  @Input() fullName: string = '';
+  @Input() statusDesc: string = '';
+  @Input() stNotesList: string[] = [];
+  @Input() viewMode: string = '';
+  @Output() back = new EventEmitter<void>();
+  @Output() success = new EventEmitter<void>();
+  @Output() transferStock = new EventEmitter<any>();
 
-    stockList: StockItem[] = [];
 
-    constructor(private stockService: StockService, private cd: ChangeDetectorRef) { }
+  stockList: StockItem[] = [];
+  cusData: any = null;
+  showTransferForm = false;
+  selectedStock: StockItem | null = null;
 
-    ngOnChanges(changes: SimpleChanges): void {
-      if (changes['cusId'] && this.cusId) {
-        console.log('🔁 cusId เปลี่ยน:', this.cusId);
-        this.loadStock();
+
+  constructor(
+    private stockService: StockService,
+    private customerService: CustomerService,
+    private cd: ChangeDetectorRef,
+    private router: Router,
+    private route: ActivatedRoute
+  ) { }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['cusId'] && this.cusId) {
+      this.loadStock();
+      this.loadCus(this.cusId);
+
+      console.log('view mode: ', this.viewMode);
+
+      if (this.viewMode === 'transfer') {
+
+      } else if (this.viewMode === 'viewOnly') {
+        // ห้ามแก้ไข
       }
     }
-
-    loadStock() {
-      this.stockService.getStocksByCusId(this.cusId).subscribe({
-        next: (data) => {
-          console.log('📦 ได้ข้อมูลจาก API:', data);
-          this.stockList = data;
-          console.log('✅ ค่าใน stockList:', this.stockList); // ดูว่าถูกเซตไหม
-          this.cd.detectChanges();
-        },
-        error: (err) => {
-          console.error('❌ เกิดข้อผิดพลาดในการโหลดใบหุ้น', err);
-        }
-      });
-    }
-
-
-    // จัดรูปแบบเวลา
-    formatThaiDateTime(datetimeup: string): string {
-      if (!datetimeup) return '-';
-
-      const [datePart, timePart] = datetimeup.split('-');
-      if (!datePart || !timePart) return '-';
-
-      const year = +datePart.substring(0, 4);
-      const month = +datePart.substring(4, 6) - 1;
-      const day = +datePart.substring(6, 8);
-      const hour = +timePart.substring(0, 2);
-      const minute = +timePart.substring(2, 4);
-      const second = +timePart.substring(4, 6);
-
-      const date = new Date(year, month, day, hour, minute, second);
-
-      const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
-        'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-
-      const pad = (n: number) => n < 10 ? '0' + n : n.toString();
-
-      return `${day} ${thaiMonths[month]} ${year + 543} ${pad(hour)}:${pad(minute)}:${pad(second)} น.`;
-    }
-
   }
+
+  loadStock() {
+    this.stockService.getStocksByCusId(this.cusId).subscribe({
+      next: (data) => {
+        console.log('📦 ได้ข้อมูลจาก API:', data);
+        this.stockList = data.stockList || [];
+        this.cd.detectChanges();
+      },
+      error: (err) => {
+        console.error('❌ เกิดข้อผิดพลาดในการโหลดใบหุ้น', err);
+      }
+    });
+  }
+
+  loadCus(cusId: string) {
+    this.customerService.getCustomerById(cusId).subscribe({
+      next: async (data) => {
+        console.log('cus Data', data);
+        this.cusData = data;
+        console.log(this.cusData);
+        this.cd.detectChanges();
+      },
+      error: () => {
+        alert("ไม่สามารถดึงข้อมูลผู้ใช้งานได้");
+      }
+    });
+  }
+
+  formatThaiDateTime(datetimeup: string): string {
+    if (!datetimeup || !datetimeup.includes('-')) return '-';
+
+    const [datePart, timePart] = datetimeup.split('-');
+    if (datePart.length !== 8 || timePart.length !== 6) return '-';
+
+    const year = +datePart.substring(0, 4);
+    const month = +datePart.substring(4, 6) - 1;
+    const day = +datePart.substring(6, 8);
+    const hour = +timePart.substring(0, 2);
+    const minute = +timePart.substring(2, 4);
+    const second = +timePart.substring(4, 6);
+
+    if (isNaN(year) || isNaN(month) || isNaN(day)) return '-';
+
+    const date = new Date(year, month, day, hour, minute, second);
+    const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+    const pad = (n: number) => n < 10 ? '0' + n : n.toString();
+
+    return `${day} ${thaiMonths[month]} ${year} ${pad(hour)}:${pad(minute)}:${pad(second)} น.`;
+  }
+
+
+  onEditStock() {
+    console.log('📝 ฟังก์ชันแก้ไขใบหุ้น (ยังไม่ทำ)');
+  }
+
+  onTransfer(stock: StockItem) {
+    this.selectedStock = stock;
+    this.showTransferForm = true;
+  }
+
+  cancelTransfer() {
+    this.showTransferForm = false;
+    this.selectedStock = null;
+  }
+
+  onTransferStockClick(stock: StockItem) {
+    alert("ระบบทำงาน");
+    this.transferStock.emit(stock);
+  }
+
+
+  goBack() {
+    this.back.emit();
+  }
+}

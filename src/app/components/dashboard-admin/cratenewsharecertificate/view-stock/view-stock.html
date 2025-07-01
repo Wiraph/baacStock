@@ -1,0 +1,170 @@
+<div *ngIf="viewName === 'view-stock' ">
+    <div class="w-full bg-white rounded-xl shadow-lg overflow-hidden">
+        <!-- ส่วนหัว -->
+        <div class="bg-green-600 py-4 px-6 rounded-t-xl">
+            <h2 class="text-white text-xl font-semibold text-center">
+                รายการใบหุ้น: ออกใบหุ้นใหม่แทนใบหุ้นที่ชำรุด/สูญเสีย
+            </h2>
+        </div>
+
+        <!-- ข้อมูลลูกค้า -->
+        <div class="py-6 px-6 border-b border-gray-200">
+            <div class="flex flex-row justify-center gap-4 text-center sm:text-left">
+                <p class="text-gray-700 text-base">
+                    <span class="font-medium">บัตรแสดงตนเลขที่:</span> {{ cusId }}
+                </p>
+                <p class="text-gray-700 text-base">
+                    <span class="font-medium">สถานะ:</span> {{ statusDesc }}
+                </p>
+            </div>
+            <div class="mt-4 text-center">
+                <p class="text-gray-700 text-base">
+                    <span class="font-medium">ชื่อ - นามสกุล:</span> {{ fullName }}
+                </p>
+            </div>
+        </div>
+
+        <!-- ตารางรายการหุ้น -->
+        <div class="p-6 overflow-x-auto">
+            <table class="w-full text-sm text-gray-700 border border-gray-300 rounded-md">
+                <thead class="bg-green-100 text-gray-800">
+                    <tr>
+                        <th class="px-3 py-2 border border-gray-300">ลำดับ</th>
+                        <th class="px-3 py-2 border border-gray-300">สาขา</th>
+                        <th class="px-3 py-2 border border-gray-300">หมายเลขใบหุ้น</th>
+                        <th class="px-3 py-2 border border-gray-300">หมายเลขใบหุ้นเดิม</th>
+                        <th class="px-3 py-2 border border-gray-300">หมายเลขหุ้น</th>
+                        <th class="px-3 py-2 border border-gray-300">จำนวนหุ้น</th>
+                        <th class="px-3 py-2 border border-gray-300">มูลค่าหุ้น</th>
+                        <th class="px-3 py-2 border border-gray-300">สถานะ</th>
+                        <th class="px-3 py-2 border border-gray-300">วันเวลาที่ทำรายการ</th>
+                        <th class="px-3 py-2 border border-gray-300">ออกใบหุ้นใหม่</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let stock of stockList; let i = index" class="hover:bg-gray-50 transition">
+                        <td class="px-3 py-2 border border-gray-200 text-center">{{ i + 1 }}</td>
+                        <td class="px-3 py-2 border border-gray-200 text-center">{{ stock.brCode }}</td>
+                        <td class="px-3 py-2 border border-gray-200 text-center">{{ stock.stkNote }}</td>
+                        <td class="px-3 py-2 border border-gray-200 text-center">{{ stock.stkNoteo || '-' }}</td>
+                        <td class="px-3 py-2 border border-gray-200 text-center">{{ stock.stkNostart }} - {{
+                            stock.stkNostop
+                            }}</td>
+                        <td class="px-3 py-2 border border-gray-200 text-center">{{ stock.stkUniT }}</td>
+                        <td class="px-3 py-2 border border-gray-200 text-center">{{ stock.stkValue | number: '1.2-2' }}
+                        </td>
+                        <td class="px-3 py-2 border border-gray-200 text-center">{{ stock.statusDesc }}</td>
+                        <td class="px-3 py-2 border border-gray-200 text-center">{{ formatThaiDateTime(stock.datetimeup
+                            ??
+                            '') }}</td>
+                        <td class="px-3 py-2 border border-gray-200 text-center">
+                            <!-- ถ้ายังไม่มีใบใหม่ -->
+                            <button *ngIf="!stock.hasBeenReplaced"
+                                class="text-blue-600 hover:text-blue-800 transition cursor-pointer text-2xl"
+                                title="ออกใบหุ้นใหม่" (click)="onSelectRemCode(stock)">
+                                📝
+                            </button>
+
+                            <!-- ถ้ามีใบหุ้นใหม่แล้ว -->
+                            <span *ngIf="stock.hasBeenReplaced" class="text-green-600 font-semibold">
+                                {{ stock.replacedByNote }}
+                            </span>
+                        </td>
+
+
+
+                    </tr>
+
+                    <tr *ngIf="stockList.length === 0">
+                        <td colspan="9" class="px-4 py-6 text-center text-gray-400">
+                            ไม่พบข้อมูลใบหุ้น
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="viewName === 'view-select'">
+    <div class="w-full bg-white rounded-xl shadow-lg overflow-hidden">
+        <!-- ส่วนหัว -->
+        <div class="bg-green-600 py-4 px-6 rounded-t-xl">
+            <h2 class="text-white text-xl font-semibold text-center">
+                รายการใบหุ้น: ออกใบหุ้นใหม่แทนใบหุ้นที่ชำรุด/สูญเสีย
+            </h2>
+        </div>
+
+        <!-- ข้อมูลลูกค้า -->
+        <div class="py-6 px-6 border-b border-gray-200">
+            <div class="flex flex-row justify-center gap-4 text-center sm:text-left">
+                <p class="text-gray-700 text-base">
+                    <span class="font-medium">บัตรแสดงตนเลขที่:</span> {{ cusId }}
+                </p>
+                <p class="text-gray-700 text-base">
+                    <span class="font-medium">หมายเลขใบหุ้น:</span> {{ selectedStock?.stkNote || '-'}}
+                </p>
+                <p class="text-gray-700 text-base">
+                    <span class="font-medium">หมายเลขหุ้น:</span> {{ selectedStock?.stkNostart }} - {{
+                    selectedStock?.stkNostop }}
+                </p>
+            </div>
+            <div class="flex flex-row mt-4 text-center justify-evenly">
+                <div class="text-left">
+                    <p class="text-gray-700 text-base">
+                        <span class="font-medium">ชื่อ - นามสกุล:</span> {{ fullName }}
+                    </p>
+                    <p class="text-gray-700 text-base">
+                        <span class="font-medium">สถานะ:</span> {{ statusDesc }}
+                    </p>
+                </div>
+                <div class="text-left">
+                    <p class="text-gray-700 text-base">
+                        <span class="font-medium">จำนวนหุ้น:</span> {{ selectedStock?.stkUniT || 0 }}
+                    </p>
+                    <p class="text-gray-700 text-base">
+                        <span class="font-medium">มูลค่าหุ้น:</span> {{ selectedStock?.stkValue | number: '1.2-2' }}
+                    </p>
+                </div>
+            </div>
+            <div class="w-full mt-4 flex justify-center">
+                <div class="w-full max-w-md">
+                    <label for="remCode" class="block text-sm font-medium text-gray-700 mb-1">
+                        เหตุผลในการออกใบหุ้นใหม่:
+                    </label>
+                    <select id="remCode" name="remCode" [(ngModel)]="selectedStock.stkRemcode"
+                        class="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 sm:text-sm">
+
+                        <!-- แสดง option แรกเมื่อค่า remcode ยังไม่ถูกเลือก -->
+                        <option [value]="''" [selected]="!selectedStock?.stkRemcode">
+                            -- กรุณาเลือกเหตุผล --
+                        </option>
+
+                        <!-- ตัวเลือกทั้งหมด -->
+                        <option *ngFor="let rem of remCodeList" [value]="rem.remCode">
+                            {{ rem.remDesc }}
+                        </option>
+                    </select>
+
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-center gap-4">
+                <button
+                    class="bg-green-400 py-2 px-4 text-white rounded-sm hover:bg-green-300 transition-all cursor-pointer">
+                    บันทึก
+                </button>
+                <button (click)="viewName = 'view-stock'"
+                    class="bg-red-400 hover:bg-red-200 hover:text-red-500 py-2 px-4 transition-all rounded-sm">
+                    ยกเลิก
+                </button>
+
+            </div>
+
+
+
+        </div>
+
+    </div>
+
+</div>

@@ -1,51 +1,65 @@
+<!-- หน้าจอ login -->
 <div class="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
   <div class="sm:mx-auto sm:w-full sm:max-w-md">
-    <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-      Sign in to your account
+    <h2 class="mt-6 text-center text-3xl font-bold text-gray-900">
+      เข้าสู่ระบบ
     </h2>
   </div>
 
   <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-    <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-      <form class="space-y-6" (ngSubmit)="onSubmit()">
+    <div class="bg-white py-8 px-6 shadow sm:rounded-lg sm:px-10">
+      <form class="space-y-6" (ngSubmit)="onSubmit()" #loginForm="ngForm">
+        <!-- Username -->
         <div>
           <label for="username" class="block text-sm font-medium text-gray-700">
-            Username
+            ชื่อผู้ใช้
           </label>
           <div class="mt-1">
-            <input id="username" name="username" type="text" required [(ngModel)]="username"
-              class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+            <input id="username" name="username" type="text" required [(ngModel)]="username" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
+                     placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
           </div>
         </div>
 
+        <!-- Password -->
         <div>
           <label for="password" class="block text-sm font-medium text-gray-700">
-            Password
+            รหัสผ่าน
           </label>
           <div class="mt-1">
-            <input id="password" name="password" type="password" required [(ngModel)]="password"
-              class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+            <input id="password" name="password" type="password" required [(ngModel)]="password" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
+                     placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
           </div>
         </div>
 
-        <div *ngIf="errorMessage" class="text-red-500 text-sm">
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="text-sm text-red-600 font-medium text-center">
           {{ errorMessage }}
         </div>
 
+        <!-- Submit Button -->
         <div>
-          <button type="submit" [disabled]="loading" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
-           bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
-           disabled:bg-blue-300 disabled:cursor-not-allowed">
-            <ng-container *ngIf="!loading">Sign in</ng-container>
-            <ng-container *ngIf="loading">🔄 Signing in...</ng-container>
+          <button type="submit" [disabled]="loading || !loginForm.form.valid" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm 
+                   text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 
+                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+                   disabled:bg-blue-300 disabled:cursor-not-allowed">
+            <ng-container *ngIf="!loading">เข้าสู่ระบบ</ng-container>
+            <ng-container *ngIf="loading">🔄 กำลังเข้าสู่ระบบ...</ng-container>
           </button>
-
-          <p *ngIf="loading" class="text-center text-sm text-gray-500 mt-2">
-            โปรดรอสักครู่ กำลังตรวจสอบข้อมูลของคุณ...
-          </p>
         </div>
-
       </form>
     </div>
+  </div>
+</div>
+
+<!-- Overlay Loading Spinner -->
+<div *ngIf="loading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
+  style="background-color: rgba(128, 128, 128, 0.7);">
+  <div class="text-center">
+    <svg class="animate-spin h-10 w-10 text-white mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+      viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+    </svg>
+    <p class="text-lg text-white font-semibold">🔄 กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
   </div>
 </div>

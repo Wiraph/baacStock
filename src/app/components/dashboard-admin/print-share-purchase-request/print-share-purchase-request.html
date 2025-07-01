@@ -1,0 +1,67 @@
+<div>
+  <div class="w-full bg-green-500 h-auto text-white text-center text-xl font-bold py-2 rounded-t-lg">
+    ใบคำขอซื้อหุ้น
+  </div>
+
+  <!-- 🔁 ปุ่มโหลดใหม่ -->
+  <div class="p-4 text-center text-gray-700">
+    <button (click)="loadPdf()"
+      class="py-2 px-3 bg-amber-500 rounded-xl text-white cursor-pointer hover:bg-amber-400 transition-all">
+      คลิกหากใบคำขอไม่แสดง หรือเพื่อโหลดใหม่
+    </button>
+  </div>
+
+  <!-- 📄 ส่วนแสดง PDF -->
+  <div class="p-4">
+    <ng-container *ngIf="pdfUrl; else loadingOrError">
+      <iframe [src]="pdfUrl" width="100%" height="800px" style="border: 1px solid #ccc; border-radius: 10px;">
+      </iframe>
+    </ng-container>
+
+    <!-- ⏳ Loading / ❌ Error -->
+    <ng-template #loadingOrError>
+      <div class="text-center text-gray-600">
+        <p *ngIf="loading">⏳ กำลังโหลดเอกสาร...</p>
+        <p *ngIf="loadFailed" class="text-red-600 font-semibold mt-2">
+          ❌ โหลดเอกสารไม่สำเร็จภายใน 30 วินาที
+        </p>
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="w-full max-w-2xl mx-auto bg-white shadow-md rounded-lg">
+    <div class="bg-green-500 text-white text-center text-xl font-bold py-2 rounded-t-lg">
+      ใบคำขอซื้อหุ้น
+    </div>
+
+    <!-- Form กรอกข้อมูล + อัปโหลด -->
+    <form [formGroup]="uploadForm" (ngSubmit)="onUpload()" class="p-6 space-y-4 bg-gray-50 rounded-b-lg">
+      <!-- กรอกข้อมูล -->
+      <label class="block text-gray-700 font-medium mt-4">ชื่อผู้ขอ:</label>
+      <input type="text" formControlName="name" class="w-full p-2 border rounded-md text-sm" />
+
+      <label class="block text-gray-700 font-medium mt-4">เลขบัตรประชาชน:</label>
+      <input type="text" formControlName="idNumber" class="w-full p-2 border rounded-md text-sm" />
+
+      <!-- อัปโหลดไฟล์ -->
+      <div>
+        <label class="block font-medium text-gray-700">เลือกไฟล์แบบฟอร์มเอกสาร (.docx)</label>
+        <input type="file" accept=".docx" (change)="onFileChange($event)"
+          class="w-full p-2 border rounded-md text-sm" />
+        <p *ngIf="fileName" class="text-sm text-gray-600 mt-1">
+          📎 ไฟล์ที่เลือก: {{ fileName }}
+        </p>
+      </div>
+
+      <!-- ปุ่ม Submit -->
+      <div class="text-right">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md"
+          [disabled]="!uploadForm.valid || !selectedFile">
+          📤 ส่งข้อมูลและกรอกเอกสาร
+        </button>
+      </div>
+    </form>
+  </div>
+
+
+</div>

@@ -13,7 +13,9 @@ import { CommonSharesComponent } from './components/dashboard-admin/common-share
 import { DashboardHeadOfficeComponent } from './components/dashboard-head-office/dashboard-head-office';
 import { HomeHeadOfficeComponent } from './components/dashboard-head-office/home/home';
 import { ChangePasswordHeadOfficeComponent } from './components/dashboard-head-office/change-password/change-password';
-
+import { PrintSharePurchaseRequestComponent } from './components/dashboard-admin/print-share-purchase-request/print-share-purchase-request';
+import { CratenewsharecertificateComponent } from './components/dashboard-admin/cratenewsharecertificate/cratenewsharecertificate';
+import { TransferShareComponent } from './components/dashboard-admin/transfer-share/transfer-share.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -33,7 +35,10 @@ export const routes: Routes = [
       { path: 'change-password', component: ChangePasswordComponent }, // ✅ เพิ่มเส้นทางสำหรับ ChangePasswordComponent
       { path: 'search-edit', component: SearchEditComponent}, // ✅ เพิ่มเส้นทางสำหรับ SearchEditComponent
       { path: 'common-shares', component: CommonSharesComponent},
-      { path: 'headoffice', component: DashboardHeadOfficeComponent}
+      { path: 'headoffice', component: DashboardHeadOfficeComponent},
+      { path: 'print-share-purchase-request', component: PrintSharePurchaseRequestComponent }, // ✅ เพิ่มเส้นทางสำหรับ PrintSharePurchaseRequestComponent
+      { path: 'cratenewsharecertificate', component: CratenewsharecertificateComponent }, // ✅ เพิ่มเส้นทางสำหรับ CratenewsharecertificateComponent
+      { path: 'transfer-share', component: TransferShareComponent } // ✅ เพิ่มเส้นทางสำหรับ TransferShareComponent
     ]
   },
   {

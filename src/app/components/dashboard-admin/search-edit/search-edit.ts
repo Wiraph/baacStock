@@ -1,19 +1,50 @@
-import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, Input, ChangeDetectorRef, OnInit, OnChanges, Output, EventEmitter, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CustomerService, CustomerSearchDto } from '../../../services/customer';
 import { CommonModule } from '@angular/common';
-import { finalize, firstValueFrom } from 'rxjs';
+import { finalize } from 'rxjs';
+import { CustomerService, CustomerSearchDto } from '../../../services/customer';
+import { ResultDefaultComponent } from './result-table/result-default/result-default.component';
+import { ResultCommonStockComponent } from './result-table/result-common-stock/result-common-stock';
+import { ResultNewCertificateComponent } from './result-table/result-new-certificate/result-new-certificate.component';
+import { ResultTranferShareComponent } from './result-table/result-tranfer-share/result-tranfer-share.component';
+import { EditCustomerComponent } from '../edit-customer/edit-customer.component';
 import { StocksComponent } from '../stocks/stocks';
+import { StockItem } from '../../../services/stock';
 
 @Component({
   selector: 'app-search-edit',
   standalone: true,
-  imports: [FormsModule, CommonModule, StocksComponent],
+  imports: [
+    FormsModule,
+    CommonModule,
+    ResultDefaultComponent,
+    ResultCommonStockComponent,
+    ResultNewCertificateComponent,
+    ResultTranferShareComponent,
+    EditCustomerComponent,
+    StocksComponent,
+  ],
   templateUrl: './search-edit.html',
   styleUrls: ['./search-edit.css']
 })
-export class SearchEditComponent implements OnInit {
+export class SearchEditComponent implements OnInit, OnChanges {
+  @Input() commonShare!: string;
+  @Input() InputcreateNewShareCertificate!: string;
+  @Input() InputtransferShare!: string;
+  @Input() viewMode!: string;
+  @Output() viewChange = new EventEmitter<{
+    view: string;
+    cusId?: string;
+    fullName?: string;
+    statusDesc?: string;
+    stockNotes?: string[];
+    viewMode?: string;
+  }>();
+  @Output() viewStock = new EventEmitter<any>();
+  @Output() transferStock = new EventEmitter<StockItem>();
 
+  titleSearch: string = '';
+  branch = sessionStorage.getItem('brName');
   activeView: string = 'search';
 
   selectedStockNotes: string[] = [];
@@ -22,21 +53,6 @@ export class SearchEditComponent implements OnInit {
   selectedStockList: string[] = [];
   selectedStatus: string = '';
 
-  setView(view: string, stockNotes?: string[], cusId?: string, fullName?: string, stockList?: any[], statusDesc?: string) {
-    this.activeView = view;
-
-    this.selectedStockNotes = stockNotes ?? [];
-    this.selectedCusId = cusId ?? '';
-    this.selectedName = fullName ?? '';
-    this.selectedStockList = stockList ?? [];
-    this.selectedStatus = statusDesc ?? '';
-
-    console.log("ttttt:",this.selectedStockNotes, this.selectedCusId, this.selectedName, this.selectedStockList, this.selectedStatus);
-  }
-
-
-
-
   criteria: CustomerSearchDto = {
     cusId: '',
     fname: '',
@@ -44,87 +60,65 @@ export class SearchEditComponent implements OnInit {
     stockId: ''
   };
 
-  mapMethodToPayType(method: string): string {
-    switch (method) {
-      case 'account': return '001';
-      case 'cash': return '002';
-      case 'donate': return '003';
-      default: return '';
-    }
-  }
-
   results: any[] = [];
   searched = false;
   loading = false;
+  currentPage = 1;
+  pageSize = 20;
+  totalItems = 0;
 
   constructor(
     private customerService: CustomerService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) { }
 
-  currentPage = 1;
-  pageSize = 20;
-  totalPages = 0;
-
-  onSearch(page: number = 1) {
-    this.currentPage = page;
-
-    this.loading = true;
-    this.customerService.searchCustomer(this.criteria, page, this.pageSize)
-      .pipe(finalize(() => {
-        this.loading = false;
-        this.cd.detectChanges();
-      }))
-      .subscribe({
-        next: (res: any) => {
-          console.log('🟢 Data loaded after save:', res.data);
-          this.results = res.data;
-          this.totalPages = res.totalPages;
-          this.searched = true;
-        },
-        error: err => {
-          console.error('❌ เกิดข้อผิดพลาดจาก API:', err);
-          this.searched = true;
-        }
-      });
+  setView(view: string, stockNotes?: string[], cusId?: string, fullName?: string, stockList?: any[], statusDesc?: string, viewMode?: string) {
+    this.activeView = view;
+    this.selectedStockNotes = stockNotes ?? [];
+    this.selectedCusId = cusId ?? '';
+    this.selectedName = fullName ?? '';
+    this.selectedStockList = stockList ?? [];
+    this.selectedStatus = statusDesc ?? '';
+    this.viewMode = viewMode ?? '';
   }
 
-  onReset() {
-    this.criteria = {
-      cusId: '',
-      stockId: '',
-      fname: '',
-      lname: ''
-    };
-    this.results = [];
-    this.searched = false;
+  onStockTransfer(stock: StockItem) {
+    this.transferStock.emit(stock);
   }
 
-  activeTab = 'edit'; // ค่าเริ่มต้นให้เปิดแท็บแก้ไขข้อมูล
-  homeAddress: any = {};
-  currentAddress: any = {};
-  provinceList: any[] = [];
-  homeAumphors: any[] = [];
-  homeTumbons: any[] = [];
-  currentAumphors: any[] = [];
-  currentTumbons: any[] = [];
-  titleList: any[] = [];
-  custypeList: any[] = [];
-  doctypeList: any[] = [];
+  onSubmit(event: Event) {
+    event.preventDefault();
+    this.cd.detectChanges();
+    this.onSearch();
 
-  editingItem: any = null;
-  showModal = false;
-  stockDividend: any = null;
-  selectedMethod: string = '';     // account | cash | donate
-  accNo: string = '';
-  accName: string = '';
-  selectedAccType: string = '';    // '1', '2', etc.
-  selectedPayType: string = '';
-  accTypeList: any[] = [];         // โหลดจาก API
+    console.log('🔍 Debug Info:');
+    console.log('commonShare:', this.commonShare);
+    console.log('InputcreateNewShareCertificate:', this.InputcreateNewShareCertificate);
+    console.log('isCommonShares:', this.isCommonShares);
+    console.log('isCreateNewShareCertificate:', this.isCreateNewShareCertificate);
+    console.log('Condition result:', this.isCommonShares && !this.isCreateNewShareCertificate);
+    console.log('criteria:', this.criteria);
 
+    setTimeout(() => {
+      this.onSearch();
+    }, 0);
+  }
 
+  ngOnChanges() {
+    console.log('📦 ข้อมูลใหม่เข้า result-default:', this.results);
+  }
 
   ngOnInit(): void {
+    if (this.commonShare === 'common-shares') {
+      this.titleSearch = 'ขายหุ้นสามัญ';
+    } else if (this.InputcreateNewShareCertificate === 'create-new-share-certificate') {
+      this.titleSearch = 'ออกใบหุ้นใหม่แทนใบหุ้นที่ชำรุด/สูญหาย';
+    } else if (this.InputtransferShare === 'transferShare') {
+      this.titleSearch = 'โอนเปลี่ยนมือ';
+    } else {
+      this.titleSearch = 'ค้นหา';
+    }
+
     this.customerService.getAllProvince().subscribe({
       next: (data) => this.provinceList = data,
       error: (err) => console.error('❌ ดึงรายชื่อจังหวัดไม่สำเร็จ:', err)
@@ -149,200 +143,90 @@ export class SearchEditComponent implements OnInit {
       next: (data) => this.accTypeList = data,
       error: (err) => console.error('❌ ดึงประเภทบัญชีไม่สำเร็จ:', err)
     });
-
   }
 
-  async onEdit(item: any) {
-    // 🛑 Force reset ก่อน เพื่อให้ Angular render ใหม่ แม้ object เดิม
-    this.editingItem = null;
-    this.showModal = false;
+  onSearch(page: number = 1) {
+    this.currentPage = page;
+    this.loading = true;
 
-    setTimeout(async () => {
-      this.resetForm();
-
-      // หา item ใหม่ (ปลอดภัยกว่า)
-      const freshItem = this.results.find(r => r.cusiD === item.cusiD);
-      if (!freshItem) {
-        alert('ไม่พบข้อมูลลูกค้าที่ต้องการแก้ไข');
-        return;
-      }
-
-      // ✅ Clone ข้อมูล
-      this.editingItem = {
-        ...freshItem,
-        address: JSON.parse(JSON.stringify(freshItem.address || [])),
-        stockDividend: JSON.parse(JSON.stringify(freshItem.stockDividend || {}))
-      };
-
-      // ✅ Address
-      const addresses = this.editingItem.address || [];
-      this.homeAddress = addresses.find((a: any) => a.addCode === 'HA') || {};
-      this.currentAddress = addresses.find((a: any) => a.addCode === 'CA') || {};
-
-      // ✅ Dividend
-      this.stockDividend = this.editingItem.stockDividend || null;
-      if (this.stockDividend) {
-        const payType = this.stockDividend.stkPayType;
-        this.selectedMethod = payType === '001' ? 'account' :
-          payType === '002' ? 'cash' :
-            payType === '003' ? 'donate' : '';
-
-        this.accNo = this.stockDividend.stkAccno || '';
-        this.accName = this.stockDividend.stkAccname || '';
-        this.selectedAccType = this.stockDividend.stkAcctype || '';
-        this.selectedPayType = this.stockDividend.stkPayType || '';
-      }
-
-      // ✅ โหลดที่อยู่ (async)
-      try {
-        if (this.homeAddress.prvCode) {
-          this.homeAumphors = await firstValueFrom(this.customerService.getAumphor(this.homeAddress.prvCode));
-          if (this.homeAddress.ampCode) {
-            this.homeTumbons = await firstValueFrom(this.customerService.getTumbons(this.homeAddress.prvCode, this.homeAddress.ampCode));
-          }
+    this.customerService.searchCustomer(this.criteria, page, this.pageSize)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cd.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.results = res.data;
+          this.totalItems = res.totalItems;
+          this.searched = true;
+          console.log('✅ ค้นหาลูกค้าเรียบร้อย:', this.results);
+        },
+        error: err => {
+          console.error('❌ เกิดข้อผิดพลาดจาก API:', err);
+          this.searched = true;
         }
-
-        if (this.currentAddress.prvCode) {
-          this.currentAumphors = await firstValueFrom(this.customerService.getAumphor(this.currentAddress.prvCode));
-          if (this.currentAddress.ampCode) {
-            this.currentTumbons = await firstValueFrom(this.customerService.getTumbons(this.currentAddress.prvCode, this.currentAddress.ampCode));
-          }
-        }
-      } catch (error) {
-        console.error('❌ โหลดที่อยู่ล้มเหลว:', error);
-      }
-
-      // ✅ แสดง modal
-      this.showModal = true;
-      this.cd.detectChanges();
-
-    }, 0); // 📌 สำคัญมาก ให้ Angular reset ก่อน
+      });
   }
 
-
-
-
-  loadHomeAumphor(prvCode: string) {
-    this.customerService.getAumphor(prvCode).subscribe({
-      next: (data) => this.homeAumphors = data
-    });
-  }
-
-  loadHomeTumbon(prvCode: string, ampCode: string) {
-    this.customerService.getTumbons(prvCode, ampCode).subscribe({
-      next: (data) => {
-        this.homeTumbons = data;
-        const tmb = data.find(t => t.tmbCode === this.homeAddress.tmbCode);
-        if (tmb) this.homeAddress.zipcode = tmb.zipCode;
-      }
-    });
-  }
-
-  updateHomeZipcode() {
-    const tmb = this.homeTumbons.find(t => t.tmbCode === this.homeAddress.tmbCode);
-    if (tmb) this.homeAddress.zipcode = tmb.zipCode;
-  }
-
-  loadCurrentAumphor(prvCode: string) {
-    this.customerService.getAumphor(prvCode).subscribe({
-      next: (data) => this.currentAumphors = data
-    });
-  }
-
-  loadCurrentTumbon(prvCode: string, ampCode: string) {
-    this.customerService.getTumbons(prvCode, ampCode).subscribe({
-      next: (data) => {
-        this.currentTumbons = data;
-        const tmb = data.find(t => t.tmbCode === this.currentAddress.tmbCode);
-        if (tmb) this.currentAddress.zipcode = tmb.zipCode;
-      }
-    });
-  }
-
-  updateCurrentZipcode() {
-    const tmb = this.currentTumbons.find(t => t.tmbCode === this.currentAddress.tmbCode);
-    if (tmb) this.currentAddress.zipcode = tmb.zipCode;
-  }
-
-  onCloseModal() {
-    this.showModal = false;
-    this.editingItem = null;
-  }
-
-  saving = false;
-
-  onSaveEdit() {
-
-    if (this.saving) return;
-    this.saving = true
-
-    if (!this.editingItem || !this.editingItem.cusiD) {
-      alert("ไม่พบข้อมูลลูกค้า");
-      return;
-    }
-
-    // อัปเดตค่าที่มาจากแบบฟอร์มเงินปันผลเข้า stockDividend
-    this.stockDividend = {
-      ...this.stockDividend,
-      stkAccno: this.accNo,
-      stkAccname: this.accName,
-      stkAcctype: this.selectedAccType,
-      stkPayType: this.mapMethodToPayType(this.selectedMethod)
+  onReset() {
+    this.criteria = {
+      cusId: '',
+      stockId: '',
+      fname: '',
+      lname: ''
     };
-
-    const payload = {
-      customer: {
-        ...this.editingItem
-      },
-      homeAddress: {
-        ...this.homeAddress
-      },
-      currentAddress: {
-        ...this.currentAddress
-      },
-      stockDividend: {
-        ...this.stockDividend
-      }
-    };
-
-    this.customerService.updateCustomer(payload).subscribe({
-      next: () => {
-        alert("✅ บันทึกข้อมูลลูกค้าสำเร็จ");
-
-        this.showModal = false;
-        this.editingItem = null;
-        this.resetForm();
-        this.saving = false;
-
-        // 🔁 refresh ข้อมูลใหม่หลังจาก alert
-        setTimeout(() => {
-          this.onSearch();
-        }, 0);
-      },
-      error: (error) => {
-        console.error("❌ บันทึกข้อมูลไม่สำเร็จ", error);
-        alert("❌ เกิดข้อผิดพลาดในการบันทึกข้อมูล\n" + (error?.error?.message || 'ไม่ทราบสาเหตุ'));
-        this.saving = false;
-      }
-    });
+    this.results = [];
+    this.searched = false;
   }
 
-  resetForm() {
-    this.editingItem = null;
-    this.homeAddress = {};
-    this.currentAddress = {};
-    this.stockDividend = null;
-    this.selectedMethod = '';
-    this.accNo = '';
-    this.accName = '';
-    this.selectedAccType = '';
-    this.selectedPayType = '';
-    this.homeAumphors = [];
-    this.homeTumbons = [];
-    this.currentAumphors = [];
-    this.currentTumbons = [];
+  onEdit(item: any) {
+    console.log('✅ รับข้อมูลจากลูก:', item);
+    this.selectedCusId = item.cusId;
+    this.activeView = 'edit';
+    console.log('✅ เปลี่ยนเป็นหน้า edit แล้ว');
   }
 
+  onViewStock(item: any) {
+    console.log('หุ้น : รับข้อมูลจากลูก: ', item);
+    this.selectedCusId = item.cusId;
+    this.activeView = 'stock';
+  }
 
+  get currentResultType(): string {
+    if (this.InputtransferShare === 'transferShare') return 'transfer';
+    if (this.InputcreateNewShareCertificate === 'create-new-share-certificate') return 'new-cert';
+    if (this.commonShare === 'common-shares') return 'common';
+    return 'default';
+  }
 
+  get isCommonShares(): boolean {
+    return this.commonShare === 'common-shares';
+  }
+
+  get isCreateNewShareCertificate(): boolean {
+    return this.InputcreateNewShareCertificate === 'create-new-share-certificate';
+  }
+
+  get isTransferShare(): boolean {
+    return this.InputtransferShare === 'transferShare';
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.totalItems / this.pageSize);
+  }
+
+  titleList: any[] = [];
+  custypeList: any[] = [];
+  doctypeList: any[] = [];
+  accTypeList: any[] = [];
+  provinceList: any[] = [];
+
+  onEditSuccess() {
+    this.setView('search');
+    this.onSearch(this.currentPage);
+  }
 }
+
+

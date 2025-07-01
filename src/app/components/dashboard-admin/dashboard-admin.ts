@@ -52,9 +52,10 @@ export class AdminDashboardComponent implements OnInit {
       icon: '📊',
       open: false,
       children: [
-        { icon: '🛒', label: 'การขาย', route: '/dashboard-admin/sales' },
+        { icon: '🛒', label: 'พิมพ์คำขอซื้อหุ้น', route: '/dashboard-admin/print-share-purchase-request' },
         { icon: '😶‍🌫️', label: 'ขายหุ้นสามัญ', route: '/dashboard-admin/common-shares' },
-        { icon: '📄', label: 'การออกใบหุ้นใหม่ โอนเปลี่ยนมือ', route: '/dashboard-admin/issue-transfer' },
+        { icon: '📄', label: 'การออกใบหุ้นใหม่ แทนใบหุ้นที่ชำรุด/สูญหาย', route: '/dashboard-admin/cratenewsharecertificate' },
+        { icon: '♾️', label: 'โอนเปลี่ยนมือ', route: '/dashboard-admin/transfer-share' },
         { icon: '✅', label: 'อนุมัติรายการ', route: '/dashboard-admin/approve-transactions' },
         { icon: '📝', label: 'อนุมัติออกใบหุ้น', route: '/dashboard-admin/approve-issue' },
         { icon: '🖨️', label: 'พิมพ์ใบหุ้น', route: '/dashboard-admin/print-certificates' },
