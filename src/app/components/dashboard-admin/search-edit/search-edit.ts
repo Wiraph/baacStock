@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectorRef, OnInit, OnChanges } from '@angular/core';
+import { Component, Input, ChangeDetectorRef, OnInit, OnChanges, Output, EventEmitter, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs';
@@ -8,9 +8,12 @@ import { ResultCommonStockComponent } from './result-table/result-common-stock/r
 import { ResultNewCertificateComponent } from './result-table/result-new-certificate/result-new-certificate.component';
 import { ResultTranferShareComponent } from './result-table/result-tranfer-share/result-tranfer-share.component';
 import { EditCustomerComponent } from '../edit-customer/edit-customer.component';
+import { StocksComponent } from '../stocks/stocks';
+import { StockItem } from '../../../services/stock';
+
 @Component({
-  standalone: true,
   selector: 'app-search-edit',
+  standalone: true,
   imports: [
     FormsModule,
     CommonModule,
@@ -18,7 +21,8 @@ import { EditCustomerComponent } from '../edit-customer/edit-customer.component'
     ResultCommonStockComponent,
     ResultNewCertificateComponent,
     ResultTranferShareComponent,
-    EditCustomerComponent
+    EditCustomerComponent,
+    StocksComponent,
   ],
   templateUrl: './search-edit.html',
   styleUrls: ['./search-edit.css']
@@ -27,6 +31,17 @@ export class SearchEditComponent implements OnInit, OnChanges {
   @Input() commonShare!: string;
   @Input() InputcreateNewShareCertificate!: string;
   @Input() InputtransferShare!: string;
+  @Input() viewMode!: string;
+  @Output() viewChange = new EventEmitter<{
+    view: string;
+    cusId?: string;
+    fullName?: string;
+    statusDesc?: string;
+    stockNotes?: string[];
+    viewMode?: string;
+  }>();
+  @Output() viewStock = new EventEmitter<any>();
+  @Output() transferStock = new EventEmitter<StockItem>();
 
   titleSearch: string = '';
   branch = sessionStorage.getItem('brName');
@@ -57,12 +72,25 @@ export class SearchEditComponent implements OnInit, OnChanges {
     private cd: ChangeDetectorRef,
   ) { }
 
-  onSubmit(event: Event) {
-    event.preventDefault(); // กันการ reload หน้าเว็บ
-    this.cd.detectChanges(); // บังคับ Angular อัปเดต view/ค่าก่อน
-    this.onSearch(); // เรียก search หลังจากค่าทั้งหมดถูก bind แล้ว
+  setView(view: string, stockNotes?: string[], cusId?: string, fullName?: string, stockList?: any[], statusDesc?: string, viewMode?: string) {
+    this.activeView = view;
+    this.selectedStockNotes = stockNotes ?? [];
+    this.selectedCusId = cusId ?? '';
+    this.selectedName = fullName ?? '';
+    this.selectedStockList = stockList ?? [];
+    this.selectedStatus = statusDesc ?? '';
+    this.viewMode = viewMode ?? '';
+  }
 
-    // Debug: ตรวจสอบค่า input และ condition
+  onStockTransfer(stock: StockItem) {
+    this.transferStock.emit(stock);
+  }
+
+  onSubmit(event: Event) {
+    event.preventDefault();
+    this.cd.detectChanges();
+    this.onSearch();
+
     console.log('🔍 Debug Info:');
     console.log('commonShare:', this.commonShare);
     console.log('InputcreateNewShareCertificate:', this.InputcreateNewShareCertificate);
@@ -80,13 +108,12 @@ export class SearchEditComponent implements OnInit, OnChanges {
     console.log('📦 ข้อมูลใหม่เข้า result-default:', this.results);
   }
 
-
   ngOnInit(): void {
     if (this.commonShare === 'common-shares') {
       this.titleSearch = 'ขายหุ้นสามัญ';
     } else if (this.InputcreateNewShareCertificate === 'create-new-share-certificate') {
       this.titleSearch = 'ออกใบหุ้นใหม่แทนใบหุ้นที่ชำรุด/สูญหาย';
-    } else if (this.InputtransferShare === 'transfer-share') {
+    } else if (this.InputtransferShare === 'transferShare') {
       this.titleSearch = 'โอนเปลี่ยนมือ';
     } else {
       this.titleSearch = 'ค้นหา';
@@ -154,15 +181,6 @@ export class SearchEditComponent implements OnInit, OnChanges {
     this.searched = false;
   }
 
-  setView(view: string, stockNotes?: string[], cusId?: string, fullName?: string, stockList?: any[], statusDesc?: string) {
-    this.activeView = view;
-    this.selectedStockNotes = stockNotes ?? [];
-    this.selectedCusId = cusId ?? '';
-    this.selectedName = fullName ?? '';
-    this.selectedStockList = stockList ?? [];
-    this.selectedStatus = statusDesc ?? '';
-  }
-
   onEdit(item: any) {
     console.log('✅ รับข้อมูลจากลูก:', item);
     this.selectedCusId = item.cusId;
@@ -170,21 +188,29 @@ export class SearchEditComponent implements OnInit, OnChanges {
     console.log('✅ เปลี่ยนเป็นหน้า edit แล้ว');
   }
 
+  onViewStock(item: any) {
+    console.log('หุ้น : รับข้อมูลจากลูก: ', item);
+    this.selectedCusId = item.cusId;
+    this.activeView = 'stock';
+  }
 
   get currentResultType(): string {
-    if (this.InputtransferShare === 'transfer-share') return 'transfer';
+    if (this.InputtransferShare === 'transferShare') return 'transfer';
     if (this.InputcreateNewShareCertificate === 'create-new-share-certificate') return 'new-cert';
     if (this.commonShare === 'common-shares') return 'common';
     return 'default';
   }
+
   get isCommonShares(): boolean {
     return this.commonShare === 'common-shares';
   }
+
   get isCreateNewShareCertificate(): boolean {
     return this.InputcreateNewShareCertificate === 'create-new-share-certificate';
   }
+
   get isTransferShare(): boolean {
-    return this.InputtransferShare === 'transfer-share';
+    return this.InputtransferShare === 'transferShare';
   }
 
   get totalPages(): number {
@@ -202,3 +228,5 @@ export class SearchEditComponent implements OnInit, OnChanges {
     this.onSearch(this.currentPage);
   }
 }
+
+

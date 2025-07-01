@@ -1,70 +1,115 @@
-<div class="rounded-2xl bg-amber-50 shadow-xl p-6 space-y-6 border border-yellow-200">
+<!-- แสดงรายการหุ้น -->
+<div *ngIf="!showTransferForm">
+  <div class="rounded-xl bg-white shadow-xl space-y-6 border border-gray-200">
 
     <!-- Header -->
-    <div class="bg-green-600 p-4 rounded-2xl text-center shadow-lg">
-        <span class="text-2xl font-semibold text-white">📄 รายการใบหุ้น : แก้ไขข้อมูล</span>
+    <div class="bg-green-600 p-5 rounded-t-xl text-center shadow-md">
+      <h2 class="text-xl font-semibold text-white">📄 รายการใบหุ้น : แก้ไขข้อมูล</h2>
+    </div>
+
+    <!-- ปุ่มกลับ -->
+    <div class="px-6">
+      <button type="button"
+        class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition duration-150 ease-in-out"
+        (click)="goBack()">
+        ⬅️ กลับ
+      </button>
     </div>
 
     <!-- ข้อมูลลูกค้า -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-            <label class="block text-sm font-medium text-gray-600">บัตรแสดงตนเลขที่ :</label>
-            <p class="text-base font-bold text-gray-900 border-b border-gray-300 py-1">{{ cusId || '-' }}</p>
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-600">สถานะ :</label>
-            <p class="text-base font-bold text-gray-900 border-b border-gray-300 py-1">{{ statusDesc || '-'}}</p>
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-600">ชื่อ - นามสกุล :</label>
-            <p class="text-base font-bold text-gray-900 border-b border-gray-300 py-1">{{ fullName || '-' }}</p>
-        </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-6">
+      <div>
+        <label class="block text-sm text-gray-500">บัตรแสดงตนเลขที่:</label>
+        <p class="text-base font-semibold text-gray-800 border-b py-1">{{ cusId || '-' }}</p>
+      </div>
+      <div>
+        <label class="block text-sm text-gray-500">สถานะ:</label>
+        <p class="text-base font-semibold text-gray-800 border-b py-1">{{ cusData?.staDesc || '-' }}</p>
+      </div>
+      <div>
+        <label class="block text-sm text-gray-500">ชื่อ - นามสกุล:</label>
+        <p class="text-base font-semibold text-gray-800 border-b py-1">{{ cusData?.fname || '-' }} {{ cusData?.lname }}
+        </p>
+      </div>
     </div>
 
-    <!-- ตารางใบหุ้น -->
-    <div class="overflow-x-auto rounded-xl border border-gray-300 shadow-md">
+    <div *ngIf="viewMode === 'viewer'">
+      <!-- ตารางใบหุ้น -->
+      <div class="overflow-x-auto mx-6 rounded-xl border border-gray-300 shadow-sm mb-4">
         <table class="min-w-full text-sm text-left text-gray-800">
-            <thead class="bg-yellow-100 text-gray-700 uppercase text-xs tracking-wider">
-                <tr>
-                    <th class="px-4 py-3">ลำดับ</th>
-                    <th class="px-4 py-3">สาขา</th>
-                    <th class="px-4 py-3">ใบหุ้นเลขที่</th>
-                    <th class="px-4 py-3">ใบหุ้นเดิม</th>
-                    <th class="px-4 py-3">เริ่มต้น</th>
-                    <th class="px-4 py-3">สิ้นสุด</th>
-                    <th class="px-4 py-3 text-center">จำนวน</th>
-                    <th class="px-4 py-3 text-center">มูลค่า</th>
-                    <th class="px-4 py-3 text-center">สถานะ</th>
-                    <th class="px-4 py-3 text-center">วันเวลาที่ทำรายการ</th>
-                </tr>
-            </thead>
-            <tbody *ngIf="stockList.length > 0; else noData">
-                <tr *ngFor="let stock of stockList; let i = index;" [ngClass]="i % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
-                    <td class="px-4 py-2 text-center">{{ i + 1 }}</td>
-                    <td class="px-4 py-2">{{ stock.brCode }}</td>
-                    <td class="px-4 py-2">{{ stock.stkNote }}</td>
-                    <td class="px-4 py-2">{{ stock.stkNoteo || '-' }}</td>
-                    <td class="px-4 py-2">{{ stock.stkNostart }}</td>
-                    <td class="px-4 py-2">{{ stock.stkNostop }}</td>
-                    <td class="px-4 py-2 text-center">{{ stock.stkUniT }}</td>
-                    <td class="px-4 py-2 text-center">{{ stock.stkValue }}</td>
-                    <td class="px-4 py-2 text-center">{{ stock.statusDesc }}</td>
-                    <td class="px-4 py-2 text-center">{{ formatThaiDateTime(stock.datetimeup ?? '') }}</td>
-                </tr>
-            </tbody>
+          <thead class="bg-yellow-100 text-gray-700 text-xs uppercase tracking-wide">
+            <tr>
+              <th class="px-4 py-3 text-center">ลำดับ</th>
+              <th class="px-4 py-3">สาขา</th>
+              <th class="px-4 py-3">ใบหุ้นเลขที่</th>
+              <th class="px-4 py-3">ใบหุ้นเดิม</th>
+              <th class="px-4 py-3">หมายเลขหุ้น</th>
+              <th class="px-4 py-3 text-center">จำนวน</th>
+              <th class="px-4 py-3 text-center">มูลค่า</th>
+              <th class="px-4 py-3 text-center">สถานะ</th>
+              <th class="px-4 py-3 text-center">วันเวลาที่ทำรายการ</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="stockList.length > 0; else noData">
+            <tr *ngFor="let stock of stockList; let i = index" [ngClass]="i % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+              <td class="px-4 py-2 text-center">{{ i + 1 }}</td>
+              <td class="px-4 py-2">{{ stock.brCode }}</td>
+              <td class="px-4 py-2">{{ stock.stkNote }}</td>
+              <td class="px-4 py-2">{{ stock.stkNoteo || '-' }}</td>
+              <td class="px-4 py-2">{{ stock.stkNostart }} - {{ stock.stkNostop }}</td>
+              <td class="px-4 py-2 text-center">{{ stock.stkUniT }}</td>
+              <td class="px-4 py-2 text-center">{{ stock.stkValue }}</td>
+              <td class="px-4 py-2 text-center">{{ stock.statusDesc }}</td>
+              <td class="px-4 py-2 text-center">{{ formatThaiDateTime(stock.datetimeup ?? '') }}</td>
+            </tr>
+          </tbody>
         </table>
-
+        <!-- กรณีไม่มีข้อมูล -->
         <ng-template #noData>
-            <div class="p-4 text-center text-gray-500 italic">🔎 ไม่มีข้อมูลใบหุ้น</div>
+          <div class="p-6 text-center text-gray-500 italic">🔎 ไม่พบข้อมูลใบหุ้นในระบบ</div>
         </ng-template>
+      </div>
     </div>
-
-    <!-- กรณีไม่มีหมายเลขใบหุ้น -->
-    <ng-template #noStockNotes>
-        <p class="text-center text-gray-500 italic">ยังไม่มีหมายเลขใบหุ้น</p>
-    </ng-template>
-
-    
-
-
+    <div *ngIf="viewMode === 'transfer'">
+      <!-- ตารางใบหุ้น -->
+      <div class="overflow-x-auto mx-6 rounded-xl border border-gray-300 shadow-sm mb-4">
+        <table class="min-w-full text-sm text-left text-gray-800">
+          <thead class="bg-yellow-100 text-gray-700 text-xs uppercase tracking-wide">
+            <tr>
+              <th class="px-4 py-3 text-center">ลำดับ</th>
+              <th class="px-4 py-3">สาขา</th>
+              <th class="px-4 py-3">ใบหุ้นเลขที่</th>
+              <th class="px-4 py-3">ใบหุ้นเดิม</th>
+              <th class="px-4 py-3">หมายเลขหุ้น</th>
+              <th class="px-4 py-3 text-center">จำนวน</th>
+              <th class="px-4 py-3 text-center">มูลค่า</th>
+              <th class="px-4 py-3 text-center">สถานะ</th>
+              <th class="px-4 py-3 text-center">วันเวลาที่ทำรายการ</th>
+              <th class="px-4 py-3 text-center">โอนเปลี่ยนมือ</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="stockList.length > 0; else noData">
+            <tr *ngFor="let stock of stockList; let i = index" [ngClass]="i % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+              <td class="px-4 py-2 text-center">{{ i + 1 }}</td>
+              <td class="px-4 py-2">{{ stock.brCode }}</td>
+              <td class="px-4 py-2">{{ stock.stkNote }}</td>
+              <td class="px-4 py-2">{{ stock.stkNoteo || '-' }}</td>
+              <td class="px-4 py-2">{{ stock.stkNostart }} - {{ stock.stkNostop }}</td>
+              <td class="px-4 py-2 text-center">{{ stock.stkUniT }}</td>
+              <td class="px-4 py-2 text-center">{{ stock.stkValue }}</td>
+              <td class="px-4 py-2 text-center">{{ stock.statusDesc }}</td>
+              <td class="px-4 py-2 text-center">{{ formatThaiDateTime(stock.datetimeup ?? '') }}</td>
+              <td class="px-4 py-2 text-center">
+                <button class="cursor-pointer" (click)="onTransferStockClick(stock)">🔃</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <!-- กรณีไม่มีข้อมูล -->
+        <ng-template #noData>
+          <div class="p-6 text-center text-gray-500 italic">🔎 ไม่พบข้อมูลใบหุ้นในระบบ</div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
 </div>

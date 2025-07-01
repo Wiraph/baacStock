@@ -8,7 +8,7 @@ export interface StockItem {
   brCode: string;
   stkNote: string;
   stkNoteo?: string;
-  stkRemCode?: string;
+  StkRemcode?: string;
   stkNostart?: string;
   stkNostop?: string;
   stkUniT?: number;
@@ -16,6 +16,12 @@ export interface StockItem {
   stkStatus?: string;
   stkDateInput?: string;
   statusDesc?: string;
+  stkOwniD?: string;
+  fullname?: string;
+  stkPayType?: string;
+  stkAcctype?: string;
+  stkAccno?: string;
+  stkAccname?: string;
   datetimeup?: string;
 }
 
@@ -38,6 +44,7 @@ export class StockService {
       { headers: this.createAuthHeaders() }
     );
   }
+
 
   private createAuthHeaders(): HttpHeaders {
     let token = '';

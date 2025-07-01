@@ -48,7 +48,7 @@
 
         <result-default *ngSwitchCase="'default'" [results]="results" [currentPage]="currentPage" [pageSize]="pageSize"
           [totalItems]="totalItems" (edit)="onEdit($event)"
-          (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc)">
+          (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc, $event.viewMode)">
         </result-default>
 
         <result-common-stock *ngSwitchCase="'common'" [results]="results" [currentPage]="currentPage"
@@ -57,12 +57,12 @@
 
         <result-new-certificate *ngSwitchCase="'new-cert'" [results]="results" [currentPage]="currentPage"
           [pageSize]="pageSize" [totalItems]="totalItems" (edit)="onEdit($event)"
-          (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc)">
+          (viewStock)="setView('', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc)">
         </result-new-certificate>
 
         <result-tranfer-share *ngSwitchCase="'transfer'" [results]="results" [currentPage]="currentPage"
           [pageSize]="pageSize" [totalItems]="totalItems" (edit)="onEdit($event)"
-          (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc)">
+          (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc, $event.viewMode)">
         </result-tranfer-share>
 
       </ng-container>
@@ -107,19 +107,21 @@
 <div *ngIf="activeView === 'edit'">
   <app-edit-customer [cusId]="selectedCusId" (back)="setView('search')" (success)="onEditSuccess()"></app-edit-customer>
 </div>
-  
-
 
 <!-- หน้าแสดงหุ้น -->
-<!-- <div *ngIf="activeView === 'stock'">
-  <button (click)="setView('search')"
-    class="inline-flex items-center px-4 py-2 mb-4 bg-white hover:bg-gray-300 text-gray-800 text-sm font-medium rounded-lg shadow-md transition">
-    🔙 กลับไปหน้าค้นหา
-  </button>
-  <app-stocks [cusId]="selectedCusId" [fullName]="selectedName" [stNotesList]="selectedStockNotes"
-    [statusDesc]="selectedStatus">
+<div *ngIf="activeView === 'stock'">
+  <app-stocks
+    [cusId]="selectedCusId"
+    [fullName]="selectedName"
+    [statusDesc]="selectedStatus"
+    [stNotesList]="selectedStockNotes"
+    [viewMode]="viewMode"
+    (transferStock)="onStockTransfer($event)"
+    (back)="setView('search')"
+    (success)="onEditSuccess()">
   </app-stocks>
-</div> -->
+</div>
+
 
 <!-- หน้าขายหุ้นสามัญ -->
 <!-- <div *ngIf="activeView === 'commonStock'">

@@ -1,3 +1,195 @@
-<div *ngIf="activeView === 'search'">
-    <app-search-edit [InputtransferShare]="internalViewName"></app-search-edit>
+<div *ngIf="activeView == 'search'">
+  <app-search-edit [InputtransferShare]="internalViewName" (viewStock)="onViewStock($event)"
+    (transferStock)="onTransferStockSelected($event)"></app-search-edit>
+</div>
+
+<div *ngIf="activeView === 'transfer'" class="p-4">
+  <div class="w-full bg-white rounded-xl shadow-md">
+    <!-- หัวเรื่อง -->
+    <div class="bg-green-500 rounded-t-xl text-center py-3">
+      <p class="text-xl text-white font-bold">โอนเปลี่ยนมือ</p>
+    </div>
+
+    <!-- เนื้อหา -->
+    <div class="flex flex-col w-full p-6 gap-6">
+
+      <!-- แถวที่ 1 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-gray-700 font-medium">เลขที่บัตรแสดงตน:</label>
+          <p class="text-gray-800 mt-1">{{ selectedStock?.stkOwniD }}</p>
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium">หมายเลขแสดงใบหุ้น:</label>
+          <p class="text-gray-800 mt-1">{{ selectedStock?.stkNote }}</p>
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium">หมายเลขหุ้น:</label>
+          <p class="text-gray-800 mt-1">{{ selectedStock?.stkNostart }} - {{ selectedStock?.stkNostop }}</p>
+        </div>
+      </div>
+
+      <!-- แถวที่ 2 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-gray-700 font-medium">ชื่อ-นามสกุล:</label>
+          <p class="text-gray-800 mt-1">{{ selectedStock?.fullname }}</p>
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium">สถานะ:</label>
+          <p class="text-gray-800 mt-1">{{ selectedStock?.statusDesc }}</p>
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium">จำนวนหุ้น:</label>
+          <p class="text-gray-800 mt-1">{{ selectedStock?.stkUniT }} หุ้น / {{ selectedStock?.stkValue }} บาท</p>
+        </div>
+      </div>
+
+      <!-- ไอคอนเปลี่ยนมือ -->
+      <div class="text-center text-gray-600 text-lg font-medium flex justify-center items-center gap-2">
+        <span>ผู้โอน ⬆️</span>
+        <span class="text-xl">⇄</span>
+        <span>⬇️ ผู้รับโอน</span>
+      </div>
+
+      <!-- เหตุผล -->
+      <div *ngIf="selectedTransfer">
+        <label class="block text-gray-700 font-medium mb-1">เหตุผลในการโอนหุ้น:</label>
+        <select [(ngModel)]="selectedTransfer.remCode" class="w-full border border-gray-300 rounded px-3 py-2">
+          <option value="">-- เลือกเหตุผล --</option>
+          <option *ngFor="let rem of remcodeList" [value]="rem.remCode">
+            {{ rem.remDesc }}
+          </option>
+        </select>
+      </div>
+
+
+      <!-- ✅ รายการผู้รับโอนที่ถูกบันทึกแล้ว -->
+      <div *ngIf="transferList.length > 0" class="border border-gray-300 bg-gray-50 rounded p-4 mb-4">
+        <p class="font-semibold mb-2 text-gray-800">📝 รายการผู้รับโอนที่บันทึกแล้ว:</p>
+
+        <ul class="space-y-2 text-sm text-gray-700">
+          <li *ngFor="let person of transferList; index as i" class="flex justify-between items-center">
+            <div>
+              {{ i + 1 }}. {{ person.fullName || 'ไม่ทราบชื่อ' }} | {{ person.cid }} | {{ person.shareAmount }} หุ้น
+            </div>
+            <button (click)="removeTransfer(i)" class="text-red-600 hover:text-red-800 text-xs underline">ลบ</button>
+          </li>
+        </ul>
+      </div>
+
+
+      <!-- ป้อนบัตร -->
+      <!-- ✅ เฉพาะตอนยังไม่ได้ใส่ข้อมูลผู้รับ -->
+      <div *ngIf="isEnteringNewPerson" class="mt-4 border rounded p-4 bg-gray-50">
+        <label class="block mb-1 text-sm font-medium">บัตรแสดงตนเลขที่ (ผู้รับโอน):</label>
+        <div class="flex items-center gap-2">
+          <input [(ngModel)]="tempCID" class="flex-1 border rounded px-3 py-2" placeholder="กรอกเลขบัตร">
+          <button (click)="fetchReceiverInfo()" class="text-green-600 text-2xl hover:text-green-800">➕</button>
+        </div>
+      </div>
+
+
+      <div *ngIf="selectedTransfer" class="mt-6 p-6 bg-white rounded-xl shadow-lg ring-1 ring-gray-200">
+        <!-- หัวข้อ -->
+        <div class="text-center mb-4 text-lg font-semibold text-gray-800">
+          👤 ผู้รับโอน
+        </div>
+
+        <!-- ข้อมูลเบื้องต้น -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-sm text-gray-700">เลขที่บัตรแสดงตน:</label>
+            <input [(ngModel)]="selectedTransfer.cid" type="text"
+              class="w-full border border-gray-300 bg-gray-100 rounded px-3 py-2" readonly>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-700">จำนวนหุ้น:</label>
+            <input [(ngModel)]="selectedTransfer.shareAmount" type="number" min="0"
+              class="w-full border border-gray-300 rounded px-3 py-2">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm text-gray-700">ชื่อ-นามสกุล:</label>
+            <p class="text-gray-800">{{ selectedTransfer.fullName }}</p>
+          </div>
+        </div>
+
+        <!-- กล่องเงินปันผล -->
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <label class="block text-gray-700 font-medium mb-2">💰 เงินปันผล:</label>
+          <div class="flex flex-col gap-3">
+            <!-- บัญชีเงินฝาก -->
+            <label class="flex items-center gap-2">
+              <input type="radio" [(ngModel)]="selectedTransfer.payType" value="001">
+              <span>บัญชีเงินฝาก</span>
+            </label>
+
+            <div *ngIf="selectedTransfer.payType === '001'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">ประเภทบัญชี:</label>
+                <select [(ngModel)]="selectedTransfer.accType"
+                  class="w-full border rounded px-3 py-2 bg-gray-100 text-gray-500" disabled>
+                  <option value="">-- เลือกประเภทบัญชี --</option>
+                  <option *ngFor="let a of accTypes" [value]="a.accType">{{ a.accDesc }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">เลขที่บัญชี:</label>
+                <input [(ngModel)]="selectedTransfer.accNo" class="w-full border rounded px-3 py-2 bg-gray-100"
+                  readonly>
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm text-gray-600 mb-1">ชื่อบัญชี:</label>
+                <input [(ngModel)]="selectedTransfer.accName" class="w-full border rounded px-3 py-2 bg-gray-100"
+                  readonly>
+              </div>
+            </div>
+
+            <!-- รับเงินสด -->
+            <label class="flex items-center gap-2">
+              <input type="radio" [(ngModel)]="selectedTransfer.payType" value="002">
+              <span>รับเงินสด</span>
+            </label>
+
+            <!-- บริจาค -->
+            <label class="flex items-center gap-2">
+              <input type="radio" [(ngModel)]="selectedTransfer.payType" value="003">
+              <span>บริจาคให้ ธ.ก.ส.</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- ปุ่มยืนยัน -->
+        <div class="mt-6 flex justify-end gap-4">
+          <!-- ปุ่มยืนยัน -->
+          <button (click)="confirmReceiver()"
+            class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md shadow">
+            ✅ บันทึกจำนวนหุ้น
+          </button>
+
+          <!-- ปุ่มยกเลิก -->
+          <button (click)="resetTransferForm()"
+            class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md shadow">
+            ❌ ยกเลิก
+          </button>
+        </div>
+
+      </div>
+
+
+      <!-- ปุ่มยกเลิก -->
+      <div class="flex justify-end gap-4">
+        <div *ngIf="transferList.length > 0">
+          <button (click)="submitTransfer()"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md shadow">
+            💾 บันทึกการโอนทั้งหมด
+          </button>
+        </div>
+        <button (click)="setView('search')" class="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-md shadow">
+          ยกเลิก
+        </button>
+      </div>
+
+    </div>
+  </div>
 </div>

@@ -3,13 +3,13 @@
   <table class="min-w-full border border-gray-300 text-sm text-gray-700">
     <thead class="bg-green-100">
       <tr>
-        <th class="border px-4 py-2 text-left">ลำดับ</th>
-        <th class="border px-4 py-2 text-left">สาขา</th>
-        <th class="border px-4 py-2 text-left">เลขที่บัตรแสดงตน</th>
-        <th class="border px-4 py-2 text-left">ชื่อ - นามสกุล</th>
-        <th class="border px-4 py-2 text-left">สถานะ</th>
-        <th class="border px-4 py-2 text-left">ใบหุ้น</th>
-        <th class="border px-4 py-2 text-left">แก้ไข</th>
+        <th class="border px-4 py-2 text-center">ลำดับ</th>
+        <th class="border px-4 py-2 text-center">สาขา</th>
+        <th class="border px-4 py-2 text-center">เลขที่บัตรแสดงตน</th>
+        <th class="border px-4 py-2 text-center">ชื่อ - นามสกุล</th>
+        <th class="border px-4 py-2 text-center">สถานะ</th>
+        <th class="border px-4 py-2 text-center">ใบหุ้น</th>
+        <th class="border px-4 py-2 text-center">แก้ไข</th>
       </tr>
     </thead>
     <tbody>
@@ -19,8 +19,8 @@
         <td class="border px-4 py-1">{{ r.cusId }}</td>
         <td class="border px-4 py-1">{{ r.fullName }}</td>
         <td class="border px-4 py-1">{{ r.status || '-' }}</td>
-        <td class="border px-4 py-1">
-          <button (click)="onViewStockClick(r)">📈</button>
+        <td class="border px-4 py-1 text-center">
+          <button class="cursor-pointer" (click)="onViewStockClick(r)">📈</button>
         </td>
         <td class="border px-4 py-1 text-center">
           <button (click)="onEditClick(r)" class="text-blue-600 hover:text-blue-800">📝</button>

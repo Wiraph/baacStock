@@ -1,5 +1,4 @@
 <div class="overflow-x-auto mt-4">
-    <h1>Page Tranfer share</h1>
     <h3 class="text-md font-semibold mb-2">ผลลัพธ์ที่พบ: {{ totalItems }} รายการ</h3>
 
     <table class="min-w-full divide-y divide-gray-200">
@@ -8,7 +7,7 @@
                 <th class="px-4 py-2">ลำดับ</th>
                 <th class="px-4 py-2">เลขที่ลูกค้า</th>
                 <th class="px-4 py-2">ชื่อ-นามสกุล</th>
-                <th class="px-4 py-2">ใบหุ้น</th>
+                <th class="px-4 py-2">สถานะ</th>
                 <th class="px-4 py-2">จัดการ</th>
             </tr>
         </thead>
@@ -17,13 +16,9 @@
                 <td class="px-4 py-2 text-center">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
                 <td class="px-4 py-2">{{ r.cusId }}</td>
                 <td class="px-4 py-2">{{ r.fullName }}</td>
+                <td class="px-4 py-2">{{ r.status }}</td>
                 <td class="px-4 py-2">
-                    <button>
-                        <span class="text-blue-600 hover:underline" (click)="onViewStockClick(r)">📈</span>
-                    </button>
-                </td>
-                <td class="px-4 py-2">
-                    <button (click)="onEditClick(r)" class="text-green-600 hover:underline">✏️</button>
+                    <button (click)="onViewStockClick(r)" class="text-green-600 text-xl cursor-pointer hover:scale-110">📝</button>
                 </td>
             </tr>
         </tbody>
