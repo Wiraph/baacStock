@@ -51,9 +51,9 @@
           (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc, $event.viewMode)">
         </result-default>
 
-        <result-common-stock *ngSwitchCase="'common'" [results]="results" [currentPage]="currentPage"
-          [pageSize]="pageSize" [totalItems]="totalItems" (edit)="onEdit($event)">
-        </result-common-stock>
+          <result-common-stock *ngSwitchCase="'common'" [results]="results" [currentPage]="currentPage"
+            [pageSize]="pageSize" [totalItems]="totalItems" [mode]="'sale-stock-common'" (edit)="onEdit($event)" (modeNotify)="onModeNotify($event)">
+          </result-common-stock>
 
         <result-new-certificate *ngSwitchCase="'new-cert'" [results]="results" [currentPage]="currentPage"
           [pageSize]="pageSize" [totalItems]="totalItems" (edit)="onEdit($event)"
@@ -105,7 +105,7 @@
 
 <!-- หน้าแสดงผลลัพธ์ -->
 <div *ngIf="activeView === 'edit'">
-  <app-edit-customer [cusId]="selectedCusId" (back)="setView('search')" (success)="onEditSuccess()"></app-edit-customer>
+  <app-edit-customer [cusId]="selectedCusId" [mode]="mode" (back)="setView('search')" (success)="onEditSuccess()"></app-edit-customer>
 </div>
 
 <!-- หน้าแสดงหุ้น -->

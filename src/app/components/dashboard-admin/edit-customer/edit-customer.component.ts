@@ -44,6 +44,8 @@ import {
 })
 export class EditCustomerComponent implements OnInit {
   @Input() cusId!: string;
+  @Input() mode!: string;
+
   @Output() back = new EventEmitter<void>();
   @Output() success = new EventEmitter<void>();
 
@@ -116,9 +118,7 @@ export class EditCustomerComponent implements OnInit {
     this.initForm();
     this.setupFormListeners();
     this.loadCustomerData();
-    // this.customerForm.valueChanges.subscribe(value => {
-    //   console.log('📝 Form value changed:', value);
-    // });
+    console.log('โหมดการทำงาน:', this.mode);
   }
 
   setupFormListeners() {
@@ -160,19 +160,19 @@ export class EditCustomerComponent implements OnInit {
   initForm() {
     this.customerForm = this.fb.group({
       cusId: ['', Validators.required],
-      title: ['', Validators.required],
+      title: [{ value: '', disabled: this.mode === 'sale-stock-common' }, Validators.required],
       fname: ['', Validators.required],
       lname: ['', Validators.required],
       brCode: [''],
-      custype: [''],
-      doctype: [''],
+      custype: [{ value: '', disabled: this.mode === 'sale-stock-common' }],
+      doctype: [{ value: '', disabled: this.mode === 'sale-stock-common' }],
       taxId: [''],
       totalStock: [''],
       email: [''],
       cusCodeg: [''],
 
       addressCa: this.fb.group({
-        houseno: [''],
+        houseno: [''],  
         road: [''],
         trogSoi: [''],
         prvCode: [''],
@@ -187,9 +187,9 @@ export class EditCustomerComponent implements OnInit {
         houseno: [''],
         road: [''],
         trogSoi: [''],
-        prvCode: [''],
-        ampCode: [''],
-        tmbCode: [''],
+        prvCode: [{ value: '', disabled: this.mode === 'sale-stock-common' }],
+        ampCode: [{ value: '', disabled: this.mode === 'sale-stock-common' }],
+        tmbCode: [{ value: '', disabled: this.mode === 'sale-stock-common' }],
         zipcode: [''],
         phone: ['']
       }),
@@ -410,10 +410,6 @@ export class EditCustomerComponent implements OnInit {
 
 
   onTabChange(tabName: 'edit' | 'dividend') {
-    // console.log(`🔄 Switching to ${tabName} tab`);
-    // console.log('📋 Current form value:', this.customerForm.value);
-    // console.log('💾 Form cache:', this.formCache);
-
     this.activeTab = tabName;
   }
 
@@ -452,7 +448,7 @@ export class EditCustomerComponent implements OnInit {
         stkDvnBF: form.stockDividend.stkDvnBF,
         stkDvnCUR: form.stockDividend.stkDvnCUR,
         stkTaxBF: form.stockDividend.stkTaxBF,
-        stkTaxCUR: form.stockDividend.stkTaxCUR,  
+        stkTaxCUR: form.stockDividend.stkTaxCUR,
         stkDateInput: form.stockDividend.stkDateInput,
         stkDateEffect: form.stockDividend.stkDateEffect,
         stkDateIssue: form.stockDividend.stkDateIssue,

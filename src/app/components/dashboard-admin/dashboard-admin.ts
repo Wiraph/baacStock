@@ -124,7 +124,7 @@ export class AdminDashboardComponent implements OnInit {
     this.menus = this.menus.map(menu => {
       const isTarget = menu.key === key;
       if (isTarget) {
-        console.log(`เปิดเมนู: ${menu.label}`);
+        // console.log(`เปิดเมนู: ${menu.label}`);
       }
       return {
         ...menu,
