@@ -1,6 +1,8 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CustomerService } from '../../../services/customer';
+import { StockService, StockType } from '../../../services/stock';
+import { AccType, AccTypeService } from '../../../services/acc-type';
 import { CommonModule } from '@angular/common';
 import { combineLatest, from } from 'rxjs';
 import {
@@ -52,6 +54,8 @@ export class EditCustomerComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private customerService: CustomerService,
+    private stockService: StockService,
+    private acctypeServide: AccTypeService,
     private cd: ChangeDetectorRef
   ) { }
 
@@ -103,6 +107,8 @@ export class EditCustomerComponent implements OnInit {
   titleOptions = '';
   custypeList: any[] = [];
   doctypeList: any[] = [];
+  stockList: any[] = [];
+  acctypeList: any[] = [];
   titleList: any[] = [];
   prvList: any[] = [];
   ampList: any[] = [];
@@ -118,8 +124,8 @@ export class EditCustomerComponent implements OnInit {
     this.initForm();
     this.setupFormListeners();
     this.loadCustomerData();
-    console.log('โหมดการทำงาน:', this.mode);
   }
+
 
   setupFormListeners() {
     this.customerForm.get('addressCa.prvCode')?.valueChanges.subscribe((prvCode) => {
@@ -170,6 +176,8 @@ export class EditCustomerComponent implements OnInit {
       totalStock: [''],
       email: [''],
       cusCodeg: [''],
+      stktype: [{value: 'A', disabled: this.mode === 'sale-stock-common'}],
+      accType: [['001']],
 
       addressCa: this.fb.group({
         houseno: [''],  
@@ -197,7 +205,7 @@ export class EditCustomerComponent implements OnInit {
         stkNote: [''],
         stkPayType: [''],
         stkPayDesc: [''],
-        stkAcctype: [''],
+        stkAcctype: [{ value: '', disabled: this.mode === 'sale-stock-common' }],
         stkAccno: [''],
         stkAccname: [''],
         hostname: [''],
@@ -245,16 +253,19 @@ export class EditCustomerComponent implements OnInit {
       this.customerService.getAllDoctype(),
       this.customerService.getAllProvince(),
       this.customerService.getAllAcctypes(),
+      this.stockService.getStockType(),
+      this.acctypeServide.getAllAccTypes(),
     ]).subscribe({
-      next: async ([customer, titleList, custypeList, doctypeList, prvList, accList]) => {
+      next: async ([customer, titleList, custypeList, doctypeList, prvList, accList, stockList, acctypeList]) => {
         this.customerData = customer;
         this.titleList = titleList;
         this.custypeList = custypeList;
         this.doctypeList = doctypeList;
         this.prvList = prvList;
         this.accList = accList;
-        console.log("customer DATA:", customer);
-        // console.log("accList DATA:", accList);
+        this.stockList = stockList;
+        this.acctypeList = acctypeList;
+        console.log("acctypeList DATA:", acctypeList);
 
         // Set ข้อมูลหลักก่อน
         this.customerForm.patchValue({
@@ -406,6 +417,28 @@ export class EditCustomerComponent implements OnInit {
         }
       });
     });
+  }
+
+  loadStockTypes(): void {
+    this.stockService.getStockType().subscribe({
+      next: (types) => {
+        this.stockList = types;
+      },
+      error: (err) => {
+        console.error('โหลดประเภทหุ้นไม่สำเร็จ', err);
+      }
+    });
+  }
+
+  loadAccTypes(): void {
+    this.acctypeServide.getAllAccTypes().subscribe({
+      next: (accTypes) => {
+        this.acctypeList = accTypes;
+      },
+      error: (err) => {
+        console.error('โหดลประเภทบัญชีไม่สำเร็จ', err);
+      }
+    })
   }
 
 

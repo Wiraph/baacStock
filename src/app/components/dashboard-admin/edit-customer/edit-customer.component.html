@@ -285,11 +285,9 @@
                 </div>
 
                 <!-- วิธีรับเงินปันผล -->
-                <div class="grid [grid-template-columns:20%_80%] items-start gap-2">
+                 <div class="grid [grid-template-columns:20%_80%] items-start gap-2">
                     <label class="font-semibold">รับเงินปันผลเป็น :</label>
                     <div class="flex flex-col gap-2">
-
-                        <!-- บัญชีเงินฝาก -->
                         <div class="flex items-center gap-2">
                             <input type="radio" formControlName="stkPayType" value="001" />
                             <span>บัญชีเงินฝาก :</span>
@@ -613,9 +611,8 @@
                 <!-- ประเภทหุ้น -->
                 <div class="flex items-center gap-2">
                     <label class="w-32">ประเภทหุ้น:</label>
-                    <select class="border px-2 py-1 rounded bg-gray-50" name="stockType">
-                        <option value="สามัญ">หุ้นสามัญ</option>
-                        <option value="บุริมสิทธิ์">หุ้นบุริมสิทธิ์</option>
+                    <select formControlName="stktype" class="border px-2 py-1 rounded bg-gray-50" name="stockType">
+                        <option *ngFor="let st of stockList" [value]="st.stkType">{{ st.stkDesc }}</option>
                     </select>
                 </div>
 
@@ -691,22 +688,21 @@
                 <label class="font-medium whitespace-nowrap mt-1">รับเงินปันผลเป็น:</label>
 
                 <!-- เนื้อหาฝั่งขวา -->
-                <div class="flex flex-col gap-6">
+                <div formGroupName="stockDividend" class="flex flex-col gap-6">
 
                     <!-- ✅ ตัวเลือก: บัญชีเงินฝาก -->
                     <div class="flex gap-3 items-start">
                         <!-- Radio และเนื้อหา -->
                         <label class="flex items-center gap-3">
-                            <input type="radio" name="dividendMethod" value="บัญชีเงินฝาก" class="accent-blue-600">
+                            <input type="radio" formControlName="stkPayType" value="001" class="accent-blue-600">
                             <span class="text-sm whitespace-nowrap">บัญชีเงินฝาก:</span>
 
-                            <select class="border rounded px-2 py-1 text-sm" name="depositType">
-                                <option value="ออมทรัพย์">ออมทรัพย์</option>
-                                <option value="กระแสรายวัน">กระแสรายวัน</option>
+                            <select formControlName="stkAcctype" class="border rounded px-2 py-1 text-sm">
+                                <option *ngFor="let acc of acctypeList" [value]="acc.accType">{{acc.accDesc}}</option>
                             </select>
 
                             <span class="ml-4 text-sm whitespace-nowrap">บัญชีเลขที่:</span>
-                            <input class="border rounded px-2 py-1 w-52 text-sm" name="depositAccountNo"
+                            <input formControlName="stkAccno" class="border rounded px-2 py-1 w-52 text-sm"
                                 placeholder="000-0-00000-0">
                         </label>
                     </div>
@@ -714,14 +710,14 @@
                     <!-- บรรทัดที่สอง: ชื่อบัญชี -->
                     <div class="flex items-center gap-2 ml-6">
                         <label class="whitespace-nowrap text-sm">ชื่อบัญชี:</label>
-                        <input class="border rounded px-2 py-1 flex-1 text-sm" name="depositAccountName"
+                        <input formControlName="stkAccname" class="border rounded px-2 py-1 flex-1 text-sm"
                             placeholder="ชื่อบัญชีผู้รับเงิน">
                     </div>
 
 
                     <!-- ✅ ตัวเลือก: บริจาค -->
                     <div class="flex items-center gap-3">
-                        <input type="radio" name="dividendMethod" value="บริจาคให้ ธ.ก.ส.">
+                        <input type="radio" formControlName="stkPayType" value="003">
                         <label class="text-sm text-gray-800">บริจาคให้ ธ.ก.ส.</label>
                     </div>
 
