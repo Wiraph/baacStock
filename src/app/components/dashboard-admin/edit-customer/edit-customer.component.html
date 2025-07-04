@@ -593,13 +593,8 @@
                 </div>
             </div>
         </section>
-
-        <div class="w-full flex justify-center items-center text-center">
-            <hr class="w-9/12 border-t border-gray-400 opacity-30 my-6 mx-auto" />
-        </div>
         <!-- section ความประสงค์ซื้อหุ้น -->
         <section class="bg-white rounded-xl mx-auto mt-6 p-6 shadow-sm text-sm text-gray-700 space-y-6 max-w-5xl">
-
             <!-- หัวข้อ -->
             <div class="text-center">
                 <p class="text-lg font-semibold mb-4">มีความประสงค์ซื้อหุ้นดังนี้</p>
@@ -620,28 +615,26 @@
                 <div class="space-y-3">
                     <div class="flex items-center gap-2">
                         <label class="w-32">เลขที่ใบคำขอ:</label>
-                        <input type="text"
+                        <input formControlName="stkReqNo" type="text"
                             class="form-input outline-1 outline-green-500 border border-green-500 p-1 rounded focus:outline-green-600 focus:outline-2 bg-green-200"
                             name="requestNo">
                     </div>
 
                     <div class="flex items-center gap-2">
                         <label class="w-32">ราคาหุ้นละ:</label>
-                        <input type="string"
-                            class="form-input border text-gray-500 border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600"
-                            value="100" readonly> บาท
+                        <input type="string" formControlName="stkPrice" [value]="100" readonly
+                            class="form-input border text-gray-500 border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600"> บาท
                     </div>
 
                     <div class="flex items-center gap-2">
                         <label class="w-32">จำนวน:</label>
-                        <input type="number"
-                            class="form-input outline-1 outline-green-500 border border-green-500 p-1 rounded focus:outline-green-600 focus:outline-2 bg-green-200"
-                            name="unit"> หุ้น
+                        <input type="number" formControlName="stkUnit"
+                            class="form-input outline-1 outline-green-500 border border-green-500 p-1 rounded focus:outline-green-600 focus:outline-2 bg-green-200"> หุ้น
                     </div>
 
                     <div class="flex items-center gap-2">
                         <label class="w-32">รวมเป็นเงิน:</label>
-                        <input type="text"
+                        <input type="text" formControlName="stkAmount"
                             class="form-input border text-gray-500 border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600"
                             readonly> บาท
                     </div>
@@ -649,33 +642,33 @@
             </div>
 
             <!-- วิธีชำระเงิน -->
-            <div class="grid grid-cols-[30%_70%] gap-4 items-start">
+            <div formGroupName="stockDividend" class="grid grid-cols-[30%_70%] gap-4 items-start">
                 <label class="mt-1">ชำระโดย:</label>
                 <div class="space-y-2">
                     <label class="flex items-center gap-2">
-                        <input type="radio" name="paymentMethod" value="เงินสด"> เงินสด
+                        <input formControlName="stkSaleBy" type="radio"  value="002"> เงินสด
                     </label>
 
                     <div>
                         <label class="flex items-center gap-2">
-                            <input type="radio" name="paymentMethod" value="โอนจากบัญชี ธ.ก.ส.">
+                            <input type="radio" formControlName="stkSaleBy" value="001">
                             โอนจากบัญชี ธ.ก.ส.
                         </label>
                         <div class="ml-6 mt-1 grid grid-cols-2 gap-2">
-                            <input placeholder="เลขที่บัญชี" class="border p-1 rounded" name="transferAccNo">
-                            <input placeholder="ชื่อบัญชี" class="border p-1 rounded" name="transferAccName">
+                            <input placeholder="เลขที่บัญชี" class="border p-1 rounded" formControlName="stkSaleByTRACCno">
+                            <input placeholder="ชื่อบัญชี" class="border p-1 rounded" formControlName="stkSaleByTRACCname">
                         </div>
                     </div>
 
                     <div>
                         <label class="flex items-center gap-2">
-                            <input type="radio" name="paymentMethod" value="เช็ค"> เช็ค
+                            <input type="radio" formControlName="stkSaleBy" value="เช็ค"> เช็ค
                         </label>
                         <div class="ml-6 mt-1 grid grid-cols-2 gap-2">
-                            <input placeholder="เลขที่เช็ค" class="border p-1 rounded" name="chequeNo">
-                            <input placeholder="วันที่" type="date" class="border p-1 rounded" name="chequeDate">
-                            <input placeholder="ธนาคาร" class="border p-1 rounded" name="bank">
-                            <input placeholder="สาขา" class="border p-1 rounded" name="branch">
+                            <input placeholder="เลขที่เช็ค" class="border p-1 rounded" formControlName="stkSaleByCHQno">
+                            <input placeholder="วันที่" type="date" class="border p-1 rounded" formControlName="stkSaleByCHQdat">
+                            <input placeholder="ธนาคาร" class="border p-1 rounded" formControlName="stkSaleByCHQbnk">
+                            <input placeholder="สาขา" class="border p-1 rounded" formControlName="stkSaleCHQbrn">
                         </div>
                     </div>
                 </div>
