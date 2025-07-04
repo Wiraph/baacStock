@@ -16,6 +16,7 @@ import { ChangePasswordHeadOfficeComponent } from './components/dashboard-head-o
 import { PrintSharePurchaseRequestComponent } from './components/dashboard-admin/print-share-purchase-request/print-share-purchase-request';
 import { CratenewsharecertificateComponent } from './components/dashboard-admin/cratenewsharecertificate/cratenewsharecertificate';
 import { TransferShareComponent } from './components/dashboard-admin/transfer-share/transfer-share.component';
+import { ApproveItemComponent } from './components/dashboard-admin/approve-item/approve-item';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -38,7 +39,8 @@ export const routes: Routes = [
       { path: 'headoffice', component: DashboardHeadOfficeComponent},
       { path: 'print-share-purchase-request', component: PrintSharePurchaseRequestComponent }, // ✅ เพิ่มเส้นทางสำหรับ PrintSharePurchaseRequestComponent
       { path: 'cratenewsharecertificate', component: CratenewsharecertificateComponent }, // ✅ เพิ่มเส้นทางสำหรับ CratenewsharecertificateComponent
-      { path: 'transfer-share', component: TransferShareComponent } // ✅ เพิ่มเส้นทางสำหรับ TransferShareComponent
+      { path: 'transfer-share', component: TransferShareComponent }, // ✅ เพิ่มเส้นทางสำหรับ TransferShareComponent
+      { path: 'approve-item', component: ApproveItemComponent}
     ]
   },
   {

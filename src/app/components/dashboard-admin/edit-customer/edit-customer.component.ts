@@ -584,6 +584,7 @@ export class EditCustomerComponent implements OnInit {
         console.error('❌ เกิดข้อผิดพลาด:', err);
         alert('❌ ไม่สามารถส่งคำขอได้');
         this.loading = false;
+        this.cd.detectChanges();
       }
     });
   }
