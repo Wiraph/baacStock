@@ -92,14 +92,6 @@ export class SearchEditComponent implements OnInit, OnChanges {
     this.cd.detectChanges();
     this.onSearch();
 
-    console.log('🔍 Debug Info:');
-    console.log('commonShare:', this.commonShare);
-    console.log('InputcreateNewShareCertificate:', this.InputcreateNewShareCertificate);
-    console.log('isCommonShares:', this.isCommonShares);
-    console.log('isCreateNewShareCertificate:', this.isCreateNewShareCertificate);
-    console.log('Condition result:', this.isCommonShares && !this.isCreateNewShareCertificate);
-    console.log('criteria:', this.criteria);
-
     setTimeout(() => {
       this.onSearch();
     }, 0);
@@ -184,6 +176,12 @@ export class SearchEditComponent implements OnInit, OnChanges {
   onEdit(item: any) {
     this.selectedCusId = item.cusId;
     this.activeView = 'edit';
+  }
+
+  onTransfer(item: any) {
+    this.selectedCusId = item.cusId
+    this.activeView = 'transfer';
+    this.transferStock.emit(item.cusId);
   }
 
   onModeNotify(mode: string) {

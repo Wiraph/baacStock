@@ -61,8 +61,7 @@
         </result-new-certificate>
 
         <result-tranfer-share *ngSwitchCase="'transfer'" [results]="results" [currentPage]="currentPage"
-          [pageSize]="pageSize" [totalItems]="totalItems" (edit)="onEdit($event)"
-          (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc, $event.viewMode)">
+          [pageSize]="pageSize" [totalItems]="totalItems" [mode]="'stock-transfer'" (edit)="onTransfer($event)" (modeNotify)="onModeNotify($event)">
         </result-tranfer-share>
 
       </ng-container>
@@ -120,6 +119,11 @@
     (back)="setView('search')"
     (success)="onEditSuccess()">
   </app-stocks>
+</div>
+
+<!-- หน้าโอนหุ้นเปลี่ยนมือ -->
+<div *ngIf="activeView === 'transfer'">
+  <h1>Hello World</h1>
 </div>
 
 

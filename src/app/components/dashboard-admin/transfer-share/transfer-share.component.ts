@@ -147,8 +147,9 @@ export class TransferShareComponent implements OnInit {
 
 
 
-  onTransferStockSelected(stock: StockItem) {
-    this.selectedStock = stock;
+  onTransferStockSelected(cusId: StockItem) {
+    console.log('รับ cusId จาก search-edit:', cusId);
+    this.selectedStock = cusId;
     this.activeView = 'transfer';
   }
 

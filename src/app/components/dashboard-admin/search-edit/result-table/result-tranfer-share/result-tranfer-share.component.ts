@@ -13,25 +13,14 @@ export class ResultTranferShareComponent {
   @Input() currentPage: number = 1;
   @Input() pageSize: number = 20;
   @Input() totalItems: number = 0;
-  @Input() viewMode: string = '';
+  @Input() mode: string = '';
 
   @Output() edit = new EventEmitter<any>();
   @Output() viewStock = new EventEmitter<any>();
+  @Output() modeNotify = new EventEmitter<string>();
 
-  // onEditClick(r: any) {
-  //   this.viewStock.emit(r);
-  // }
-
-  onViewStockClick(item: any) {
-    const dataToViewStock = {
-      stockNotes: item.stockNotes,
-      cusiD: item.cusId || item.cusId,
-      fullname: item.fullName,
-      stockList: item.stockList,
-      statusDesc: item.statusDesc,
-      viewMode: 'transfer'
-    }
-    console.log("Emit viewStock: ", dataToViewStock);
-    this.viewStock.emit(dataToViewStock);
+  onEditClick(item: any) {
+    this.edit.emit(item);
+    this.modeNotify.emit(this.mode);
   }
 }
