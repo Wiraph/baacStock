@@ -25,6 +25,11 @@ export interface StockItem {
   datetimeup?: string;
 }
 
+export interface StockType {
+  typeCode: string;
+  typeName: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -44,6 +49,13 @@ export class StockService {
       { headers: this.createAuthHeaders() }
     );
   }
+
+  getStockType(): Observable<StockType[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/stocktype`, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
 
 
   private createAuthHeaders(): HttpHeaders {

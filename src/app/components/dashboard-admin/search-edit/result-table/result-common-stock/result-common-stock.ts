@@ -12,16 +12,15 @@ export class ResultCommonStockComponent {
   @Input() currentPage: number = 1;
   @Input() pageSize: number = 20;
   @Input() totalItems: number = 0;
+  @Input() mode: string = '';
 
   @Output() edit = new EventEmitter<any>();
   @Output() viewStock = new EventEmitter<any>();
+  @Output() modeNotify  = new EventEmitter<string>();
 
 
   onEditClick(item: any) {
     this.edit.emit(item);
-  }
-
-  onViewStockClick(item: any) {
-    this.viewStock.emit(item);
+    this.modeNotify .emit(this.mode);
   }
 }

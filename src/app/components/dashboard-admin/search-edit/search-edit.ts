@@ -52,6 +52,7 @@ export class SearchEditComponent implements OnInit, OnChanges {
   selectedName: string = '';
   selectedStockList: string[] = [];
   selectedStatus: string = '';
+  mode: string = '';
 
   criteria: CustomerSearchDto = {
     cusId: '',
@@ -105,7 +106,7 @@ export class SearchEditComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
-    console.log('📦 ข้อมูลใหม่เข้า result-default:', this.results);
+    // console.log('📦 ข้อมูลใหม่เข้า result-default:', this.results);
   }
 
   ngOnInit(): void {
@@ -161,7 +162,6 @@ export class SearchEditComponent implements OnInit, OnChanges {
           this.results = res.data;
           this.totalItems = res.totalItems;
           this.searched = true;
-          console.log('✅ ค้นหาลูกค้าเรียบร้อย:', this.results);
         },
         error: err => {
           console.error('❌ เกิดข้อผิดพลาดจาก API:', err);
@@ -182,14 +182,17 @@ export class SearchEditComponent implements OnInit, OnChanges {
   }
 
   onEdit(item: any) {
-    console.log('✅ รับข้อมูลจากลูก:', item);
     this.selectedCusId = item.cusId;
     this.activeView = 'edit';
-    console.log('✅ เปลี่ยนเป็นหน้า edit แล้ว');
+  }
+
+  onModeNotify(mode: string) {
+    // เปลี่ยนเงื่อนไขการแสดงผล
+    this.mode = mode;
+    console.log("ค่า mode ที่ถูกส่งกลับมา",this.mode);
   }
 
   onViewStock(item: any) {
-    console.log('หุ้น : รับข้อมูลจากลูก: ', item);
     this.selectedCusId = item.cusId;
     this.activeView = 'stock';
   }

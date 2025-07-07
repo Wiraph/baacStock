@@ -1,4 +1,4 @@
-<div class="rounded-xl bg-white shadow-lg">
+<div *ngIf="mode != 'sale-stock-common'" class="rounded-xl bg-white shadow-lg">
     <div class="bg-green-300 py-3 text-center rounded-t-xl">
         <p>{{ titleOptions }} : แก้ไขข้อมูล</p>
     </div>
@@ -288,8 +288,6 @@
                 <div class="grid [grid-template-columns:20%_80%] items-start gap-2">
                     <label class="font-semibold">รับเงินปันผลเป็น :</label>
                     <div class="flex flex-col gap-2">
-
-                        <!-- บัญชีเงินฝาก -->
                         <div class="flex items-center gap-2">
                             <input type="radio" formControlName="stkPayType" value="001" />
                             <span>บัญชีเงินฝาก :</span>
@@ -341,6 +339,416 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </form>
+
+</div>
+
+<div *ngIf="mode === 'sale-stock-common'" class="rounded-xl bg-white shadow-lg">
+    <div class="bg-green-300 py-3 text-center rounded-t-xl">
+        <p>{{ titleOptions }} : ขายหุ้นสามัญ</p>
+    </div>
+    <form *ngIf="activeTab === 'edit'" [@smoothSlide] [formGroup]="customerForm" (ngSubmit)="onSubmit()">
+        <section class="bg-white rounded-xl mx-auto mt-6 p-6 shadow-sm text-sm text-gray-700 space-y-6 max-w-5xl">
+            <p class="text-lg font-semibold text-center">ข้อมูลลูกค้า</p>
+            <div class="grid grid-cols-3 gap-4">
+                <!-- ประเภทลูกค้า -->
+                <div class="p-4 flex flex-col">
+                    <label class="mb-2 font-medium text-gray-700">ประเภทลูกค้า:</label>
+                    <select formControlName="custype"
+                        class="form-select outline-1 outline-gray-500 border p-1 rounded text-gray-500">
+                        <option value="">-- เลือกประเภทลูกค้า --</option>
+                        <option *ngFor="let type of custypeList" [value]="type.cusCode">
+                            {{ type.cusCode }} - {{ type.cusDesc }}
+                        </option>
+                    </select>
+                </div>
+                <!-- ประเภทผู้ถือหุ้น -->
+                <div class="p-4 flex flex-col">
+                    <label class="mb-2 font-medium text-gray-700">ประเภทผู้ถือหุ้น:</label>
+                    <p class="text-blue-600">({{ customerData?.cusCodeg }}) {{ customerData?.cusDesc }}</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4">
+                <!-- บัตรแสดงตน -->
+                <div class="p-4 flex flex-col">
+                    <label class="mb-2 font-medium text-gray-700">บัตรแสดงตน:</label>
+                    <select formControlName="doctype"
+                        class="form-select outline-1 outline-gray-500 border p-1 rounded text-gray-500">
+                        <option value="">-- เลือกบัตรแสดงตน --</option>
+                        <option *ngFor="let doc of doctypeList" [value]="doc.docType">
+                            {{ doc.docDesc }}
+                        </option>
+                    </select>
+                </div>
+                <div class="p-4 flex flex-col">
+                    <label class="mb-2">เลขที่:</label>
+                    <input type="text" formControlName="cusId" readonly
+                        class="form-input border border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600" />
+                </div>
+
+                <div class="p-4 flex flex-col">
+                    <label class="mb-2">Ref:</label>
+                    <input type="text" formControlName="brCode" readonly
+                        class="form-input border border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600" />
+                </div>
+
+                <div class="p-4 flex flex-col">
+                    <label class="mb-2">คำนำหน้า:</label>
+                    <select formControlName="title"
+                        class="form-select outline-1 outline-gray-500 border p-1 rounded text-gray-500">
+                        <option value="">-- เลือกคำนำหน้า --</option>
+                        <option *ngFor="let title of titleList" [value]="title.titleCode">{{ title.titleDesc }}</option>
+                    </select>
+                </div>
+                <div class="p-4 flex flex-col">
+                    <label class="mb-2">ผู้เสียภาษี:</label>
+                    <input type="text" formControlName="taxId" readonly
+                        class="form-input border border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600" />
+                </div>
+                <div class="p-4 flex flex-col">
+                    <label class="mb-2">ถือหุ้น:</label>
+                    <div class="flex flex-row text-center gap-2 items-center">
+                        <input type="text" formControlName="totalStock" readonly
+                            class="form-input text-right border border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600" />
+                        <p>หุ้น</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-4 flex flex-col">
+                    <label class="mb-2">ชื่อ:</label>
+                    <input formControlName="fname" readonly
+                        class="form-input border border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600" />
+                </div>
+                <div class="p-4 flex flex-col">
+                    <label class="mb-2">นามสกุล:</label>
+                    <input formControlName="lname" readonly
+                        class="form-input border border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600" />
+                </div>
+            </div>
+        </section>
+
+        <!-- ที่อยู่ตามทะเบียนบ้าน -->
+        <section class="bg-white rounded-xl mx-auto mt-6 p-6 shadow-sm text-sm text-gray-700 space-y-6 max-w-5xl">
+            <p class="text-lg font-semibold text-center">ที่อยู่ตามทะเบียนบ้าน</p>
+            <div formGroupName="addressCa">
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="p-4 flex flex-col">
+                        <label class="mb-2" for="houseno">เลขที่:</label>
+                        <input formControlName="houseno"
+                            class="form-input outline-1 bg-green-200 outline-green-500 border border-green-500 p-1 rounded focus:outline-green-600 focus:outline-2" />
+                    </div>
+                    <div class="p-4 flex flex-col">
+                        <label class="mb-2" for="trogSoi">ซอย:</label>
+                        <input formControlName="trogSoi"
+                            class="form-input outline-1 bg-green-200 outline-green-500 border border-green-500 p-1 rounded focus:outline-green-600 focus:outline-2" />
+                    </div>
+                    <div class="p-4 flex flex-col">
+                        <label class="mb-2" for="road">ถนน:</label>
+                        <input formControlName="road"
+                            class="form-input outline-1 bg-green-200 outline-green-500 border border-green-500 p-1 rounded focus:outline-green-600 focus:outline-2" />
+                    </div>
+                    <div class="p-4 flex flex-col">
+                        <label for="prvCode" class="mb-2">จังหวัด:</label>
+                        <select formControlName="prvCode"
+                            class="form-select outline-1 bg-green-200 outline-green-500 border border-green-500 p-1 rounded focus:outline-green-600 focus:outline-2">
+                            <option value="">-- เลือกจังหว้ด --</option>
+                            <option *ngFor="let prv of prvList" [value]="prv.prvCode">
+                                {{ prv.prvName }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="p-4 flex flex-col">
+                        <label for="ampCode" class="mb-2">เขต/อำเภอ:</label>
+                        <select formControlName="ampCode"
+                            class="form-select outline-1 bg-green-200 outline-green-500 border border-green-500 p-1 rounded focus:outline-green-600 focus:outline-2">
+                            <option value="">-- เลือกเขต/อำเภอ --</option>
+                            <option *ngFor="let amp of ampList" [value]="amp.ampCode">
+                                {{ amp.ampName }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="p-4 flex flex-col">
+                        <label for="tmbCode" class="mb-2">แขวง/ตำบล:</label>
+                        <select formControlName="tmbCode"
+                            class="form-select outline-1 bg-green-200 outline-green-500 border border-green-500 p-1 rounded focus:outline-green-600 focus:outline-2">
+                            <option value="">-- เลือกแขวง/ตำบล --</option>
+                            <option *ngFor="let tmb of tbList" [value]="tmb.tmbCode">
+                                {{ tmb.tmbName }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="p-4 flex flex-col">
+                        <label for="zipCode" class="mb-2">รหัสไปรษณีย์:</label>
+                        <input formControlName="zipcode"
+                            class="form-input border border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600"
+                            readonly />
+                    </div>
+                    <div class="p-4 flex flex-col">
+                        <label for="phone" class="mb-2">โทรศัพท์บ้าน:</label>
+                        <input formControlName="phone"
+                            class="form-input outline-1 bg-green-200 outline-green-500 border border-green-500 p-1 rounded focus:outline-green-600 focus:outline-2" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ที่อยู่ที่ติดต่อได้ -->
+        <section class="bg-white rounded-xl mx-auto mt-6 p-6 shadow-sm text-sm text-gray-700 space-y-6 max-w-5xl">
+            <p class="text-lg font-semibold text-center">ที่อยู่ที่สามารถติดต่อได้</p>
+            <div formGroupName="addressHa">
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="p-4 flex flex-col">
+                        <label class="mb-2" for="houseno">เลขที่:</label>
+                        <input formControlName="houseno" readonly
+                            class="form-input border border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600" />
+                    </div>
+                    <div class="p-4 flex flex-col">
+                        <label class="mb-2" for="trogSoi">ซอย:</label>
+                        <input formControlName="trogSoi" readonly
+                            class="form-input border border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600" />
+                    </div>
+                    <div class="p-4 flex flex-col">
+                        <label class="mb-2" for="road">ถนน:</label>
+                        <input formControlName="road" readonly
+                            class="form-input border border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600" />
+                    </div>
+                    <div class="p-4 flex flex-col">
+                        <label for="prvCode" class="mb-2">จังหวัด:</label>
+                        <select formControlName="prvCode"
+                            class="form-select outline-1 outline-gray-500 border p-1 rounded text-gray-500">
+                            <option value="">-- เลือกจังหว้ด --</option>
+                            <option *ngFor="let prv of prvList" [value]="prv.prvCode">
+                                {{ prv.prvName }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="p-4 flex flex-col">
+                        <label for="ampCode" class="mb-2">เขต/อำเภอ:</label>
+                        <select formControlName="ampCode"
+                            class="form-select outline-1 outline-gray-500 border p-1 rounded text-gray-500">
+                            <option value="">-- เลือกเขต/อำเภอ --</option>
+                            <option *ngFor="let amp of ampList" [value]="amp.ampCode">
+                                {{ amp.ampName }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="p-4 flex flex-col">
+                        <label for="tmbCode" class="mb-2">แขวง/ตำบล:</label>
+                        <select formControlName="tmbCode"
+                            class="form-select outline-1 outline-gray-500 border p-1 rounded text-gray-500">
+                            <option value="">-- เลือกแขวง/ตำบล --</option>
+                            <option *ngFor="let tmb of tbList" [value]="tmb.tmbCode">
+                                {{ tmb.tmbName }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="p-4 flex flex-col">
+                        <label for="zipCode" class="mb-2">รหัสไปรษณีย์:</label>
+                        <input formControlName="zipcode"
+                            class="form-input border border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600"
+                            readonly />
+                    </div>
+                    <div class="p-4 flex flex-col">
+                        <label for="phone" class="mb-2">โทรศัพท์บ้าน:</label>
+                        <input formControlName="phone" readonly
+                            class="form-input border border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- อีเมล -->
+        <section class="bg-white rounded-xl mx-auto mt-6 p-6 shadow-sm text-sm text-gray-700 space-y-6 max-w-5xl">
+            <div class="grid grid-cols-1">
+                <p class="text-lg font-semibold text-center">ข้อมูลที่สามารถติดต่อได้ทางอินเทอร์เน็ต</p>
+                <div class="flex flex-col px-4">
+                    <label class="mb-2" for="email">อีเมล:</label>
+                    <input formControlName="email"
+                        class="form-input outline-1 bg-green-200 outline-green-500 border border-green-500 p-1 rounded focus:outline-green-600 focus:outline-2" />
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-xl mx-auto mt-6 p-6 shadow-sm text-sm text-gray-700 space-y-6 max-w-5xl">
+            <!-- ที่อยู่จากระบบเดิม -->
+            <div formGroupName="addressCa">
+                <div class="flex flex-col">
+                    <p class="text-lg font-semibold text-center">ที่อยู่ที่สามารถติดต่อได้จากระบบเดิม</p>
+                    <div class="flex flex-col px-4">
+                        <label class="mb-2" for="addr1">ที่อยู่1:</label>
+                        <input formControlName="addr1"
+                            class="form-input border text-gray-500 border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600"
+                            readonly />
+                    </div>
+                    <div class="flex flex-col p-4">
+                        <label class="mb-2" for="addr2">ที่อยู่2:</label>
+                        <input formControlName="addr2"
+                            class="form-input border text-gray-500 border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600"
+                            readonly />
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- section ความประสงค์ซื้อหุ้น -->
+        <section class="bg-white rounded-xl mx-auto mt-6 p-6 shadow-sm text-sm text-gray-700 space-y-6 max-w-5xl">
+            <!-- หัวข้อ -->
+            <div class="text-center">
+                <p class="text-lg font-semibold mb-4">มีความประสงค์ซื้อหุ้นดังนี้</p>
+            </div>
+
+            <!-- ประเภทหุ้น และ รายละเอียดหุ้น -->
+            <div class="grid grid-cols-[30%_70%] gap-4 w-full items-start">
+
+                <!-- ประเภทหุ้น -->
+                <div class="flex items-center gap-2">
+                    <label class="w-32">ประเภทหุ้น:</label>
+                    <select formControlName="stktype" class="border px-2 py-1 rounded bg-gray-50" name="stockType">
+                        <option *ngFor="let st of stockList" [value]="st.stkType">{{ st.stkDesc }}</option>
+                    </select>
+                </div>
+
+                <!-- รายละเอียดหุ้น -->
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2">
+                        <label class="w-32">เลขที่ใบคำขอ:</label>
+                        <input formControlName="stkReqNo" type="text"
+                            class="form-input outline-1 outline-green-500 border border-green-500 p-1 rounded focus:outline-green-600 focus:outline-2 bg-green-200"
+                            name="requestNo">
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <label class="w-32">ราคาหุ้นละ:</label>
+                        <input type="string" formControlName="stkPrice" [value]="100" readonly
+                            class="form-input border text-gray-500 border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600">
+                        บาท
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <label class="w-32 items-start">จำนวน:</label>
+                        <div>
+                            <div>
+                                <input type="number" formControlName="stkUnit"
+                                    class="form-input outline-1 outline-green-500 border border-green-500 p-1 rounded focus:outline-green-600 focus:outline-2 bg-green-200">
+                                หุ้น
+                            </div>
+                            <div class="text-center">
+                                <span class="inline-block px-2" [style.minWidth.px]="50">
+                                    ( {{ customerForm.get('txtUnit')?.value || '-' }} )
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <label class="w-32">รวมเป็นเงิน:</label>
+                        <div>
+                            <div>
+                                <input type="text" formControlName="stkAmount"
+                                    class="form-input border text-gray-500 border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600"
+                                    readonly> บาท
+                            </div>
+                            <div class="text-center">
+                                <span class="inline-block px-2" [style.minWidth.px]="50">
+                                    ( {{ customerForm.get('txtValue')?.value || '-' }} )
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- วิธีชำระเงิน -->
+            <div formGroupName="stockDividend" class="grid grid-cols-[30%_70%] gap-4 items-start">
+                <label class="mt-1">ชำระโดย:</label>
+                <div class="space-y-2">
+                    <label class="flex items-center gap-2">
+                        <input formControlName="stkSaleBy" type="radio" value="CSD"> เงินสด
+                    </label>
+
+                    <div>
+                        <label class="flex items-center gap-2">
+                            <input type="radio" formControlName="stkSaleBy" value="TRD">
+                            โอนจากบัญชี ธ.ก.ส.
+                        </label>
+                        <div class="ml-6 mt-1 grid grid-cols-2 gap-2">
+                            <input placeholder="เลขที่บัญชี" class="border p-1 rounded"
+                                formControlName="stkSaleByTRACCno">
+                            <input placeholder="ชื่อบัญชี" class="border p-1 rounded"
+                                formControlName="stkSaleByTRACCname">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="flex items-center gap-2">
+                            <input type="radio" formControlName="stkSaleBy" value="CLD"> เช็ค
+                        </label>
+                        <div class="ml-6 mt-1 grid grid-cols-2 gap-2">
+                            <input placeholder="เลขที่เช็ค" class="border p-1 rounded" formControlName="stkSaleByCHQno">
+                            <input placeholder="วันที่" type="date" class="border p-1 rounded"
+                                formControlName="stkSaleByCHQdat">
+                            <input placeholder="ธนาคาร" class="border p-1 rounded" formControlName="stkSaleByCHQbnk">
+                            <input placeholder="สาขา" class="border p-1 rounded" formControlName="stkSaleCHQbrn">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- รับเงินปันผล -->
+            <div class="grid grid-cols-[30%_70%] gap-4 w-full items-start">
+
+                <!-- Label ฝั่งซ้าย -->
+                <label class="font-medium whitespace-nowrap mt-1">รับเงินปันผลเป็น:</label>
+
+                <!-- เนื้อหาฝั่งขวา -->
+                <div formGroupName="stockDividend" class="flex flex-col gap-6">
+
+                    <!-- ✅ ตัวเลือก: บัญชีเงินฝาก -->
+                    <div class="flex gap-3 items-start">
+                        <!-- Radio และเนื้อหา -->
+                        <label class="flex items-center gap-3">
+                            <input type="radio" formControlName="stkPayType" value="001" class="accent-blue-600">
+                            <span class="text-sm whitespace-nowrap">บัญชีเงินฝาก:</span>
+
+                            <select formControlName="stkAcctype" class="border rounded px-2 py-1 text-sm">
+                                <option *ngFor="let acc of acctypeList" [value]="acc.accType">{{acc.accDesc}}</option>
+                            </select>
+
+                            <span class="ml-4 text-sm whitespace-nowrap">บัญชีเลขที่:</span>
+                            <input formControlName="stkAccno" class="border rounded px-2 py-1 w-52 text-sm"
+                                placeholder="000-0-00000-0">
+                        </label>
+                    </div>
+
+                    <!-- บรรทัดที่สอง: ชื่อบัญชี -->
+                    <div class="flex items-center gap-2 ml-6">
+                        <label class="whitespace-nowrap text-sm">ชื่อบัญชี:</label>
+                        <input formControlName="stkAccname" class="border rounded px-2 py-1 flex-1 text-sm"
+                            placeholder="ชื่อบัญชีผู้รับเงิน">
+                    </div>
+
+
+                    <!-- ✅ ตัวเลือก: บริจาค -->
+                    <div class="flex items-center gap-3">
+                        <input type="radio" formControlName="stkPayType" value="003">
+                        <label class="text-sm text-gray-800">บริจาคให้ ธ.ก.ส.</label>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+
+
+        <div class="flex justify-end space-x-3 p-4">
+            <button type="submit" [disabled]="loading"
+                class="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-60">💾 บันทึก</button>
+            <button type="button" class="bg-gray-400 text-white px-4 py-2 rounded" (click)="goBack()">↩️
+                ย้อนกลับ</button>
         </div>
     </form>
 

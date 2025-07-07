@@ -1,8 +1,13 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CustomerService } from '../../../services/customer';
+import { StockService, StockType } from '../../../services/stock';
+import { AccType, AccTypeService } from '../../../services/acc-type';
+import { StockRequestService } from '../../../services/stock-request';
 import { CommonModule } from '@angular/common';
 import { combineLatest, from } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import thaiBaht from 'thai-baht-text'
 import {
   trigger,
   transition,
@@ -44,12 +49,17 @@ import {
 })
 export class EditCustomerComponent implements OnInit {
   @Input() cusId!: string;
+  @Input() mode!: string;
+
   @Output() back = new EventEmitter<void>();
   @Output() success = new EventEmitter<void>();
 
   constructor(
     private fb: FormBuilder,
     private customerService: CustomerService,
+    private stockService: StockService,
+    private acctypeServide: AccTypeService,
+    private stockRequestService: StockRequestService,
     private cd: ChangeDetectorRef
   ) { }
 
@@ -101,6 +111,8 @@ export class EditCustomerComponent implements OnInit {
   titleOptions = '';
   custypeList: any[] = [];
   doctypeList: any[] = [];
+  stockList: any[] = [];
+  acctypeList: any[] = [];
   titleList: any[] = [];
   prvList: any[] = [];
   ampList: any[] = [];
@@ -116,10 +128,55 @@ export class EditCustomerComponent implements OnInit {
     this.initForm();
     this.setupFormListeners();
     this.loadCustomerData();
-    // this.customerForm.valueChanges.subscribe(value => {
-    //   console.log('📝 Form value changed:', value);
-    // });
+
+    this.customerForm.get('stkUnit')?.valueChanges
+      .pipe(
+        debounceTime(800),          // ✅ หน่วง 400ms หลังจากพิมพ์
+        distinctUntilChanged()      // ✅ ค่าเปลี่ยนจริงเท่านั้นถึงจะทำ
+      )
+      .subscribe(() => {
+        this.calculateStockAmount();
+      });
+
+    this.customerForm.get('stkPrice')?.valueChanges
+      .pipe(
+        debounceTime(800),
+        distinctUntilChanged()
+      )
+      .subscribe(() => {
+        this.calculateStockAmount();
+      });
+
+
   }
+
+  calculateStockAmount(): void {
+    const unit = Number(this.customerForm.get('stkUnit')?.value || 0);
+    const price = Number(this.customerForm.get('stkPrice')?.value || 0);
+
+    if (!unit || unit < 50) {
+      this.customerForm.get('stkAmount')?.setValue('', { emitEvent: false });
+      this.customerForm.get('txtUnit')?.setValue('', { emitEvent: false });
+      this.customerForm.get('txtValue')?.setValue('', { emitEvent: false });
+      alert('ไม่สามารถซื้อต่ำกว่า 50 หุ้นได้');
+      return;
+    }
+    
+    const amount = unit * price;
+    
+    // แปลงจำนวนหุ้นเป็นข้อความภาษาไทย
+    const unitText = thaiBaht(unit).replace('บาทถ้วน', 'หุ้น');
+    const amountText = thaiBaht(amount);
+    
+    this.customerForm.get('stkAmount')?.setValue(amount.toFixed(2), { emitEvent: false });
+    this.customerForm.get('txtUnit')?.setValue(unitText, { emitEvent: false });
+    this.customerForm.get('txtValue')?.setValue(amountText, { emitEvent: false });
+    this.cd.detectChanges();
+  }
+
+
+
+
 
   setupFormListeners() {
     this.customerForm.get('addressCa.prvCode')?.valueChanges.subscribe((prvCode) => {
@@ -153,6 +210,17 @@ export class EditCustomerComponent implements OnInit {
         this.customerForm.get('addressCa.zipcode')?.setValue(selectedTb.zipCode);
       }
     });
+
+    this.customerForm.get('stkUnit')?.valueChanges.subscribe((unit) => {
+      const price = this.customerForm.get('stkPrice')?.value || 0;
+      const value = Number(unit || 0) * Number(price);
+
+      this.customerForm.patchValue({
+        stkAmount: value.toFixed(2),
+        stkValue: value
+      }, { emitEvent: false });
+    });
+
   }
 
 
@@ -160,16 +228,26 @@ export class EditCustomerComponent implements OnInit {
   initForm() {
     this.customerForm = this.fb.group({
       cusId: ['', Validators.required],
-      title: ['', Validators.required],
+      title: [{ value: '', disabled: this.mode === 'sale-stock-common' }, Validators.required],
       fname: ['', Validators.required],
       lname: ['', Validators.required],
       brCode: [''],
-      custype: [''],
-      doctype: [''],
+      custype: [{ value: '', disabled: this.mode === 'sale-stock-common' }, Validators.required],
+      doctype: [{ value: '', disabled: this.mode === 'sale-stock-common' }],
       taxId: [''],
       totalStock: [''],
       email: [''],
       cusCodeg: [''],
+      stktype: [{ value: 'A', disabled: this.mode === 'sale-stock-common' }, Validators.required],
+      accType: [['001']],
+      stkReqNo: ['', Validators.required],
+      stkUnit: [0, [Validators.required, Validators.min(1)]],
+      stkValue: [null, Validators.required],
+      stkPrice: [100],
+      stkPayType: ['', Validators.required],
+      stkAmount: [{ value: '', disabled: true }],
+      txtUnit: [''],
+      txtValue: [''],
 
       addressCa: this.fb.group({
         houseno: [''],
@@ -187,9 +265,9 @@ export class EditCustomerComponent implements OnInit {
         houseno: [''],
         road: [''],
         trogSoi: [''],
-        prvCode: [''],
-        ampCode: [''],
-        tmbCode: [''],
+        prvCode: [{ value: '', disabled: this.mode === 'sale-stock-common' }],
+        ampCode: [{ value: '', disabled: this.mode === 'sale-stock-common' }],
+        tmbCode: [{ value: '', disabled: this.mode === 'sale-stock-common' }],
         zipcode: [''],
         phone: ['']
       }),
@@ -197,7 +275,7 @@ export class EditCustomerComponent implements OnInit {
         stkNote: [''],
         stkPayType: [''],
         stkPayDesc: [''],
-        stkAcctype: [''],
+        stkAcctype: [{ value: '', disabled: this.mode === 'sale-stock-common' }],
         stkAccno: [''],
         stkAccname: [''],
         hostname: [''],
@@ -218,7 +296,7 @@ export class EditCustomerComponent implements OnInit {
         stkType: [''],
         stkPayStat: [''],
         stkReqNo: [''],
-        stkSaleBy: [''],
+        stkSaleBy: ['', Validators.required],
         stkSaleByTRACCno: [''],
         stkSaleByTRACCname: [''],
         stkSaleByCHQno: [''],
@@ -230,7 +308,7 @@ export class EditCustomerComponent implements OnInit {
         brCode: [''],
         datetimeup: [''],
         userid: [''],
-        ipaddress: ['']
+        ipaddress: [''],
       })
     });
   }
@@ -245,16 +323,19 @@ export class EditCustomerComponent implements OnInit {
       this.customerService.getAllDoctype(),
       this.customerService.getAllProvince(),
       this.customerService.getAllAcctypes(),
+      this.stockService.getStockType(),
+      this.acctypeServide.getAllAccTypes(),
     ]).subscribe({
-      next: async ([customer, titleList, custypeList, doctypeList, prvList, accList]) => {
+      next: async ([customer, titleList, custypeList, doctypeList, prvList, accList, stockList, acctypeList]) => {
         this.customerData = customer;
         this.titleList = titleList;
         this.custypeList = custypeList;
         this.doctypeList = doctypeList;
         this.prvList = prvList;
         this.accList = accList;
-        console.log("customer DATA:", customer);
-        // console.log("accList DATA:", accList);
+        this.stockList = stockList;
+        this.acctypeList = acctypeList;
+        console.log("StockList DATA:", stockList);
 
         // Set ข้อมูลหลักก่อน
         this.customerForm.patchValue({
@@ -408,12 +489,30 @@ export class EditCustomerComponent implements OnInit {
     });
   }
 
+  loadStockTypes(): void {
+    this.stockService.getStockType().subscribe({
+      next: (types) => {
+        this.stockList = types;
+      },
+      error: (err) => {
+        console.error('โหลดประเภทหุ้นไม่สำเร็จ', err);
+      }
+    });
+  }
+
+  loadAccTypes(): void {
+    this.acctypeServide.getAllAccTypes().subscribe({
+      next: (accTypes) => {
+        this.acctypeList = accTypes;
+      },
+      error: (err) => {
+        console.error('โหดลประเภทบัญชีไม่สำเร็จ', err);
+      }
+    })
+  }
+
 
   onTabChange(tabName: 'edit' | 'dividend') {
-    // console.log(`🔄 Switching to ${tabName} tab`);
-    // console.log('📋 Current form value:', this.customerForm.value);
-    // console.log('💾 Form cache:', this.formCache);
-
     this.activeTab = tabName;
   }
 
@@ -422,81 +521,116 @@ export class EditCustomerComponent implements OnInit {
   onSubmit() {
     this.loading = true;
 
+    if (this.mode === 'sale-stock-common') {
+      this.submitSaleStock();
+    } else {
+      const form = this.customerForm.value;
+
+      const customerPayload = {
+        customer: {
+          cusiD: form.cusId,
+          cusFname: form.fname,
+          cusLname: form.lname,
+          cusCode: form.custype,
+          cusCodeg: form.cusCodeg,
+          docType: form.doctype,
+          title: form.title,
+        },
+        homeAddress: form.addressHa,
+        currentAddress: form.addressCa,
+        stockDividend: {
+          stkNote: form.stockDividend.stkNote,
+          stkPayType: form.stockDividend.stkPayType,
+          stkAcctype: form.stockDividend.stkAcctype,
+          stkAccno: form.stockDividend.stkAccno,
+          stkAccname: form.stockDividend.stkAccname,
+          stkOwnID: form.stockDividend.stkOwnID,
+          stkRemCode: form.stockDividend.stkRemCode, logBrCode: this.brCode
+        }
+      };
+      this.customerService.updateCustomer(customerPayload).subscribe({
+        next: () => {
+          alert('✅ แก้ไขข้อมูลเรียบร้อย');
+          this.success.emit();
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('❌ เกิดข้อผิดพลาด:', err);
+          alert('❌ เกิดข้อผิดพลาดในการบันทึก');
+          this.loading = false;
+          this.goBack();
+        }
+      });
+    }
+  }
+
+  submitSaleStock() {
+    const stockSection = this.customerForm.get('stockDividend');
+    const stkUnitValue = Number(this.customerForm.get('stkUnit')?.value);
+
+    // ตรวจสอบว่า valid ไหม
+    if (!stockSection || stockSection.invalid || !this.customerForm.get('stktype')?.value || !this.customerForm.get('stkReqNo')?.value) {
+      alert('❗ กรุณากรอกข้อมูลในส่วนการซื้อหุ้นให้ครบถ้วน');
+      stockSection?.markAllAsTouched();
+      this.customerForm.get('stktype')?.markAsTouched();
+      this.loading = false;
+      return;
+    }
+
+
+    if (isNaN(stkUnitValue) || stkUnitValue < 50) {
+      alert('❗ ไม่สามารถขายต่ำกว่า 50 หุ้นได้');
+      this.loading = false;
+      this.cd.detectChanges();
+      return;
+    }
+
     const form = this.customerForm.value;
 
-    const customerPayload = {
-      customer: {
-        cusiD: form.cusId,
-        cusFname: form.fname,
-        cusLname: form.lname,
-        cusCode: form.custype,
-        cusCodeg: form.cusCodeg,
-        docType: form.doctype,
-        title: form.title,
-      },
-      homeAddress: form.addressHa,
-      currentAddress: form.addressCa,
-      stockDividend: {
-        stkNote: form.stockDividend.stkNote,
-        stkPayType: form.stockDividend.stkPayType,
-        stkPayDesc: form.stockDividend.stkPayDesc,
-        stkAcctype: form.stockDividend.stkAcctype,
-        stkAccno: form.stockDividend.stkAccno,
-        stkAccname: form.stockDividend.stkAccname,
-        hostname: form.stockDividend.hostname,
-        stkNOTEo: form.stockDividend.stkNOTEo,
-        stkNOStart: form.stockDividend.stkNOStart,
-        stkNOStop: form.stockDividend.stkNOStop,
-        stkUnit: form.stockDividend.stkUnit,
-        stkValue: form.stockDividend.stkValue,
-        stkDvnBF: form.stockDividend.stkDvnBF,
-        stkDvnCUR: form.stockDividend.stkDvnCUR,
-        stkTaxBF: form.stockDividend.stkTaxBF,
-        stkTaxCUR: form.stockDividend.stkTaxCUR,  
-        stkDateInput: form.stockDividend.stkDateInput,
-        stkDateEffect: form.stockDividend.stkDateEffect,
-        stkDateIssue: form.stockDividend.stkDateIssue,
-        stkDatePrint: form.stockDividend.stkDatePrint,
-        stkOwnID: form.stockDividend.stkOwnID,
-        stkType: form.stockDividend.stkType,
-        stkPayStat: form.stockDividend.stkPayStat,
-        stkReqNo: form.stockDividend.stkReqNo,
-        stkSaleBy: form.stockDividend.stkSaleBy,
-        stkSaleByTRACCno: form.stockDividend.stkSaleByTRACCno,
-        stkSaleByTRACCname: form.stockDividend.stkSaleByTRACCname,
-        stkSaleByCHQno: form.stockDividend.stkSaleByCHQno,
-        stkSaleByCHQdat: form.stockDividend.stkSaleByCHQdat,
-        stkSaleByCHQbnk: form.stockDividend.stkSaleByCHQbnk,
-        stkSaleCHQbrn: form.stockDividend.stkSaleCHQbrn,
-        stkStatus: form.stockDividend.stkStatus,
-        stkRemCode: form.stockDividend.stkRemCode,
-        brCode: form.stockDividend.brCode,
-        datetimeup: form.stockDividend.datetimeup,
-        userid: form.stockDividend.userid,
-        ipaddress: form.stockDividend.ipaddress,
-        logBrCode: this.brCode
-      }
+    const payload = {
+      cusId: form.cusId,
+      fname: form.fname,
+      lname: form.lname,
+      brCode: form.brCode,
 
+      stock: {
+        stktype: 'A',
+        requestNo: form.stkReqNo,
+        unit: Number(form.stkUnit),
+        value: Number(form.stkValue),
+        stkNote: form.stockDividend.stkNote || '',
+      },
+
+      payment: {
+        stkSaleBy: form.stockDividend?.stkSaleBy || '',
+        method: form.stockDividend?.stkPayType || '',
+        accNo: form.stockDividend?.stkAccno || '',
+        accName: form.stockDividend?.stkAccname || '',
+        accType: this.customerForm.get('stockDividend.stkAcctype')?.value || '',
+        chqNo: form.stockDividend?.stkSaleByCHQno || '',
+        chqDate: form.stockDividend?.stkSaleByCHQdat || '',
+        chqBank: form.stockDividend?.stkSaleByCHQbnk || '',
+        chqBranch: form.stockDividend?.stkSaleCHQbrn || '',
+      }
     };
 
-    console.log("👉 Payload ที่ส่งไป:", customerPayload);
-
-    this.customerService.updateCustomer(customerPayload).subscribe({
-      next: () => {
-        alert('✅ แก้ไขข้อมูลเรียบร้อย');
-        this.success.emit();
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('❌ เกิดข้อผิดพลาด:', err);
-        alert('❌ เกิดข้อผิดพลาดในการบันทึก');
-        this.loading = false;
-        this.goBack();
-      }
-    });
+    console.log('📦 ข้อมูลการขอซื้อหุ้น:', payload);
+      this.stockRequestService.submitRequest(payload).subscribe({
+        next: () => {
+          alert('✅ ส่งคำขอเรียบร้อยแล้ว');
+          this.success.emit();
+        },
+        error: (err) => {
+          console.error('❌ เกิดข้อผิดพลาด:', err.error?.message || err.message || err);
+          alert('❌ ไม่สามารถส่งคำขอได้');
+          this.loading = false;
+          this.cd.detectChanges();
+        }
+      });
   }
 
   goBack() {
     this.back.emit();
   }
+
 }
