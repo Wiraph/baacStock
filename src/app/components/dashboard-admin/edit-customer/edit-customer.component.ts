@@ -591,7 +591,7 @@ export class EditCustomerComponent implements OnInit {
       cusId: form.cusId,
       fname: form.fname,
       lname: form.lname,
-      brCode: form.brCode,
+      brCode: sessionStorage.getItem('brCode'),
 
       stock: {
         stktype: 'A',
