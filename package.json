@@ -25,6 +25,7 @@
     "ngx-pagination": "^6.0.3",
     "postcss": "^8.5.4",
     "rxjs": "~7.8.0",
+    "thai-baht-text": "^2.0.5",
     "tslib": "^2.3.0"
   },
   "devDependencies": {

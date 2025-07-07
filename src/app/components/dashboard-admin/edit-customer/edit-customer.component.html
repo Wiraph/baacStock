@@ -285,7 +285,7 @@
                 </div>
 
                 <!-- วิธีรับเงินปันผล -->
-                 <div class="grid [grid-template-columns:20%_80%] items-start gap-2">
+                <div class="grid [grid-template-columns:20%_80%] items-start gap-2">
                     <label class="font-semibold">รับเงินปันผลเป็น :</label>
                     <div class="flex flex-col gap-2">
                         <div class="flex items-center gap-2">
@@ -369,7 +369,7 @@
                     <p class="text-blue-600">({{ customerData?.cusCodeg }}) {{ customerData?.cusDesc }}</p>
                 </div>
             </div>
-    
+
             <div class="grid grid-cols-3 gap-4">
                 <!-- บัตรแสดงตน -->
                 <div class="p-4 flex flex-col">
@@ -387,13 +387,13 @@
                     <input type="text" formControlName="cusId" readonly
                         class="form-input border border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600" />
                 </div>
-    
+
                 <div class="p-4 flex flex-col">
                     <label class="mb-2">Ref:</label>
                     <input type="text" formControlName="brCode" readonly
                         class="form-input border border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600" />
                 </div>
-    
+
                 <div class="p-4 flex flex-col">
                     <label class="mb-2">คำนำหน้า:</label>
                     <select formControlName="title"
@@ -416,7 +416,7 @@
                     </div>
                 </div>
             </div>
-    
+
             <div class="grid grid-cols-2 gap-4">
                 <div class="p-4 flex flex-col">
                     <label class="mb-2">ชื่อ:</label>
@@ -623,20 +623,40 @@
                     <div class="flex items-center gap-2">
                         <label class="w-32">ราคาหุ้นละ:</label>
                         <input type="string" formControlName="stkPrice" [value]="100" readonly
-                            class="form-input border text-gray-500 border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600"> บาท
+                            class="form-input border text-gray-500 border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600">
+                        บาท
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <label class="w-32">จำนวน:</label>
-                        <input type="number" formControlName="stkUnit"
-                            class="form-input outline-1 outline-green-500 border border-green-500 p-1 rounded focus:outline-green-600 focus:outline-2 bg-green-200"> หุ้น
+                        <label class="w-32 items-start">จำนวน:</label>
+                        <div>
+                            <div>
+                                <input type="number" formControlName="stkUnit"
+                                    class="form-input outline-1 outline-green-500 border border-green-500 p-1 rounded focus:outline-green-600 focus:outline-2 bg-green-200">
+                                หุ้น
+                            </div>
+                            <div class="text-center">
+                                <span class="inline-block px-2" [style.minWidth.px]="50">
+                                    ( {{ customerForm.get('txtUnit')?.value || '-' }} )
+                                </span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="flex items-center gap-2">
                         <label class="w-32">รวมเป็นเงิน:</label>
-                        <input type="text" formControlName="stkAmount"
-                            class="form-input border text-gray-500 border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600"
-                            readonly> บาท
+                        <div>
+                            <div>
+                                <input type="text" formControlName="stkAmount"
+                                    class="form-input border text-gray-500 border-blue-600 outline-1 outline-blue-600 p-1 rounded focus:outline-blue-600"
+                                    readonly> บาท
+                            </div>
+                            <div class="text-center">
+                                <span class="inline-block px-2" [style.minWidth.px]="50">
+                                    ( {{ customerForm.get('txtValue')?.value || '-' }} )
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -646,27 +666,30 @@
                 <label class="mt-1">ชำระโดย:</label>
                 <div class="space-y-2">
                     <label class="flex items-center gap-2">
-                        <input formControlName="stkSaleBy" type="radio"  value="002"> เงินสด
+                        <input formControlName="stkSaleBy" type="radio" value="CSD"> เงินสด
                     </label>
 
                     <div>
                         <label class="flex items-center gap-2">
-                            <input type="radio" formControlName="stkSaleBy" value="001">
+                            <input type="radio" formControlName="stkSaleBy" value="TRD">
                             โอนจากบัญชี ธ.ก.ส.
                         </label>
                         <div class="ml-6 mt-1 grid grid-cols-2 gap-2">
-                            <input placeholder="เลขที่บัญชี" class="border p-1 rounded" formControlName="stkSaleByTRACCno">
-                            <input placeholder="ชื่อบัญชี" class="border p-1 rounded" formControlName="stkSaleByTRACCname">
+                            <input placeholder="เลขที่บัญชี" class="border p-1 rounded"
+                                formControlName="stkSaleByTRACCno">
+                            <input placeholder="ชื่อบัญชี" class="border p-1 rounded"
+                                formControlName="stkSaleByTRACCname">
                         </div>
                     </div>
 
                     <div>
                         <label class="flex items-center gap-2">
-                            <input type="radio" formControlName="stkSaleBy" value="เช็ค"> เช็ค
+                            <input type="radio" formControlName="stkSaleBy" value="CLD"> เช็ค
                         </label>
                         <div class="ml-6 mt-1 grid grid-cols-2 gap-2">
                             <input placeholder="เลขที่เช็ค" class="border p-1 rounded" formControlName="stkSaleByCHQno">
-                            <input placeholder="วันที่" type="date" class="border p-1 rounded" formControlName="stkSaleByCHQdat">
+                            <input placeholder="วันที่" type="date" class="border p-1 rounded"
+                                formControlName="stkSaleByCHQdat">
                             <input placeholder="ธนาคาร" class="border p-1 rounded" formControlName="stkSaleByCHQbnk">
                             <input placeholder="สาขา" class="border p-1 rounded" formControlName="stkSaleCHQbrn">
                         </div>

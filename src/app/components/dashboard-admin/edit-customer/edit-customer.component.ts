@@ -6,6 +6,8 @@ import { AccType, AccTypeService } from '../../../services/acc-type';
 import { StockRequestService } from '../../../services/stock-request';
 import { CommonModule } from '@angular/common';
 import { combineLatest, from } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import thaiBaht from 'thai-baht-text'
 import {
   trigger,
   transition,
@@ -127,14 +129,53 @@ export class EditCustomerComponent implements OnInit {
     this.setupFormListeners();
     this.loadCustomerData();
 
-    this.customerForm.get('stkUnit')?.valueChanges.subscribe(unit => {
-      const price = this.customerForm.get('stkPrice')?.value || 0;
-      const amount = Number(unit || 0) * Number(price);
-      this.customerForm.get('stkAmount')?.setValue(amount.toFixed(2), { emitEvent: false });
-    });
+    this.customerForm.get('stkUnit')?.valueChanges
+      .pipe(
+        debounceTime(800),          // ✅ หน่วง 400ms หลังจากพิมพ์
+        distinctUntilChanged()      // ✅ ค่าเปลี่ยนจริงเท่านั้นถึงจะทำ
+      )
+      .subscribe(() => {
+        this.calculateStockAmount();
+      });
+
+    this.customerForm.get('stkPrice')?.valueChanges
+      .pipe(
+        debounceTime(800),
+        distinctUntilChanged()
+      )
+      .subscribe(() => {
+        this.calculateStockAmount();
+      });
 
 
   }
+
+  calculateStockAmount(): void {
+    const unit = Number(this.customerForm.get('stkUnit')?.value || 0);
+    const price = Number(this.customerForm.get('stkPrice')?.value || 0);
+
+    if (!unit || unit < 50) {
+      this.customerForm.get('stkAmount')?.setValue('', { emitEvent: false });
+      this.customerForm.get('txtUnit')?.setValue('', { emitEvent: false });
+      this.customerForm.get('txtValue')?.setValue('', { emitEvent: false });
+      alert('ไม่สามารถซื้อต่ำกว่า 50 หุ้นได้');
+      return;
+    }
+    
+    const amount = unit * price;
+    
+    // แปลงจำนวนหุ้นเป็นข้อความภาษาไทย
+    const unitText = thaiBaht(unit).replace('บาทถ้วน', 'หุ้น');
+    const amountText = thaiBaht(amount);
+    
+    this.customerForm.get('stkAmount')?.setValue(amount.toFixed(2), { emitEvent: false });
+    this.customerForm.get('txtUnit')?.setValue(unitText, { emitEvent: false });
+    this.customerForm.get('txtValue')?.setValue(amountText, { emitEvent: false });
+    this.cd.detectChanges();
+  }
+
+
+
 
 
   setupFormListeners() {
@@ -205,6 +246,8 @@ export class EditCustomerComponent implements OnInit {
       stkPrice: [100],
       stkPayType: ['', Validators.required],
       stkAmount: [{ value: '', disabled: true }],
+      txtUnit: [''],
+      txtValue: [''],
 
       addressCa: this.fb.group({
         houseno: [''],
@@ -292,7 +335,7 @@ export class EditCustomerComponent implements OnInit {
         this.accList = accList;
         this.stockList = stockList;
         this.acctypeList = acctypeList;
-        console.log("acctypeList DATA:", acctypeList);
+        console.log("StockList DATA:", stockList);
 
         // Set ข้อมูลหลักก่อน
         this.customerForm.patchValue({
@@ -502,14 +545,9 @@ export class EditCustomerComponent implements OnInit {
           stkAccno: form.stockDividend.stkAccno,
           stkAccname: form.stockDividend.stkAccname,
           stkOwnID: form.stockDividend.stkOwnID,
-          stkRemCode: form.stockDividend.stkRemCode,
-          logBrCode: this.brCode
+          stkRemCode: form.stockDividend.stkRemCode, logBrCode: this.brCode
         }
-
       };
-
-      console.log("👉 Payload ที่ส่งไป:", customerPayload);
-
       this.customerService.updateCustomer(customerPayload).subscribe({
         next: () => {
           alert('✅ แก้ไขข้อมูลเรียบร้อย');
@@ -528,6 +566,7 @@ export class EditCustomerComponent implements OnInit {
 
   submitSaleStock() {
     const stockSection = this.customerForm.get('stockDividend');
+    const stkUnitValue = Number(this.customerForm.get('stkUnit')?.value);
 
     // ตรวจสอบว่า valid ไหม
     if (!stockSection || stockSection.invalid || !this.customerForm.get('stktype')?.value || !this.customerForm.get('stkReqNo')?.value) {
@@ -538,6 +577,14 @@ export class EditCustomerComponent implements OnInit {
       return;
     }
 
+
+    if (isNaN(stkUnitValue) || stkUnitValue < 50) {
+      alert('❗ ไม่สามารถขายต่ำกว่า 50 หุ้นได้');
+      this.loading = false;
+      this.cd.detectChanges();
+      return;
+    }
+
     const form = this.customerForm.value;
 
     const payload = {
@@ -545,50 +592,45 @@ export class EditCustomerComponent implements OnInit {
       fname: form.fname,
       lname: form.lname,
       brCode: form.brCode,
-      
+
       stock: {
         stktype: 'A',
         requestNo: form.stkReqNo,
-        unit: form.stkUnit,
-        value: form.stkValue,
-        pricePerUnit: form.stkPrice,
-        stkNote2: form.stockDividend.stkNote || '',
-        startNo: '',
-        stopNo: '',
+        unit: Number(form.stkUnit),
+        value: Number(form.stkValue),
+        stkNote: form.stockDividend.stkNote || '',
       },
 
       payment: {
+        stkSaleBy: form.stockDividend?.stkSaleBy || '',
         method: form.stockDividend?.stkPayType || '',
         accNo: form.stockDividend?.stkAccno || '',
         accName: form.stockDividend?.stkAccname || '',
+        accType: this.customerForm.get('stockDividend.stkAcctype')?.value || '',
         chqNo: form.stockDividend?.stkSaleByCHQno || '',
         chqDate: form.stockDividend?.stkSaleByCHQdat || '',
         chqBank: form.stockDividend?.stkSaleByCHQbnk || '',
         chqBranch: form.stockDividend?.stkSaleCHQbrn || '',
-      },
-
-      metadata: {
-        userid: '',
-        ipaddress: '',
-        hostname: '',
       }
     };
 
     console.log('📦 ข้อมูลการขอซื้อหุ้น:', payload);
-    this.stockRequestService.submitRequest(payload).subscribe({
-      next: () => {
-        alert('✅ ส่งคำขอเรียบร้อยแล้ว');
-        this.success.emit();
-      },
-      error: (err) => {
-        console.error('❌ เกิดข้อผิดพลาด:', err);
-        alert('❌ ไม่สามารถส่งคำขอได้');
-        this.loading = false;
-      }
-    });
+      this.stockRequestService.submitRequest(payload).subscribe({
+        next: () => {
+          alert('✅ ส่งคำขอเรียบร้อยแล้ว');
+          this.success.emit();
+        },
+        error: (err) => {
+          console.error('❌ เกิดข้อผิดพลาด:', err.error?.message || err.message || err);
+          alert('❌ ไม่สามารถส่งคำขอได้');
+          this.loading = false;
+          this.cd.detectChanges();
+        }
+      });
   }
 
   goBack() {
     this.back.emit();
   }
+
 }
