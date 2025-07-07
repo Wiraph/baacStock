@@ -1,29 +1,28 @@
 <div>
-    <table class="w-full table-auto border shadow-md rounded overflow-hidden">
-        <thead class="bg-green-100">
-            <tr>
-                <th class="p-2 border">ลำดับ</th>
-                <th class="p-2 border">เลขที่บัตรแสดงตน</th>
-                <th class="p-2 border">ชื่อ-นามสกุล</th>
-                <th class="p-2 border">สาขา</th>
-                <th class="p-2 border">หมายเลขใบหุ้น</th>
-                <th class="p-2 border">จำนวนหุ้น</th>
-                <th class="p-2 border">จำนวนเงิน</th>
-                <th class="p-2 border">แสดง</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr class="hover:bg-gray-100">
-                <td class="p-2 border text-center space-x-2">1</td>
-                <td class="p-2 border text-center space-x-2">3419900452641</td>
-                <td class="p-2 border text-center space-x-2">นางกนกพร คนดี</td>
-                <td class="p-2 border text-center space-x-2">สาขาหลังสวน</td>
-                <td class="p-2 border text-center space-x-2">A000123602</td>
-                <td class="p-2 border text-center space-x-2">2</td>
-                <td class="p-2 border text-center space-x-2">200</td>
-                <td class="p-2 border text-center space-x-2">📝</td>
-            </tr>
-        </tbody>
-    </table>
-
+  <table class="w-full table-auto border shadow-md rounded overflow-hidden">
+    <thead class="bg-green-100">
+      <tr>
+        <th class="p-2 border">ลำดับ</th>
+        <th class="p-2 border">เลขที่บัตรแสดงตน</th>
+        <th class="p-2 border">ชื่อ-นามสกุล</th>
+        <th class="p-2 border">สาขา</th>
+        <th class="p-2 border">หมายเลขใบหุ้น</th>
+        <th class="p-2 border">จำนวนหุ้น</th>
+        <th class="p-2 border">จำนวนเงิน</th>
+        <th class="p-2 border">แสดง</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of requestList; let i = index" class="hover:bg-gray-100">
+        <td class="p-2 border text-center">{{ i + 1 }}</td>
+        <td class="p-2 border text-center">{{ item.cusId }}</td>
+        <td class="p-2 border text-center">{{ item.fullName }}</td>
+        <td class="p-2 border text-center">{{ item.brName }}</td>
+        <td class="p-2 border text-center">{{ item.stkNote }}</td>
+        <td class="p-2 border text-center">{{ item.unit }}</td>
+        <td class="p-2 border text-center">{{ item.unitValue }}</td>
+        <td class="p-2 border text-center cursor-pointer">📝</td>
+      </tr>
+    </tbody>
+  </table>
 </div>

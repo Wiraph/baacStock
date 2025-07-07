@@ -30,6 +30,7 @@ export interface StockType {
   typeName: string;
 }
 
+
 @Injectable({
   providedIn: 'root'
 })
@@ -54,6 +55,12 @@ export class StockService {
     return this.http.get<any[]>(`${this.apiUrl}/stocktype`, {
       headers: this.createAuthHeaders()
     });
+  }
+
+  getStockApprove(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/approve`, {
+      headers: this.createAuthHeaders()
+    })
   }
 
 
