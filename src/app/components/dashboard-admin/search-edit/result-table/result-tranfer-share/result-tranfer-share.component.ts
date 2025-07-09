@@ -20,6 +20,7 @@ export class ResultTranferShareComponent {
   @Output() modeNotify = new EventEmitter<string>();
 
   onEditClick(item: any) {
+    console.log("ค่าที่จะส่ง",item);
     this.edit.emit(item);
     this.modeNotify.emit(this.mode);
   }

@@ -3,8 +3,79 @@
     (transferStock)="onTransferStockSelected($event)"></app-search-edit>
 </div>
 
+<div *ngIf="activeView === 'stock-transfer'" class="p-4">
+  <div *ngIf="selectedcustomer" class="w-full bg-white rounded-xl shadow-md">
+    <div class="flex justify-start px-4 py-2">
+      <button (click)="goBack()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">
+        ← กลับ
+      </button>
+    </div>
+
+    <!-- หัวเรื่อง -->
+    <div class="bg-green-500 rounded-t-xl text-center py-3">
+      <p class="text-xl text-white font-bold">โอนเปลี่ยนมือ</p>
+    </div>
+    <div class="w-full flex flex-col items-center justify-center text-center space-y-2 py-4">
+      <div class="flex gap-4">
+        <div class="flex items-center gap-2">
+          <label>บัตรแสดงตนเลขที่ :</label>
+          <p>{{ selectedcustomer.cusId }}</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <label>สถานะ :</label>
+          <p>{{ selectedcustomer.status }}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <label>ชื่อ - นามสกุล :</label>
+        <p>{{ selectedcustomer.fname }} {{ selectedcustomer.lname }}</p>
+      </div>
+    </div>
+    <div class="p-4">
+      <table class="table-auto w-full border border-collapse shadow-md">
+        <thead class="bg-green-100 text-gray-800">
+          <tr>
+            <th class="border px-3 py-2 text-center">ลำดับ</th>
+            <th class="border px-3 py-2 text-center">สาขา</th>
+            <th class="border px-3 py-2 text-center">หมายเลขใบหุ้น</th>
+            <th class="border px-3 py-2 text-center">หมายเลขใบหุ้นเดิม</th>
+            <th class="border px-3 py-2 text-center">หมายเลขหุ้น</th>
+            <th class="border px-3 py-2 text-center">จำนวนหุ้น</th>
+            <th class="border px-3 py-2 text-center">มูลค่าหุ้น</th>
+            <th class="border px-3 py-2 text-center">สถานะ</th>
+            <th class="border px-3 py-2 text-center">วันที่ทำรายการ</th>
+            <th class="border px-3 py-2 text-center">โอนเปลี่ยนมือ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let stock of selectedcustomer.stock; let i = index" class="hover:bg-gray-100">
+            <td class="border px-3 py-2 text-center">{{ i + 1 }}</td>
+            <td class="border px-3 py-2 text-center">{{ stock.brDesc }}</td>
+            <td class="border px-3 py-2 text-center">{{ stock.stkNote }}</td>
+            <td class="border px-3 py-2 text-center">{{ stock.stkNoteo || "-" }}</td>
+            <td class="border px-3 py-2 text-center">{{ stock.stkStart }} - {{ stock.stkEnd }}</td>
+            <td class="border px-3 py-2 text-center">{{ stock.unit }}</td>
+            <td class="border px-3 py-2 text-center">{{ stock.uniteValue | number:'1.0-2' }}</td>
+            <td class="border px-3 py-2 text-center">{{ stock.stkDesc }}</td>
+            <td class="border px-3 py-2 text-center">{{ formatThaiDateTime(stock.stkDateInput) }}</td>
+            <td class="border px-3 py-2 text-center">
+              <button (click)="stock.stkStatus === 'A003' ? showDetail(stock) : onSetTransfer(stock, selectedcustomer)"
+                class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+                โอน
+              </button>
+
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+
+  </div>
+</div>
+
 <div *ngIf="activeView === 'transfer'" class="p-4">
-  <div class="w-full bg-white rounded-xl shadow-md">
+  <div *ngIf="selectCusTransfer" class="w-full bg-white rounded-xl shadow-md">
     <!-- หัวเรื่อง -->
     <div class="bg-green-500 rounded-t-xl text-center py-3">
       <p class="text-xl text-white font-bold">โอนเปลี่ยนมือ</p>
@@ -17,31 +88,31 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label class="block text-gray-700 font-medium">เลขที่บัตรแสดงตน:</label>
-          <p class="text-gray-800 mt-1">{{ selectedStock?.stkOwniD }}</p>
+          <p class="text-gray-800 mt-1">{{ selectCusTransfer.cusId }}</p>
         </div>
-        <div>
+        <div *ngIf="selectStockTransfer">
           <label class="block text-gray-700 font-medium">หมายเลขแสดงใบหุ้น:</label>
-          <p class="text-gray-800 mt-1">{{ selectedStock?.stkNote }}</p>
+          <p class="text-gray-800 mt-1">{{ selectStockTransfer.stkNote }}</p>
         </div>
-        <div>
+        <div *ngIf="selectStockTransfer">
           <label class="block text-gray-700 font-medium">หมายเลขหุ้น:</label>
-          <p class="text-gray-800 mt-1">{{ selectedStock?.stkNostart }} - {{ selectedStock?.stkNostop }}</p>
+          <p class="text-gray-800 mt-1">{{ selectStockTransfer.stkStart }} - {{ selectStockTransfer.stkEnd }}</p>
         </div>
       </div>
 
       <!-- แถวที่ 2 -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div *ngIf="selectCusTransfer" class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label class="block text-gray-700 font-medium">ชื่อ-นามสกุล:</label>
-          <p class="text-gray-800 mt-1">{{ selectedStock?.fullname }}</p>
+          <p class="text-gray-800 mt-1">{{ selectCusTransfer.fname }} {{ selectCusTransfer.lname }}</p>
         </div>
         <div>
           <label class="block text-gray-700 font-medium">สถานะ:</label>
-          <p class="text-gray-800 mt-1">{{ selectedStock?.statusDesc }}</p>
+          <p class="text-gray-800 mt-1">{{ selectCusTransfer.status }}</p>
         </div>
-        <div>
+        <div *ngIf="selectStockTransfer">
           <label class="block text-gray-700 font-medium">จำนวนหุ้น:</label>
-          <p class="text-gray-800 mt-1">{{ selectedStock?.stkUniT }} หุ้น / {{ selectedStock?.stkValue }} บาท</p>
+          <p class="text-gray-800 mt-1">{{ selectStockTransfer.unit }}</p>
         </div>
       </div>
 
@@ -77,8 +148,6 @@
           </li>
         </ul>
       </div>
-
-
       <!-- ป้อนบัตร -->
       <!-- ✅ เฉพาะตอนยังไม่ได้ใส่ข้อมูลผู้รับ -->
       <div *ngIf="isEnteringNewPerson" class="mt-4 border rounded p-4 bg-gray-50">
@@ -88,14 +157,11 @@
           <button (click)="fetchReceiverInfo()" class="text-green-600 text-2xl hover:text-green-800">➕</button>
         </div>
       </div>
-
-
       <div *ngIf="selectedTransfer" class="mt-6 p-6 bg-white rounded-xl shadow-lg ring-1 ring-gray-200">
         <!-- หัวข้อ -->
         <div class="text-center mb-4 text-lg font-semibold text-gray-800">
           👤 ผู้รับโอน
         </div>
-
         <!-- ข้อมูลเบื้องต้น -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
@@ -113,7 +179,6 @@
             <p class="text-gray-800">{{ selectedTransfer.fullName }}</p>
           </div>
         </div>
-
         <!-- กล่องเงินปันผล -->
         <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
           <label class="block text-gray-700 font-medium mb-2">💰 เงินปันผล:</label>
@@ -144,13 +209,11 @@
                   readonly>
               </div>
             </div>
-
             <!-- รับเงินสด -->
             <label class="flex items-center gap-2">
               <input type="radio" [(ngModel)]="selectedTransfer.payType" value="002">
               <span>รับเงินสด</span>
             </label>
-
             <!-- บริจาค -->
             <label class="flex items-center gap-2">
               <input type="radio" [(ngModel)]="selectedTransfer.payType" value="003">
@@ -158,7 +221,6 @@
             </label>
           </div>
         </div>
-
         <!-- ปุ่มยืนยัน -->
         <div class="mt-6 flex justify-end gap-4">
           <!-- ปุ่มยืนยัน -->
@@ -175,8 +237,6 @@
         </div>
 
       </div>
-
-
       <!-- ปุ่มยกเลิก -->
       <div class="flex justify-end gap-4">
         <div *ngIf="transferList.length > 0">
@@ -190,6 +250,76 @@
         </button>
       </div>
 
+    </div>
+  </div>
+</div>
+
+<div *ngIf="activeView === 'detail'" class="p-2">
+  <div class="w-full bg-white rounded-xl shadow-md pb-4">
+    <!-- หัวเรื่อง -->
+    <div class="bg-green-500 rounded-t-xl text-center py-3">
+      <p class="text-xl text-white font-bold">โอนเปลี่ยนมือ : รายละเอียด</p>
+    </div>
+
+    <!-- รายละเอียด -->
+    <div class="m-4 rounded-lg bg-white shadow-md overflow-hidden border border-gray-200">
+      <!-- หัวข้อ -->
+      <div class="bg-blue-500 px-4 py-2">
+        <h2 class="text-white text-lg font-semibold">ผู้โอน</h2>
+      </div>
+      <!-- เนื้อหา -->
+      <div class="p-4 space-y-4 text-sm text-gray-700">
+        <!-- ชื่อ -->
+        <p class="text-base font-medium">
+          นายพิชยะ สารเถื่อนแก้ว <span class="text-gray-500 font-normal">[บุคคลธรรมดา]</span>
+        </p>
+        <!-- หมายเลขหุ้น -->
+        <div class="space-y-1">
+          <p>หมายเลขหุ้น: <span class="font-semibold text-gray-800">A0000000000</span><span
+              class="text-gray-500 font-normal ml-4">(ชั่วคราว)</span></p>
+          <p>หมายเลขหุ้น: <span class="font-semibold text-gray-800">11111111111111111 - 11111111111111111112</span>
+          </p>
+        </div>
+        <!-- จำนวนและมูลค่าหุ้น -->
+        <div class="flex flex-wrap gap-8">
+          <p>จำนวนหุ้น: <span class="font-semibold">2 หุ้น</span></p>
+          <p>มูลค่าหุ้น: <span class="font-semibold">200 บาท</span></p>
+        </div>
+        <!-- วิธีรับปันผล -->
+        <p>รับเงินปันผลโดย: <span class="font-semibold">เงินสด</span></p>
+      </div>
+    </div>
+
+    <div class="m-4 rounded-lg bg-white shadow-md overflow-hidden border border-gray-200">
+      <!-- หัวข้อ -->
+      <div class="bg-blue-500 px-4 py-2">
+        <h2 class="text-white text-lg font-semibold">ผู้รับโอน</h2>
+      </div>
+      <!-- เนื้อหา -->
+      <div class="p-4 space-y-4 text-sm text-gray-700">
+        <!-- ชื่อ -->
+        <p class="text-base font-medium">
+          นายพิชยะ สารเถื่อนแก้ว <span class="text-gray-500 font-normal">[บุคคลธรรมดา]</span>
+        </p>
+        <!-- หมายเลขหุ้น -->
+        <div class="space-y-1">
+          <p>หมายเลขหุ้น: <span class="font-semibold text-gray-800">A0000000000</span><span
+              class="text-gray-500 font-normal ml-4">(ชั่วคราว)</span></p>
+          <p>หมายเลขหุ้น: <span class="font-semibold text-gray-800">11111111111111111 - 11111111111111111112</span>
+          </p>
+        </div>
+        <!-- จำนวนและมูลค่าหุ้น -->
+        <div class="flex flex-wrap gap-8">
+          <p>จำนวนหุ้น: <span class="font-semibold">2 หุ้น</span></p>
+          <p>มูลค่าหุ้น: <span class="font-semibold">200 บาท</span></p>
+        </div>
+        <!-- วิธีรับปันผล -->
+        <p>รับเงินปันผลโดย: <span class="font-semibold">เงินสด</span></p>
+      </div>
+    </div>
+
+    <div class="flex justify-center">
+      <button class="py-1.5 px-6 text-white bg-green-400 rounded-xs cursor-pointer hover:shadow-sm">กลับ</button>
     </div>
   </div>
 </div>

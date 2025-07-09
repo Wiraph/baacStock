@@ -16,6 +16,10 @@ export class StockRequestService {
     return this.http.post(`${this.apiUrl}/submit`, payload, {headers: this.createAuthHeaders()});
   }
 
+  transferRequest(payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/transfer`, payload, {headers: this.createAuthHeaders()});
+  }
+
   private createAuthHeaders(): HttpHeaders {
     let token = '';
     if (isPlatformBrowser(this.platformId)) {
