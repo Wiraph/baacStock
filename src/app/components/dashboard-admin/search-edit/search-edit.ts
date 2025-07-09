@@ -41,7 +41,7 @@ export class SearchEditComponent implements OnInit, OnChanges {
     viewMode?: string;
   }>();
   @Output() viewStock = new EventEmitter<any>();
-  @Output() transferStock = new EventEmitter<StockItem>();
+  @Output() transferStock = new EventEmitter<any>();
 
   titleSearch: string = '';
   branch = sessionStorage.getItem('brName');
@@ -83,8 +83,8 @@ export class SearchEditComponent implements OnInit, OnChanges {
     this.viewMode = viewMode ?? '';
   }
 
-  onStockTransfer(stock: StockItem) {
-    this.transferStock.emit(stock);
+  onStockTransfer(item: StockItem) {
+    this.transferStock.emit(item);
   }
 
   onSubmit(event: Event) {
@@ -181,7 +181,7 @@ export class SearchEditComponent implements OnInit, OnChanges {
   onTransfer(item: any) {
     this.selectedCusId = item.cusId
     this.activeView = 'transfer';
-    this.transferStock.emit(item.cusId);
+    this.transferStock.emit(item);
   }
 
   onModeNotify(mode: string) {
@@ -191,7 +191,7 @@ export class SearchEditComponent implements OnInit, OnChanges {
   }
 
   onViewStock(item: any) {
-    this.selectedCusId = item.cusId;
+    this.selectedCusId = item.stkNote;
     this.activeView = 'stock';
   }
 
