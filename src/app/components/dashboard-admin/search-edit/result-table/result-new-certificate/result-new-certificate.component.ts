@@ -21,8 +21,4 @@ export class ResultNewCertificateComponent {
     this.edit.emit(item);
   }
 
-  onViewStockClick(item: any) {
-    this.viewStock.emit(item);
-  }
-
 }

@@ -56,8 +56,7 @@
           </result-common-stock>
 
         <result-new-certificate *ngSwitchCase="'new-cert'" [results]="results" [currentPage]="currentPage"
-          [pageSize]="pageSize" [totalItems]="totalItems" (edit)="onEdit($event)"
-          (viewStock)="setView('', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc)">
+          [pageSize]="pageSize" [totalItems]="totalItems" (edit)="onCreateNew($event)">
         </result-new-certificate>
 
         <result-tranfer-share *ngSwitchCase="'transfer'" [results]="results" [currentPage]="currentPage"

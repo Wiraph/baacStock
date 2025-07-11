@@ -1,0 +1,59 @@
+<div class="p-2" *ngIf="selectedCustomer">
+    <div class="bg-white rounded-md">
+        <div class="bg-green-400 rounded-t-md flex justify-center py-2">
+            <p class="text-white font-semibold">รายการใบหุ้น : ออกใบหุ้นใหม่แทนใบหุ้นที่ชำรุด/สูญหาย</p>
+        </div>
+        <div class="gap-4 px-7 pb-7">
+            <div class="w-full flex flex-col items-center py-4">
+                <div class="flex gap-4">
+                    <p>เลขที่บัตรแสดงตน : <span>{{ selectedCustomer.cusId }}</span></p>
+                    <p>สถานะ : <span>ปกติ</span></p>
+                </div>
+                <div>
+                <p>ชื่อ - นามสกุล : <span>{{ selectedCustomer.fname }} {{ selectedCustomer.lname }}</span></p>
+                </div>
+            </div>
+            <table class="min-w-full border border-gray-200 rounded-lg shadow-md overflow-hidden">
+                <thead
+                    class="bg-gradient-to-r from-green-200 to-green-100 text-gray-800 text-sm uppercase tracking-wider">
+                    <tr>
+                        <th class="px-4 py-2 border">ลำดับ</th>
+                        <th class="px-4 py-2 border">สาขา</th>
+                        <th class="px-4 py-2 border">หมายเลขใบหุ้น</th>
+                        <th class="px-4 py-2 border">หมายเลขใบหุ้นเดิม</th>
+                        <th class="px-4 py-2 border">หมายเลขหุ้น</th>
+                        <th class="px-4 py-2 border">จำนวนหุ้น</th>
+                        <th class="px-4 py-2 border">มูลค่าหุ้น</th>
+                        <th class="px-4 py-2 border">สถานะ</th>
+                        <th class="px-4 py-2 border">วันเวลาที่ทำรายการ</th>
+                        <th class="px-4 py-2 border">ออกใบหุ้นใหม่</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white text-gray-700">
+                    <tr *ngFor="let stock of selectedCustomer.stock; let i = index" class="hover:bg-green-50 transition">
+                        <td class="px-4 py-2 border text-center">{{ i+1 }}</td>
+                        <td class="px-4 py-2 border text-center">{{ stock.brDesc }}</td>
+                        <td class="px-4 py-2 border">{{ stock.stkNote }}</td>
+                        <td class="px-4 py-2 border text-center">{{ stock.stkNoteo || "-" }}</td>
+                        <td class="px-4 py-2 border">{{ stock.stkStart }} - {{ stock.stkEnd }}</td>
+                        <td class="px-4 py-2 border text-center">{{ stock.unit }}</td>
+                        <td class="px-4 py-2 border text-center">{{ stock.unitValue }}</td>
+                        <td class="px-4 py-2 border text-center">{{ stock.stkDesc }}</td>
+                        <td class="px-4 py-2 border">{{ formatThaiDateTime(stock.stkDateInput)}}</td>
+                        <td class="px-4 py-2 border text-center">
+                            <button *ngIf="stock.stkStatus != 'S000'" onclick="alert('อยู่ระหว่างการอนุมัติ')"
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded shadow flex items-center gap-1 text-sm">
+                                ออกใหม่
+                            </button>
+                            <button *ngIf="stock.stkStatus === 'S000'"
+                                (click) = "handleRequestNewStock(stock)"
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded shadow flex items-center gap-1 text-sm">
+                                ออกใหม่
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,3 +1,38 @@
 <div *ngIf="activeView === 'search'">
-    <app-search-edit [InputcreateNewShareCertificate]="internalViewName"></app-search-edit>
+    <app-search-edit [InputcreateNewShareCertificate]="internalViewName" (createnew)="onCreatenew($event)"></app-search-edit>
+</div>
+
+<div *ngIf="activeView === 'create'">
+    <app-stock-table-detail [stockData]="selectedStock" (onRequestNewStock)="handleNewStockRequest($event)"></app-stock-table-detail>
+</div>
+
+<div *ngIf="activeView === 'select'" class="w-full p-4">
+    <div class="bg-white rounded-md">
+        <div class="bg-green-400 rounded-t-md">
+            <p class="text-center py-2 text-white">ออกใบหุ้นใหม่แทนใบหุ้นที่ชำรุด/สูญหาย</p>
+        </div>
+        <div class="p-5">
+            <div class="grid grid-cols-3 mb-3">
+                <div class="flex"><p>เลขที่บัตรแสดงตน : <span>0000000000</span></p></div>
+                <div class="flex"><p>หมายเลขใบหุ้น : <span>0000000000000</span></p></div>
+                <div class="flex"><p>หมายเลขหุ้น : <span>00000000000</span></p></div>
+            </div>
+            <div class="grid grid-cols-3 mb-3">
+                <div class="flex"><p>ชื่อ-นามสกุล : <span>xxxxxxxx</span></p></div>
+                <div></div>
+                <div></div>
+            </div>
+            <div class="grid grid-cols-3 mb-3">
+                <div><p>สถานะ : <span>ปกติ</span></p></div>
+                <div></div>
+                <div><p>จำนวนหุ้น : <span>10 หุ้น / 1000 บาท</span></p></div>
+            </div>
+        </div>
+        <div>
+            <label for="reason">เหตุผลในการออกหุ้นใหม่</label>
+            <select>
+                <option value="">1</option>
+            </select>
+        </div>
+    </div>
 </div>

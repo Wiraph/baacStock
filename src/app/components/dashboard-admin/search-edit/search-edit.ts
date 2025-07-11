@@ -42,6 +42,7 @@ export class SearchEditComponent implements OnInit, OnChanges {
   }>();
   @Output() viewStock = new EventEmitter<any>();
   @Output() transferStock = new EventEmitter<any>();
+  @Output() createnew = new EventEmitter<any>();
 
   titleSearch: string = '';
   branch = sessionStorage.getItem('brName');
@@ -182,6 +183,10 @@ export class SearchEditComponent implements OnInit, OnChanges {
     this.selectedCusId = item.cusId
     this.activeView = 'transfer';
     this.transferStock.emit(item);
+  }
+
+  onCreateNew(item: any) {
+    this.createnew.emit(item);
   }
 
   onModeNotify(mode: string) {
