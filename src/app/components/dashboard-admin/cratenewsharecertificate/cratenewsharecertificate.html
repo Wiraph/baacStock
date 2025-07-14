@@ -15,30 +15,30 @@
         </div>
         <div class="p-5">
             <div class="grid grid-cols-3 mb-3">
-                <div class="flex">
-                    <p>เลขที่บัตรแสดงตน : <span>0000000000</span></p>
+                <div class="flex" *ngIf="selectedStock">
+                    <p>เลขที่บัตรแสดงตน : <span>{{ selectedStock.cusId }}</span></p>
                 </div>
-                <div class="flex">
-                    <p>หมายเลขใบหุ้น : <span>0000000000000</span></p>
+                <div class="flex" *ngIf="selectedRequest">
+                    <p>หมายเลขใบหุ้น : <span>{{ selectedRequest.stkNote }}</span></p>
                 </div>
-                <div class="flex">
-                    <p>หมายเลขหุ้น : <span>00000000000</span></p>
+                <div class="flex" *ngIf="selectedRequest">
+                    <p>หมายเลขหุ้น : <span>{{ selectedRequest.stkStart }} - {{ selectedRequest.stkEnd }}</span></p>
                 </div>
             </div>
             <div class="grid grid-cols-3 mb-3">
-                <div class="flex">
-                    <p>ชื่อ-นามสกุล : <span>xxxxxxxx</span></p>
+                <div class="flex" *ngIf="selectedStock">
+                    <p>ชื่อ-นามสกุล : <span>{{ selectedStock.fullName }}</span></p>
                 </div>
                 <div></div>
                 <div></div>
             </div>
             <div class="grid grid-cols-3 mb-3">
-                <div>
-                    <p>สถานะ : <span>ปกติ</span></p>
+                <div *ngIf="selectedStock">
+                    <p>สถานะ : <span>{{ selectedStock.status }}</span></p>
                 </div>
                 <div></div>
-                <div>
-                    <p>จำนวนหุ้น : <span>10 หุ้น / 1000 บาท</span></p>
+                <div *ngIf="selectedRequest">
+                    <p>จำนวนหุ้น : <span>{{ selectedRequest.unit }} หุ้น / {{ selectedRequest.unitValue }} บาท</span></p>
                 </div>
             </div>
         </div>
