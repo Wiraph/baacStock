@@ -1,0 +1,38 @@
+<div *ngIf="activeView == 'table'" class="m-2 bg-white rounded-md">
+    <div class="py-2 bg-green-500 rounded-t-md">
+        <p class="text-center text-white">สาขา{{ brName }} : อนุมัติออกใบหุ้น</p>
+    </div>
+
+    <div class="overflow-x-auto mt-4 p-4">
+        <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+            <thead class="bg-green-400 text-white">
+                <tr>
+                    <th class="py-3 px-4 text-center text-sm font-semibold">ลำดับ</th>
+                    <th class="py-3 px-4 text-center text-sm font-semibold">เลขที่บัตรแสดงตน</th>
+                    <th class="py-3 px-4 text-center text-sm font-semibold">ชื่อ-นามสกุล</th>
+                    <th class="py-3 px-4 text-center text-sm font-semibold">สาขา</th>
+                    <th class="py-3 px-4 text-center text-sm font-semibold">หมายเลขใบหุ้น</th>
+                    <th class="py-3 px-4 text-center text-sm font-semibold">จำนวนหุ้น</th>
+                    <th class="py-3 px-4 text-center text-sm font-semibold">จำนวนเงิน</th>
+                    <th class="py-3 px-4 text-center text-sm font-semibold">แสดง</th>
+                </tr>
+            </thead>
+            <tbody class="text-gray-700">
+                <tr class="even:bg-gray-100 hover:bg-gray-200">
+                    <td class="py-2 px-4 text-center">1</td>
+                    <td class="py-2 px-4 text-center">1234455666</td>
+                    <td class="py-2 px-4 text-center">xxx xxx</td>
+                    <td class="py-2 px-4 text-center">สาขา</td>
+                    <td class="py-2 px-4 text-center">ปปป</td>
+                    <td class="py-2 px-4 text-center">ปปป</td>
+                    <td class="py-2 px-4 text-center">ปป</td>
+                    <td class="py-2 px-4 text-center">
+                        <button class="cursor-pointer">📝</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
