@@ -18,16 +18,16 @@
                 </tr>
             </thead>
             <tbody class="text-gray-700">
-                <tr class="even:bg-gray-100 hover:bg-gray-200">
-                    <td class="py-2 px-4 text-center">1</td>
-                    <td class="py-2 px-4 text-center">1234455666</td>
-                    <td class="py-2 px-4 text-center">xxx xxx</td>
-                    <td class="py-2 px-4 text-center">สาขา</td>
-                    <td class="py-2 px-4 text-center">ปปป</td>
-                    <td class="py-2 px-4 text-center">ปปป</td>
-                    <td class="py-2 px-4 text-center">ปป</td>
+                <tr *ngFor="let item of issueList; let i = index" class="even:bg-gray-100 hover:bg-gray-200">
+                    <td class="py-2 px-4 text-center">{{ i+1 }}</td>
+                    <td class="py-2 px-4 text-center">{{item.cusId}}</td>
+                    <td class="py-2 px-4 text-center">{{item.fullName}}</td>
+                    <td class="py-2 px-4 text-center">{{item.brName}}</td>
+                    <td class="py-2 px-4 text-center">{{item.stkNote}}</td>
+                    <td class="py-2 px-4 text-center">{{item.unit}}</td>
+                    <td class="py-2 px-4 text-center">{{item.unitValue}}</td>
                     <td class="py-2 px-4 text-center">
-                        <button class="cursor-pointer">📝</button>
+                        <button class="cursor-pointer" (click)="detailIssue(item)">📝</button>
                     </td>
                 </tr>
             </tbody>
@@ -36,3 +36,79 @@
 
 </div>
 
+<div *ngIf="activeView == 'detail-issue'" class="fixed inset-0 z-50 flex flex-col bg-white shadow-lg overflow-y-auto">
+    <!-- ปุ่มปิด -->
+    <div class="ml-auto p-4">
+        <button (click)="closeWindows()" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition">
+            ❌ ปิดหน้าต่างนี้
+        </button>
+    </div>
+    <!-- เนื้อหา -->
+    <div *ngIf="issuadata" class="flex items-center flex-col space-y-4 px-4 pb-6">
+        <!-- หัวข้อ: รายละเอียดสถานะ -->
+        <div class="w-full md:w-6/12 bg-orange-400 py-3 rounded-md shadow text-center text-white text-lg font-semibold">
+            รายละเอียด : สถานะ
+        </div>
+        <!-- รายละเอียดสถานะ -->
+        <div class="w-full md:w-6/12 bg-gray-50 p-4 rounded-md shadow space-y-2">
+            <div class="grid grid-cols-2 gap-2">
+                <p>📅 วันที่บันทึกรายการ :</p>
+                <p>🕒 เวลา : 15:39:32 น.</p>
+            </div>
+            <div class="flex gap-2">
+                <p>👤 ผู้บันทึกรายการ :</p>
+                <p>{{issuadata.userName}} ( {{issuadata.lvlCode}}:{{issuadata.lvlDesc}} )</p>
+            </div>
+            <div  class="flex gap-2">
+                <p>🏢 สาขาที่บันทึกรายการ :</p>
+                <p>{{issuadata.brCode}} : {{issuadata.brName}}</p>
+            </div>
+        </div>
+        <!-- หัวข้อ: ผู้ถือหุ้น / ใบหุ้น -->
+        <div class="w-full md:w-6/12 bg-orange-400 py-3 rounded-md shadow text-center text-white text-lg font-semibold">
+            รายละเอียด : ผู้ถือหุ้น / ใบหุ้น
+        </div>
+        <!-- รายละเอียดผู้ถือหุ้น -->
+        <div class="w-full md:w-6/12 bg-gray-50 p-4 rounded-md shadow space-y-4">
+            <div class="grid grid-cols-2 gap-2">
+                <p>🪪 เลขที่บัตรแสดงตน: {{issuadata.cusId}}</p>
+                <p>🗓 วันที่มีผล :</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <p>🙍‍♂️ ชื่อ-นามสกุล:</p>
+                <p>🕒 เวลา : 15:39:32 น.</p>
+            </div>
+            <hr class="my-2 border-gray-300" />
+            <div class="grid grid-cols-2 gap-2">
+                <p>🔖 หมายเลขใบหุ้น : {{issuadata.stkNote}}</p>
+                <p>🆔 หมายเลขหุ้น : {{issuadata.stkNostart}} - {{issuadata.stkNoend }}</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <p>🔢 จำนวนหุ้น : {{issuadata.unit}}</p>
+                <p>💰 มูลค่าหุ้น : {{issuadata.unitValue}}</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <p>🏦 รับเงินปันผลโดย:</p>
+            </div>
+            <hr class="my-2 border-gray-300" />
+            <div class="grid grid-cols-2 gap-2">
+                <p>📄 สถานะใบหุ้น:</p>
+                <p>📝 หมายเหตุ:</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <p>🔁 หมายเลขใบหุ้นเดิม:</p>
+                <p>📅 บันทึกรายการเมื่อวันที่:</p>
+            </div>
+            <hr class="my-2 border-gray-300" />
+            <!-- ปุ่ม -->
+            <div class="flex justify-center gap-4 pt-4">
+                <button (click)="approveSelectedIssue()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md transition">
+                    ✅ อนุมัติ
+                </button>
+                <button class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md transition">
+                    ❌ ไม่อนุมัติ
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

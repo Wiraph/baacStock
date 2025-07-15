@@ -51,6 +51,13 @@ export class StockService {
     );
   }
 
+  getIssueByStkNote(stkNote: string): Observable<any[]> {
+    const encodedStkNote = encodeURIComponent(stkNote)
+    return this.http.get<any[]>(`${this.apiUrl}/issue?stkNote=${encodedStkNote}`, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
   getStockType(): Observable<StockType[]> {
     return this.http.get<any[]>(`${this.apiUrl}/stocktype`, {
       headers: this.createAuthHeaders()
@@ -63,6 +70,11 @@ export class StockService {
     })
   }
 
+  getIssueApprove(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/approve-issue`, {
+      headers: this.createAuthHeaders()
+    });
+  }
 
 
   private createAuthHeaders(): HttpHeaders {
