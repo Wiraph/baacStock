@@ -53,7 +53,7 @@
         <div class="w-full md:w-6/12 bg-gray-50 p-4 rounded-md shadow space-y-2">
             <div class="grid grid-cols-2 gap-2">
                 <p>📅 วันที่บันทึกรายการ :</p>
-                <p>🕒 เวลา : 15:39:32 น.</p>
+                <p>🕒 {{ formatThaiDateTimeWithDash(issuadata.datetimeup) }}</p>
             </div>
             <div class="flex gap-2">
                 <p>👤 ผู้บันทึกรายการ :</p>
@@ -72,10 +72,10 @@
         <div class="w-full md:w-6/12 bg-gray-50 p-4 rounded-md shadow space-y-4">
             <div class="grid grid-cols-2 gap-2">
                 <p>🪪 เลขที่บัตรแสดงตน: {{issuadata.cusId}}</p>
-                <p>🗓 วันที่มีผล :</p>
+                <p>🗓 วันที่มีผล : {{formatThaiDateTime(issuadata.dateIssue)}}</p>
             </div>
             <div class="grid grid-cols-2 gap-2">
-                <p>🙍‍♂️ ชื่อ-นามสกุล:</p>
+                <p>🙍‍♂️ ชื่อ-นามสกุล: {{issuadata.fullname}}</p>
                 <p>🕒 เวลา : 15:39:32 น.</p>
             </div>
             <hr class="my-2 border-gray-300" />
@@ -88,15 +88,15 @@
                 <p>💰 มูลค่าหุ้น : {{issuadata.unitValue}}</p>
             </div>
             <div class="grid grid-cols-2 gap-2">
-                <p>🏦 รับเงินปันผลโดย:</p>
+                <p>🏦 รับเงินปันผลโดย: {{issuadata.paydesc}}</p>
             </div>
             <hr class="my-2 border-gray-300" />
             <div class="grid grid-cols-2 gap-2">
-                <p>📄 สถานะใบหุ้น:</p>
-                <p>📝 หมายเหตุ:</p>
+                <p>📄 สถานะใบหุ้น : {{issuadata.statusDesc}}</p>
+                <p>📝 หมายเหตุ : {{issuadata.note}}</p>
             </div>
             <div class="grid grid-cols-2 gap-2">
-                <p>🔁 หมายเลขใบหุ้นเดิม:</p>
+                <p>🔁 หมายเลขใบหุ้นเดิม : {{issuadata.stkNodeo}}</p>
                 <p>📅 บันทึกรายการเมื่อวันที่:</p>
             </div>
             <hr class="my-2 border-gray-300" />
@@ -105,7 +105,7 @@
                 <button (click)="approveSelectedIssue()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md transition">
                     ✅ อนุมัติ
                 </button>
-                <button class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md transition">
+                <button (click)="notApproveSelectedIssue()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md transition">
                     ❌ ไม่อนุมัติ
                 </button>
             </div>

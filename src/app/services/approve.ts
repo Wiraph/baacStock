@@ -23,6 +23,14 @@ export class ApproveService {
     );
   }
 
+  notapprove(id: string): Observable<any> {
+    const headers = this.createAuthHeaders();
+    return this.http.put<any>(
+      `${this.apiUrl}/notapproved/${id}`,
+      null,
+      { headers }
+    );
+  }
 
   private createAuthHeaders(): HttpHeaders {
     let token = '';
