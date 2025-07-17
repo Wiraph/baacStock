@@ -43,6 +43,7 @@ export class SearchEditComponent implements OnInit, OnChanges {
   @Output() viewStock = new EventEmitter<any>();
   @Output() transferStock = new EventEmitter<any>();
   @Output() createnew = new EventEmitter<any>();
+  @Output() common = new EventEmitter<any>();
 
   titleSearch: string = '';
   branch = sessionStorage.getItem('brName');
@@ -172,6 +173,13 @@ export class SearchEditComponent implements OnInit, OnChanges {
     };
     this.results = [];
     this.searched = false;
+  }
+  
+  onCommon(item: any) {
+    console.log("ค่าที่มาตัวกลาง");
+    this.selectedCusId = item.cusId;
+    this.common.emit(item);
+    this.cd.detectChanges();
   }
 
   onEdit(item: any) {

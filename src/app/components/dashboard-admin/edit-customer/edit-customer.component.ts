@@ -161,13 +161,13 @@ export class EditCustomerComponent implements OnInit {
       alert('ไม่สามารถซื้อต่ำกว่า 50 หุ้นได้');
       return;
     }
-    
+
     const amount = unit * price;
-    
+
     // แปลงจำนวนหุ้นเป็นข้อความภาษาไทย
     const unitText = thaiBaht(unit).replace('บาทถ้วน', 'หุ้น');
     const amountText = thaiBaht(amount);
-    
+
     this.customerForm.get('stkAmount')?.setValue(amount.toFixed(2), { emitEvent: false });
     this.customerForm.get('txtUnit')?.setValue(unitText, { emitEvent: false });
     this.customerForm.get('txtValue')?.setValue(amountText, { emitEvent: false });
@@ -521,112 +521,43 @@ export class EditCustomerComponent implements OnInit {
   onSubmit() {
     this.loading = true;
 
-    if (this.mode === 'sale-stock-common') {
-      this.submitSaleStock();
-    } else {
-      const form = this.customerForm.value;
-
-      const customerPayload = {
-        customer: {
-          cusiD: form.cusId,
-          cusFname: form.fname,
-          cusLname: form.lname,
-          cusCode: form.custype,
-          cusCodeg: form.cusCodeg,
-          docType: form.doctype,
-          title: form.title,
-        },
-        homeAddress: form.addressHa,
-        currentAddress: form.addressCa,
-        stockDividend: {
-          stkNote: form.stockDividend.stkNote,
-          stkPayType: form.stockDividend.stkPayType,
-          stkAcctype: form.stockDividend.stkAcctype,
-          stkAccno: form.stockDividend.stkAccno,
-          stkAccname: form.stockDividend.stkAccname,
-          stkOwnID: form.stockDividend.stkOwnID,
-          stkRemCode: form.stockDividend.stkRemCode, logBrCode: this.brCode
-        }
-      };
-      this.customerService.updateCustomer(customerPayload).subscribe({
-        next: () => {
-          alert('✅ แก้ไขข้อมูลเรียบร้อย');
-          this.success.emit();
-          this.loading = false;
-        },
-        error: (err) => {
-          console.error('❌ เกิดข้อผิดพลาด:', err);
-          alert('❌ เกิดข้อผิดพลาดในการบันทึก');
-          this.loading = false;
-          this.goBack();
-        }
-      });
-    }
-  }
-
-  submitSaleStock() {
-    const stockSection = this.customerForm.get('stockDividend');
-    const stkUnitValue = Number(this.customerForm.get('stkUnit')?.value);
-
-    // ตรวจสอบว่า valid ไหม
-    if (!stockSection || stockSection.invalid || !this.customerForm.get('stktype')?.value || !this.customerForm.get('stkReqNo')?.value) {
-      alert('❗ กรุณากรอกข้อมูลในส่วนการซื้อหุ้นให้ครบถ้วน');
-      stockSection?.markAllAsTouched();
-      this.customerForm.get('stktype')?.markAsTouched();
-      this.loading = false;
-      return;
-    }
-
-
-    if (isNaN(stkUnitValue) || stkUnitValue < 50) {
-      alert('❗ ไม่สามารถขายต่ำกว่า 50 หุ้นได้');
-      this.loading = false;
-      this.cd.detectChanges();
-      return;
-    }
-
     const form = this.customerForm.value;
 
-    const payload = {
-      cusId: form.cusId,
-      fname: form.fname,
-      lname: form.lname,
-      brCode: sessionStorage.getItem('brCode'),
-
-      stock: {
-        stktype: 'A',
-        requestNo: form.stkReqNo,
-        unit: Number(form.stkUnit),
-        value: Number(form.stkValue),
-        stkNote: form.stockDividend.stkNote || '',
+    const customerPayload = {
+      customer: {
+        cusiD: form.cusId,
+        cusFname: form.fname,
+        cusLname: form.lname,
+        cusCode: form.custype,
+        cusCodeg: form.cusCodeg,
+        docType: form.doctype,
+        title: form.title,
       },
-
-      payment: {
-        stkSaleBy: form.stockDividend?.stkSaleBy || '',
-        method: form.stockDividend?.stkPayType || '',
-        accNo: form.stockDividend?.stkAccno || '',
-        accName: form.stockDividend?.stkAccname || '',
-        accType: this.customerForm.get('stockDividend.stkAcctype')?.value || '',
-        chqNo: form.stockDividend?.stkSaleByCHQno || '',
-        chqDate: form.stockDividend?.stkSaleByCHQdat || '',
-        chqBank: form.stockDividend?.stkSaleByCHQbnk || '',
-        chqBranch: form.stockDividend?.stkSaleCHQbrn || '',
+      homeAddress: form.addressHa,
+      currentAddress: form.addressCa,
+      stockDividend: {
+        stkNote: form.stockDividend.stkNote,
+        stkPayType: form.stockDividend.stkPayType,
+        stkAcctype: form.stockDividend.stkAcctype,
+        stkAccno: form.stockDividend.stkAccno,
+        stkAccname: form.stockDividend.stkAccname,
+        stkOwnID: form.stockDividend.stkOwnID,
+        stkRemCode: form.stockDividend.stkRemCode, logBrCode: this.brCode
       }
     };
-
-    console.log('📦 ข้อมูลการขอซื้อหุ้น:', payload);
-      this.stockRequestService.submitRequest(payload).subscribe({
-        next: () => {
-          alert('✅ ส่งคำขอเรียบร้อยแล้ว');
-          this.success.emit();
-        },
-        error: (err) => {
-          console.error('❌ เกิดข้อผิดพลาด:', err.error?.message || err.message || err);
-          alert('❌ ไม่สามารถส่งคำขอได้');
-          this.loading = false;
-          this.cd.detectChanges();
-        }
-      });
+    this.customerService.updateCustomer(customerPayload).subscribe({
+      next: () => {
+        alert('✅ แก้ไขข้อมูลเรียบร้อย');
+        this.success.emit();
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('❌ เกิดข้อผิดพลาด:', err);
+        alert('❌ เกิดข้อผิดพลาดในการบันทึก');
+        this.loading = false;
+        this.goBack();
+      }
+    });
   }
 
   goBack() {

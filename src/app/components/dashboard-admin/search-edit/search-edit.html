@@ -52,7 +52,7 @@
         </result-default>
 
           <result-common-stock *ngSwitchCase="'common'" [results]="results" [currentPage]="currentPage"
-            [pageSize]="pageSize" [totalItems]="totalItems" [mode]="'sale-stock-common'" (edit)="onEdit($event)" (modeNotify)="onModeNotify($event)">
+            [pageSize]="pageSize" [totalItems]="totalItems" [mode]="'sale-stock-common'" (edit)="onCommon($event)" (modeNotify)="onModeNotify($event)">
           </result-common-stock>
 
         <result-new-certificate *ngSwitchCase="'new-cert'" [results]="results" [currentPage]="currentPage"
