@@ -8,6 +8,7 @@ import { StockService, StockItem } from '../../../services/stock';
 import { AccTypeService, AccType } from '../../../services/acc-type';
 import { CustomerService } from '../../../services/customer';
 import { StockRequestService } from '../../../services/stock-request';
+import Swal from 'sweetalert2';
 
 interface TransferReceiver {
   cid: string;
@@ -52,6 +53,9 @@ export class TransferShareComponent implements OnInit {
   selectedcustomer: any = null;
   selectStockTransfer: any = null;
   selectCusTransfer: any = null;
+  globalRemCode: string = '';
+  transferResult: any;
+  loading = false;
 
   // สำหรับเพิ่มรายการผู้รับโอน
   transferList: TransferReceiver[] = [];
@@ -125,7 +129,6 @@ export class TransferShareComponent implements OnInit {
 
         const validStock = stockList.find((s: StockItem) => s.stkStatus === 'S000');
 
-        console.log("Stock ", response);
 
         if (!validStock) {
           const statusList = [...new Set(stockList.map((s: StockItem) => s.statusDesc || s.stkStatus))].join(', ');
@@ -139,7 +142,7 @@ export class TransferShareComponent implements OnInit {
           shareAmount: 0,
           branch: sessionStorage.getItem('brName') ?? undefined,
           payType: validStock.stkPayType || '',
-          accType: validStock.stkAcctype || '',
+          accType: validStock.stkAcctype || '001',
           accNo: validStock.stkAccno || '',
           accName: validStock.stkAccname || '',
           remCode: '',
@@ -176,14 +179,30 @@ export class TransferShareComponent implements OnInit {
       return;
     }
 
-    if (!this.selectedTransfer.remCode || this.selectedTransfer.remCode === '') {
+    if (!this.globalRemCode || this.globalRemCode === '') {
       alert('กรุณาเลือกเหตุผลในการโอนหุ้น');
       return;
     }
 
+    if (this.selectedTransfer?.payType === "001") {
+      const accNo = this.selectedTransfer.accNo?.trim();
+      const accName = this.selectedTransfer.accName?.trim();
+
+      if (!accNo || !accName) {
+        alert('กรุณากรอกข้อมูลบัญชีให้ครบถ้วน');
+        return;
+      }
+    }
+
+
+
     console.log("ข้อมูลผู้รับที่จะเพิ่ม:", this.selectedTransfer);
 
-    this.transferList.push({ ...this.selectedTransfer });
+    this.transferList.push({
+      ...this.selectedTransfer,
+      remCode: this.globalRemCode // ใส่เหตุผลโอนหุ้นแบบกลาง
+    });
+
     this.selectedTransfer = null;
     this.tempCID = '';
     this.isEnteringNewPerson = true;
@@ -234,80 +253,18 @@ export class TransferShareComponent implements OnInit {
   }
 
 
-  submitTransfer() {
-    if (!this.selectedStock || this.transferList.length === 0) {
-      alert('กรุณาเลือกหุ้นและเพิ่มผู้รับโอนอย่างน้อย 1 ราย');
-      return;
-    }
 
-    const totalShareToTransfer = this.transferList.reduce((sum, t) => sum + (t.shareAmount || 0), 0);
-    const availableShares = this.selectStockTransfer.unit ?? 0;
-
-    console.log("ผลรวมของ Unit ที่จะส่งไปบันทีก ", totalShareToTransfer);
-
-    if (totalShareToTransfer > availableShares) {
-      alert(`ขออภัยจำนวนหุ้นไม่พอ กรุณาโอนหุ้นไม่เกิน ${availableShares} หุ้น`);
-      return;
-    }
-
-
-    const payload = {
-      fromCusId: this.selectedcustomer?.cusId,
-      fromStkNote: this.selectStockTransfer.stkNote,
-      amount: totalShareToTransfer,
-      stkTrcode: "TFW",
-      StkTrtype: "TRF",
-      brCode: sessionStorage.getItem('brCode'),
-      transfers: this.transferList.map(t => ({
-        cid: t.cid,
-        stkNote: t.stkNote,
-        shareAmount: t.shareAmount,
-        remCode: t.remCode,
-        payType: t.payType,
-        accType: t.accType,
-        accNo: t.accNo,
-        accName: t.accName,
-        stkTrcode: "TFD",
-        StkTrtype: "TRF"
-      }))
-    };
-
-
-    console.log('📦 ส่งข้อมูลการโอน:', payload);
-
-    // TODO: ส่ง API จริง
-    this.StockRequestService.transferRequest(payload).subscribe({
-      next: (res) => {
-        console.log('✅ การโอนสำเร็จ:', res);
-        alert('บันทึกคำขอโอนเปลี่ยนมือเรียบร้อยแล้ว');
-
-        // 👉 เคลียร์ข้อมูลหรือนำทางกลับ
-        this.transferList = [];
-        this.selectStockTransfer = null;
-        this.activeView = 'detail';
-        this.cdRef.detectChanges();
-      },
-      error: (err) => {
-        console.error('❌ เกิดข้อผิดพลาดในการโอน:', err);
-        alert('เกิดข้อผิดพลาดในการส่งคำขอโอน กรุณาลองใหม่อีกครั้ง');
-      }
-    });
-
-  }
 
   onSetTransfer(stock: any, customer: any) {
     this.selectStockTransfer = stock;
     this.selectCusTransfer = customer;
-    // console.log('รายการหุ้นที่เลือก:', this.selectStockTransfer);
-    // console.log('ข้อมูลลูกค้า:', this.selectCusTransfer);
     this.setView('transfer');
     this.cdRef.detectChanges();
   }
 
-  showDetail(stock: any) {
-    this.selectStockTransfer = stock;
-    console.log('แสดงรายละเอียด:', this.selectStockTransfer);
+  showDetail(stkNote: string) {
     this.setView('detail');
+    this.funcDetail(stkNote)
     this.cdRef.detectChanges();
   }
 
@@ -335,7 +292,101 @@ export class TransferShareComponent implements OnInit {
     return `${day} ${thaiMonths[month]} ${buddhistYear} เวลา ${hour}:${minute}:${second} น.`;
   }
 
+  submitTransfer() {
+    if (!this.selectedStock || this.transferList.length === 0) {
+      alert('กรุณาเลือกหุ้นและเพิ่มผู้รับโอนอย่างน้อย 1 ราย');
+      return;
+    }
+
+    if (!this.globalRemCode) {
+      alert('กรุณาเลือกเหตุผลการโอนหุ้น');
+      return;
+    }
+
+
+    const totalShareToTransfer = this.transferList.reduce((sum, t) => sum + (t.shareAmount || 0), 0);
+    const availableShares = this.selectStockTransfer.unit ?? 0;
+    if (totalShareToTransfer > availableShares) {
+      alert(`ขออภัยจำนวนหุ้นไม่พอ กรุณาโอนหุ้นไม่เกิน ${availableShares} หุ้น`);
+      return;
+    }
+
+    this.loading = true;
+
+
+    const payload = {
+      fromCusId: this.selectedcustomer?.cusId,
+      fromStkNote: this.selectStockTransfer.stkNote,
+      amount: totalShareToTransfer,
+      stkTrcode: "TFW",
+      StkTrtype: "TRF",
+      brCode: sessionStorage.getItem('brCode'),
+      transfers: this.transferList.map(t => ({
+        cid: t.cid,
+        stkNote: t.stkNote,
+        shareAmount: t.shareAmount,
+        remCode: t.remCode,
+        payType: t.payType,
+        accType: t.accType,
+        accNo: t.accNo,
+        accName: t.accName,
+        stkTrcode: "TFD",
+        StkTrtype: "TRF"
+      }))
+    };
+
+    Swal.fire({
+      html: `<p style="font-family: 'Prompt', sans-serif;">ยืนยันการโอนหุ้นเปลี่ยนมือ</p>`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'อนุมัติ',
+      cancelButtonText: 'ยกเลิก',
+      confirmButtonColor: '#16a34a',
+      cancelButtonColor: '#ef4444'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.StockRequestService.transferRequest(payload).subscribe({
+          next: (res) => {
+            console.log('✅ การโอนสำเร็จ:', res);
+            Swal.fire({
+              icon: 'success',
+              html: `<p style="font-family: 'Prompt', sans-serif;">บันทึกข้อมูลสำเร็จ</p>`,
+              confirmButtonText: 'ตกลง'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                this.transferList = [];
+                this.selectStockTransfer = null;
+                this.funcDetail(this.selectedcustomer?.cusId);
+                this.cdRef.detectChanges();
+              }
+            })
+          },
+          error: (err) => {
+            console.error('❌ เกิดข้อผิดพลาดในการโอน:', err);
+            alert('เกิดข้อผิดพลาดในการส่งคำขอโอน กรุณาลองใหม่อีกครั้ง');
+          }
+        });
+      }
+    })
+  }
+
+  funcDetail(stkNote: string) {
+    this.stockService.getResultsTransfer(stkNote).subscribe({
+      next: (data) => {
+        this.transferResult = data;
+        this.loading = false;
+        this.activeView = 'detail';
+        console.log(data);
+        this.cdRef.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error fetching transfer result:', err);
+        this.loading = false;
+      }
+    });
+  }
+
   goBack() {
-    this.activeView = 'search'; // หรือชื่อหน้าก่อนหน้า เช่น 'search', 'list', หรือ null
+    this.activeView = 'search';
   }
 }

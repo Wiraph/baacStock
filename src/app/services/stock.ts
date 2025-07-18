@@ -58,6 +58,13 @@ export class StockService {
     });
   }
 
+  getResultsTransfer(stkNote: string): Observable<any[]> {
+    const encodedStkNote = encodeURIComponent(stkNote)
+    return this.http.get<any[]>(`${this.apiUrl}/resultstransfer/${encodedStkNote}`, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
   getStockType(): Observable<StockType[]> {
     return this.http.get<any[]>(`${this.apiUrl}/stocktype`, {
       headers: this.createAuthHeaders()
