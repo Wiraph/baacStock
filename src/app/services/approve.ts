@@ -14,6 +14,12 @@ export class ApproveService {
     @Inject(PLATFORM_ID) private platformId: object
   ) { }
 
+  getStockApprove(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/approve`, {
+      headers: this.createAuthHeaders()
+    })
+  }
+
   approveIssue(id: string): Observable<any> {
     const headers = this.createAuthHeaders();
     return this.http.put<any>(

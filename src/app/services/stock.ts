@@ -71,11 +71,11 @@ export class StockService {
     });
   }
 
-  getStockApprove(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/approve`, {
-      headers: this.createAuthHeaders()
-    })
-  }
+  // getStockApprove(): Observable<any[]> {
+  //   return this.http.get<any[]>(`${this.apiUrl}/approve`, {
+  //     headers: this.createAuthHeaders()
+  //   })
+  // }
 
   getIssueApprove(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/approve-issue`, {
