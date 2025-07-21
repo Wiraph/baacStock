@@ -5,11 +5,12 @@ import { ApproveService } from '../../../services/approve';
 import { CommonModule } from '@angular/common';
 import { DataTransfer } from '../../../services/data-transfer';
 import { ApproveTransfer } from '../approve-transfer/approve-transfer';
+import { ApproveCreate } from '../approve-create/approve-create';
 
 @Component({
   standalone: true,
   selector: 'app-approve-item',
-  imports: [FormsModule, CommonModule, ApproveTransfer],
+  imports: [FormsModule, CommonModule, ApproveTransfer, ApproveCreate],
   templateUrl: './approve-item.html',
   styleUrl: './approve-item.css'
 })
@@ -20,6 +21,7 @@ export class ApproveItemComponent implements OnInit {
   requestList: any[] = [];
   loading = false;
   showDetailComponent = false;
+  showDetailComponentCreate = false;
 
   constructor(
     private stockService: StockService,
@@ -45,9 +47,13 @@ export class ApproveItemComponent implements OnInit {
   }
 
 
-  approveConfirm(stkNote: string) {
+  approveConfirm(stkNote: string, stkStatus: string) {
     this.dataTransfer.setStkNote(stkNote);
-    this.showDetailComponent = true;
+    if(stkStatus == "A003") {
+      this.showDetailComponent = true;
+    } else if(stkStatus == "A002") {
+      this.showDetailComponentCreate = true;
+    }
     this.cdr.detectChanges();
   }
 

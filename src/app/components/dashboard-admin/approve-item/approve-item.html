@@ -1,4 +1,4 @@
-<div class="m-2 bg-white shadow-md rounded-md" *ngIf="!showDetailComponent">
+<div class="m-2 bg-white shadow-md rounded-md" *ngIf="!showDetailComponent && !showDetailComponentCreate">
   <div class="py-2 bg-green-400 flex justify-center rounded-t-md">
     <p class="text-white font-semibold">{{ brName }} : อนุมัติรายการ</p>
   </div>
@@ -26,7 +26,7 @@
             <td class="p-3">{{ item.stkNote }}</td>
             <td class="p-3 text-right">{{ item.unit | number:'1.0-0' }}</td>
             <td class="p-3 text-right">{{ item.unitValue | number:'1.0-0' }}</td>
-            <td class="p-3 text-center cursor-pointer hover:text-green-600" (click)="approveConfirm(item.stkNote)">📝</td>
+            <td class="p-3 text-center cursor-pointer hover:text-green-600" (click)="approveConfirm(item.stkNote, item.stkStatus)">📝</td>
           </tr>
         </tbody>
       </table>
@@ -36,6 +36,10 @@
 
 <div *ngIf="showDetailComponent">
   <app-approve-transfer></app-approve-transfer>
+</div>
+
+<div *ngIf="showDetailComponentCreate">
+  <app-approve-create></app-approve-create>
 </div>
 
 <!-- ✅ Loading Overlay แบบโปร่งใส + มองทะลุ + เบลอ -->
