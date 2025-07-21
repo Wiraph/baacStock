@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, retry } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 
 
@@ -65,11 +65,19 @@ export class StockService {
     });
   }
 
+  getResultCreate(stkNote: string): Observable<any[]> {
+    const encodedStkNote = encodeURIComponent(stkNote)
+    return this.http.get<any[]>(`${this.apiUrl}/resutlcreate/${encodedStkNote}`, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
   getStockType(): Observable<StockType[]> {
     return this.http.get<any[]>(`${this.apiUrl}/stocktype`, {
       headers: this.createAuthHeaders()
     });
   }
+
 
   // getStockApprove(): Observable<any[]> {
   //   return this.http.get<any[]>(`${this.apiUrl}/approve`, {

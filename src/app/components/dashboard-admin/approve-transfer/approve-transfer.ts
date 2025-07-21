@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { StockService } from '../../../services/stock';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
-// import {}
 
 @Component({
   standalone: true,

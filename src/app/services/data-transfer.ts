@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class DataTransfer {
   private stkNote: string = '';
+  private status: string = '';
 
   setStkNote(note: string) {
     this.stkNote =note;
@@ -12,5 +13,13 @@ export class DataTransfer {
   
   getStkNote(): string{
     return this.stkNote;
+  }
+
+  setStatus(status: string) {
+    this.status = status;
+  }
+
+  getStatus(): string {
+    return this.status;
   }
 }
