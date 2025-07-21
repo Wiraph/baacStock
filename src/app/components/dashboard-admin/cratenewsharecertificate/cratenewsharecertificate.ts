@@ -73,7 +73,6 @@ export class CratenewsharecertificateComponent {
   onSubmitReason() {
     if (this.reasonForm.valid) {
       const selectedCode = this.reasonForm.value.remCode;
-      console.log("เลือก remCode:", selectedCode);
 
       const payload = {
         remCode: selectedCode,
