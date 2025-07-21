@@ -1,34 +1,33 @@
-<div>
+<div class="bg-white shadow-md">
   <div class="w-full bg-green-500 h-auto text-white text-center text-xl font-bold py-2 rounded-t-lg">
     ใบคำขอซื้อหุ้น
   </div>
+  <!-- 📋 ส่วนอัปโหลดฟอร์มเอกสาร -->
+  <app-document-key-detect></app-document-key-detect>
 
   <!-- 🔁 ปุ่มโหลดใหม่ -->
-  <div class="p-4 text-center text-gray-700">
+  <!-- <div class="p-4 text-center text-gray-700">
     <button (click)="loadPdf()"
       class="py-2 px-3 bg-amber-500 rounded-xl text-white cursor-pointer hover:bg-amber-400 transition-all">
       คลิกหากใบคำขอไม่แสดง หรือเพื่อโหลดใหม่
     </button>
-  </div>
+  </div> -->
 
   <!-- 📄 ส่วนแสดง PDF -->
   <div class="p-4">
-    <ng-container *ngIf="pdfUrl; else loadingOrError">
+    <!-- <ng-container *ngIf="pdfUrl; else loadingOrError">
       <iframe [src]="pdfUrl" width="100%" height="800px" style="border: 1px solid #ccc; border-radius: 10px;">
       </iframe>
-    </ng-container>
+    </ng-container> -->
 
     <!-- ⏳ Loading / ❌ Error -->
-    <ng-template #loadingOrError>
+    <!-- <ng-template #loadingOrError>
       <div class="text-center text-gray-600">
         <p *ngIf="loading">⏳ กำลังโหลดเอกสาร...</p>
         <p *ngIf="loadFailed" class="text-red-600 font-semibold mt-2">
           ❌ โหลดเอกสารไม่สำเร็จภายใน 30 วินาที
         </p>
       </div>
-    </ng-template>
+    </ng-template> -->
   </div>
-
-  <!-- 📋 ส่วนอัปโหลดฟอร์มเอกสาร -->
-  <app-document-key-detect></app-document-key-detect>
 </div>
