@@ -3,6 +3,7 @@ import { DataTransfer } from '../../../services/data-transfer';
 import { StockService } from '../../../services/stock';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
+import { ApproveService } from '../../../services/approve';
 
 @Component({
   standalone: true,
@@ -19,6 +20,7 @@ export class ApproveCreate implements OnInit {
     private dataTransfer: DataTransfer,
     private stockService: StockService,
     private cd: ChangeDetectorRef,
+    private approveService: ApproveService
   ) { }
 
   ngOnInit(): void {
@@ -55,7 +57,7 @@ export class ApproveCreate implements OnInit {
     })
   }
 
-  onCancel() {
+  onCancel(stkNote: string) {
     Swal.fire({
       html: `
       <p style="font-family: 'Prompt', sans-serif;">ท่านต้องการ ยกเลิกรายการออกใบหุ้นแทน ใบหุ้นที่ชำรุด/สูญหาย</p>
@@ -66,12 +68,34 @@ export class ApproveCreate implements OnInit {
       `,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'ยกเลิกรายการ',
-      cancelButtonText: 'ยกเลิก',
+      confirmButtonText: 'ไม่อนุมัติ',
+      cancelButtonText: 'ปิด',
       confirmButtonColor: '#FFCC00',
       cancelButtonColor: '#ef4444'
     }).then((result) => {
       if (result.isConfirmed) {
+        this.loading = true;
+        this.approveService.refuseList(stkNote).subscribe({
+          next: () => {
+            this.loading = false;
+            Swal.fire({
+              icon: 'success',
+              title: 'ยกเลิกสำเร็จ',
+              showConfirmButton: false,
+              timer: 1500
+            });
+            window.location.reload();
+            this.cd.detectChanges();
+          }, error(err) {
+            console.log("Unable to send data", err);
+            alert("ไม่สามารถบันทึกข้อมูลได้โปรดติดต่อผู้พัฒนา");
+          }
+        })
+        this.loading = false;
+        return
+      } else {
+        this.loading = false;
+        this.cd.detectChanges();
         return
       }
     })
