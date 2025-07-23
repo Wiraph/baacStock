@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { StockService } from '../../../services/stock';
 import Swal from 'sweetalert2';
 import { ApproveService } from '../../../services/approve';
+import { StocktransferService } from '../../../services/stocktransfer';
 
 @Component({
   standalone: true,
@@ -20,7 +21,8 @@ export class ApproveTransfer implements OnInit {
     private dataTransfer: DataTransfer,
     private stockService: StockService,
     private cd: ChangeDetectorRef,
-    private approveService: ApproveService
+    private approveService: ApproveService,
+    private stockTransferService: StocktransferService
   ) { }
 
   ngOnInit(): void {
@@ -70,6 +72,9 @@ export class ApproveTransfer implements OnInit {
   }
 
   onCancel(stkNote: string) {
+    const payload = {
+      stkNoteTrf: stkNote
+    };
     Swal.fire({
       html: `
       <p style="font-family: 'Prompt', sans-serif;">ท่านต้องการ ยกเลิกรายการ โอนเปลี่ยนมือ</p>
@@ -87,7 +92,7 @@ export class ApproveTransfer implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         this.loading = true;
-        this.approveService.refuseList(stkNote).subscribe({
+        this.stockTransferService.transferCancel(payload).subscribe({
           next: () => {
             this.loading = false;
             Swal.fire({
@@ -96,7 +101,7 @@ export class ApproveTransfer implements OnInit {
               showConfirmButton: false,
               timer: 1500
             });
-            window.location.reload();
+            this.onClose();
             this.cd.detectChanges();
           }, error(err) {
             console.log("Unable to send data", err);
@@ -113,7 +118,6 @@ export class ApproveTransfer implements OnInit {
   }
 
   onClose() {
-    console.log("Pass");
     window.location.reload();
     this.cd.detectChanges();
   }
