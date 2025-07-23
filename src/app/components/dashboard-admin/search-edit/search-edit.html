@@ -63,6 +63,11 @@
           [pageSize]="pageSize" [totalItems]="totalItems" [mode]="'stock-transfer'" (edit)="onTransfer($event)" (modeNotify)="onModeNotify($event)">
         </result-tranfer-share>
 
+        <result-block-certificate *ngSwitchCase="'block-cert'" [results]="results" [currentPage]="currentPage" [pageSize]="pageSize"
+          [totalItems]="totalItems" [mode]="'block-certificate'" (edit)="onBlockCertificate($event)"
+          (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc, $event.viewMode)">
+        </result-block-certificate>
+
       </ng-container>
     </div>
 

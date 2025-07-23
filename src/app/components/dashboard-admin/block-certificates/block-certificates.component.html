@@ -1,0 +1,114 @@
+<!-- หน้าค้นหา -->
+<div *ngIf="activeView === 'search'">
+  <app-search-edit [InputblockCertificates]="internalViewName" 
+                   (viewStock)="onViewStock($event)"
+                   (blockCertificate)="onBlockCertificateSelected($event)">
+  </app-search-edit>
+</div>
+
+<!-- หน้าแสดงรายการใบหุ้น -->
+<div *ngIf="activeView === 'certificate-list'" class="p-4">
+  <div *ngIf="selectedcustomer" class="w-full bg-white rounded-xl shadow-md">
+    <!-- ปุ่มกลับ -->
+    <div class="flex justify-start px-4 py-2">
+      <button (click)="goBack()" 
+              class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition-colors">
+        ← กลับ
+      </button>
+    </div>
+
+    <!-- หัวเรื่อง -->
+    <div class="bg-red-600 rounded-t-xl text-center py-3">
+      <p class="text-xl text-white font-bold">🔒 บล็อค/ยกเลิกบล็อค ใบหุ้น</p>
+    </div>
+
+    <!-- ข้อมูลลูกค้า -->
+    <div class="w-full flex flex-col items-center justify-center text-center space-y-2 py-4">
+      <div class="flex gap-4">
+        <div class="flex items-center gap-2">
+          <label class="font-medium">บัตรแสดงตนเลขที่:</label>
+          <p class="text-gray-700">{{ selectedcustomer.cusId }}</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="font-medium">สถานะ:</label>
+          <p class="text-gray-700">{{ selectedcustomer.status }}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="font-medium">ชื่อ - นามสกุล:</label>
+        <p class="text-gray-700">{{ selectedcustomer.fullName }}</p>
+      </div>
+    </div>
+
+    <!-- ตารางแสดงรายการใบหุ้น -->
+    <div class="p-4">
+      <table class="table-auto w-full border border-collapse shadow-md">
+        <thead class="bg-red-100 text-gray-800">
+          <tr>
+            <th class="border px-3 py-2 text-center">ลำดับ</th>
+            <th class="border px-3 py-2 text-center">สาขา</th>
+            <th class="border px-3 py-2 text-center">หมายเลขใบหุ้น</th>
+            <th class="border px-3 py-2 text-center">หมายเลขใบหุ้นเดิม</th>
+            <th class="border px-3 py-2 text-center">หมายเลขหุ้น</th>
+            <th class="border px-3 py-2 text-center">จำนวนหุ้น</th>
+            <th class="border px-3 py-2 text-center">มูลค่าหุ้น</th>
+            <th class="border px-3 py-2 text-center">สถานะ</th>
+            <th class="border px-3 py-2 text-center">วันที่ทำรายการ</th>
+            <th class="border px-3 py-2 text-center">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Debug info -->
+          <tr *ngIf="!getFilteredStocks().length" class="bg-yellow-50">
+            <td colspan="10" class="border px-3 py-2 text-center text-gray-600">
+              ไม่พบข้อมูลใบหุ้น (Debug: {{ selectedcustomer?.stock?.length || 0 }} รายการทั้งหมด)
+            </td>
+          </tr>
+          
+          <tr *ngFor="let stock of getFilteredStocks(); let i = index" 
+              class="hover:bg-gray-100 transition-colors">
+            <td class="border px-3 py-2 text-center">{{ i + 1 }}</td>
+            <td class="border px-3 py-2 text-center">{{ stock.brCode || "-" }}</td>
+            <td class="border px-3 py-2 text-center">{{ stock.stkNote }}</td>
+            <td class="border px-3 py-2 text-center">{{ stock.stkNoteo || "-" }}</td>
+            <td class="border px-3 py-2 text-center">{{ stock.stkNostart || "-" }} - {{ stock.stkNostop || "-" }}</td>
+            <td class="border px-3 py-2 text-center">{{ stock.stkUniT || "-" }}</td>
+            <td class="border px-3 py-2 text-center">{{ stock.stkValue ? (stock.stkValue | number:'1.0-2') : "-" }}</td>
+            <td class="border px-3 py-2 text-center">
+              <span [class]="getStatusBadge(stock.stkStatus).class + ' px-2 py-1 rounded-full text-xs'">
+                {{ getStatusBadge(stock.stkStatus).text }}
+              </span>
+            </td>
+            <td class="border px-3 py-2 text-center">{{ formatThaiDateTime(stock.stkDateInput) }}</td>
+            <td class="border px-3 py-2 text-center">
+              <!-- ปุ่มบล็อค (สำหรับใบหุ้นปกติ) -->
+              <button *ngIf="stock.stkStatus !== 'S008'"
+                      (click)="onBlockCertificate(stock.stkNote)"
+                      class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors mr-1">
+                🔒 บล็อค
+              </button>
+              
+              <!-- ปุ่มยกเลิกบล็อค (สำหรับใบหุ้นที่ถูกบล็อค) -->
+              <button *ngIf="stock.stkStatus === 'S008'"
+                      (click)="onUnblockCertificate(stock)"
+                      class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition-colors">
+                🔓 ยกเลิกบล็อค
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Loading Overlay -->
+<div *ngIf="loading" 
+     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
+    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-red-600"></div>
+    <span class="text-gray-700">กำลังดำเนินการ...</span>
+  </div>
+</div> 
