@@ -49,7 +49,10 @@ export class ApproveTransfer implements OnInit {
     return `${hour}:${minute}:${second}`;
   }
 
-  onConfirm() {
+  onConfirm(stkNote: string) {
+    const payload = {
+      stkNoteTrf: stkNote
+    }
     Swal.fire({
       html: `
       <p style="font-family: 'Prompt', sans-serif;">ท่านต้องการ อนุมัติรายการ โอนเปลี่ยนมือ</p>
@@ -66,7 +69,21 @@ export class ApproveTransfer implements OnInit {
       cancelButtonColor: '#ef4444'
     }).then((result) => {
       if (result.isConfirmed) {
-        return
+        this.stockTransferService.transferApprove(payload).subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'อนุมัติสำเร็จ',
+              showConfirmButton: false,
+              timer: 1500
+            });
+            this.onClose();
+            this.cd.detectChanges();
+          }, error(err) {
+            console.log("Unable to send data", err);
+            alert("ไม่สามารถบันทึกข้อมูลได้โปรดติดต่อผู้พัฒนา");
+          }
+        })
       }
     })
   }

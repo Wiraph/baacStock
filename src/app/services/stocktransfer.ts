@@ -22,6 +22,9 @@ export class StocktransferService {
     return this.http.put(`${this.apiUrl}/cancel`, payload, { headers: this.createAuthHeaders() });
   }
 
+  transferApprove(payload: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/approve`, payload, { headers: this.createAuthHeaders() });
+  }
 
   private createAuthHeaders(): HttpHeaders {
     let token = '';
