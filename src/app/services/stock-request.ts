@@ -21,7 +21,7 @@ export class StockRequestService {
   }
 
   stockRequest(payload: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/request`,payload, {headers:this.createAuthHeaders()});
+    return this.http.put(`${this.apiUrl}/request`,payload, {headers:this.createAuthHeaders()});
   }
 
   private createAuthHeaders(): HttpHeaders {
