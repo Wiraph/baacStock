@@ -114,6 +114,8 @@ export class SearchEditComponent implements OnInit, OnChanges {
       this.titleSearch = 'ออกใบหุ้นใหม่แทนใบหุ้นที่ชำรุด/สูญหาย';
     } else if (this.InputtransferShare === 'transferShare') {
       this.titleSearch = 'โอนเปลี่ยนมือ';
+    } else if (this.InputblockCertificates === 'blockCertificates') {
+      this.titleSearch = 'บล็อค/ยกเลิกบล็อคใบหุ้น';
     } else {
       this.titleSearch = 'ค้นหา';
     }
