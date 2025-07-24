@@ -81,7 +81,6 @@ export class CratenewsharecertificateComponent {
         stkNoend: this.selectedRequest.stkEnd,
         stkUnit: this.selectedRequest.unit,
         stkValue: this.selectedRequest.unitValue,
-        brCode: sessionStorage.getItem("brCode")
       }
 
       console.log("ข้อมูลที่เตรียมส่งออกไป : ", payload);

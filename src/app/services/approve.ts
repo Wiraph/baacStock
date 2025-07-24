@@ -38,6 +38,13 @@ export class ApproveService {
     );
   }
 
+  refuseList(stkNote: string): Observable<any> {
+    const headers = this.createAuthHeaders();
+    return this.http.put<any>(
+      `${this.apiUrl}/refuse/${stkNote}`, null, {headers}
+    );
+  }
+
   private createAuthHeaders(): HttpHeaders {
     let token = '';
     if (isPlatformBrowser(this.platformId)) {
