@@ -98,10 +98,11 @@ export class BlockCertificatesComponent implements OnInit {
       icon: 'warning',
       title: "ต้องการ",
       text: `บล็อคใบหุ้นเลขที่ ${certificate} ใช่หรือไม่`,
-      confirmButtonText: "บล็อค",
-      cancelButtonText: "cancel",
+      confirmButtonText: "ยืนยัน",
+      cancelButtonText: "ยกเลิก",
       confirmButtonColor: "#dc2626",
       cancelButtonColor: "#6b7280",
+      showCancelButton: true,
     }).then((result) => {
       if (result.isConfirmed) {
         this.executeBlockCertificate(certificate);
@@ -114,10 +115,11 @@ export class BlockCertificatesComponent implements OnInit {
       icon: 'warning',
       title: "ต้องการ",
       text: `ยกเลิกบล็อคใบหุ้นเลขที่ ${certificate.stkNote} ใช่หรือไม่`,
-      confirmButtonText: "ยกเลิกการบล็อค",
-      cancelButtonText: "cancel",
+      confirmButtonText: "ยืนยัน",
+      cancelButtonText: "ยกเลิก",
       confirmButtonColor: "#059669",
       cancelButtonColor: "#6b7280",
+      showCancelButton: true,
     }).then((result) => {
       if (result.isConfirmed) {
         this.executeUnblockCertificate(certificate);
