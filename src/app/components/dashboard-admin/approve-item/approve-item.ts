@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { DataTransfer } from '../../../services/data-transfer';
 import { ApproveTransfer } from '../approve-transfer/approve-transfer';
 import { ApproveCreate } from '../approve-create/approve-create';
+import { StocktransferService } from '../../../services/stocktransfer';
 
 @Component({
   standalone: true,
@@ -27,11 +28,11 @@ export class ApproveItemComponent implements OnInit {
     private stockService: StockService,
     private approveService: ApproveService,
     private dataTransfer: DataTransfer,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private stocktransferService: StocktransferService
   ) { }
 
   stockList: string[] = [];
-
 
   onSearch() {
     this.approveService.getStockApprove().subscribe({
@@ -45,7 +46,6 @@ export class ApproveItemComponent implements OnInit {
       }
     });
   }
-
 
   approveConfirm(stkNote: string, stkStatus: string) {
     this.dataTransfer.setStkNote(stkNote);
@@ -63,7 +63,7 @@ export class ApproveItemComponent implements OnInit {
   }
 
   detail(item: any) {
-
+    // แสดงรายละเอียด
   }
 
   ngOnInit(): void {
@@ -71,6 +71,4 @@ export class ApproveItemComponent implements OnInit {
     this.onSearch();
     this.cdr.detectChanges();
   }
-
-
-}
+} 
