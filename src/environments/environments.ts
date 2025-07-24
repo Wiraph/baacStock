@@ -1,4 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://localhost:7089'
+  dotnetApiUrl: 'https://localhost:7089',
+  pythonApiUrl: 'http://localhost:8000'
 };

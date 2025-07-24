@@ -2,10 +2,10 @@
     <h3 class="text-md font-semibold mb-2">ผลลัพธ์ที่พบ: {{ totalItems }} รายการ</h3>
 
     <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-100 text-left text-sm font-medium text-gray-700">
+        <thead class="bg-red-100 text-left text-sm font-medium text-gray-700">
             <tr class="text-center">
                 <th class="px-4 py-2">ลำดับ</th>
-                <th class="px-4 py-2">สาขา</th>
+                <th class="px-4 py-2 ">สาขา</th>
                 <th class="px-4 py-2">เลขที่ลูกค้า</th>
                 <th class="px-4 py-2">ชื่อ-นามสกุล</th>
                 <th class="px-4 py-2">สถานะ</th>
@@ -13,16 +13,20 @@
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-200 text-sm">
-            <tr class="text-center" *ngFor="let r of results; let i = index">
+            <tr class="text-center hover:bg-gray-50 transition-colors" *ngFor="let r of results; let i = index">
                 <td class="px-4 py-2 text-center">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
-                <td class="px-4 py-2 text-center">{{ r.brName }}</td>
+                <td class="px-4 py-2">{{ r.brCode }}</td>
                 <td class="px-4 py-2">{{ r.cusId }}</td>
                 <td class="px-4 py-2">{{ r.fullName }}</td>
-                <td class="px-4 py-2">{{ r.status }}</td>
+                <td class="px-4 py-2">{{ r.status || '-' }}</td>
                 <td class="px-4 py-2">
-                    <button (click)="onEditClick(r)" class="text-green-600 hover:underline">✏️</button>
+                    <button (click)="onEditClick(r)" 
+                            class="text-red-600 text-xl cursor-pointer hover:scale-110 transition-transform"
+                            title="คลิกเพื่อบล็อค/ยกเลิกบล็อคใบหุ้น">
+                        🔒
+                    </button>
                 </td>
             </tr>
         </tbody>
     </table>
-</div>
+</div> 

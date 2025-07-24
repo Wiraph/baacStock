@@ -55,11 +55,12 @@
             <td class="border px-3 py-2 text-center">{{ stock.stkNoteo || "-" }}</td>
             <td class="border px-3 py-2 text-center">{{ stock.stkStart }} - {{ stock.stkEnd }}</td>
             <td class="border px-3 py-2 text-center">{{ stock.unit }}</td>
-            <td class="border px-3 py-2 text-center">{{ stock.uniteValue | number:'1.0-2' }}</td>
+            <td class="border px-3 py-2 text-center">{{ stock.unitValue | number:'1.0-2' }}</td>
             <td class="border px-3 py-2 text-center">{{ stock.stkDesc }}</td>
             <td class="border px-3 py-2 text-center">{{ formatThaiDateTime(stock.stkDateInput) }}</td>
             <td class="border px-3 py-2 text-center">
-              <button (click)="stock.stkStatus === 'A003' ? showDetail(stock) : onSetTransfer(stock, selectedcustomer)"
+              <button
+                (click)="stock.stkStatus === 'A003' ? showDetail(stock.stkNote) : onSetTransfer(stock, selectedcustomer)"
                 class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
                 โอน
               </button>
@@ -124,15 +125,20 @@
       </div>
 
       <!-- เหตุผล -->
-      <div *ngIf="selectedTransfer">
-        <label class="block text-gray-700 font-medium mb-1">เหตุผลในการโอนหุ้น:</label>
-        <select [(ngModel)]="selectedTransfer.remCode" class="w-full border border-gray-300 rounded px-3 py-2">
-          <option value="">-- เลือกเหตุผล --</option>
+      <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:gap-4 justify-center">
+        <label class="mb-2 sm:mb-0 font-medium text-gray-700 whitespace-nowrap">
+          เหตุผลการโอนหุ้น
+        </label>
+        <select [(ngModel)]="globalRemCode"
+          class="w-full sm:w-6/12 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150 ease-in-out bg-white text-gray-700">
+          <option value="">-- กรุณาเลือกเหตุผล --</option>
           <option *ngFor="let rem of remcodeList" [value]="rem.remCode">
             {{ rem.remDesc }}
           </option>
         </select>
       </div>
+
+
 
 
       <!-- ✅ รายการผู้รับโอนที่ถูกบันทึกแล้ว -->
@@ -150,13 +156,24 @@
       </div>
       <!-- ป้อนบัตร -->
       <!-- ✅ เฉพาะตอนยังไม่ได้ใส่ข้อมูลผู้รับ -->
-      <div *ngIf="isEnteringNewPerson" class="mt-4 border rounded p-4 bg-gray-50">
-        <label class="block mb-1 text-sm font-medium">บัตรแสดงตนเลขที่ (ผู้รับโอน):</label>
-        <div class="flex items-center gap-2">
-          <input [(ngModel)]="tempCID" class="flex-1 border rounded px-3 py-2" placeholder="กรอกเลขบัตร">
-          <button (click)="fetchReceiverInfo()" class="text-green-600 text-2xl hover:text-green-800">➕</button>
+      <div class="flex justify-center mt-4">
+        <div *ngIf="isEnteringNewPerson" class="w-6/12 border border-gray-200 rounded-xl p-6 bg-gray-50 shadow-sm">
+          <label class="block mb-2 text-sm font-semibold text-gray-700">
+            บัตรแสดงตนเลขที่ (ผู้รับโอน):
+          </label>
+          <div class="flex items-center gap-3">
+            <input [(ngModel)]="tempCID" type="text"
+              class="flex-1 px-4 py-2 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-blue-300 shadow-sm"
+              placeholder="กรอกเลขบัตร" />
+            <button (click)="fetchReceiverInfo()"
+              class="inline-flex items-center justify-center px-3 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-all shadow"
+              title="เพิ่มผู้รับโอน">
+              <span class="text-xl leading-none">➕</span>
+            </button>
+          </div>
         </div>
       </div>
+
       <div *ngIf="selectedTransfer" class="mt-6 p-6 bg-white rounded-xl shadow-lg ring-1 ring-gray-200">
         <!-- หัวข้อ -->
         <div class="text-center mb-4 text-lg font-semibold text-gray-800">
@@ -167,12 +184,12 @@
           <div>
             <label class="block text-sm text-gray-700">เลขที่บัตรแสดงตน:</label>
             <input [(ngModel)]="selectedTransfer.cid" type="text"
-              class="w-full border border-gray-300 bg-gray-100 rounded px-3 py-2" readonly>
+              class="w-full outline-2 outline-blue-400 text-gray-400 bg-gray-100 rounded px-3 py-2" disabled>
           </div>
           <div>
             <label class="block text-sm text-gray-700">จำนวนหุ้น:</label>
             <input [(ngModel)]="selectedTransfer.shareAmount" type="number" min="0"
-              class="w-full border border-gray-300 rounded px-3 py-2">
+              class="w-full outline-2 outline-green-400 rounded px-3 py-2">
           </div>
           <div class="md:col-span-2">
             <label class="block text-sm text-gray-700">ชื่อ-นามสกุล:</label>
@@ -193,20 +210,20 @@
               <div>
                 <label class="block text-sm text-gray-600 mb-1">ประเภทบัญชี:</label>
                 <select [(ngModel)]="selectedTransfer.accType"
-                  class="w-full border rounded px-3 py-2 bg-gray-100 text-gray-500" disabled>
+                  class="w-full outline-2 outline-blue-400 rounded px-3 py-2 bg-gray-100 text-gray-500" disabled>
                   <option value="">-- เลือกประเภทบัญชี --</option>
                   <option *ngFor="let a of accTypes" [value]="a.accType">{{ a.accDesc }}</option>
                 </select>
               </div>
               <div>
                 <label class="block text-sm text-gray-600 mb-1">เลขที่บัญชี:</label>
-                <input [(ngModel)]="selectedTransfer.accNo" class="w-full border rounded px-3 py-2 bg-gray-100"
-                  readonly>
+                <input [(ngModel)]="selectedTransfer.accNo"
+                  class="w-full outline-2 outline-green-400 rounded px-3 py-2 bg-gray-100">
               </div>
               <div class="md:col-span-2">
                 <label class="block text-sm text-gray-600 mb-1">ชื่อบัญชี:</label>
-                <input [(ngModel)]="selectedTransfer.accName" class="w-full border rounded px-3 py-2 bg-gray-100"
-                  readonly>
+                <input [(ngModel)]="selectedTransfer.accName"
+                  class="w-full outline-2 outline-green-400 rounded px-3 py-2 bg-gray-100">
               </div>
             </div>
             <!-- รับเงินสด -->
@@ -268,25 +285,33 @@
         <h2 class="text-white text-lg font-semibold">ผู้โอน</h2>
       </div>
       <!-- เนื้อหา -->
-      <div class="p-4 space-y-4 text-sm text-gray-700">
+      <div class="p-4 space-y-4 text-sm text-gray-700" *ngIf="transferResult">
         <!-- ชื่อ -->
         <p class="text-base font-medium">
-          นายพิชยะ สารเถื่อนแก้ว <span class="text-gray-500 font-normal">[บุคคลธรรมดา]</span>
+          {{ transferResult.sender?.titleCus }} {{ transferResult.sender?.cusFname }} {{ transferResult.sender?.cusLname
+          }} <span class="text-gray-500 font-normal">[{{ transferResult.sender?.cusCodeg }}]</span>
         </p>
         <!-- หมายเลขหุ้น -->
         <div class="space-y-1">
-          <p>หมายเลขหุ้น: <span class="font-semibold text-gray-800">A0000000000</span><span
-              class="text-gray-500 font-normal ml-4">(ชั่วคราว)</span></p>
-          <p>หมายเลขหุ้น: <span class="font-semibold text-gray-800">11111111111111111 - 11111111111111111112</span>
+          <p>หมายเลขใบหุ้น: <span class="font-semibold text-gray-800">{{ transferResult.sender?.stkNote }}</span><span
+              class="text-gray-500 font-normal ml-4"></span></p>
+          <p>หมายเลขหุ้น: <span class="font-semibold text-gray-800">{{ transferResult.sender?.stkNostart }} - {{
+              transferResult.sender?.stkNostop }}</span>
           </p>
         </div>
         <!-- จำนวนและมูลค่าหุ้น -->
         <div class="flex flex-wrap gap-8">
-          <p>จำนวนหุ้น: <span class="font-semibold">2 หุ้น</span></p>
-          <p>มูลค่าหุ้น: <span class="font-semibold">200 บาท</span></p>
+          <p>จำนวนหุ้น: <span class="font-semibold">{{ transferResult.sender?.unit }} หุ้น</span></p>
+          <p>มูลค่าหุ้น: <span class="font-semibold">{{ transferResult.sender?.value }} บาท</span></p>
         </div>
         <!-- วิธีรับปันผล -->
-        <p>รับเงินปันผลโดย: <span class="font-semibold">เงินสด</span></p>
+        <div class="flex gap-4">
+          <p>รับเงินปันผลโดย: <span class="font-semibold">{{ transferResult.sender?.payDesc }}</span></p>
+          <div class="flex gap-2" *ngIf="transferResult.sender?.stkPayType == '001'">
+            <p>ชื่อบัญชี: <span class="font-semibold">{{ transferResult.sender?.accname }}</span></p>
+            <p>เลขที่บัญชี <span class="font-semibold">{{ transferResult.sender?.accno }}</span></p>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -296,30 +321,53 @@
         <h2 class="text-white text-lg font-semibold">ผู้รับโอน</h2>
       </div>
       <!-- เนื้อหา -->
-      <div class="p-4 space-y-4 text-sm text-gray-700">
+      <div class="p-4 space-y-4 text-sm text-gray-700" *ngFor="let receiver of transferResult.receivers">
         <!-- ชื่อ -->
         <p class="text-base font-medium">
-          นายพิชยะ สารเถื่อนแก้ว <span class="text-gray-500 font-normal">[บุคคลธรรมดา]</span>
+          {{ receiver.titleCus }}{{ receiver.cusFname }} {{ receiver.cusLname }} <span
+            class="text-gray-500 font-normal">[ {{receiver.cusCodeg}} ]</span>
         </p>
         <!-- หมายเลขหุ้น -->
         <div class="space-y-1">
-          <p>หมายเลขหุ้น: <span class="font-semibold text-gray-800">A0000000000</span><span
+          <p>หมายเลขหุ้น: <span class="font-semibold text-gray-800">{{ receiver.stkNote }}</span><span
               class="text-gray-500 font-normal ml-4">(ชั่วคราว)</span></p>
-          <p>หมายเลขหุ้น: <span class="font-semibold text-gray-800">11111111111111111 - 11111111111111111112</span>
+          <p>หมายเลขหุ้น: <span class="font-semibold text-gray-800">{{ receiver.stkNostart }} - {{ receiver.stkNostop
+              }}</span>
           </p>
         </div>
         <!-- จำนวนและมูลค่าหุ้น -->
         <div class="flex flex-wrap gap-8">
-          <p>จำนวนหุ้น: <span class="font-semibold">2 หุ้น</span></p>
-          <p>มูลค่าหุ้น: <span class="font-semibold">200 บาท</span></p>
+          <p>จำนวนหุ้น: <span class="font-semibold">{{ receiver.unit }} หุ้น</span></p>
+          <p>มูลค่าหุ้น: <span class="font-semibold">{{ receiver.value }} บาท</span></p>
         </div>
         <!-- วิธีรับปันผล -->
-        <p>รับเงินปันผลโดย: <span class="font-semibold">เงินสด</span></p>
+        <div class="flex gap-4">
+          <p>รับเงินปันผลโดย: <span class="font-semibold">{{ receiver.payDesc }}</span></p>
+          <div class="flex gap-2" *ngIf="receiver.stkPayType == '001'">
+            <p>ชื่อบัญชี: <span class="font-semibold">{{ receiver.accname }}</span></p>
+            <p>เลขที่บัญชี <span class="font-semibold">{{ receiver.accno }}</span></p>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="flex justify-center">
-      <button class="py-1.5 px-6 text-white bg-green-400 rounded-xs cursor-pointer hover:shadow-sm">กลับ</button>
+      <button (click)="goBack()"
+        class="py-1.5 px-6 text-white bg-green-400 rounded-xs cursor-pointer hover:shadow-sm">กลับ</button>
     </div>
+  </div>
+</div>
+
+<!-- ✅ Loading Overlay แบบโปร่งใส + มองทะลุ + เบลอ -->
+<div *ngIf="loading"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-40 backdrop-blur-sm"
+  style="background-color: rgba(128, 128, 128, 0.7);">
+  <div class="text-center">
+    <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+      viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+    </svg>
+    <p class="text-lg text-white font-medium">🔄 กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
   </div>
 </div>

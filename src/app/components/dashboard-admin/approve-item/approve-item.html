@@ -1,28 +1,57 @@
-<div>
-  <table class="w-full table-auto border shadow-md rounded overflow-hidden">
-    <thead class="bg-green-100">
-      <tr>
-        <th class="p-2 border">ลำดับ</th>
-        <th class="p-2 border">เลขที่บัตรแสดงตน</th>
-        <th class="p-2 border">ชื่อ-นามสกุล</th>
-        <th class="p-2 border">สาขา</th>
-        <th class="p-2 border">หมายเลขใบหุ้น</th>
-        <th class="p-2 border">จำนวนหุ้น</th>
-        <th class="p-2 border">จำนวนเงิน</th>
-        <th class="p-2 border">แสดง</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let item of requestList; let i = index" class="hover:bg-gray-100">
-        <td class="p-2 border text-center">{{ i + 1 }}</td>
-        <td class="p-2 border text-center">{{ item.cusId }}</td>
-        <td class="p-2 border text-center">{{ item.fullName }}</td>
-        <td class="p-2 border text-center">{{ item.brName }}</td>
-        <td class="p-2 border text-center">{{ item.stkNote }}</td>
-        <td class="p-2 border text-center">{{ item.unit }}</td>
-        <td class="p-2 border text-center">{{ item.unitValue }}</td>
-        <td class="p-2 border text-center cursor-pointer">📝</td>
-      </tr>
-    </tbody>
-  </table>
+<div class="m-2 bg-white shadow-md rounded-md" *ngIf="!showDetailComponent && !showDetailComponentCreate">
+  <div class="py-2 bg-green-400 flex justify-center rounded-t-md">
+    <p class="text-white font-semibold">{{ brName }} : อนุมัติรายการ</p>
+  </div>
+  <div class="p-4">
+    <div class="overflow-x-auto">
+      <table class="w-full table-auto border-collapse shadow-lg rounded-lg overflow-hidden text-sm">
+        <thead class="bg-gradient-to-r from-green-200 to-green-100 text-gray-800">
+          <tr>
+            <th class="p-3 text-left border-b font-semibold">ลำดับ</th>
+            <th class="p-3 text-left border-b font-semibold">เลขที่บัตรแสดงตน</th>
+            <th class="p-3 text-left border-b font-semibold">ชื่อ-นามสกุล</th>
+            <th class="p-3 text-left border-b font-semibold">สาขา</th>
+            <th class="p-3 text-left border-b font-semibold">หมายเลขใบหุ้น</th>
+            <th class="p-3 text-right border-b font-semibold">จำนวนหุ้น</th>
+            <th class="p-3 text-right border-b font-semibold">จำนวนเงิน</th>
+            <th class="p-3 text-center border-b font-semibold">แสดง</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let item of requestList; let i = index" class="hover:bg-green-50 transition duration-150">
+            <td class="p-3 text-center">{{ i + 1 }}</td>
+            <td class="p-3">{{ item.cusId }}</td>
+            <td class="p-3">{{ item.title }}{{ item.fullName }}</td>
+            <td class="p-3">{{ item.brName }}</td>
+            <td class="p-3">{{ item.stkNote }}</td>
+            <td class="p-3 text-right">{{ item.unit | number:'1.0-0' }}</td>
+            <td class="p-3 text-right">{{ item.unitValue | number:'1.0-0' }}</td>
+            <td class="p-3 text-center cursor-pointer hover:text-green-600" (click)="approveConfirm(item.stkNote, item.stkStatus)">📝</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showDetailComponent">
+  <app-approve-transfer></app-approve-transfer>
+</div>
+
+<div *ngIf="showDetailComponentCreate">
+  <app-approve-create></app-approve-create>
+</div>
+
+<!-- ✅ Loading Overlay แบบโปร่งใส + มองทะลุ + เบลอ -->
+<div *ngIf="loading"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-40 backdrop-blur-sm"
+  style="background-color: rgba(128, 128, 128, 0.7);">
+  <div class="text-center">
+    <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+      viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+    </svg>
+    <p class="text-lg text-white font-medium">🔄 กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
+  </div>
 </div>

@@ -1,9 +1,11 @@
 <div *ngIf="activeView === 'search'">
-    <app-search-edit [InputcreateNewShareCertificate]="internalViewName" (createnew)="onCreatenew($event)"></app-search-edit>
+    <app-search-edit [InputcreateNewShareCertificate]="internalViewName"
+        (createnew)="onCreatenew($event)"></app-search-edit>
 </div>
 
 <div *ngIf="activeView === 'create'">
-    <app-stock-table-detail [stockData]="selectedStock" (onRequestNewStock)="handleNewStockRequest($event)"></app-stock-table-detail>
+    <app-stock-table-detail [stockData]="selectedStock"
+        (onRequestNewStock)="handleNewStockRequest($event)"></app-stock-table-detail>
 </div>
 
 <div *ngIf="activeView === 'select'" class="w-full p-4">
@@ -13,26 +15,64 @@
         </div>
         <div class="p-5">
             <div class="grid grid-cols-3 mb-3">
-                <div class="flex"><p>เลขที่บัตรแสดงตน : <span>0000000000</span></p></div>
-                <div class="flex"><p>หมายเลขใบหุ้น : <span>0000000000000</span></p></div>
-                <div class="flex"><p>หมายเลขหุ้น : <span>00000000000</span></p></div>
+                <div class="flex" *ngIf="selectedStock">
+                    <p>เลขที่บัตรแสดงตน : <span>{{ selectedStock.cusId }}</span></p>
+                </div>
+                <div class="flex" *ngIf="selectedRequest">
+                    <p>หมายเลขใบหุ้น : <span>{{ selectedRequest.stkNote }}</span></p>
+                </div>
+                <div class="flex" *ngIf="selectedRequest">
+                    <p>หมายเลขหุ้น : <span>{{ selectedRequest.stkStart }} - {{ selectedRequest.stkEnd }}</span></p>
+                </div>
             </div>
             <div class="grid grid-cols-3 mb-3">
-                <div class="flex"><p>ชื่อ-นามสกุล : <span>xxxxxxxx</span></p></div>
+                <div class="flex" *ngIf="selectedStock">
+                    <p>ชื่อ-นามสกุล : <span>{{ selectedStock.fullName }}</span></p>
+                </div>
                 <div></div>
                 <div></div>
             </div>
             <div class="grid grid-cols-3 mb-3">
-                <div><p>สถานะ : <span>ปกติ</span></p></div>
+                <div *ngIf="selectedStock">
+                    <p>สถานะ : <span>{{ selectedStock.status }}</span></p>
+                </div>
                 <div></div>
-                <div><p>จำนวนหุ้น : <span>10 หุ้น / 1000 บาท</span></p></div>
+                <div *ngIf="selectedRequest">
+                    <p>จำนวนหุ้น : <span>{{ selectedRequest.unit }} หุ้น / {{ selectedRequest.unitValue }} บาท</span></p>
+                </div>
             </div>
         </div>
         <div>
-            <label for="reason">เหตุผลในการออกหุ้นใหม่</label>
-            <select>
-                <option value="">1</option>
-            </select>
+            <form [formGroup]="reasonForm" (ngSubmit)="onSubmitReason()" *ngIf="reasonForm" class="flex flex-col items-center">
+                <div>
+                    <label for="reason" class="mr-4">เหตุผลในการออกหุ้นใหม่</label>
+                    <select class="bg-green-100 p-2 rounded-md" id="reason" formControlName="remCode">
+                        <option value="" disabled >-- กรุณาเลือกเหตุผล --</option>
+                        <option *ngFor="let rem of remCodes" [value]="rem.remCode">
+                            {{ rem.remDesc }}
+                        </option>
+                    </select>
+                </div>
+                <div *ngIf="reasonForm.get('remCode')?.invalid && reasonForm.get('remCode')?.touched"
+                    class="text-red-500">
+                    กรุณาเลือกเหตุผล
+                </div>
+                <div class="m-4 flex gap-3">
+                    <button 
+                        class="px-6 py-2 bg-green-300 rounded-md hover:shadow-md cursor-pointer" 
+                        type="submit" 
+                        [disabled]="reasonForm.invalid"
+                        >ตกลง
+                    </button>
+                    <button 
+                        class="px-6 py-2 bg-red-300 rounded-md hover:shadow-md cursor-pointer"
+                        type="button" 
+                        (click)="onCancelReason()"
+                        >
+                        ยกเลิก
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

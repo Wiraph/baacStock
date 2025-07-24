@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, retry } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 
 
@@ -51,18 +51,59 @@ export class StockService {
     );
   }
 
+  getIssueByStkNote(stkNote: string): Observable<any[]> {
+    const encodedStkNote = encodeURIComponent(stkNote)
+    return this.http.get<any[]>(`${this.apiUrl}/issue?stkNote=${encodedStkNote}`, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
+  getResultsTransfer(stkNote: string): Observable<any[]> {
+    const encodedStkNote = encodeURIComponent(stkNote)
+    return this.http.get<any[]>(`${this.apiUrl}/resultstransfer/${encodedStkNote}`, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
+  getResultCreate(stkNote: string): Observable<any[]> {
+    const encodedStkNote = encodeURIComponent(stkNote)
+    return this.http.get<any[]>(`${this.apiUrl}/resutlcreate/${encodedStkNote}`, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
   getStockType(): Observable<StockType[]> {
     return this.http.get<any[]>(`${this.apiUrl}/stocktype`, {
       headers: this.createAuthHeaders()
     });
   }
 
-  getStockApprove(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/approve`, {
+
+  // getStockApprove(): Observable<any[]> {
+  //   return this.http.get<any[]>(`${this.apiUrl}/approve`, {
+  //     headers: this.createAuthHeaders()
+  //   })
+  // }
+
+  getIssueApprove(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/approve-issue`, {
       headers: this.createAuthHeaders()
-    })
+    });
   }
 
+  blockStock(stkNote: string): Observable<any> {
+    const encodedStkNote = encodeURIComponent(stkNote);
+    return this.http.put<any>(`${this.apiUrl}/block/${encodedStkNote}`, {}, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
+  unblockStock(stkNote: string): Observable<any> {
+    const encodedStkNote = encodeURIComponent(stkNote);
+    return this.http.put<any>(`${this.apiUrl}/unblock/${encodedStkNote}`, {}, {
+      headers: this.createAuthHeaders()
+    });
+  }
 
 
   private createAuthHeaders(): HttpHeaders {

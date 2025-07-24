@@ -17,6 +17,9 @@ import { PrintSharePurchaseRequestComponent } from './components/dashboard-admin
 import { CratenewsharecertificateComponent } from './components/dashboard-admin/cratenewsharecertificate/cratenewsharecertificate';
 import { TransferShareComponent } from './components/dashboard-admin/transfer-share/transfer-share.component';
 import { ApproveItemComponent } from './components/dashboard-admin/approve-item/approve-item';
+import { ApproveIssue } from './components/dashboard-admin/approve-issue/approve-issue';
+import { BlockCertificatesComponent } from './components/dashboard-admin/block-certificates/block-certificates.component';
+
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -40,7 +43,10 @@ export const routes: Routes = [
       { path: 'print-share-purchase-request', component: PrintSharePurchaseRequestComponent }, // ✅ เพิ่มเส้นทางสำหรับ PrintSharePurchaseRequestComponent
       { path: 'cratenewsharecertificate', component: CratenewsharecertificateComponent }, // ✅ เพิ่มเส้นทางสำหรับ CratenewsharecertificateComponent
       { path: 'transfer-share', component: TransferShareComponent }, // ✅ เพิ่มเส้นทางสำหรับ TransferShareComponent
-      { path: 'approve-item', component: ApproveItemComponent}
+
+      { path: 'approve-item', component: ApproveItemComponent},
+      { path: 'approve-issue', component: ApproveIssue},
+      { path: 'block-certificates', component: BlockCertificatesComponent}
     ]
   },
   {

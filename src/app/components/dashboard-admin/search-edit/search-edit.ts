@@ -7,6 +7,7 @@ import { ResultDefaultComponent } from './result-table/result-default/result-def
 import { ResultCommonStockComponent } from './result-table/result-common-stock/result-common-stock';
 import { ResultNewCertificateComponent } from './result-table/result-new-certificate/result-new-certificate.component';
 import { ResultTranferShareComponent } from './result-table/result-tranfer-share/result-tranfer-share.component';
+import { ResultBlockCertificateComponent } from './result-table/result-block-certificate/result-block-certificate.component';
 import { EditCustomerComponent } from '../edit-customer/edit-customer.component';
 import { StocksComponent } from '../stocks/stocks';
 import { StockItem } from '../../../services/stock';
@@ -21,6 +22,7 @@ import { StockItem } from '../../../services/stock';
     ResultCommonStockComponent,
     ResultNewCertificateComponent,
     ResultTranferShareComponent,
+    ResultBlockCertificateComponent,
     EditCustomerComponent,
     StocksComponent,
   ],
@@ -31,6 +33,7 @@ export class SearchEditComponent implements OnInit, OnChanges {
   @Input() commonShare!: string;
   @Input() InputcreateNewShareCertificate!: string;
   @Input() InputtransferShare!: string;
+  @Input() InputblockCertificates!: string;
   @Input() viewMode!: string;
   @Output() viewChange = new EventEmitter<{
     view: string;
@@ -43,6 +46,8 @@ export class SearchEditComponent implements OnInit, OnChanges {
   @Output() viewStock = new EventEmitter<any>();
   @Output() transferStock = new EventEmitter<any>();
   @Output() createnew = new EventEmitter<any>();
+  @Output() common = new EventEmitter<any>();
+  @Output() blockCertificate = new EventEmitter<any>();
 
   titleSearch: string = '';
   branch = sessionStorage.getItem('brName');
@@ -173,6 +178,13 @@ export class SearchEditComponent implements OnInit, OnChanges {
     this.results = [];
     this.searched = false;
   }
+  
+  onCommon(item: any) {
+    console.log("ค่าที่มาตัวกลาง");
+    this.selectedCusId = item.cusId;
+    this.common.emit(item);
+    this.cd.detectChanges();
+  }
 
   onEdit(item: any) {
     this.selectedCusId = item.cusId;
@@ -200,10 +212,15 @@ export class SearchEditComponent implements OnInit, OnChanges {
     this.activeView = 'stock';
   }
 
+  onBlockCertificate(item: any) {
+    this.blockCertificate.emit(item);
+  }
+
   get currentResultType(): string {
     if (this.InputtransferShare === 'transferShare') return 'transfer';
     if (this.InputcreateNewShareCertificate === 'create-new-share-certificate') return 'new-cert';
     if (this.commonShare === 'common-shares') return 'common';
+    if (this.InputblockCertificates === 'blockCertificates') return 'block-cert';
     return 'default';
   }
 
@@ -217,6 +234,10 @@ export class SearchEditComponent implements OnInit, OnChanges {
 
   get isTransferShare(): boolean {
     return this.InputtransferShare === 'transferShare';
+  }
+
+  get isBlockCertificates(): boolean {
+    return this.InputblockCertificates === 'blockCertificates';
   }
 
   get totalPages(): number {

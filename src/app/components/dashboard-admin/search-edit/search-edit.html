@@ -52,7 +52,7 @@
         </result-default>
 
           <result-common-stock *ngSwitchCase="'common'" [results]="results" [currentPage]="currentPage"
-            [pageSize]="pageSize" [totalItems]="totalItems" [mode]="'sale-stock-common'" (edit)="onEdit($event)" (modeNotify)="onModeNotify($event)">
+            [pageSize]="pageSize" [totalItems]="totalItems" [mode]="'sale-stock-common'" (edit)="onCommon($event)" (modeNotify)="onModeNotify($event)">
           </result-common-stock>
 
         <result-new-certificate *ngSwitchCase="'new-cert'" [results]="results" [currentPage]="currentPage"
@@ -62,6 +62,11 @@
         <result-tranfer-share *ngSwitchCase="'transfer'" [results]="results" [currentPage]="currentPage"
           [pageSize]="pageSize" [totalItems]="totalItems" [mode]="'stock-transfer'" (edit)="onTransfer($event)" (modeNotify)="onModeNotify($event)">
         </result-tranfer-share>
+
+        <result-block-certificate *ngSwitchCase="'block-cert'" [results]="results" [currentPage]="currentPage" [pageSize]="pageSize"
+          [totalItems]="totalItems" [mode]="'block-certificate'" (edit)="onBlockCertificate($event)"
+          (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc, $event.viewMode)">
+        </result-block-certificate>
 
       </ng-container>
     </div>

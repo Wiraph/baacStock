@@ -12,12 +12,16 @@ export class StockRequestService {
 
   constructor(private http: HttpClient,@Inject(PLATFORM_ID) private platformId: Object) {}
 
-  submitRequest(payload: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/submit`, payload, {headers: this.createAuthHeaders()});
+  submitRequest(stkNote: string ,payload: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/sale_stock/${stkNote}`, payload, {headers: this.createAuthHeaders()});
   }
 
   transferRequest(payload: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/transfer`, payload, {headers: this.createAuthHeaders()});
+  }
+
+  stockRequest(payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/request`,payload, {headers:this.createAuthHeaders()});
   }
 
   private createAuthHeaders(): HttpHeaders {
