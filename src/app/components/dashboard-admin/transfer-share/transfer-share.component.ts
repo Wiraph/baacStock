@@ -312,7 +312,6 @@ export class TransferShareComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
 
     // สร้าง string lists ที่คั่นด้วย '|'
     const list_CUSid = this.transferList.map(t => t.cid).join('|');
@@ -339,8 +338,6 @@ export class TransferShareComponent implements OnInit {
       TR2_LST_payTY: list_payTY,
     };
 
-    console.log("ข้อมูลที่เตรียมส่งออกไป : ", payload);
-
     Swal.fire({
       html: `<p style="font-family: 'Prompt', sans-serif;">ยืนยันการโอนหุ้นเปลี่ยนมือ</p>`,
       icon: 'question',
@@ -363,6 +360,7 @@ export class TransferShareComponent implements OnInit {
                 this.transferList = [];
                 this.selectStockTransfer = null;
                 this.funcDetail(this.selectedcustomer?.cusId);
+                this.goBack();
                 this.cdRef.detectChanges();
               }
             })
