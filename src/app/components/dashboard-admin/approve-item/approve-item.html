@@ -20,12 +20,12 @@
         <tbody class="bg-white divide-y divide-gray-200">
           <tr *ngFor="let item of requestList; let i = index" class="hover:bg-green-50 transition duration-150">
             <td class="p-3 text-center">{{ i + 1 }}</td>
-            <td class="p-3">{{ item.cusId }}</td>
-            <td class="p-3">{{ item.title }}{{ item.fullName }}</td>
-            <td class="p-3">{{ item.brName }}</td>
-            <td class="p-3">{{ item.stkNote }}</td>
-            <td class="p-3 text-right">{{ item.unit | number:'1.0-0' }}</td>
-            <td class="p-3 text-right">{{ item.unitValue | number:'1.0-0' }}</td>
+            <td class="p-3">{{ item.customerId }}</td>
+            <td class="p-3">{{ item.title }}{{ item.customerFirstName }} {{ item.customerLastName }}</td>
+            <td class="p-3">{{ item.branchName }}</td>
+            <td class="p-3">{{ item.stockNote }}</td>
+            <td class="p-3 text-right">{{ item.stockUnit | number:'1.0-0' }}</td>
+            <td class="p-3 text-right">{{ item.stockValue | number:'1.0-0' }}</td>
             <td class="p-3 text-center cursor-pointer hover:text-green-600" (click)="approveConfirm(item.stkNote, item.stkStatus)">📝</td>
           </tr>
         </tbody>

@@ -48,7 +48,7 @@ export class ApproveItemComponent implements OnInit {
     //   }
     // });
 
-    this.stockTransferService.getPendingTransfers('APPROVE', this.brCode, 1, 10).subscribe({
+    this.stockTransferService.getPendingTransfers('APPROVE', this.brCode, 1, 20).subscribe({
       next: (response) => {
         this.requestList = response.data; 
         console.log("รายการอนุมัติที่ดึงมา: ", this.requestList);
