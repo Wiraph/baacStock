@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { DataTransfer } from '../../../services/data-transfer';
 import { ApproveTransfer } from '../approve-transfer/approve-transfer';
 import { ApproveCreate } from '../approve-create/approve-create';
+import { StocktransferService } from '../../../services/stocktransfer';
 
 @Component({
   standalone: true,
@@ -22,21 +23,35 @@ export class ApproveItemComponent implements OnInit {
   loading = false;
   showDetailComponent = false;
   showDetailComponentCreate = false;
+  brCode = sessionStorage.getItem('brCode') || '';
 
   constructor(
     private stockService: StockService,
     private approveService: ApproveService,
     private dataTransfer: DataTransfer,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private stockTransferService: StocktransferService
   ) { }
 
   stockList: string[] = [];
 
 
   onSearch() {
-    this.approveService.getStockApprove().subscribe({
+    // this.approveService.getStockApprove().subscribe({
+    //   next: (data) => {
+    //     this.requestList = data;
+    //     this.loading = false;
+    //     this.cdr.detectChanges();
+    //   },
+    //   error: () => {
+    //     alert("ไม่สามารถโหลดข้อมูลรายการอนุมัติได้");
+    //   }
+    // });
+
+    this.stockTransferService.getPendingTransfers('APPROVE', this.brCode, 1, 10).subscribe({
       next: (data) => {
         this.requestList = data;
+        console.log("รายการอนุมัติที่ดึงมา: ", this.requestList);
         this.loading = false;
         this.cdr.detectChanges();
       },
