@@ -49,24 +49,26 @@ export class ApproveItemComponent implements OnInit {
     // });
 
     this.stockTransferService.getPendingTransfers('APPROVE', this.brCode, 1, 10).subscribe({
-      next: (data) => {
-        this.requestList = data;
+      next: (response) => {
+        this.requestList = response.data; 
         console.log("รายการอนุมัติที่ดึงมา: ", this.requestList);
         this.loading = false;
         this.cdr.detectChanges();
       },
       error: () => {
         alert("ไม่สามารถโหลดข้อมูลรายการอนุมัติได้");
+        this.loading = false;
       }
     });
+
   }
 
 
   approveConfirm(stkNote: string, stkStatus: string) {
     this.dataTransfer.setStkNote(stkNote);
-    if(stkStatus == "A003") {
+    if (stkStatus == "A003") {
       this.showDetailComponent = true;
-    } else if(stkStatus == "A002") {
+    } else if (stkStatus == "A002") {
       this.showDetailComponentCreate = true;
     }
     this.cdr.detectChanges();
