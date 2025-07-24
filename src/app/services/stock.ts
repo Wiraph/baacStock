@@ -91,9 +91,22 @@ export class StockService {
     });
   }
 
+<<<<<<< HEAD
   blockStock(stkNote: string): Observable<any[]> {
     const encodedStkNote = encodeURIComponent(stkNote)
     return this.http.put<any[]>(`${this.apiUrl}/block/${encodedStkNote}`, {
+=======
+  blockStock(stkNote: string): Observable<any> {
+    const encodedStkNote = encodeURIComponent(stkNote);
+    return this.http.put<any>(`${this.apiUrl}/block/${encodedStkNote}`, {}, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
+  unblockStock(stkNote: string): Observable<any> {
+    const encodedStkNote = encodeURIComponent(stkNote);
+    return this.http.put<any>(`${this.apiUrl}/unblock/${encodedStkNote}`, {}, {
+>>>>>>> feature/blockstock
       headers: this.createAuthHeaders()
     });
   }

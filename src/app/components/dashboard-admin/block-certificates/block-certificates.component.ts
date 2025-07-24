@@ -1,0 +1,265 @@
+import { Component, Input, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { SearchEditComponent } from '../search-edit/search-edit';
+import { FormsModule } from '@angular/forms';
+import { StockService, StockItem } from '../../../services/stock';
+import { CustomerService } from '../../../services/customer';
+import Swal from 'sweetalert2';
+
+@Component({
+  selector: 'app-block-certificates',
+  standalone: true,
+  imports: [CommonModule, SearchEditComponent, FormsModule],
+  templateUrl: './block-certificates.component.html',
+})
+export class BlockCertificatesComponent implements OnInit {
+
+  @Input() InputblockCertificates!: string;
+
+  // View Management
+  internalViewName = 'blockCertificates';
+  activeView = 'search';  // 'search' | 'certificate-list' | 'block-form' | 'result'
+
+  // Data Properties
+  stockData: any;
+  cusId = '';
+  fullName = '';
+  statusDesc = '';
+  stockNotes: string[] = [];
+  viewMode = '';
+  selectedStock: string[] = [];
+
+  // Block Related
+  selectedcustomer: any = null;
+  selectedCertificate: any = null;
+  certificateList: any[] = [];
+
+  // UI State
+  loading = false;
+
+  constructor(
+    private stockService: StockService,
+    private customerService: CustomerService,
+    private cdRef: ChangeDetectorRef
+  ) { }
+
+  ngOnInit(): void {
+    // โหลดข้อมูลเริ่มต้น (ถ้ามี)
+  }
+
+  // View Management
+  setView(view: string) {
+    this.activeView = view;
+  }
+
+  goBack() {
+    this.activeView = 'search';
+  }
+
+  // Search Integration
+  onViewStock(data: any) {
+    this.setView('certificate-list');
+  }
+
+  onBlockCertificateSelected(stock: any) {
+    // จัดการเมื่อเลือกใบหุ้นจาก search
+    this.selectedcustomer = stock;
+    
+    // ดึงข้อมูลใบหุ้นของลูกค้า
+    if (stock.cusId) {
+      this.loading = true;
+      this.stockService.getStocksByCusId(stock.cusId).subscribe({
+        next: (stockData: any) => {
+          this.selectedcustomer = {
+            ...stock,
+            stock: stockData.stockList || []
+          };
+          this.setView('certificate-list');
+          this.loading = false;
+          this.cdRef.detectChanges();
+        },
+        error: (error: any) => {
+          console.error('Error fetching stock data:', error);
+          this.loading = false;
+          // ใช้ข้อมูลเดิมถ้าดึงไม่ได้
+          this.setView('certificate-list');
+          this.cdRef.detectChanges();
+        }
+      });
+    } else {
+      this.setView('certificate-list');
+      this.cdRef.detectChanges();
+    }
+  }
+
+  // Block Actions
+  onBlockCertificate(certificate: string) {
+    Swal.fire({
+      icon: 'warning',
+      title: "ต้องการ",
+      text: `บล็อคใบหุ้นเลขที่ ${certificate} ใช่หรือไม่`,
+      confirmButtonText: "บล็อค",
+      cancelButtonText: "cancel",
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.executeBlockCertificate(certificate);
+      }
+    })
+  }
+
+  onUnblockCertificate(certificate: any) {
+    Swal.fire({
+      icon: 'warning',
+      title: "ต้องการ",
+      text: `ยกเลิกบล็อคใบหุ้นเลขที่ ${certificate.stkNote} ใช่หรือไม่`,
+      confirmButtonText: "ยกเลิกการบล็อค",
+      cancelButtonText: "cancel",
+      confirmButtonColor: "#059669",
+      cancelButtonColor: "#6b7280",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.executeUnblockCertificate(certificate);
+      }
+    })
+  }
+
+  // Execute Block/Unblock Actions
+  private executeBlockCertificate(stkNote: string) {
+    console.log(`🔒 กำลังบล็อคใบหุ้นเลขที่: ${stkNote}`);
+    // เรียก API เพื่อบล็อคใบหุ้น
+    this.stockService.blockStock(stkNote).subscribe({
+      next: (response: any) => {
+        console.log(`✅ บล็อคใบหุ้นเลขที่ ${stkNote} สำเร็จ`);
+        
+        // แสดง alert สำเร็จ
+        Swal.fire({
+          icon: 'success',
+          title: 'สำเร็จ',
+          text: `บล็อคใบหุ้นเลขที่ ${stkNote} เรียบร้อย`,
+          confirmButtonText: 'ตกลง'
+        });
+        
+        // รีเฟรชข้อมูล
+        this.refreshStockData();
+      },
+      error: (error: any) => {
+        console.error(`❌ บล็อคใบหุ้นเลขที่ ${stkNote} ไม่สำเร็จ:`, error);
+        
+        // แสดง alert ข้อผิดพลาด
+        Swal.fire({
+          icon: 'error',
+          title: 'ข้อผิดพลาด',
+          text: `ไม่สามารถบล็อคใบหุ้นเลขที่ ${stkNote} ได้`,
+          confirmButtonText: 'ตกลง'
+        });
+      }
+    });
+  }
+
+  private executeUnblockCertificate(certificate: any) {
+    console.log(`🔓 กำลังยกเลิกบล็อคใบหุ้นเลขที่: ${certificate.stkNote}`);
+    // เรียก API เพื่อยกเลิกบล็อคใบหุ้น
+    this.stockService.unblockStock(certificate.stkNote).subscribe({
+      next: (response: any) => {
+        console.log(`✅ ยกเลิกบล็อคใบหุ้นเลขที่ ${certificate.stkNote} สำเร็จ`);
+        
+        // แสดง alert สำเร็จ
+        Swal.fire({
+          icon: 'success',
+          title: 'สำเร็จ',
+          text: `ยกเลิกบล็อคใบหุ้นเลขที่ ${certificate.stkNote} เรียบร้อย`,
+          confirmButtonText: 'ตกลง'
+        });
+        
+        // รีเฟรชข้อมูล
+        this.refreshStockData();
+      },
+      error: (error: any) => {
+        console.error(`❌ ยกเลิกบล็อคใบหุ้นเลขที่ ${certificate.stkNote} ไม่สำเร็จ:`, error);
+        
+        // แสดง alert ข้อผิดพลาด
+        Swal.fire({
+          icon: 'error',
+          title: 'ข้อผิดพลาด',
+          text: `ไม่สามารถยกเลิกบล็อคใบหุ้นเลขที่ ${certificate.stkNote} ได้`,
+          confirmButtonText: 'ตกลง'
+        });
+      }
+    });
+  }
+
+  // Refresh stock data after action
+  private refreshStockData() {
+    if (this.selectedcustomer?.cusId) {
+      this.loading = true;
+      this.stockService.getStocksByCusId(this.selectedcustomer.cusId).subscribe({
+        next: (stockData: any) => {
+          this.selectedcustomer = {
+            ...this.selectedcustomer,
+            stock: stockData.stockList || []
+          };
+          this.loading = false;
+          this.cdRef.detectChanges();
+        },
+        error: (error: any) => {
+          console.error('Error refreshing stock data:', error);
+          this.loading = false;
+          this.cdRef.detectChanges();
+        }
+      });
+    }
+  }
+
+  // Utility Methods
+  formatThaiDateTime(dateTimeStr: string): string {
+    if (!dateTimeStr || dateTimeStr.length !== 15 || !dateTimeStr.includes('-')) return '-';
+
+    const datePart = dateTimeStr.substring(0, 8); // 20250704
+    const timePart = dateTimeStr.substring(9);   // 152035
+
+    const year = parseInt(datePart.substring(0, 4), 10);
+    const month = parseInt(datePart.substring(4, 6), 10);
+    const day = parseInt(datePart.substring(6, 8), 10);
+
+    const hour = timePart.substring(0, 2);
+    const minute = timePart.substring(2, 4);
+    const second = timePart.substring(4, 6);
+
+    const thaiMonths = [
+      '', 'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+      'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+    ];
+
+    const buddhistYear = year;
+
+    return `${day} ${thaiMonths[month]} ${buddhistYear} เวลา ${hour}:${minute}:${second} น.`;
+  }
+
+  getStatusBadge(status: string): { text: string; class: string } {
+    switch (status) {
+      case 'S008':
+        return { text: '🔒 บล็อค', class: 'bg-red-100 text-red-800' };
+      case 'S000':
+        return { text: '✅ ปกติ', class: 'bg-green-100 text-green-800' };
+      case 'A003':
+        return { text: '🔄 โอนแล้ว', class: 'bg-blue-100 text-blue-800' };
+      default:
+        return { text: '❓ ไม่ทราบ', class: 'bg-gray-100 text-gray-800' };
+    }
+  }
+
+  // กรองใบหุ้นให้แสดงเฉพาะ S000 และ S008
+  getFilteredStocks(): any[] {
+    if (!this.selectedcustomer?.stock) {
+      return [];
+    }
+    
+    const filteredStocks = this.selectedcustomer.stock.filter((stock: any) => {
+      return stock.stkStatus === 'S000' || stock.stkStatus === 'S008';
+    });
+    
+    return filteredStocks;
+  }
+} 
