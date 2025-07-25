@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { SearchEditComponent } from '../search-edit/search-edit';
 import { FormsModule } from '@angular/forms';
 import { StockService, StockItem } from '../../../services/stock';
+import { StockBlockService } from '../../../services/stockblock';
 import { CustomerService } from '../../../services/customer';
 import Swal from 'sweetalert2';
 
@@ -39,6 +40,7 @@ export class BlockCertificatesComponent implements OnInit {
 
   constructor(
     private stockService: StockService,
+    private stockBlockService: StockBlockService,
     private customerService: CustomerService,
     private cdRef: ChangeDetectorRef
   ) { }
@@ -129,17 +131,17 @@ export class BlockCertificatesComponent implements OnInit {
 
   // Execute Block/Unblock Actions
   private executeBlockCertificate(stkNote: string) {
-    console.log(`🔒 กำลังบล็อคใบหุ้นเลขที่: ${stkNote}`);
-    // เรียก API เพื่อบล็อคใบหุ้น
-    this.stockService.blockStock(stkNote).subscribe({
-      next: (response: any) => {
-        console.log(`✅ บล็อคใบหุ้นเลขที่ ${stkNote} สำเร็จ`);
+    console.log(`🔒 กำลังเปลี่ยนสถานะใบหุ้นเลขที่: ${stkNote}`);
+    // เรียก API เพื่อเปลี่ยนสถานะใบหุ้น (Backend จะตรวจสอบสถานะปัจจุบันและเปลี่ยนให้อัตโนมัติ)
+    this.stockBlockService.blockStock(stkNote).subscribe({
+      next: (response) => {
+        console.log(`✅ เปลี่ยนสถานะใบหุ้นเลขที่ ${stkNote} สำเร็จ`);
         
-        // แสดง alert สำเร็จ
+        // แสดง alert สำเร็จ (ใช้ข้อความจาก backend)
         Swal.fire({
           icon: 'success',
           title: 'สำเร็จ',
-          text: `บล็อคใบหุ้นเลขที่ ${stkNote} เรียบร้อย`,
+          text: `เปลี่ยนสถานะใบหุ้นเลขที่ ${stkNote} เรียบร้อย`,
           confirmButtonText: 'ตกลง'
         });
         
@@ -147,13 +149,26 @@ export class BlockCertificatesComponent implements OnInit {
         this.refreshStockData();
       },
       error: (error: any) => {
-        console.error(`❌ บล็อคใบหุ้นเลขที่ ${stkNote} ไม่สำเร็จ:`, error);
+        console.error(`❌ เปลี่ยนสถานะใบหุ้นเลขที่ ${stkNote} ไม่สำเร็จ:`, error);
+        
+        // จัดการ error message
+        let errorMessage = `ไม่สามารถเปลี่ยนสถานะใบหุ้นเลขที่ ${stkNote} ได้`;
+        
+        if (error.status === 404) {
+          errorMessage = 'ไม่พบ API endpoint หรือหมายเลขหุ้นไม่ถูกต้อง';
+        } else if (error.status === 400) {
+          errorMessage = error.error?.message || error.error || 'ข้อมูลไม่ถูกต้อง';
+        } else if (error.status === 500) {
+          errorMessage = error.error?.details || error.error?.message || 'เกิดข้อผิดพลาดในระบบ';
+        } else if (error.error && typeof error.error === 'string') {
+          errorMessage = error.error;
+        }
         
         // แสดง alert ข้อผิดพลาด
         Swal.fire({
           icon: 'error',
           title: 'ข้อผิดพลาด',
-          text: `ไม่สามารถบล็อคใบหุ้นเลขที่ ${stkNote} ได้`,
+          text: errorMessage,
           confirmButtonText: 'ตกลง'
         });
       }
@@ -161,17 +176,17 @@ export class BlockCertificatesComponent implements OnInit {
   }
 
   private executeUnblockCertificate(certificate: any) {
-    console.log(`🔓 กำลังยกเลิกบล็อคใบหุ้นเลขที่: ${certificate.stkNote}`);
-    // เรียก API เพื่อยกเลิกบล็อคใบหุ้น
-    this.stockService.unblockStock(certificate.stkNote).subscribe({
+    console.log(`🔓 กำลังเปลี่ยนสถานะใบหุ้นเลขที่: ${certificate.stkNote}`);
+    // เรียก API เพื่อเปลี่ยนสถานะใบหุ้น (Backend จะตรวจสอบสถานะปัจจุบันและเปลี่ยนให้อัตโนมัติ)
+    this.stockBlockService.blockStock(certificate.stkNote).subscribe({
       next: (response: any) => {
-        console.log(`✅ ยกเลิกบล็อคใบหุ้นเลขที่ ${certificate.stkNote} สำเร็จ`);
+        console.log(`✅ เปลี่ยนสถานะใบหุ้นเลขที่ ${certificate.stkNote} สำเร็จ`);
         
-        // แสดง alert สำเร็จ
+        // แสดง alert สำเร็จ (ใช้ข้อความจาก backend)
         Swal.fire({
           icon: 'success',
           title: 'สำเร็จ',
-          text: `ยกเลิกบล็อคใบหุ้นเลขที่ ${certificate.stkNote} เรียบร้อย`,
+          text: response.message || `เปลี่ยนสถานะใบหุ้นเลขที่ ${certificate.stkNote} เรียบร้อย`,
           confirmButtonText: 'ตกลง'
         });
         
@@ -179,13 +194,26 @@ export class BlockCertificatesComponent implements OnInit {
         this.refreshStockData();
       },
       error: (error: any) => {
-        console.error(`❌ ยกเลิกบล็อคใบหุ้นเลขที่ ${certificate.stkNote} ไม่สำเร็จ:`, error);
+        console.error(`❌ เปลี่ยนสถานะใบหุ้นเลขที่ ${certificate.stkNote} ไม่สำเร็จ:`, error);
+        
+        // จัดการ error message
+        let errorMessage = `ไม่สามารถเปลี่ยนสถานะใบหุ้นเลขที่ ${certificate.stkNote} ได้`;
+        
+        if (error.status === 404) {
+          errorMessage = 'ไม่พบ API endpoint หรือหมายเลขหุ้นไม่ถูกต้อง';
+        } else if (error.status === 400) {
+          errorMessage = error.error?.message || error.error || 'ข้อมูลไม่ถูกต้อง';
+        } else if (error.status === 500) {
+          errorMessage = error.error?.details || error.error?.message || 'เกิดข้อผิดพลาดในระบบ';
+        } else if (error.error && typeof error.error === 'string') {
+          errorMessage = error.error;
+        }
         
         // แสดง alert ข้อผิดพลาด
         Swal.fire({
           icon: 'error',
           title: 'ข้อผิดพลาด',
-          text: `ไม่สามารถยกเลิกบล็อคใบหุ้นเลขที่ ${certificate.stkNote} ได้`,
+          text: errorMessage,
           confirmButtonText: 'ตกลง'
         });
       }

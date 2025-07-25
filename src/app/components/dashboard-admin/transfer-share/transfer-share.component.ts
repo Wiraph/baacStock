@@ -8,6 +8,7 @@ import { StockService, StockItem } from '../../../services/stock';
 import { AccTypeService, AccType } from '../../../services/acc-type';
 import { CustomerService } from '../../../services/customer';
 import { StockRequestService } from '../../../services/stock-request';
+import { StocktransferService } from '../../../services/stocktransfer';
 import Swal from 'sweetalert2';
 
 interface TransferReceiver {
@@ -78,6 +79,7 @@ export class TransferShareComponent implements OnInit {
     private acctypeService: AccTypeService,
     private customerService: CustomerService,
     private StockRequestService: StockRequestService,
+    private StockTrnsferService: StocktransferService,
     private cdRef: ChangeDetectorRef
   ) { }
 
@@ -303,7 +305,6 @@ export class TransferShareComponent implements OnInit {
       return;
     }
 
-
     const totalShareToTransfer = this.transferList.reduce((sum, t) => sum + (t.shareAmount || 0), 0);
     const availableShares = this.selectStockTransfer.unit ?? 0;
     if (totalShareToTransfer > availableShares) {
@@ -311,28 +312,30 @@ export class TransferShareComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
 
+    // สร้าง string lists ที่คั่นด้วย '|'
+    const list_CUSid = this.transferList.map(t => t.cid).join('|');
+    const list_CUSun = this.transferList.map(t => t.shareAmount).join('|');
+    const list_accTY = this.transferList.map(t => t.accType).join('|');
+    const list_accNO = this.transferList.map(t => t.accNo).join('|');
+    const list_accNA = this.transferList.map(t => t.accName).join('|');
+    const list_payTY = this.transferList.map(t => t.payType).join('|');
 
     const payload = {
-      fromCusId: this.selectedcustomer?.cusId,
-      fromStkNote: this.selectStockTransfer.stkNote,
-      amount: totalShareToTransfer,
-      stkTrcode: "TFW",
-      StkTrtype: "TRF",
-      brCode: sessionStorage.getItem('brCode'),
-      transfers: this.transferList.map(t => ({
-        cid: t.cid,
-        stkNote: t.stkNote,
-        shareAmount: t.shareAmount,
-        remCode: t.remCode,
-        payType: t.payType,
-        accType: t.accType,
-        accNo: t.accNo,
-        accName: t.accName,
-        stkTrcode: "TFD",
-        StkTrtype: "TRF"
-      }))
+      TRF_CUSid: this.selectedcustomer?.cusId,
+      TRF_stkNOTE: this.selectStockTransfer.stkNote,
+      TRF_stkSTA: this.selectStockTransfer.stkStart,
+      TRF_stkSTP: this.selectStockTransfer.stkEnd,
+      TRF_stkUNiTALL: availableShares,
+
+      TR2_RemCode: this.globalRemCode,
+
+      TR2_LST_CUSid: list_CUSid,
+      TR2_LST_CUSun: list_CUSun,
+      TR2_LST_accTY: list_accTY,
+      TR2_LST_accNO: list_accNO,
+      TR2_LST_accNA: list_accNA,
+      TR2_LST_payTY: list_payTY,
     };
 
     Swal.fire({
@@ -345,7 +348,7 @@ export class TransferShareComponent implements OnInit {
       cancelButtonColor: '#ef4444'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.StockRequestService.transferRequest(payload).subscribe({
+        this.StockTrnsferService.transferRequest(payload).subscribe({
           next: (res) => {
             console.log('✅ การโอนสำเร็จ:', res);
             Swal.fire({
@@ -357,6 +360,7 @@ export class TransferShareComponent implements OnInit {
                 this.transferList = [];
                 this.selectStockTransfer = null;
                 this.funcDetail(this.selectedcustomer?.cusId);
+                this.goBack();
                 this.cdRef.detectChanges();
               }
             })
@@ -367,8 +371,9 @@ export class TransferShareComponent implements OnInit {
           }
         });
       }
-    })
+    });
   }
+
 
   funcDetail(stkNote: string) {
     this.stockService.getResultsTransfer(stkNote).subscribe({
@@ -387,6 +392,8 @@ export class TransferShareComponent implements OnInit {
   }
 
   goBack() {
+    this.transferList = [];
+    this.selectStockTransfer = null;
     this.activeView = 'search';
   }
 }
