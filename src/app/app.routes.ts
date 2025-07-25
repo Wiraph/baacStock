@@ -19,6 +19,7 @@ import { TransferShareComponent } from './components/dashboard-admin/transfer-sh
 import { ApproveItemComponent } from './components/dashboard-admin/approve-item/approve-item';
 import { ApproveIssue } from './components/dashboard-admin/approve-issue/approve-issue';
 import { BlockCertificatesComponent } from './components/dashboard-admin/block-certificates/block-certificates.component';
+import { PrintCertificatesComponent } from './components/dashboard-admin/print-certificates/print-certificates.component';
 
 
 export const routes: Routes = [
@@ -46,7 +47,8 @@ export const routes: Routes = [
 
       { path: 'approve-item', component: ApproveItemComponent},
       { path: 'approve-issue', component: ApproveIssue},
-      { path: 'block-certificates', component: BlockCertificatesComponent}
+      { path: 'block-certificates', component: BlockCertificatesComponent},
+      { path: 'print-certificates', component: PrintCertificatesComponent}
     ]
   },
   {

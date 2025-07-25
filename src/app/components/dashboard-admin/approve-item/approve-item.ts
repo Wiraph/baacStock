@@ -31,10 +31,10 @@ export class ApproveItemComponent implements OnInit {
     private dataTransfer: DataTransfer,
     private cdr: ChangeDetectorRef,
     private stockTransferService: StocktransferService
+
   ) { }
 
   stockList: string[] = [];
-
 
   onSearch() {
     // this.approveService.getStockApprove().subscribe({
@@ -63,7 +63,6 @@ export class ApproveItemComponent implements OnInit {
 
   }
 
-
   approveConfirm(stkNote: string, stkStatus: string) {
     this.dataTransfer.setStkNote(stkNote);
     if (stkStatus == "A003") {
@@ -80,7 +79,7 @@ export class ApproveItemComponent implements OnInit {
   }
 
   detail(item: any) {
-
+    // แสดงรายละเอียด
   }
 
   ngOnInit(): void {
@@ -88,6 +87,4 @@ export class ApproveItemComponent implements OnInit {
     this.onSearch();
     this.cdr.detectChanges();
   }
-
-
-}
+} 
