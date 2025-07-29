@@ -107,6 +107,7 @@ export class BlockCertificatesComponent implements OnInit {
       showCancelButton: true,
     }).then((result) => {
       if (result.isConfirmed) {
+        console.log(`🔒 กำลังบล็อคใบหุ้นเลขที่: ${certificate}`);
         this.executeBlockCertificate(certificate);
       }
     })
@@ -130,11 +131,10 @@ export class BlockCertificatesComponent implements OnInit {
   }
 
   // Execute Block/Unblock Actions
-  private executeBlockCertificate(stkNote: string) {
-    console.log(`🔒 กำลังเปลี่ยนสถานะใบหุ้นเลขที่: ${stkNote}`);
+  executeBlockCertificate(stkNote: string) {
     // เรียก API เพื่อเปลี่ยนสถานะใบหุ้น (Backend จะตรวจสอบสถานะปัจจุบันและเปลี่ยนให้อัตโนมัติ)
     this.stockBlockService.blockStock(stkNote).subscribe({
-      next: (response) => {
+      next: () => {
         console.log(`✅ เปลี่ยนสถานะใบหุ้นเลขที่ ${stkNote} สำเร็จ`);
         
         // แสดง alert สำเร็จ (ใช้ข้อความจาก backend)
@@ -148,7 +148,7 @@ export class BlockCertificatesComponent implements OnInit {
         // รีเฟรชข้อมูล
         this.refreshStockData();
       },
-      error: (error: any) => {
+      error: (error) => {
         console.error(`❌ เปลี่ยนสถานะใบหุ้นเลขที่ ${stkNote} ไม่สำเร็จ:`, error);
         
         // จัดการ error message
