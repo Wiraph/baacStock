@@ -8,32 +8,20 @@ import { environment } from '../../environments/environments';
   providedIn: 'root'
 })
 export class StockBlockService {
-  private apiUrl = `${environment.dotnetApiUrl}/api/stockblock`;
+  private apiUrl = `https://localhost:7089/api/StockBlock`;
 
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object
   ) { }
 
-  /**
-   * บล็อค/ยกเลิกบล็อคใบหุ้น (ใช้ endpoint เดียวกัน)
-   * Backend จะตรวจสอบสถานะปัจจุบันและเปลี่ยนให้อัตโนมัติ
-   * @param stkNote หมายเลขใบหุ้น
-   * @returns Observable<any>
-   */
 
   blockStock(stkNote: string): Observable<any[]> {
-    const encodedStkNote = encodeURIComponent(stkNote)
-    return this.http.put<any[]>(`${this.apiUrl}/block/${encodedStkNote}`, {
+    return this.http.put<any[]>(`${this.apiUrl}/block/${stkNote}`, {
       headers: this.createAuthHeaders()
     });
   }
 
-
-  /**
-   * สร้าง HTTP Headers พร้อม Authorization token
-   * @returns HttpHeaders
-   */
   private createAuthHeaders(): HttpHeaders {
     let token = '';
     if (isPlatformBrowser(this.platformId)) {
