@@ -21,6 +21,9 @@ import { ApproveIssue } from './components/dashboard-admin/approve-issue/approve
 import { BlockCertificatesComponent } from './components/dashboard-admin/block-certificates/block-certificates.component';
 import { PrintCertificatesComponent } from './components/dashboard-admin/print-certificates/print-certificates.component';
 import { CreateSpinFilesComponent } from './components/dashboard-admin/create-spin-files/create-spin-files';
+import { FormsProceduresComponent } from './components/dashboard-admin/forms-procedures/forms-procedures.component';
+import { UploadComponent } from './components/dashboard-admin/upload-document/upload.component';
+import { UserManualComponent } from './components/dashboard-admin/user-manual/user-manual.component';
 
 
 export const routes: Routes = [
@@ -50,7 +53,12 @@ export const routes: Routes = [
       { path: 'approve-issue', component: ApproveIssue},
       { path: 'block-certificates', component: BlockCertificatesComponent},
       { path: 'print-certificates', component: PrintCertificatesComponent},
-      { path: 'create-spin-files', component: CreateSpinFilesComponent }
+      { path: 'create-spin-files', component: CreateSpinFilesComponent },
+      { path: 'documents/upload', component: UploadComponent }, 
+      { path: 'documents/forms-procedures', component: FormsProceduresComponent },
+      { path: 'user-manual', component: UserManualComponent },
+      { path: 'documents/user-manual', component: UserManualComponent }
+
     ]
   },
   {
