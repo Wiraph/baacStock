@@ -79,7 +79,7 @@ export class AdminDashboardComponent implements OnInit {
       open: false,
       children: [
         { icon: '⚡', label: 'สร้าง SPIN FILE ส่ง SCB', route: '/dashboard-admin/create-spin-files' },
-        { icon: '🔌', label: 'รับผล SPIN FILE จาก SCB', route: '/dashboard-admin/sap-interface' }
+        { icon: '🔌', label: 'รับผล SPIN FILE จาก SCB', route: '/dashboard-admin/spin-files' }
       ]
     },
     {

@@ -21,6 +21,7 @@ import { ApproveIssue } from './components/dashboard-admin/approve-issue/approve
 import { BlockCertificatesComponent } from './components/dashboard-admin/block-certificates/block-certificates.component';
 import { PrintCertificatesComponent } from './components/dashboard-admin/print-certificates/print-certificates.component';
 import { CreateSpinFilesComponent } from './components/dashboard-admin/create-spin-files/create-spin-files';
+import { SpinFilesComponent } from './components/dashboard-admin/spin-files/spin-files'; // ✅ path ใหม่
 
 
 export const routes: Routes = [
@@ -50,7 +51,8 @@ export const routes: Routes = [
       { path: 'approve-issue', component: ApproveIssue},
       { path: 'block-certificates', component: BlockCertificatesComponent},
       { path: 'print-certificates', component: PrintCertificatesComponent},
-      { path: 'create-spin-files', component: CreateSpinFilesComponent }
+      { path: 'create-spin-files', component: CreateSpinFilesComponent },
+      { path: 'spin-files', component: SpinFilesComponent } // ✅ ใช้ loadComponent สำหรับ SpinFilesComponent
     ]
   },
   {

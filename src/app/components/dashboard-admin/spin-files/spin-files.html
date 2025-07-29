@@ -1,0 +1,56 @@
+<!-- 🟢 Section: อัปโหลด SPiN FILE -->
+<div class="m-6 bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+    <div class="bg-green-600 text-white text-center py-5 text-2xl font-bold tracking-wide">
+        📦 อัปโหลด SPiN FILE เพื่อประมวลผล
+    </div>
+    <div class="p-6 space-y-4">
+        <div class="flex flex-col md:flex-row items-center gap-4 justify-center">
+            <input type="file" (change)="onFileSelected($event)" multiple accept=".out,.jpg"
+                class="border border-gray-300 rounded px-3 py-2 text-sm w-full md:w-auto" />
+
+            <button (click)="uploadSpinFile()"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-medium shadow transition"
+                [disabled]="isLoading">
+                {{ isLoading ? '🚀 กำลังอัปโหลด...' : '⬆️ อัปโหลดไฟล์' }}
+            </button>
+        </div>
+
+        <div *ngIf="errorMessage" class="text-center text-red-600 font-semibold">
+            ⚠️ {{ errorMessage }}
+        </div>
+
+        <div *ngIf="uploadResult" class="bg-gray-50 rounded p-4 border border-gray-200 shadow-sm">
+            <h3 class="text-lg font-semibold text-green-700 mb-2">📋 ผลลัพธ์การอัปโหลด</h3>
+            <pre class="text-sm text-gray-700 whitespace-pre-wrap break-words">
+{{ uploadResult | json }}
+      </pre>
+        </div>
+    </div>
+</div>
+
+<!-- 📂 Section: รายการไฟล์ที่สามารถดาวน์โหลด -->
+<div class="m-6 bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+    <div class="bg-green-600 text-white text-center py-5 text-2xl font-bold tracking-wide">
+        📂 ดาวน์โหลด SPiN FILE (.out)
+    </div>
+    <div class="p-6">
+        <ul *ngIf="files.length > 0; else noFiles" class="space-y-3">
+            <li *ngFor="let file of files"
+                class="flex items-center justify-between bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-md shadow-sm transition">
+                <span class="text-gray-800 font-medium truncate">{{ file }}</span>
+                <button (click)="download(file)"
+                    class="flex items-center text-blue-600 hover:text-blue-800 font-medium transition">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
+                    </svg>
+                    ดาวน์โหลด
+                </button>
+            </li>
+        </ul>
+
+        <ng-template #noFiles>
+            <div class="text-center text-gray-500 py-6 text-lg italic">ไม่พบไฟล์ .out ให้ดาวน์โหลด</div>
+        </ng-template>
+    </div>
+</div>

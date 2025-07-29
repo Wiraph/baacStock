@@ -1,1 +1,40 @@
-<p>create-spin-files works!</p>
+<!-- การ์ด: สร้าง SPiN FILE -->
+<div class="m-6 bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+    <div class="bg-green-500 text-white text-center py-4 text-2xl font-bold">
+        📦 สร้าง SPiN FILE เพื่อส่ง CBS
+    </div>
+    <div class="flex items-center justify-center py-8">
+        <button
+            class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-lg font-medium transition duration-300 shadow-md hover:shadow-lg"
+            (click)="createSpinFile()">
+            ➕ สร้างไฟล์ SPIN
+        </button>
+    </div>
+</div>
+
+<!-- การ์ด: ดาวน์โหลดไฟล์ที่สร้าง -->
+<div class="m-6 bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+    <div class="bg-green-500 text-white text-center py-4 text-2xl font-bold">
+        📂 ดาวน์โหลด SPiN FILE (.dat)
+    </div>
+    <div class="p-6">
+        <ul *ngIf="files.length > 0; else noFiles" class="space-y-3">
+            <li *ngFor="let file of files"
+                class="flex items-center justify-between bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-md transition">
+                <span class="text-gray-800 font-medium">{{ file }}</span>
+                <button (click)="download(file)"
+                    class="text-blue-600 hover:text-blue-800 font-semibold flex items-center cursor-pointer">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
+                    </svg>
+                    ดาวน์โหลด
+                </button>
+            </li>
+        </ul>
+
+        <ng-template #noFiles>
+            <div class="text-center text-gray-500 py-4 text-lg">ไม่พบไฟล์ .dat</div>
+        </ng-template>
+    </div>
+</div>
