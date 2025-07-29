@@ -66,15 +66,15 @@ export class LoginComponent {
         sessionStorage.setItem('username', res.userId);
         sessionStorage.setItem('fullname', res.fullName);
         sessionStorage.setItem('brCode', res.brCode);
+        sessionStorage.setItem('brName', res.brName);
+        this.router.navigate(['/dashboard-admin/']);
 
-        if (res.role === '99') {
-          sessionStorage.setItem('brName', res.brName);
-          this.router.navigate(['/dashboard-admin/']);
-        } else if (res.role === '89') {
-          this.router.navigate(['/head-office/']);
-        } else {
-          this.errorMessage = 'คุณไม่มีสิทธิ์เข้าถึงระบบ';
-        }
+        // if (res.role === '99') {
+        // } else if (res.role === '89') {
+        //   this.router.navigate(['/head-office/']);
+        // } else {
+        //   this.errorMessage = 'คุณไม่มีสิทธิ์เข้าถึงระบบ';
+        // }
       },
       error: (err: HttpErrorResponse) => {
         // console.error('❌ HTTP Error:', err);
@@ -83,7 +83,7 @@ export class LoginComponent {
           this.loading = false;
           this.cdRef.detectChanges(); // ⬅️ บังคับให้ UI รู้
         }
-        
+
 
         if (err.status === 401) {
           this.errorMessage = err.error?.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
