@@ -9,10 +9,9 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./print-certificates.component.css']
 })
 export class PrintCertificatesComponent {
-
+  
   constructor() { }
 
-  // Method สำหรับแสดงวันที่ปัจจุบัน
   getCurrentDate(): string {
     const now = new Date();
     return now.toLocaleDateString('th-TH', {
