@@ -10,7 +10,7 @@ interface MenuItem {
   label: string;
   icon: string;
   open: boolean;
-  children: { icon: string; label: string; route: string }[];
+  children: { icon: string; label: string; route: string; submenu?: { icon: string; label: string; route: string }[] }[];
 }
 
 @Component({
@@ -108,7 +108,16 @@ export class AdminDashboardComponent implements OnInit {
       open: false,
       children: [
         { icon: '🛠️', label: 'ควบคุมระบบ', route: '/dashboard-admin/system' },
-        { icon: '📘', label: 'คู่มือ / เอกสาร', route: '/dashboard-admin/documents' },
+        { 
+          icon: '📘', 
+          label: 'คู่มือ / เอกสาร', 
+          route: '', 
+          submenu: [
+            { icon: '', label: 'Upload เอกสาร', route: '/dashboard-admin/documents/upload' },
+            { icon: '', label: 'แบบพิมพ์ / วิธีปฏิบัติงานหุ้น', route: '/dashboard-admin/documents/forms-procedures' },
+            { icon: '', label: 'คู่มือการใช้งานระบบ', route: '/dashboard-admin/documents/user-manual' }
+          ]
+        },
         { icon: '💻', label: 'DEVELOPER', route: '/dashboard-admin/developer' }
       ]
     }
