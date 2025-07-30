@@ -16,14 +16,12 @@ import { TransferShareComponent } from './components/dashboard-admin/transfer-sh
 import { EditCustomerComponent } from './components/dashboard-admin/edit-customer/edit-customer.component';
 import { PrintSharePurchaseRequestComponent } from './components/dashboard-admin/print-share-purchase-request/print-share-purchase-request';
 import { PrintCertificatesComponent } from './components/dashboard-admin/print-certificates/print-certificates.component';
-<<<<<<< HEAD
 import { CreateSpinFilesComponent } from './components/dashboard-admin/create-spin-files/create-spin-files';
 import { SpinFilesComponent } from './components/dashboard-admin/spin-files/spin-files'; // ✅ path ใหม่
-
-=======
 import { BlockCertificatesComponent } from './components/dashboard-admin/block-certificates/block-certificates.component';
 import { DividendComponent } from './components/dashboard-admin/dividend/dividend.component';
->>>>>>> feature/dividend
+import { DashboardHeadOfficeComponent } from './components/dashboard-head-office/dashboard-head-office';
+import { ApproveIssue } from './components/dashboard-admin/approve-issue/approve-issue';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -33,7 +31,6 @@ export const routes: Routes = [
   {
     path: 'dashboard-admin',
     component: AdminDashboardComponent,
-<<<<<<< HEAD
     canActivate: [AuthGuard], // ✅ ใช้ AuthGuard เพื่อป้องกันการเข้าถึง
     children: [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -46,23 +43,21 @@ export const routes: Routes = [
       { path: 'search-edit', component: SearchEditComponent}, // ✅ เพิ่มเส้นทางสำหรับ SearchEditComponent
       { path: 'common-shares', component: CommonSharesComponent},
       { path: 'headoffice', component: DashboardHeadOfficeComponent},
-      { path: 'print-share-purchase-request', component: PrintSharePurchaseRequestComponent }, // ✅ เพิ่มเส้นทางสำหรับ PrintSharePurchaseRequestComponent
-      { path: 'cratenewsharecertificate', component: CratenewsharecertificateComponent }, // ✅ เพิ่มเส้นทางสำหรับ CratenewsharecertificateComponent
       { path: 'transfer-share', component: TransferShareComponent }, // ✅ เพิ่มเส้นทางสำหรับ TransferShareComponent
-
       { path: 'approve-item', component: ApproveItemComponent},
       { path: 'approve-issue', component: ApproveIssue},
       { path: 'block-certificates', component: BlockCertificatesComponent},
       { path: 'print-certificates', component: PrintCertificatesComponent},
       { path: 'create-spin-files', component: CreateSpinFilesComponent },
-      { path: 'spin-files', component: SpinFilesComponent } // ✅ ใช้ loadComponent สำหรับ SpinFilesComponent
+      { path: 'spin-files', component: SpinFilesComponent }, // ✅ ใช้ loadComponent สำหรับ SpinFilesComponent
+      { path: 'dividend', component: DividendComponent },
+      { path: 'cratenewsharecertificate', component: CratenewsharecertificateComponent },
+      { path: 'print-share-purchase-request', component: PrintSharePurchaseRequestComponent },
     ]
   },
   {
     path: 'head-office',
     component: DashboardHeadOfficeComponent,
-=======
->>>>>>> feature/dividend
     canActivate: [AuthGuard],
     children: [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -75,13 +70,10 @@ export const routes: Routes = [
       { path: 'search-edit', component: SearchEditComponent },
       { path: 'contact', component: ContactComponent },
       { path: 'change-password', component: ChangePasswordComponent },
-      { path: 'cratenewsharecertificate', component: CratenewsharecertificateComponent },
       { path: 'transfer-share', component: TransferShareComponent },
       { path: 'edit-customer', component: EditCustomerComponent },
-      { path: 'print-share-purchase-request', component: PrintSharePurchaseRequestComponent },
       { path: 'print-certificates', component: PrintCertificatesComponent },
       { path: 'block-certificates', component: BlockCertificatesComponent },
-      { path: 'dividend', component: DividendComponent }
     ]
   },
 
