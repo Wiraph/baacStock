@@ -1,0 +1,80 @@
+<div class="min-h-screen bg-gray-50 p-6 font-sans">
+  <!-- หัวเรื่องหลัก -->
+  <div class="bg-green-500 text-white text-center py-4 rounded-t-lg mb-0 shadow-md">
+    <h1 class="text-2xl font-bold">รายงาน</h1>
+  </div>
+
+  <!-- เนื้อหารายงาน -->
+  <div class="bg-white border border-gray-300 rounded-b-lg shadow-md p-6 max-h-[70vh] overflow-y-auto">
+    
+    <!-- รายงานปกติ (สีชมพู) -->
+    <div class="space-y-2 mb-8">
+      <div *ngFor="let report of normalReports; let i = index" 
+           class="flex items-center p-3 hover:bg-pink-50 rounded-lg cursor-pointer transition-all duration-200 ease-in-out hover:translate-x-1 hover:shadow-sm group"
+           (click)="onReportClick(report)">
+        <span class="text-pink-500 text-lg mr-3 group-hover:scale-110 transition-transform duration-200">🌸</span>
+        <a class="text-blue-600 hover:text-blue-800 underline flex-1 text-sm leading-relaxed group-hover:text-blue-900 transition-colors duration-200">
+          {{ report.title }}
+        </a>
+      </div>
+    </div>
+
+    <!-- รายงานพิเศษ (สีแดง) -->
+    <div class="space-y-2 mb-8">
+      <div *ngFor="let report of specialReports; let i = index" 
+           class="flex items-center p-3 hover:bg-red-50 rounded-lg cursor-pointer transition-all duration-200 ease-in-out hover:translate-x-1 hover:shadow-sm group"
+           (click)="onReportClick(report)">
+        <span class="text-red-500 text-lg mr-3 group-hover:scale-110 transition-transform duration-200">🔴</span>
+        <a class="text-blue-600 hover:text-blue-800 underline flex-1 text-sm leading-relaxed group-hover:text-blue-900 transition-colors duration-200">
+          {{ report.title }}
+        </a>
+      </div>
+    </div>
+
+    <!-- รายงานอื่นๆ -->
+    <div class="space-y-2">
+      <div class="flex items-center p-3 hover:bg-pink-50 rounded-lg cursor-pointer transition-all duration-200 ease-in-out hover:translate-x-1 hover:shadow-sm group"
+           (click)="onReportClick(reports[reports.length - 1])">
+        <span class="text-pink-500 text-lg mr-3 group-hover:scale-110 transition-transform duration-200">🌸</span>
+        <a class="text-blue-600 hover:text-blue-800 underline flex-1 text-sm leading-relaxed group-hover:text-blue-900 transition-colors duration-200">
+          หนังสือแจ้งเงินปันผลแก่ลูกค้า
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ข้อความแจ้งเตือน -->
+  <div class="mt-6 p-4 bg-blue-50 border-l-4 border-blue-400 rounded shadow-sm">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm text-blue-700">
+          📊 ระบบรายงานยังอยู่ในระหว่างการพัฒนา คลิกที่รายงานเพื่อดูรายละเอียด
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Scrollbar Styles -->
+  <style>
+    .overflow-y-auto::-webkit-scrollbar {
+      width: 6px;
+    }
+    .overflow-y-auto::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+    .overflow-y-auto::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
+    }
+    .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+  </style>
+</div> 

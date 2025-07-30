@@ -20,6 +20,7 @@ import { CreateSpinFilesComponent } from './components/dashboard-admin/create-sp
 import { SpinFilesComponent } from './components/dashboard-admin/spin-files/spin-files'; // ✅ path ใหม่
 import { BlockCertificatesComponent } from './components/dashboard-admin/block-certificates/block-certificates.component';
 import { DividendComponent } from './components/dashboard-admin/dividend/dividend.component';
+import { ReportsComponent } from './components/dashboard-admin/reports/reports.component';
 import { DashboardHeadOfficeComponent } from './components/dashboard-head-office/dashboard-head-office';
 import { ApproveIssue } from './components/dashboard-admin/approve-issue/approve-issue';
 
@@ -51,6 +52,7 @@ export const routes: Routes = [
       { path: 'create-spin-files', component: CreateSpinFilesComponent },
       { path: 'spin-files', component: SpinFilesComponent }, // ✅ ใช้ loadComponent สำหรับ SpinFilesComponent
       { path: 'dividend', component: DividendComponent },
+      { path: 'reports', component: ReportsComponent },
       { path: 'cratenewsharecertificate', component: CratenewsharecertificateComponent },
       { path: 'print-share-purchase-request', component: PrintSharePurchaseRequestComponent },
     ]
@@ -74,6 +76,8 @@ export const routes: Routes = [
       { path: 'edit-customer', component: EditCustomerComponent },
       { path: 'print-certificates', component: PrintCertificatesComponent },
       { path: 'block-certificates', component: BlockCertificatesComponent },
+      { path: 'dividend', component: DividendComponent },
+      { path: 'reports', component: ReportsComponent }
     ]
   },
 
