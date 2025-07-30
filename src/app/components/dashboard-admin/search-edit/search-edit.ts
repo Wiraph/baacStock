@@ -8,6 +8,7 @@ import { ResultCommonStockComponent } from './result-table/result-common-stock/r
 import { ResultNewCertificateComponent } from './result-table/result-new-certificate/result-new-certificate.component';
 import { ResultTranferShareComponent } from './result-table/result-tranfer-share/result-tranfer-share.component';
 import { ResultBlockCertificateComponent } from './result-table/result-block-certificate/result-block-certificate.component';
+import { ResultDividendComponent } from './result-table/result-dividend/result-dividend.component';
 import { EditCustomerComponent } from '../edit-customer/edit-customer.component';
 import { StocksComponent } from '../stocks/stocks';
 import { StockItem } from '../../../services/stock';
@@ -23,6 +24,7 @@ import { StockItem } from '../../../services/stock';
     ResultNewCertificateComponent,
     ResultTranferShareComponent,
     ResultBlockCertificateComponent,
+    ResultDividendComponent,
     EditCustomerComponent,
     StocksComponent,
   ],
