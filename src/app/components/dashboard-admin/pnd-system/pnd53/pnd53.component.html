@@ -1,0 +1,135 @@
+<div class="min-h-screen bg-gray-50 p-6 font-sans">
+  <!-- หัวเรื่องหลัก -->
+  <div class="bg-green-500 text-white text-center py-4 rounded-t-lg mb-0 shadow-md">
+    <h1 class="text-2xl font-bold">ภ.ง.ด. 53</h1>
+  </div>
+
+  <!-- เนื้อหาหลัก -->
+  <div class="bg-white border border-gray-300 rounded-b-lg shadow-md overflow-hidden">
+    
+    <!-- ตารางข้อมูล -->
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-100 border-b">
+            <th class="border border-gray-300 px-4 py-3 text-left font-medium text-gray-700" style="width: 40%">
+              ปี-เดือน
+            </th>
+            <th class="border border-gray-300 px-4 py-3 text-left font-medium text-gray-700" style="width: 60%">
+              ดาวน์โหลด
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- แต่ละแถวข้อมูล -->
+          <tr *ngFor="let item of pndData; let i = index" class="hover:bg-gray-50 transition-colors duration-200">
+            <!-- คอลัมน์ปี-เดือน -->
+            <td class="border border-gray-300 px-4 py-4 align-top">
+              <div class="flex items-center space-x-3">
+                <span class="text-gray-800 font-medium">{{ item.yearMonth }}</span>
+                <span class="text-gray-600">-</span>
+                <button 
+                  (click)="generateFiles(item.yearMonth)"
+                  class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
+                  [disabled]="isGenerating"
+                >
+                  <span *ngIf="isGenerating && currentGenerating === item.yearMonth" class="flex items-center">
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    กำลังสร้าง...
+                  </span>
+                  <span *ngIf="!isGenerating || currentGenerating !== item.yearMonth">
+                    สร้างไฟล์ทั้งหมด
+                  </span>
+                </button>
+              </div>
+            </td>
+            
+            <!-- คอลัมน์ดาวน์โหลด -->
+            <td class="border border-gray-300 px-4 py-4">
+              <div class="space-y-2">
+                <div *ngFor="let file of item.files" class="flex items-center space-x-2">
+                  <!-- ไอคอนไฟล์ -->
+                  <div class="flex-shrink-0">
+                    <svg *ngIf="file.type === 'EFL' || file.type === 'SWC'" class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                    </svg>
+                    <svg *ngIf="file.type === 'XLS'" class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm6 2a1 1 0 11-2 0 1 1 0 012 0zM7 8a1 1 0 000 2h6a1 1 0 100-2H7zm0 4a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  
+                  <!-- ลิงก์ดาวน์โหลด -->
+                  <button 
+                    (click)="downloadFile(file)"
+                    class="text-blue-600 hover:text-blue-800 underline text-sm font-medium transition-colors duration-200 hover:bg-blue-50 px-2 py-1 rounded"
+                    [disabled]="!file.available"
+                    [class.text-gray-400]="!file.available"
+                    [class.cursor-not-allowed]="!file.available"
+                  >
+                    {{ file.name }}
+                  </button>
+                  
+                  <!-- สถานะไฟล์ -->
+                  <span *ngIf="!file.available" class="text-xs text-gray-500 italic">
+                    (ยังไม่พร้อม)
+                  </span>
+                </div>
+                
+                <!-- แสดงข้อความเมื่อไม่มีไฟล์ -->
+                <div *ngIf="item.files.length === 0" class="text-gray-500 text-sm italic">
+                  ไม่มีไฟล์
+                </div>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- แสดงเมื่อไม่มีข้อมูล -->
+          <tr *ngIf="pndData.length === 0">
+            <td colspan="2" class="border border-gray-300 px-4 py-8 text-center text-gray-500">
+              <div class="flex flex-col items-center space-y-2">
+                <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <p class="text-lg font-medium">ไม่มีข้อมูล ภ.ง.ด. 53</p>
+                <p class="text-sm">กรุณาตรวจสอบข้อมูลการจ่ายเงินปันผล</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- แสดง Loading เมื่อกำลังโหลดข้อมูล -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-8">
+      <div class="flex items-center space-x-2">
+        <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span class="text-gray-600">กำลังโหลดข้อมูล...</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ข้อมูลเพิ่มเติมด้านล่าง -->
+  <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+    <div class="flex items-start space-x-2">
+      <svg class="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+      </svg>
+      <div class="text-sm text-blue-700">
+        <p class="font-medium mb-1">หมายเหตุ:</p>
+        <ul class="space-y-1 text-sm">
+          <li>• <strong>EFL</strong> - ไฟล์สำหรับส่งกรมสรรพากรอิเล็กทรอนิกส์</li>
+          <li>• <strong>SWC</strong> - ไฟล์ตรวจสอบด้วยโปรแกรม</li>
+          <li>• <strong>XLS</strong> - ไฟล์ Excel สำหรับตรวจสอบข้อมูล</li>
+          <li>• กำหนดยื่น ภ.ง.ด. 53: <strong>ภายใน 7 วันของเดือนถัดไป</strong></li>
+          <li>• ภาษีหัก ณ ที่จ่าย จากเงินปันผล (รายเดือน)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

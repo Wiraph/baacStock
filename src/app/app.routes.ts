@@ -26,6 +26,9 @@ import { ApproveIssue } from './components/dashboard-admin/approve-issue/approve
 import { FormsProceduresComponent } from './components/dashboard-admin/forms-procedures/forms-procedures.component';
 import { UploadComponent } from './components/dashboard-admin/upload-document/upload.component';
 import { UserManualComponent } from './components/dashboard-admin/user-manual/user-manual.component';
+import { Pnd2Component } from './components/dashboard-admin/pnd-system/pnd2/pnd2.component';
+import { Pnd2aComponent } from './components/dashboard-admin/pnd-system/pnd2a/pnd2a.component';
+import { Pnd53Component } from './components/dashboard-admin/pnd-system/pnd53/pnd53.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -60,7 +63,10 @@ export const routes: Routes = [
       { path: 'print-share-purchase-request', component: PrintSharePurchaseRequestComponent },
       { path: 'documents/upload', component: UploadComponent }, 
       { path: 'documents/forms-procedures', component: FormsProceduresComponent },
-      { path: 'documents/user-manual', component: UserManualComponent }
+      { path: 'documents/user-manual', component: UserManualComponent },
+      { path: 'pnd2', component: Pnd2Component },
+      { path: 'pnd2a', component: Pnd2aComponent },
+      { path: 'pnd53', component: Pnd53Component }
     ]
   },
   {
