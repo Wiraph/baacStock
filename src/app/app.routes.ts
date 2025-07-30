@@ -17,19 +17,15 @@ import { EditCustomerComponent } from './components/dashboard-admin/edit-custome
 import { PrintSharePurchaseRequestComponent } from './components/dashboard-admin/print-share-purchase-request/print-share-purchase-request';
 import { PrintCertificatesComponent } from './components/dashboard-admin/print-certificates/print-certificates.component';
 import { CreateSpinFilesComponent } from './components/dashboard-admin/create-spin-files/create-spin-files';
-<<<<<<< HEAD
-import { SpinFilesComponent } from './components/dashboard-admin/spin-files/spin-files'; // ✅ path ใหม่
+import { SpinFilesComponent } from './components/dashboard-admin/spin-files/spin-files';
 import { BlockCertificatesComponent } from './components/dashboard-admin/block-certificates/block-certificates.component';
 import { DividendComponent } from './components/dashboard-admin/dividend/dividend.component';
 import { ReportsComponent } from './components/dashboard-admin/reports/reports.component';
 import { DashboardHeadOfficeComponent } from './components/dashboard-head-office/dashboard-head-office';
 import { ApproveIssue } from './components/dashboard-admin/approve-issue/approve-issue';
-=======
 import { FormsProceduresComponent } from './components/dashboard-admin/forms-procedures/forms-procedures.component';
 import { UploadComponent } from './components/dashboard-admin/upload-document/upload.component';
 import { UserManualComponent } from './components/dashboard-admin/user-manual/user-manual.component';
-
->>>>>>> feature/manuals-documents
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -57,19 +53,14 @@ export const routes: Routes = [
       { path: 'block-certificates', component: BlockCertificatesComponent},
       { path: 'print-certificates', component: PrintCertificatesComponent},
       { path: 'create-spin-files', component: CreateSpinFilesComponent },
-<<<<<<< HEAD
-      { path: 'spin-files', component: SpinFilesComponent }, // ✅ ใช้ loadComponent สำหรับ SpinFilesComponent
+      { path: 'spin-files', component: SpinFilesComponent },
       { path: 'dividend', component: DividendComponent },
       { path: 'reports', component: ReportsComponent },
       { path: 'cratenewsharecertificate', component: CratenewsharecertificateComponent },
       { path: 'print-share-purchase-request', component: PrintSharePurchaseRequestComponent },
-=======
       { path: 'documents/upload', component: UploadComponent }, 
       { path: 'documents/forms-procedures', component: FormsProceduresComponent },
-      { path: 'user-manual', component: UserManualComponent },
       { path: 'documents/user-manual', component: UserManualComponent }
-
->>>>>>> feature/manuals-documents
     ]
   },
   {

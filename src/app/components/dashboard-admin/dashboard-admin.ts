@@ -85,10 +85,10 @@ export class AdminDashboardComponent implements OnInit {
     {
       key: 'report',
       label: 'รายงาน',
-      icon: '📊',
+      icon: '📄',
       open: false,
       children: [
-        { icon: '📊', label: 'รายงาน', route: '/dashboard-admin/reports' }
+        { icon: '📄', label: 'รายงาน', route: '/dashboard-admin/reports' }
       ]
     },
     {
