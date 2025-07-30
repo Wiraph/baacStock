@@ -8,8 +8,7 @@
         <th class="border px-4 py-2 text-center">เลขที่บัตรแสดงตน</th>
         <th class="border px-4 py-2 text-center">ชื่อ - นามสกุล</th>
         <th class="border px-4 py-2 text-center">สถานะ</th>
-        <th class="border px-4 py-2 text-center">ใบหุ้น</th>
-        <th class="border px-4 py-2 text-center">แก้ไข</th>
+        <th class="border px-4 py-2 text-center">การดำเนินการ</th>
       </tr>
     </thead>
     <tbody>
@@ -20,10 +19,10 @@
         <td class="border px-4 py-1">{{ r.fullName }}</td>
         <td class="border px-4 py-1">{{ r.status || '-' }}</td>
         <td class="border px-4 py-1 text-center">
-          <button class="cursor-pointer" (click)="onViewStockClick(r)">📈</button>
-        </td>
-        <td class="border px-4 py-1 text-center">
-          <button (click)="onEditClick(r)" class="text-blue-600 hover:text-blue-800">📝</button>
+          <button class="cursor-pointer bg-green-100 text-green-800 px-2 py-1 rounded hover:bg-green-200 transition-colors" 
+                  (click)="onViewStockClick(r)">
+            💰 จ่ายเงินปันผล
+          </button>
         </td>
       </tr>
     </tbody>

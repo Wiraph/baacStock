@@ -34,6 +34,7 @@ export class SearchEditComponent implements OnInit, OnChanges {
   @Input() InputcreateNewShareCertificate!: string;
   @Input() InputtransferShare!: string;
   @Input() InputblockCertificates!: string;
+  @Input() InputDividend!: string;
   @Input() viewMode!: string;
   @Output() viewChange = new EventEmitter<{
     view: string;
@@ -48,6 +49,7 @@ export class SearchEditComponent implements OnInit, OnChanges {
   @Output() createnew = new EventEmitter<any>();
   @Output() common = new EventEmitter<any>();
   @Output() blockCertificate = new EventEmitter<any>();
+  @Output() dividend = new EventEmitter<any>();
 
   titleSearch: string = '';
   branch = sessionStorage.getItem('brName');
@@ -87,6 +89,28 @@ export class SearchEditComponent implements OnInit, OnChanges {
     this.selectedStockList = stockList ?? [];
     this.selectedStatus = statusDesc ?? '';
     this.viewMode = viewMode ?? '';
+
+    // Emit data to appropriate component based on current input type
+    if (view === 'stock') {
+      const data = {
+        cusId: cusId,
+        fullName: fullName,
+        statusDesc: statusDesc,
+        stockNotes: stockNotes,
+        stockList: stockList,
+        viewMode: viewMode,
+        brCode: sessionStorage.getItem('brCode') || '',
+        brName: sessionStorage.getItem('brName') || ''
+      };
+
+      if (this.isDividend) {
+        this.viewStock.emit(data);
+      } else if (this.isBlockCertificates) {
+        this.viewStock.emit(data);
+      } else {
+        this.viewStock.emit(data);
+      }
+    }
   }
 
   onStockTransfer(item: StockItem) {
@@ -116,6 +140,8 @@ export class SearchEditComponent implements OnInit, OnChanges {
       this.titleSearch = 'โอนเปลี่ยนมือ';
     } else if (this.InputblockCertificates === 'blockCertificates') {
       this.titleSearch = 'บล็อค/ยกเลิกบล็อคใบหุ้น';
+    } else if (this.InputDividend === 'dividend') {
+      this.titleSearch = 'เงินปันผล';
     } else {
       this.titleSearch = 'ค้นหา';
     }
@@ -218,11 +244,16 @@ export class SearchEditComponent implements OnInit, OnChanges {
     this.blockCertificate.emit(item);
   }
 
+  onDividend(item: any) {
+    this.dividend.emit(item);
+  }
+
   get currentResultType(): string {
     if (this.InputtransferShare === 'transferShare') return 'transfer';
     if (this.InputcreateNewShareCertificate === 'create-new-share-certificate') return 'new-cert';
     if (this.commonShare === 'common-shares') return 'common';
     if (this.InputblockCertificates === 'blockCertificates') return 'block-cert';
+    if (this.InputDividend === 'dividend') return 'dividend';
     return 'default';
   }
 
@@ -240,6 +271,10 @@ export class SearchEditComponent implements OnInit, OnChanges {
 
   get isBlockCertificates(): boolean {
     return this.InputblockCertificates === 'blockCertificates';
+  }
+
+  get isDividend(): boolean {
+    return this.InputDividend === 'dividend';
   }
 
   get totalPages(): number {
