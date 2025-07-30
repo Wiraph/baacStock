@@ -26,6 +26,13 @@ export interface PendingTransfer {
   userLevelDescription: string;
 }
 
+export interface PendingTransferResponse {
+  totalRows: number;
+  currentPage: number;
+  pageSize: number;
+  data: PendingTransfer[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -49,14 +56,16 @@ export class StocktransferService {
     return this.http.put(`${this.apiUrl}/approve`, payload, { headers: this.createAuthHeaders() });
   }
 
-  getPendingTransfers(action: string, branchCode: string, pageNumber = 1, pageSize = 10): Observable<PendingTransfer[]> {
+  getPendingTransfers(action: string, branchCode: string, pageNumber = 1, pageSize = 10): Observable<PendingTransferResponse> {
     let params = new HttpParams()
-    .set('action', action)
-    .set('branchCode', branchCode)
-    .set('pageNumber', pageNumber)
-    .set('pageSize', pageSize);
-    return this.http.get<PendingTransfer[]>(`${this.apiUrl}/pending-transfers`, { params, headers: this.createAuthHeaders() });
+      .set('action', action)
+      .set('branchCode', branchCode)
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+
+    return this.http.get<PendingTransferResponse>(`${this.apiUrl}/pending-transfers`, { params, headers: this.createAuthHeaders() });
   }
+
 
   private createAuthHeaders(): HttpHeaders {
     let token = '';

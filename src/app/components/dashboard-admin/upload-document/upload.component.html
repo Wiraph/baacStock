@@ -1,0 +1,198 @@
+<div class="p-6 max-w-6xl mx-auto">
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-2">📁 อัปโหลดเอกสาร</h1>
+    <p class="text-gray-600">อัปโหลดไฟล์เอกสาร คู่มือ และแบบฟอร์มต่างๆ</p>
+  </div>
+
+  <!-- Upload Area -->
+  <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">⬆️ อัปโหลดไฟล์ใหม่</h2>
+    
+    <!-- Drag & Drop Area -->
+    <div 
+      class="border-2 border-dashed rounded-lg p-8 text-center transition-all duration-300 transform"
+      [class]="isDragOver ? 'border-blue-400 bg-blue-50 scale-105 shadow-lg shadow-blue-200' : 'border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100'"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)">
+      
+      <div class="space-y-4">
+        <div class="text-6xl">📁</div>
+        
+        <!-- File Input -->
+        <label class="inline-block">
+          <input 
+            type="file" 
+            multiple 
+            class="hidden" 
+            (change)="onFileSelected($event)"
+            [accept]="allowedExtensions.join(',')">
+          <span class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 cursor-pointer inline-block">
+            📂 เลือกไฟล์
+          </span>
+        </label>
+        
+        <div class="text-sm text-gray-500">
+          <p>ประเภทไฟล์ที่รองรับ: {{ allowedExtensions.join(', ') }}</p>
+          <p>ขนาดไฟล์สูงสุด: {{ formatFileSize(maxFileSize) }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selected Files Preview -->
+    <div *ngIf="selectedFiles.length > 0" class="mt-6 animate-in slide-in-from-bottom-4 duration-300">
+      <h3 class="text-md font-semibold text-gray-700 mb-3">📋 ไฟล์ที่เลือก ({{ selectedFiles.length }} ไฟล์)</h3>
+      
+      <div class="space-y-2">
+        <div *ngFor="let file of selectedFiles; let i = index" 
+             class="flex items-center justify-between p-3 bg-gray-50 rounded-lg animate-in fade-in slide-in-from-left-4 duration-300"
+             [style.animation-delay]="i * 100 + 'ms'">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl transition-transform duration-200 hover:scale-110 drop-shadow-sm">{{ getFileIcon(file.type) }}</span>
+            <div>
+              <p class="font-medium text-gray-800">{{ file.name }}</p>
+              <p class="text-sm text-gray-500">{{ formatFileSize(file.size) }}</p>
+            </div>
+          </div>
+          
+          <button 
+            (click)="removeSelectedFile(i)"
+            class="text-red-500 hover:text-red-700 hover:scale-110 transition-all duration-200 p-2 rounded-full hover:bg-red-50">
+            🗑️
+          </button>
+        </div>
+      </div>
+
+      <!-- Upload Button -->
+      <div class="mt-4 flex justify-end">
+        <button 
+          (click)="uploadFiles()"
+          [disabled]="isUploading"
+          class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 hover:-translate-y-0.5 hover:shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none transition-all duration-200 relative overflow-hidden"
+          [class.animate-pulse]="isUploading">
+          <span *ngIf="!isUploading">🚀 อัปโหลดไฟล์</span>
+          <span *ngIf="isUploading" class="flex items-center space-x-2">
+            <span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            <span>กำลังอัปโหลด...</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Uploaded Files List -->
+  <div class="bg-white rounded-xl shadow-md p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-800">📚 ไฟล์ที่อัปโหลดแล้ว</h2>
+      <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+        {{ uploadedFiles.length }} ไฟล์
+      </span>
+    </div>
+
+    <!-- Files Table -->
+    <div class="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 hover:scrollbar-thumb-slate-400">
+      <table class="w-full table-auto">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">ไฟล์</th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">ขนาด</th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 hidden md:table-cell">วันที่อัปโหลด</th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 hidden md:table-cell">ผู้อัปโหลด</th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">สถานะ</th>
+            <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          <tr *ngFor="let file of uploadedFiles" 
+              class="hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200">
+            <!-- File Info -->
+            <td class="px-4 py-4">
+              <div class="flex items-center space-x-3">
+                <span class="text-2xl transition-transform duration-200 hover:scale-110 drop-shadow-sm">{{ getFileIcon(file.type) }}</span>
+                <div>
+                  <p class="font-medium text-gray-800">{{ file.name }}</p>
+                  <p class="text-sm text-gray-500 md:hidden">{{ formatFileSize(file.size) }}</p>
+                  <p class="text-sm text-gray-500 block md:hidden">{{ file.type }}</p>
+                </div>
+              </div>
+            </td>
+
+            <!-- File Size -->
+            <td class="px-4 py-4 text-sm text-gray-600 hidden md:table-cell">
+              {{ formatFileSize(file.size) }}
+            </td>
+
+            <!-- Upload Date -->
+            <td class="px-4 py-4 text-sm text-gray-600 hidden md:table-cell">
+              {{ file.uploadDate | date:'dd/MM/yyyy HH:mm' }}
+            </td>
+
+            <!-- Uploaded By -->
+            <td class="px-4 py-4 text-sm text-gray-600 hidden md:table-cell">
+              {{ file.uploadedBy }}
+            </td>
+
+            <!-- Status -->
+            <td class="px-4 py-4">
+              <div class="flex items-center space-x-2">
+                <!-- Uploading Status -->
+                <div *ngIf="file.status === 'uploading'" class="flex items-center space-x-2 animate-pulse">
+                  <div class="w-full bg-gray-200 rounded-full h-2 max-w-[100px]">
+                    <div class="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out" 
+                         [style.width.%]="file.progress"></div>
+                  </div>
+                  <span class="text-xs text-blue-600 font-medium">{{ file.progress.toFixed(0) }}%</span>
+                </div>
+                
+                <!-- Completed Status -->
+                <span *ngIf="file.status === 'completed'" 
+                      class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium animate-in fade-in duration-300">
+                  ✅ สำเร็จ
+                </span>
+                
+                <!-- Error Status -->
+                <span *ngIf="file.status === 'error'" 
+                      class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium animate-in fade-in duration-300">
+                  ❌ ผิดพลาด
+                </span>
+              </div>
+            </td>
+
+            <!-- Actions -->
+            <td class="px-4 py-4">
+              <div class="flex items-center justify-center space-x-1 md:space-x-2 flex-col md:flex-row gap-1 md:gap-0">
+                <!-- Download Button -->
+                <button 
+                  *ngIf="file.status === 'completed'"
+                  (click)="downloadFile(file)"
+                  class="text-blue-600 hover:text-blue-800 hover:scale-110 hover:bg-blue-50 transition-all duration-200 p-2 rounded-full"
+                  title="ดาวน์โหลด">
+                  📥
+                </button>
+                
+                <!-- Delete Button -->
+                <button 
+                  (click)="deleteUploadedFile(file.id)"
+                  class="text-red-600 hover:text-red-800 hover:scale-110 hover:bg-red-50 transition-all duration-200 p-2 rounded-full"
+                  title="ลบ">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Empty State -->
+          <tr *ngIf="uploadedFiles.length === 0">
+            <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+              <div class="space-y-2 animate-in fade-in duration-500">
+                <div class="text-4xl">📂</div>
+                <p>ยังไม่มีไฟล์ที่อัปโหลด</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

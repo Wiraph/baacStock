@@ -5,13 +5,13 @@ import { FormsModule } from '@angular/forms'; // 👈 ต้องใช้ส�
 import { NgxPaginationModule } from 'ngx-pagination';
 import { UserService } from '../../../services/user';
 import { Router } from '@angular/router';
-import { error } from 'console';
+import { AdduserComponent } from '../adduser/adduser';
 
 @Component({
   standalone: true,
   selector: 'app-admin-dashboard',
   templateUrl: './users.html',
-  imports: [CommonModule, FormsModule, NgxPaginationModule],
+  imports: [CommonModule, FormsModule, NgxPaginationModule, AdduserComponent],
 })
 export class UsersComponent implements OnInit {
   users: any[] = [];
@@ -19,11 +19,19 @@ export class UsersComponent implements OnInit {
   itemsPerPage = 10;
   searchTerm = '';
   private platformId = inject(PLATFORM_ID);
+  loading = false;
+  activeView = 'users'; // ✅ สถานะการแสดงผลปัจจุบัน
+
+  setView(view: string) {
+    this.activeView = view; // ✅ เปลี่ยนสถานะการแสดงผล
+    this.cdr.detectChanges(); // ✅ แจ้งให้ Angular ทราบว่าต้องตรวจสอบการเปลี่ยนแปลง
+  }
 
   constructor(private userService: UserService, private cdr: ChangeDetectorRef, private router: Router) { }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
+      this.loading = true; // ✅ เริ่มโหลดข้อมูล
       this.loadUsers();
     }
   }
@@ -32,6 +40,7 @@ export class UsersComponent implements OnInit {
     this.userService.getAllUsers().subscribe({
       next: (res) => {
         this.users = res;
+        this.loading = false; // ✅ โหลดข้อมูลเสร็จสิ้น
         this.cdr.detectChanges();
       },
       error: (err) => console.error('❌ ล้มเหลว:', err),
@@ -62,6 +71,11 @@ export class UsersComponent implements OnInit {
 
   deleteUser() {
 
+  }
+
+  adduser() {
+    this.setView('adduser');
+    this.cdr.detectChanges();
   }
 
   logout() {

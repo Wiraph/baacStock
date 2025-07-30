@@ -38,11 +38,28 @@
 
           <!-- Expanded Menu Items -->
           <div *ngIf="menu.open && !sidebarCollapsed" class="ml-10 mt-1 space-y-1">
-            <a *ngFor="let item of menu.children" [routerLink]="item.route"
-              routerLinkActive="text-blue-600 font-semibold"
-              class="block text-sm text-gray-600 hover:text-blue-700 transition-colors">
-              {{ item.icon }} {{ item.label }}
-            </a>
+            <ng-container *ngFor="let item of menu.children">
+              <!-- รายการที่ไม่มี submenu -->
+              <a *ngIf="!item.submenu" [routerLink]="item.route"
+                routerLinkActive="text-blue-600 font-semibold"
+                class="block text-sm text-gray-600 hover:text-blue-700 transition-colors">
+                {{ item.icon }} {{ item.label }}
+              </a>
+              
+              <!-- รายการที่มี submenu -->
+              <div *ngIf="item.submenu" class="space-y-1">
+                <div class="text-sm text-gray-600 font-medium py-1">
+                  {{ item.icon }} {{ item.label }}
+                </div>
+                <div class="ml-4 space-y-1">
+                  <a *ngFor="let subitem of item.submenu" [routerLink]="subitem.route"
+                    routerLinkActive="text-blue-600 font-semibold"
+                    class="block text-xs text-gray-500 hover:text-blue-700 transition-colors py-1">
+                    {{ subitem.label }}
+                  </a>
+                </div>
+              </div>
+            </ng-container>
           </div>
 
           <!-- Tooltip when Collapsed -->

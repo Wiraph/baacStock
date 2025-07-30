@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { Observable } from 'rxjs';
+import { isPlatformBrowser } from '@angular/common';
 
 export interface ChangePasswordDto {
   userName: string;
@@ -14,7 +15,9 @@ export interface ChangePasswordDto {
 export class UserService {
   private apiUrl = 'https://localhost:7089/api/user';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) { }
 
   getAllUsers(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
@@ -36,7 +39,26 @@ export class UserService {
     return this.http.put(`${this.apiUrl}/${userId}/reset-password`, {});
   }
 
-  // ค้นหาลูกค้า
+  getUserLevels(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/lvl`, {headers: this.createAuthHeaders()});
+  }
+
+  getBranchList(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/branch`, {headers: this.createAuthHeaders()});
+  }
+
+  addUser(payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}`, payload, {headers: this.createAuthHeaders()});
+  }
   
+  private createAuthHeaders(): HttpHeaders {
+    let token = '';
+    if (isPlatformBrowser(this.platformId)) {
+      token = sessionStorage.getItem('token') || '';
+    }
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+  }
 
 }

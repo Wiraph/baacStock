@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { DataTransfer } from '../../../services/data-transfer';
 import { ApproveTransfer } from '../approve-transfer/approve-transfer';
 import { ApproveCreate } from '../approve-create/approve-create';
+import { StocktransferService } from '../../../services/stocktransfer';
 
 @Component({
   standalone: true,
@@ -22,36 +23,51 @@ export class ApproveItemComponent implements OnInit {
   loading = false;
   showDetailComponent = false;
   showDetailComponentCreate = false;
+  brCode = sessionStorage.getItem('brCode') || '';
 
   constructor(
     private stockService: StockService,
     private approveService: ApproveService,
     private dataTransfer: DataTransfer,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private stockTransferService: StocktransferService
+
   ) { }
 
   stockList: string[] = [];
 
-
   onSearch() {
-    this.approveService.getStockApprove().subscribe({
-      next: (data) => {
-        this.requestList = data;
+    // this.approveService.getStockApprove().subscribe({
+    //   next: (data) => {
+    //     this.requestList = data;
+    //     this.loading = false;
+    //     this.cdr.detectChanges();
+    //   },
+    //   error: () => {
+    //     alert("ไม่สามารถโหลดข้อมูลรายการอนุมัติได้");
+    //   }
+    // });
+
+    this.stockTransferService.getPendingTransfers('APPROVE', this.brCode, 1, 20).subscribe({
+      next: (response) => {
+        this.requestList = response.data; 
+        console.log("รายการอนุมัติที่ดึงมา: ", this.requestList);
         this.loading = false;
         this.cdr.detectChanges();
       },
       error: () => {
         alert("ไม่สามารถโหลดข้อมูลรายการอนุมัติได้");
+        this.loading = false;
       }
     });
-  }
 
+  }
 
   approveConfirm(stkNote: string, stkStatus: string) {
     this.dataTransfer.setStkNote(stkNote);
-    if(stkStatus == "A003") {
+    if (stkStatus == "A003") {
       this.showDetailComponent = true;
-    } else if(stkStatus == "A002") {
+    } else if (stkStatus == "A002") {
       this.showDetailComponentCreate = true;
     }
     this.cdr.detectChanges();
@@ -63,7 +79,7 @@ export class ApproveItemComponent implements OnInit {
   }
 
   detail(item: any) {
-
+    // แสดงรายละเอียด
   }
 
   ngOnInit(): void {
@@ -71,6 +87,4 @@ export class ApproveItemComponent implements OnInit {
     this.onSearch();
     this.cdr.detectChanges();
   }
-
-
-}
+} 

@@ -10,7 +10,7 @@ interface MenuItem {
   label: string;
   icon: string;
   open: boolean;
-  children: { icon: string; label: string; route: string }[];
+  children: { icon: string; label: string; route: string; submenu?: { icon: string; label: string; route: string }[] }[];
 }
 
 @Component({
@@ -73,13 +73,13 @@ export class AdminDashboardComponent implements OnInit {
       ]
     },
     {
-      key: 'file',
-      label: 'ไฟล์',
+      key: 'spin-file',
+      label: 'SCB SPIN FILE',
       icon: '⚡',
       open: false,
       children: [
-        { icon: '⚡', label: 'CBS SPIN FILE', route: '/dashboard-admin/spin-files' },
-        { icon: '🔌', label: 'SAP Interface', route: '/dashboard-admin/sap-interface' }
+        { icon: '⚡', label: 'สร้าง SPIN FILE ส่ง SCB', route: '/dashboard-admin/create-spin-files' },
+        { icon: '🔌', label: 'รับผล SPIN FILE จาก SCB', route: '/dashboard-admin/sap-interface' }
       ]
     },
     {
@@ -108,7 +108,16 @@ export class AdminDashboardComponent implements OnInit {
       open: false,
       children: [
         { icon: '🛠️', label: 'ควบคุมระบบ', route: '/dashboard-admin/system' },
-        { icon: '📘', label: 'คู่มือ / เอกสาร', route: '/dashboard-admin/documents' },
+        { 
+          icon: '📘', 
+          label: 'คู่มือ / เอกสาร', 
+          route: '', 
+          submenu: [
+            { icon: '', label: 'Upload เอกสาร', route: '/dashboard-admin/documents/upload' },
+            { icon: '', label: 'แบบพิมพ์ / วิธีปฏิบัติงานหุ้น', route: '/dashboard-admin/documents/forms-procedures' },
+            { icon: '', label: 'คู่มือการใช้งานระบบ', route: '/dashboard-admin/documents/user-manual' }
+          ]
+        },
         { icon: '💻', label: 'DEVELOPER', route: '/dashboard-admin/developer' }
       ]
     }
