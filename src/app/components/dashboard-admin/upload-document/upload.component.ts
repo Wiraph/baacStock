@@ -1,18 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { FileService } from '../../../services/file';
+import { HttpEventType } from '@angular/common/http';
 
 interface UploadedFile {
-  id: string;
   name: string;
+  url?: string;
   size: number;
   type: string;
-  uploadDate: Date;
+  uploadDate: Date,
   uploadedBy: string;
   status: 'uploading' | 'completed' | 'error';
   progress: number;
-  url?: string;
 }
 
 @Component({
@@ -22,14 +23,12 @@ interface UploadedFile {
   templateUrl: './upload.component.html'
 })
 export class UploadComponent implements OnInit {
-  
-  // File Upload Properties
+
   isDragOver = false;
   selectedFiles: File[] = [];
-  uploadedFiles: UploadedFile[] = [];
+  uploadedFiles: any[] = [];
   isUploading = false;
-  
-  // Configuration
+
   maxFileSize = 10 * 1024 * 1024; // 10MB
   allowedTypes = [
     'application/pdf',
@@ -40,226 +39,178 @@ export class UploadComponent implements OnInit {
     'image/gif',
     'text/plain'
   ];
-  
   allowedExtensions = ['.pdf', '.doc', '.docx', '.txt'];
 
-  constructor() { }
+  constructor(
+    private cd: ChangeDetectorRef,
+    private fileService: FileService
+  ) { }
 
   ngOnInit(): void {
     this.loadUploadedFiles();
   }
 
-  // Drag & Drop Events
   onDragOver(event: DragEvent) {
     event.preventDefault();
-    event.stopPropagation();
     this.isDragOver = true;
   }
 
   onDragLeave(event: DragEvent) {
     event.preventDefault();
-    event.stopPropagation();
     this.isDragOver = false;
   }
 
   onDrop(event: DragEvent) {
     event.preventDefault();
-    event.stopPropagation();
     this.isDragOver = false;
-    
     const files = event.dataTransfer?.files;
-    if (files) {
-      this.handleFiles(Array.from(files));
-    }
+    if (files) this.handleFiles(Array.from(files));
   }
 
-  // File Selection
   onFileSelected(event: any) {
     const files = event.target.files;
-    if (files) {
-      this.handleFiles(Array.from(files));
-    }
+    if (files) this.handleFiles(Array.from(files));
   }
 
-  // File Handling
   handleFiles(files: File[]) {
-    const validFiles: File[] = [];
-    
-    for (const file of files) {
-      if (this.validateFile(file)) {
-        validFiles.push(file);
-      }
-    }
-    
+    const validFiles = files.filter(file => this.validateFile(file));
     if (validFiles.length > 0) {
       this.selectedFiles = [...this.selectedFiles, ...validFiles];
-      console.log('📁 Selected files:', this.selectedFiles);
     }
   }
 
-  // File Validation
   validateFile(file: File): boolean {
-    // Check file size
     if (file.size > this.maxFileSize) {
-      Swal.fire({
-        icon: 'error',
-        title: 'ไฟล์ใหญ่เกินไป',
-        text: `ไฟล์ "${file.name}" มีขนาด ${this.formatFileSize(file.size)} ซึ่งเกินขีดจำกัด ${this.formatFileSize(this.maxFileSize)}`,
-        confirmButtonText: 'ตกลง'
-      });
+      Swal.fire('ไฟล์ใหญ่เกินไป', `${file.name} > 10MB`, 'error');
       return false;
     }
-
-    // Check file type
     if (!this.allowedTypes.includes(file.type)) {
-      const extension = '.' + file.name.split('.').pop()?.toLowerCase();
-      if (!this.allowedExtensions.includes(extension)) {
-        Swal.fire({
-          icon: 'error',
-          title: 'ประเภทไฟล์ไม่ถูกต้อง',
-          text: `ไฟล์ "${file.name}" ไม่ใช่ประเภทที่อนุญาต\nประเภทที่อนุญาต: ${this.allowedExtensions.join(', ')}`,
-          confirmButtonText: 'ตกลง'
-        });
+      const ext = '.' + file.name.split('.').pop()?.toLowerCase();
+      if (!this.allowedExtensions.includes(ext)) {
+        Swal.fire('ประเภทไฟล์ไม่ถูกต้อง', `${file.name} ไม่ได้รับอนุญาต`, 'error');
         return false;
       }
     }
-
     return true;
   }
 
-  // Upload Files
   async uploadFiles() {
     if (this.selectedFiles.length === 0) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'ไม่มีไฟล์ที่เลือก',
-        text: 'กรุณาเลือกไฟล์ที่ต้องการอัปโหลด',
-        confirmButtonText: 'ตกลง'
-      });
+      Swal.fire('ไม่มีไฟล์', 'กรุณาเลือกไฟล์', 'warning');
       return;
     }
 
     this.isUploading = true;
 
     for (const file of this.selectedFiles) {
-      await this.uploadSingleFile(file);
-    }
-
-    this.selectedFiles = [];
-    this.isUploading = false;
-    
-    Swal.fire({
-      icon: 'success',
-      title: 'อัปโหลดสำเร็จ',
-      text: 'อัปโหลดไฟล์เรียบร้อยแล้ว',
-      confirmButtonText: 'ตกลง'
-    });
-  }
-
-  // Upload Single File (Mock Implementation)
-  private uploadSingleFile(file: File): Promise<void> {
-    return new Promise((resolve) => {
-      const uploadedFile: UploadedFile = {
-        id: this.generateId(),
+      const entry: UploadedFile = {
         name: file.name,
         size: file.size,
         type: file.type,
         uploadDate: new Date(),
-        uploadedBy: 'ผู้ดูแลระบบ', // จะได้จาก session
+        uploadedBy: 'admin',
         status: 'uploading',
         progress: 0
       };
+      this.uploadedFiles.unshift(entry);
 
-      this.uploadedFiles.unshift(uploadedFile);
+      await new Promise<void>((resolve) => {
+        this.fileService.uploadFile(file).subscribe({
+          next: event => {
+            if (event.type === HttpEventType.UploadProgress && event.total) {
+              entry.progress = Math.round((event.loaded / event.total) * 100);
+              this.cd.markForCheck();
+            } else if (event.type === HttpEventType.Response) {
+              entry.status = 'completed';
+              entry.url = event.body?.fileUrl || `/uploads/${file.name}`; // ปรับตาม response API
+              resolve();
+            }
+          },
+          error: err => {
+            entry.status = 'error';
+            console.error(`❌ Upload failed for ${file.name}`, err);
+            resolve();
+          }
+        });
+      });
+    }
 
-      // Simulate upload progress
-      const interval = setInterval(() => {
-        uploadedFile.progress += Math.random() * 30;
-        
-        if (uploadedFile.progress >= 100) {
-          uploadedFile.progress = 100;
-          uploadedFile.status = 'completed';
-          uploadedFile.url = `/uploads/documents/${uploadedFile.id}_${file.name}`;
-          clearInterval(interval);
-          resolve();
-        }
-      }, 200);
-    });
+    this.selectedFiles = [];
+    this.isUploading = false;
+
+    this.loadUploadedFiles(); // โหลดรายการล่าสุด
+    Swal.fire('สำเร็จ', 'อัปโหลดไฟล์เรียบร้อยแล้ว', 'success');
   }
 
-  // Remove Selected File
+
   removeSelectedFile(index: number) {
     this.selectedFiles.splice(index, 1);
   }
 
-  // Delete Uploaded File
-  deleteUploadedFile(fileId: string) {
+  deleteUploadedFile(file: string) {
     Swal.fire({
       icon: 'warning',
       title: 'ยืนยันการลบ',
-      text: 'คุณต้องการลบไฟล์นี้ใช่หรือไม่?',
+      text: `ลบไฟล์ ${file} ใช่หรือไม่?`,
       showCancelButton: true,
       confirmButtonText: 'ลบ',
-      cancelButtonText: 'ยกเลิก',
-      confirmButtonColor: '#dc2626'
-    }).then((result) => {
+      cancelButtonColor: '#d33'
+    }).then(result => {
       if (result.isConfirmed) {
-        this.uploadedFiles = this.uploadedFiles.filter(file => file.id !== fileId);
-        Swal.fire({
-          icon: 'success',
-          title: 'ลบสำเร็จ',
-          text: 'ลบไฟล์เรียบร้อยแล้ว',
-          confirmButtonText: 'ตกลง'
+        this.fileService.delete(file).subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'ลบไฟล์สำเร็จ',
+              text: `${file} ถูกลบเรียบร้อยแล้ว`,
+              showConfirmButton: true
+            });
+            this.loadUploadedFiles();
+            this.cd.markForCheck();
+          },
+          error: err => {
+            Swal.fire({
+              icon: 'error',
+              title: 'เกิดข้อผิดพลาด',
+              text: `ไม่สามารถลบไฟล์ ${file} ได้: ${err?.message || 'กรุณาลองใหม่'}`,
+              showConfirmButton: true
+            });
+          }
         });
       }
     });
   }
 
-  // Download File
-  downloadFile(file: UploadedFile) {
-    if (file.url) {
-      // Mock download - ในระบบจริงจะเรียก API
-      console.log('📥 Downloading file:', file.url);
-      Swal.fire({
-        icon: 'info',
-        title: 'กำลังดาวน์โหลด',
-        text: `กำลังดาวน์โหลดไฟล์ "${file.name}"`,
-        timer: 2000,
-        showConfirmButton: false
-      });
+  downloadFile(fileName: string) {
+    if (!fileName) {
+      Swal.fire('ไม่มีชื่อไฟล์', 'กรุณาเลือกไฟล์ที่ต้องการดาวน์โหลด', 'warning');
+      return;
     }
-  }
-
-  // Load Uploaded Files (Mock Data)
-  private loadUploadedFiles() {
-    // Mock data - ในระบบจริงจะเรียก API
-    this.uploadedFiles = [
-      {
-        id: '1',
-        name: 'คู่มือการใช้งาน.pdf',
-        size: 2048576,
-        type: 'application/pdf',
-        uploadDate: new Date(2024, 11, 20),
-        uploadedBy: 'ผู้ดูแลระบบ',
-        status: 'completed',
-        progress: 100,
-        url: '/uploads/documents/1_คู่มือการใช้งาน.pdf'
+    this.fileService.downloadFile(fileName).subscribe({
+      next: (blob) => {
+        const link = document.createElement('a');
+        const url = window.URL.createObjectURL(blob);
+        link.href = url;
+        link.download = fileName;
+        link.click();
+        window.URL.revokeObjectURL(url);
+        this.cd.markForCheck();
       },
-      {
-        id: '2',
-        name: 'แบบฟอร์มคำขอ.docx',
-        size: 1024000,
-        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        uploadDate: new Date(2024, 11, 19),
-        uploadedBy: 'ผู้ดูแลระบบ',
-        status: 'completed',
-        progress: 100,
-        url: '/uploads/documents/2_แบบฟอร์มคำขอ.docx'
+      error: (err) => {
+        console.error(`❌ Download failed for ${fileName}`, err);
+        Swal.fire('ผิดพลาด', 'ไม่สามารถดาวน์โหลดไฟล์ได้', 'error');
       }
-    ];
+    })
   }
 
-  // Utility Methods
+
+  loadUploadedFiles() {
+    this.fileService.getFiles().subscribe(data => {
+      this.uploadedFiles = data;
+      this.cd.markForCheck();
+    });
+  }
+
   formatFileSize(bytes: number): string {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -274,9 +225,5 @@ export class UploadComponent implements OnInit {
     if (type.includes('image')) return '🖼️';
     if (type.includes('text')) return '📃';
     return '📁';
-  }
-
-  private generateId(): string {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
   }
 }

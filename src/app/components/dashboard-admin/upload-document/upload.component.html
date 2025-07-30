@@ -96,76 +96,23 @@
         <thead class="bg-gray-50">
           <tr>
             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">ไฟล์</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">ขนาด</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 hidden md:table-cell">วันที่อัปโหลด</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 hidden md:table-cell">ผู้อัปโหลด</th>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">สถานะ</th>
             <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">จัดการ</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
           <tr *ngFor="let file of uploadedFiles" 
               class="hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200">
-            <!-- File Info -->
-            <td class="px-4 py-4">
-              <div class="flex items-center space-x-3">
-                <span class="text-2xl transition-transform duration-200 hover:scale-110 drop-shadow-sm">{{ getFileIcon(file.type) }}</span>
-                <div>
-                  <p class="font-medium text-gray-800">{{ file.name }}</p>
-                  <p class="text-sm text-gray-500 md:hidden">{{ formatFileSize(file.size) }}</p>
-                  <p class="text-sm text-gray-500 block md:hidden">{{ file.type }}</p>
-                </div>
-              </div>
-            </td>
-
-            <!-- File Size -->
+            
             <td class="px-4 py-4 text-sm text-gray-600 hidden md:table-cell">
-              {{ formatFileSize(file.size) }}
+              {{ file.fileName }}
             </td>
-
-            <!-- Upload Date -->
-            <td class="px-4 py-4 text-sm text-gray-600 hidden md:table-cell">
-              {{ file.uploadDate | date:'dd/MM/yyyy HH:mm' }}
-            </td>
-
-            <!-- Uploaded By -->
-            <td class="px-4 py-4 text-sm text-gray-600 hidden md:table-cell">
-              {{ file.uploadedBy }}
-            </td>
-
-            <!-- Status -->
-            <td class="px-4 py-4">
-              <div class="flex items-center space-x-2">
-                <!-- Uploading Status -->
-                <div *ngIf="file.status === 'uploading'" class="flex items-center space-x-2 animate-pulse">
-                  <div class="w-full bg-gray-200 rounded-full h-2 max-w-[100px]">
-                    <div class="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out" 
-                         [style.width.%]="file.progress"></div>
-                  </div>
-                  <span class="text-xs text-blue-600 font-medium">{{ file.progress.toFixed(0) }}%</span>
-                </div>
-                
-                <!-- Completed Status -->
-                <span *ngIf="file.status === 'completed'" 
-                      class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium animate-in fade-in duration-300">
-                  ✅ สำเร็จ
-                </span>
-                
-                <!-- Error Status -->
-                <span *ngIf="file.status === 'error'" 
-                      class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium animate-in fade-in duration-300">
-                  ❌ ผิดพลาด
-                </span>
-              </div>
-            </td>
-
+ 
             <!-- Actions -->
             <td class="px-4 py-4">
               <div class="flex items-center justify-center space-x-1 md:space-x-2 flex-col md:flex-row gap-1 md:gap-0">
                 <!-- Download Button -->
                 <button 
-                  *ngIf="file.status === 'completed'"
-                  (click)="downloadFile(file)"
+                  (click)="downloadFile(file.fileName)"
                   class="text-blue-600 hover:text-blue-800 hover:scale-110 hover:bg-blue-50 transition-all duration-200 p-2 rounded-full"
                   title="ดาวน์โหลด">
                   📥
@@ -173,7 +120,7 @@
                 
                 <!-- Delete Button -->
                 <button 
-                  (click)="deleteUploadedFile(file.id)"
+                  (click)="deleteUploadedFile(file.fileName)"
                   class="text-red-600 hover:text-red-800 hover:scale-110 hover:bg-red-50 transition-all duration-200 p-2 rounded-full"
                   title="ลบ">
                   🗑️

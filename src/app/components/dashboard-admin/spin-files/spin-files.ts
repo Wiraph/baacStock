@@ -54,6 +54,7 @@ export class SpinFilesComponent implements OnInit {
   }
 
   download(fileName: string) {
+    console.log(`กำลังดาวน์โหลดไฟล์: ${fileName}`);
     this.spinService.downloadSpinFileOut(fileName).subscribe(blob => {
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(blob);
