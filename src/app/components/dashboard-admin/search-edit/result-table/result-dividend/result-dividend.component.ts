@@ -26,14 +26,15 @@ export class ResultDividendComponent {
 
   onViewStockClick(item: any) {
     const dataToViewStock = {
-      stockNotes: item.stockNotes,
-      cusiD: item.cusId || item.cusId,
-      fullname: item.fullName,
-      stockList: item.stockList,
-      statusDesc: item.statusDesc,
+      stockNotes: item.stockNotes || [],
+      cusId: item.cusId,
+      fullName: item.fullName,
+      stockList: item.stockList || [],
+      statusDesc: item.statusDesc || item.status || 'ไม่ระบุ',
       viewMode: 'dividend'
     }
-    console.log("Emit viewStock (dividend): ", dataToViewStock);
+    console.log("💰 Emit viewStock (dividend): ", dataToViewStock);
+    console.log("📋 Original item data (dividend):", item);
     this.viewStock.emit(dataToViewStock);
   }
 }
