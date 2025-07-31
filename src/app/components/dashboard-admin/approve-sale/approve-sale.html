@@ -2,7 +2,7 @@
 <div class="w-full bg-gray-200 fixed inset-0 z-50 flex justify-center py-2">
     <div class="w-9/12 bg-white rounded-xl shadow-md pb-4 overflow-y-auto max-h-screen">
         <button (click)="onClose();"
-            class="absolute top-2 right-2 text-gray-500 hover:text-red-600 font-bold focus:outline-none flex align-middle">
+            class="absolute top-2 right-2 text-gray-500 hover:text-red-600 font-bold focus:outline-none flex align-middle cursor-pointer">
             ❌ ปิดหน้าต่างนี้
         </button>
         <!-- หัวเรื่อง -->
@@ -17,10 +17,20 @@
             </div>
             <!-- รายละเอียดผู้ทำรายการ -->
             <div class="p-4 flex flex-col">
-                <p class="text-sm text-gray-700">วันที่บันทึกรายการ : <span class="font-semibold text-gray-800"> เวลา :
-                    </span></p>
-                <p class="text-sm text-gray-700">ผู้บันทึกรายการ : <span class="font-semibold text-gray-800"></span></p>
-                <p class="text-sm text-gray-700">สาขาที่บันทึกรายการ : <span class="font-semibold text-gray-800"></span>
+                <p class="text-sm text-gray-700">วันที่บันทึกรายการ :
+                    <span class="font-semibold text-gray-800">
+                        {{formatDate(resultSale.datatime)}}
+                    </span>
+                </p>
+                <p class="text-sm text-gray-700">ผู้บันทึกรายการ :
+                    <span class="font-semibold text-gray-800">
+                        {{resultSale.usrDesc}} ( {{resultSale.usrLvl}} : {{resultSale.usrLvlDesc}} )
+                    </span>
+                </p>
+                <p class="text-sm text-gray-700">สาขาที่บันทึกรายการ :
+                    <span class="font-semibold text-gray-800">
+                        {{resultSale.brCode}} : {{resultSale.brName}}
+                    </span>
                 </p>
             </div>
         </div>
@@ -30,96 +40,66 @@
 
             <!-- หัวข้อ -->
             <div class="bg-blue-500 px-4 py-2">
-                <h2 class="text-white text-lg font-semibold">ผู้โอน</h2>
+                <h2 class="text-white text-lg font-semibold">รายละเอียด : ผู้ถือใบหุ้น / ใบหุ้น</h2>
             </div>
             <!-- เนื้อหา -->
             <div class="p-4 space-y-4 text-sm text-gray-700">
                 <!-- เลขที่บัตรแสดงตน -->
                 <p class="text-sm text-gray-700">
                     เลขที่บัตรแสดงตน :
-                    <span class="font-semibold text-gray-800"></span>
+                    <span class="font-semibold text-gray-800">
+                        {{resultSale.cusId}}
+                    </span>
                 </p>
                 <!-- ชื่อ -->
                 <p class="text-sm text-gray-700">
                     ชื่อ - นามสกุล :
                     <span class="font-semibold text-gray-800">
+                        {{resultSale.cusName}}
                     </span>
                 </p>
                 <!-- หมายเลขหุ้น -->
                 <div class="space-y-1">
-                    <p>หมายเลขใบหุ้น: <span class="font-semibold text-gray-800"></span>
+                    <p>หมายเลขใบหุ้น: <span class="font-semibold text-gray-800">{{resultSale.stkNote}}</span>
                     </p>
-                    <p>หมายเลขหุ้น: <span class="font-semibold text-gray-800"></span>
+                    <p>หมายเลขหุ้น: <span class="font-semibold text-gray-800">-</span>
                     </p>
                 </div>
                 <!-- จำนวนและมูลค่าหุ้น -->
                 <div class="flex flex-wrap gap-8">
-                    <p>จำนวนหุ้น: <span class="font-semibold"> หุ้น</span></p>
-                    <p>มูลค่าหุ้น: <span class="font-semibold"> บาท</span></p>
+                    <p>จำนวนหุ้น: <span class="font-semibold">{{resultSale.stkUnit}} หุ้น</span></p>
+                    <p>มูลค่าหุ้น: <span class="font-semibold">{{resultSale.stkValue | number:'1.0-2' }} บาท</span></p>
                 </div>
                 <!-- วิธีรับปันผล -->
                 <div class="flex gap-4">
-                    <p>รับเงินปันผลโดย: <span class="font-semibold"></span></p>
-                    <div class="flex gap-2">
-                        <p>ชื่อบัญชี: <span class="font-semibold"></span></p>
-                        <p>เลขที่บัญชี <span class="font-semibold"></span></p>
+                    <p *ngIf="resultSale.accType != '001'">รับเงินปันผลโดย: 
+                        <span
+                            class="font-semibold">{{resultSale.accTypeDesc}}
+                        </span>
+                    </p>
+                    <div *ngIf="resultSale.accType == '001'" class="flex">
+                        <p>รับเงินปันผลโดย:
+                            <span class="font-semibold">
+                                โอนเข้าบัญชีเงินฝาก{{resultSale.accTypeDesc}}
+                            </span>
+                        </p>
+                        <div class="flex gap-2 ml-4">
+                            <p>ชื่อบัญชี: <span class="font-semibold">{{resultSale.accName}}</span></p>
+                            <p>เลขที่บัญชี <span class="font-semibold">{{resultSale.accNo}}</span></p>
+                        </div>
                     </div>
                 </div>
                 <!-- สถานะใบหุ้น -->
                 <div class="flex flex-col gap-2">
-                    <p>สถานะใบหุ้น : <span class="font-semibold"></span></p>
-                    <p>หมายเหตุ : <span class="font-semibold"></span></p>
+                    <p>สถานะใบหุ้น : <span class="font-semibold">{{resultSale.statusDesc}}</span></p>
+                    <p>หมายเหตุ : <span class="font-semibold">-</span></p>
                 </div>
             </div>
         </div>
 
-        <div class="m-4 rounded-lg bg-white shadow-md overflow-hidden border border-gray-200"
-            >
-            <!-- หัวข้อ -->
-            <div class="bg-blue-500 px-4 py-2">
-                <h2 class="text-white text-lg font-semibold">ผู้รับโอน</h2>
-            </div>
-            <!-- เนื้อหา -->
-            <div class="p-4 space-y-4 text-sm text-gray-700">
-                <!-- เลขที่บัตรแสดงตน -->
-                <p class="text-sm text-gray-700">
-                    เลขที่บัตรแสดงตน :
-                    <span class="font-semibold text-gray-800"></span>
-                </p>
-                <!-- ชื่อ -->
-                <p class="text-sm text-gray-700">
-                    ชื่อ - นามสกุล :
-                    <span class="font-semibold text-gray-800"></span>
-                </p>
-                <!-- หมายเลขหุ้น -->
-                <div class="space-y-1">
-                    <p>หมายเลขหุ้น: <span class="font-semibold text-gray-800"></span><span
-                            class="text-gray-500 font-normal ml-4">(ชั่วคราว)</span></p>
-                    <p>หมายเลขใบหุ้น: <span class="font-semibold text-gray-800"></span>
-                    </p>
-                </div>
-                <!-- จำนวนและมูลค่าหุ้น -->
-                <div class="flex flex-wrap gap-8">
-                    <p>จำนวนหุ้น: <span class="font-semibold"> หุ้น</span></p>
-                    <p>มูลค่าหุ้น: <span class="font-semibold"></span></p>
-                </div>
-                <!-- วิธีรับปันผล -->
-                <div class="flex gap-4">
-                    <p>รับเงินปันผลโดย: <span class="font-semibold"></span></p>
-                    <div  class="flex gap-2">
-                        <p>ชื่อบัญชี: <span class="font-semibold"></span></p>
-                        <p>เลขที่บัญชี <span class="font-semibold"></span></p>
-                    </div>
-                </div>
-                <!-- สถานะใบหุ้น -->
-                <div class="flex flex-col gap-4">
-                    <p>สถานะใบหุ้น : <span class="font-semibold"></span></p>
-                    <p>หมายเหตุ : <span class="font-semibold"></span></p>
-                </div>
-            </div>
-        </div>
         <div class="flex justify-center gap-3 mb-5">
             <button
+                (click)="confirm()"
                 class="px-5 py-2 bg-green-300 rounded-sm cursor-pointer hover:shadow-md hover:bg-green-400">อนุมัติ</button>
             <button
                 class="px-5 py-2 bg-red-300 rounded-sm cursor-pointer hover:shadow-md hover:bg-red-400">ไม่อนุมัติ</button>
