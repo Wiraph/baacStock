@@ -510,61 +510,45 @@ export class CommonSharesComponent implements OnInit {
     const dateStkSale = this.convertToThaiDateFormat(date);
 
     const payload = {
-      cusId: form.cusId,
-      fname: form.fname,
-      lname: form.lname,
-      brCode: sessionStorage.getItem('brCode'),
+      stkOwnId: form.stockDividend?.stkOwnID || '',
+      stkType: form.stktype || 'A',
+      stkPayType: form.stockDividend?.stkPayType || '',
+      stkAccNo: form.stockDividend?.stkAccno || '',
+      stkAccName: form.stockDividend?.stkAccname || '',
+      stkAccType: this.customerForm.get('stockDividend.stkAcctype')?.value || '',
+      stkUnit: form.stkUnit || 0,
+      stkValue: form.stkValue || 0,
+      stkTrCode: 'CSD',
+      stkTrType: 'STK',
+      stkReqNo: form.stkReqNo || '',
+      stkSaleByTrAccNo: form.stockDividend?.stkSaleByTRACCno || '',
+      stkSaleByTrAccName: form.stockDividend?.stkSaleByTRACCname || '',
+      stkSaleByChqNo: form.stockDividend?.stkSaleByCHQno || '',
+      stkSaleByChqDat: form.stockDividend?.stkSaleByCHQdat || '',
+      stkSaleByChqBnk: form.stockDividend?.stkSaleByCHQbnk || '',
+      stkSaleChqBrn: form.stockDividend?.stkSaleCHQbrn || ''
+    }
 
-      stock: {
-        stktype: 'A',
-        requestNo: form.stkReqNo,
-        unit: Number(form.stkUnit),
-        value: Number(form.stkValue),
-        stkNote: form.stockDividend.stkNote || '',
-      },
-
-      payment: {
-        stkSaleBy: form.stockDividend?.stkSaleBy || '',
-        chqNo: form.stockDividend?.stkSaleByCHQno || '',
-        chqDate: form.stockDividend?.stkSaleByCHQdat || '',
-        chqBank: form.stockDividend?.stkSaleByCHQbnk || '',
-        chqBranch: form.stockDividend?.stkSaleCHQbrn || '',
-        stkSaleByTraccno: form.stockDividend?.stkSaleByTRACCno || '',
-        stkSaleByTRACCname: form.stockDividend?.stkSaleByTRACCname || '',
-      },
-
-      devidend: {
-        payType: form.stockDividend?.stkPayType || '',
-        accType: this.customerForm.get('stockDividend.stkAcctype')?.value || '',
-        stkAccno: form.stockDividend?.stkAccno || '',
-        stkAccname: form.stockDividend?.stkAccname || ''
+    this.stockService.saleStock(payload).subscribe({
+      next: () => {
+        Swal.fire({
+          icon: 'success',
+          html: `<h2 style="font-family: 'Prompt', sans-serif;">บันทึกข้อมูลสำเร็จ</h2>`,
+          confirmButtonText: 'ตกลง'
+        })
+      }, error: (err) => {
+        console.error('❌ เกิดข้อผิดพลาดในการบันทึกข้อมูล:', err.error?.message || err.message || err);
+        Swal.fire({
+          icon: 'error',
+          title: 'เกิดข้อผิดพลาด',
+          text: err.error?.message || 'ไม่สามารถบันทึกข้อมูลได้',
+          confirmButtonText: 'ตกลง'
+        });
+        this.loading = false;
+        this.cd.detectChanges();
+        return;
       }
-    };
-
-    console.log("StkNote ที่จะส่งไป:", form.stkNote);
-    console.log('📦 ข้อมูลการขอซื้อหุ้น:', payload);
-
-    Swal.fire({
-      icon: 'success',
-      html: `<h2 style="font-family: 'Prompt', sans-serif;">บันทึกข้อมูลสำเร็จ</h2>
-            <p>${form.stockDividend?.stkSaleByCHQno}</p>
-            <p>${dateStkSale}</p>
-            <p>${form.stockDividend?.stkSaleByCHQbnk}</p>
-            <p>${form.stockDividend?.stkSaleCHQbrn}</p>
-          `,
-      confirmButtonText: 'ตกลง'
     })
-    // this.stockRequestService.submitRequest(form.stkNote ,payload).subscribe({
-    //   next: () => {
-    //     alert('✅ ส่งคำขอเรียบร้อยแล้ว');
-    //   },
-    //   error: (err) => {
-    //     console.error('❌ เกิดข้อผิดพลาด:', err.error?.message || err.message || err);
-    //     alert('❌ ไม่สามารถส่งคำขอได้');
-    //     this.loading = false;
-    //     this.cd.detectChanges();
-    //   }
-    // });
   }
 
   goBack(): void {
@@ -579,6 +563,4 @@ export class CommonSharesComponent implements OnInit {
 
     return `${yearBE}${month}${day}`;
   }
-
-
 }

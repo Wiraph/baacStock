@@ -91,6 +91,12 @@ export class StockService {
     });
   }
 
+  saleStock(payload: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/purchase`, payload, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
   private createAuthHeaders(): HttpHeaders {
     let token = '';
     if (isPlatformBrowser(this.platformId)) {
