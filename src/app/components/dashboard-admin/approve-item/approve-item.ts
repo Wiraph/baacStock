@@ -7,11 +7,12 @@ import { DataTransfer } from '../../../services/data-transfer';
 import { ApproveTransfer } from '../approve-transfer/approve-transfer';
 import { ApproveCreate } from '../approve-create/approve-create';
 import { StocktransferService } from '../../../services/stocktransfer';
+import { ApproveSale } from '../approve-sale/approve-sale';
 
 @Component({
   standalone: true,
   selector: 'app-approve-item',
-  imports: [FormsModule, CommonModule, ApproveTransfer, ApproveCreate],
+  imports: [FormsModule, CommonModule, ApproveTransfer, ApproveCreate, ApproveSale],
   templateUrl: './approve-item.html',
   styleUrl: './approve-item.css'
 })
@@ -23,6 +24,7 @@ export class ApproveItemComponent implements OnInit {
   loading = false;
   showDetailComponent = false;
   showDetailComponentCreate = false;
+  showDetailComponentSale = false;
   brCode = sessionStorage.getItem('brCode') || '';
 
   constructor(
@@ -37,21 +39,10 @@ export class ApproveItemComponent implements OnInit {
   stockList: string[] = [];
 
   onSearch() {
-    // this.approveService.getStockApprove().subscribe({
-    //   next: (data) => {
-    //     this.requestList = data;
-    //     this.loading = false;
-    //     this.cdr.detectChanges();
-    //   },
-    //   error: () => {
-    //     alert("ไม่สามารถโหลดข้อมูลรายการอนุมัติได้");
-    //   }
-    // });
-
     this.stockTransferService.getPendingTransfers('APPROVE', this.brCode, 1, 20).subscribe({
       next: (response) => {
+        console.log('Response from getPendingTransfers:', response);
         this.requestList = response.data; 
-        console.log("รายการอนุมัติที่ดึงมา: ", this.requestList);
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -64,11 +55,14 @@ export class ApproveItemComponent implements OnInit {
   }
 
   approveConfirm(stkNote: string, stkStatus: string) {
+    console.log('อนุมัติรายการ: ', stkNote, stkStatus);
     this.dataTransfer.setStkNote(stkNote);
     if (stkStatus == "A003") {
       this.showDetailComponent = true;
     } else if (stkStatus == "A002") {
       this.showDetailComponentCreate = true;
+    } else if (stkStatus == "A000") {
+      this.showDetailComponentSale = true;
     }
     this.cdr.detectChanges();
   }

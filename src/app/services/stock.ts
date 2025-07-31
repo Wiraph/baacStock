@@ -97,6 +97,13 @@ export class StockService {
     });
   }
 
+  getResultSale(stkNote: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/resultpurchase`, {
+      params: {stkNote: stkNote},
+      headers: this.createAuthHeaders()
+    });
+  }
+
   private createAuthHeaders(): HttpHeaders {
     let token = '';
     if (isPlatformBrowser(this.platformId)) {
@@ -105,5 +112,5 @@ export class StockService {
     return new HttpHeaders({
       Authorization: `Bearer ${token}`
     });
-  }
+  } 
 }

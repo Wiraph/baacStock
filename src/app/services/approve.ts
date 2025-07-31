@@ -45,6 +45,12 @@ export class ApproveService {
     );
   }
 
+  confirmStock(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/confirm`, data, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
   private createAuthHeaders(): HttpHeaders {
     let token = '';
     if (isPlatformBrowser(this.platformId)) {
