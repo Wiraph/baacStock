@@ -152,9 +152,7 @@ export class AdminDashboardComponent implements OnInit {
 
 
   logout() {
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('fullname');
-    sessionStorage.removeItem('username');
+    sessionStorage.clear();
     this.router.navigate(['/login']);
   }
 

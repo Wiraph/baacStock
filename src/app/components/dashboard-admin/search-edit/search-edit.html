@@ -68,10 +68,10 @@
           (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc, $event.viewMode)">
         </result-block-certificate>
 
-        <result-default *ngSwitchCase="'dividend'" [results]="results" [currentPage]="currentPage" [pageSize]="pageSize"
+        <result-dividend *ngSwitchCase="'dividend'" [results]="results" [currentPage]="currentPage" [pageSize]="pageSize"
           [totalItems]="totalItems" (edit)="onDividend($event)"
           (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc, $event.viewMode)">
-        </result-default>
+        </result-dividend>
 
       </ng-container>
     </div>
