@@ -28,15 +28,16 @@ export class ResultDefaultComponent {
 
   onViewStockClick(item: any) {
     const dataToViewStock = {
-      stockNotes: item.stockNotes,
-      cusId: item.cusId || item.cusId,
+      stockNotes: item.stockNotes || [],
+      cusId: item.cusId,
       fullname: item.fullName,
-      stockList: item.stockList,
-      statusDesc: item.statusDesc,
+      stockList: item.stockList || [],
+      statusDesc: item.statusDesc || item.status,
       viewMode: 'viewer'
     }
-    console.log("Emit viewStock: ", dataToViewStock);
-    this.edit.emit(dataToViewStock);
+    console.log("🔍 Emit viewStock data:", dataToViewStock);
+    console.log("📋 Original item data:", item);
+    this.viewStock.emit(dataToViewStock);
   }
 
 }
