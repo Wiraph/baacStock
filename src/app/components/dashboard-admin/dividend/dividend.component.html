@@ -19,7 +19,7 @@
 
     <!-- หัวเรื่อง -->
     <div class="bg-green-600 rounded-t-xl text-center py-3">
-      <p class="text-xl text-white font-bold">💰 ข้อมูลลูกค้า - ระบบเงินปันผล</p>
+      <p class="text-xl text-white font-bold">💰 สรุปจำนวนเงินปันผลรอจ่าย</p>
     </div>
 
     <!-- ข้อมูลลูกค้า -->
@@ -40,6 +40,205 @@
       </div>
     </div>
 
-    
+    <!-- ตารางสรุปจำนวนเงินปันผลรอจ่าย -->
+    <div class="p-4">
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full border border-gray-300 text-sm">
+          <thead class="bg-yellow-100">
+            <tr>
+              <th class="border px-4 py-2 text-center">รายการ</th>
+              <th class="border px-4 py-2 text-center">เงินปันผล</th>
+              <th class="border px-4 py-2 text-center">ภาษี</th>
+              <th class="border px-4 py-2 text-center">สุทธิ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- เงินปันผลยกมา -->
+            <tr class="bg-gray-50">
+              <td class="border px-4 py-2 font-medium" colspan="4">เงินปันผลยกมา</td>
+            </tr>
+            <tr>
+              <td class="border px-4 py-2">เงินปันผลยกมา</td>
+              <td class="border px-4 py-2 text-right">-</td>
+              <td class="border px-4 py-2 text-right">-</td>
+              <td class="border px-4 py-2 text-right">-</td>
+            </tr>
+            <tr>
+              <td class="border px-4 py-2">หัก รายการใบหุ้นที่ติด บล็อค</td>
+              <td class="border px-4 py-2 text-right">-</td>
+              <td class="border px-4 py-2 text-right">-</td>
+              <td class="border px-4 py-2 text-right">-</td>
+            </tr>
+            <tr>
+              <td class="border px-4 py-2">หัก รายการใบหุ้นชำรุด/สูญหาย รออนุมัติ</td>
+              <td class="border px-4 py-2 text-right">-</td>
+              <td class="border px-4 py-2 text-right">-</td>
+              <td class="border px-4 py-2 text-right">-</td>
+            </tr>
+            <tr class="bg-blue-50">
+              <td class="border px-4 py-2 font-medium">รวม เงินปันผลยกมา</td>
+              <td class="border px-4 py-2 text-right font-medium">-</td>
+              <td class="border px-4 py-2 text-right font-medium">-</td>
+              <td class="border px-4 py-2 text-right font-medium">-</td>
+            </tr>
+            
+            <!-- เงินปันผลปีปัจจุบัน -->
+            <tr class="bg-gray-50">
+              <td class="border px-4 py-2 font-medium" colspan="4">เงินปันผลปีปัจจุบัน</td>
+            </tr>
+            <tr>
+              <td class="border px-4 py-2">เงินปันผลปีปัจจุบัน</td>
+              <td class="border px-4 py-2 text-right">-</td>
+              <td class="border px-4 py-2 text-right">-</td>
+              <td class="border px-4 py-2 text-right">-</td>
+            </tr>
+            <tr>
+              <td class="border px-4 py-2">หัก รายการใบหุ้นที่ติด บล็อค</td>
+              <td class="border px-4 py-2 text-right">-</td>
+              <td class="border px-4 py-2 text-right">-</td>
+              <td class="border px-4 py-2 text-right">-</td>
+            </tr>
+            <tr>
+              <td class="border px-4 py-2">หัก รายการใบหุ้นชำรุด/สูญหาย รออนุมัติ</td>
+              <td class="border px-4 py-2 text-right">-</td>
+              <td class="border px-4 py-2 text-right">-</td>
+              <td class="border px-4 py-2 text-right">-</td>
+            </tr>
+            <tr>
+              <td class="border px-4 py-2">หัก รายการใบหุ้นรอผลการโอนผ่านบัญชี</td>
+              <td class="border px-4 py-2 text-right">-</td>
+              <td class="border px-4 py-2 text-right">-</td>
+              <td class="border px-4 py-2 text-right">-</td>
+            </tr>
+            <tr class="bg-blue-50">
+              <td class="border px-4 py-2 font-medium">รวม เงินปันผลปีปัจจุบัน</td>
+              <td class="border px-4 py-2 text-right font-medium">-</td>
+              <td class="border px-4 py-2 text-right font-medium">-</td>
+              <td class="border px-4 py-2 text-right font-medium">-</td>
+            </tr>
+            
+            <!-- ยอดรวมสุทธิ -->
+            <tr class="bg-green-100">
+              <td class="border px-4 py-2 font-bold">รวมสุทธิ</td>
+              <td class="border px-4 py-2 text-right font-bold">-</td>
+              <td class="border px-4 py-2 text-right font-bold">-</td>
+              <td class="border px-4 py-2 text-right font-bold">-</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+            <!-- สรุปยอดสุทธิ -->
+      <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded">
+        <div class="flex justify-between items-center">
+          <span class="font-semibold text-green-800">จำนวนเงินสุทธิที่สามารถจ่ายได้:</span>
+          <span class="font-bold text-green-800 text-xl">-</span>
+        </div>
+      </div>
+    </div>
   </div>
+    <!-- 💰 สรุปจำนวนเงินปันผลรอจ่าย -->
+    <div class="mt-6 space-y-6 rounded-xl shadow-md bg-white">
+      <!-- จ่ายเป็นเงินสด -->
+      <div class="bg-white border border-gray-200 rounded-lg p-4">
+        <h3 class="text-lg font-semibold mb-4 text-center text-green-600">จ่ายเป็นเงินสด</h3>
+        <!-- จำนวนเงินที่จ่ายได้ -->
+        <div class="text-center mb-6">
+          <div class="text-green-600 font-semibold text-lg">จำนวนเงินที่จ่ายได้</div>
+          <div class="text-green-600 font-bold text-2xl">00.00 บาท</div>
+          <div class="text-green-600 text-sm">(เก้าสิบเอ็ดบาทหกสิบสามสตางค์)</div>
+        </div>
+      </div>
+    </div>
+
+      <!-- รายละเอียด -->
+    <div class="mt-6 space-y-6 rounded-xl shadow-md bg-white">
+      <div class="bg-white border border-gray-200 rounded-lg p-4">
+        <h3 class="text-lg font-semibold mb-4 text-center text-blue-600">รายละเอียด</h3>
+        <!-- ตารางรายละเอียด -->
+        <div class="overflow-x-auto">
+          <table class="min-w-full border border-gray-300 text-sm">
+            <thead class="bg-blue-100">
+              <tr>
+                <th class="border px-2 py-2 text-center">ลำดับที่</th>
+                <th class="border px-2 py-2 text-center">หมายเลขใบหุ้น</th>
+                <th class="border px-2 py-2 text-center" colspan="3">เงินปันผลยกมา</th>
+                <th class="border px-2 py-2 text-center" colspan="3">เงินปันผลปัจจุบัน</th>
+                <th class="border px-2 py-2 text-center">รวมสุทธิ</th>
+              </tr>
+              <tr>
+                <th class="border px-2 py-1 text-center"></th>
+                <th class="border px-2 py-1 text-center"></th>
+                <th class="border px-2 py-1 text-center">เงินปันผล</th>
+                <th class="border px-2 py-1 text-center">ภาษี</th>
+                <th class="border px-2 py-1 text-center">สุทธิ</th>
+                <th class="border px-2 py-1 text-center">เงินปันผล</th>
+                <th class="border px-2 py-1 text-center">ภาษี</th>
+                <th class="border px-2 py-1 text-center">สุทธิ</th>
+                <th class="border px-2 py-1 text-center"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="border px-2 py-2 text-center">1.</td>
+                <td class="border px-2 py-2 text-center">-</td>
+                <td class="border px-2 py-2 text-center">-</td>
+                <td class="border px-2 py-2 text-center">-</td>
+                <td class="border px-2 py-2 text-center">-</td>
+                <td class="border px-2 py-2 text-center">-</td>
+                <td class="border px-2 py-2 text-center">-</td>
+                <td class="border px-2 py-2 text-center">-</td>
+                <td class="border px-2 py-2 text-center font-medium">-</td>
+              </tr>
+              <tr class="bg-gray-50">
+                <td class="border px-2 py-2 text-center font-medium">รวม</td>
+                <td class="border px-2 py-2 text-center"></td>
+                <td class="border px-2 py-2 text-center font-medium">-</td>
+                <td class="border px-2 py-2 text-center font-medium">-</td>
+                <td class="border px-2 py-2 text-center font-medium">-</td>
+                <td class="border px-2 py-2 text-center font-medium">-</td>
+                <td class="border px-2 py-2 text-center font-medium">-</td>
+                <td class="border px-2 py-2 text-center font-medium">-</td>
+                <td class="border px-2 py-2 text-center font-bold">-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- 🚫 รายการบล็อค  -->
+    <div class="mt-6 space-y-6 rounded-xl shadow-md bg-white">
+      <div class="bg-white border border-gray-200 rounded-lg p-4">
+        <h3 class="text-lg font-semibold mb-4 text-center text-red-600">รายการบล็อค</h3>
+        
+        <!-- ตารางรายการบล็อค -->
+        <div class="overflow-x-auto">
+          <table class="min-w-full border border-gray-300 text-sm">
+            <thead class="bg-red-100">
+              <tr>
+                <th class="border px-2 py-2 text-center">ลำดับที่</th>
+                <th class="border px-2 py-2 text-center">หมายเลขใบหุ้น</th>
+                <th class="border px-2 py-2 text-center">เหตุผล</th>
+                <th class="border px-2 py-2 text-center">วันที่บล็อค</th>
+                <th class="border px-2 py-2 text-center">สถานะ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="border px-2 py-2 text-center">1.</td>
+                <td class="border px-2 py-2 text-center">-</td>
+                <td class="border px-2 py-2 text-center">-</td>
+                <td class="border px-2 py-2 text-center">-</td>
+                <td class="border px-2 py-2 text-center">-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+      
+  
 </div>
