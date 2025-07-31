@@ -124,6 +124,7 @@ export class EditCustomerComponent implements OnInit {
 
 
   ngOnInit() {
+    console.log(this.cusId);
     this.titleOptions = sessionStorage.getItem('brName') ?? '';
     this.initForm();
     this.setupFormListeners();

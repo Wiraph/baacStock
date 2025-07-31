@@ -29,14 +29,14 @@ export class ResultDefaultComponent {
   onViewStockClick(item: any) {
     const dataToViewStock = {
       stockNotes: item.stockNotes,
-      cusiD: item.cusId || item.cusId,
+      cusId: item.cusId || item.cusId,
       fullname: item.fullName,
       stockList: item.stockList,
       statusDesc: item.statusDesc,
       viewMode: 'viewer'
     }
     console.log("Emit viewStock: ", dataToViewStock);
-    this.viewStock.emit(dataToViewStock);
+    this.edit.emit(dataToViewStock);
   }
 
 }
