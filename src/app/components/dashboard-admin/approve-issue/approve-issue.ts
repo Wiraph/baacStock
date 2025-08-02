@@ -1,192 +1,307 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { StockService } from '../../../services/stock';
 import { ApproveService } from '../../../services/approve';
+import { JwtDecoder } from '../../../services/jwt-decoder';
 import Swal from 'sweetalert2';
 
 @Component({
-  standalone: true,
-  selector: 'app-approve-issue',
-  imports: [CommonModule],
-  templateUrl: './approve-issue.html',
-  styleUrl: './approve-issue.css'
+    standalone: true,
+    selector: 'app-approve-issue',
+    imports: [CommonModule],
+    templateUrl: './approve-issue.html',
+    styleUrl: './approve-issue.css'
 })
 export class ApproveIssue implements OnInit {
 
-  constructor(
-    private StockApproveService: StockService,
-    private cd: ChangeDetectorRef,
-    private approveService: ApproveService
-  ) { }
+    constructor(
+        private readonly cd: ChangeDetectorRef,
+        private readonly approveService: ApproveService,
+        private readonly jwtCoder: JwtDecoder
+    ) { }
 
-  activeView: string = "table";
-  brName = sessionStorage.getItem('brName');
-  issueList: any[] = [];
-  issuadata: any;
+    activeView: string = "table";
+    issueList: any[] = [];
+    issuadata: any;
+    loading = false;
+    brName = "";
+    pageNumber = 1;
+    pageSize = 10;
 
 
-  setView(view: string) {
-    this.activeView = view;
-  }
-
-  onsearch() {
-    this.StockApproveService.getIssueApprove().subscribe({
-      next: (data) => {
-        this.issueList = data;
-        this.cd.detectChanges();
-      },
-      error: () => {
-        alert("ไม่สามารถโหลดข้อมูลรอรายการอนุมัติออกใบหุ้นได้ กรุณาติดต่อผู้พัฒนา")
-      }
-    })
-  }
-
-  detailIssue(item: any) {
-    console.log(item);
-    this.setView('detail-issue')
-    this.StockApproveService.getIssueByStkNote(item.stkNote).subscribe({
-      next: (data) => {
-        this.issuadata = data;
-        console.log("ข้อมูลที่จะอนุมัติ", this.issuadata);
-        this.cd.detectChanges();
-      }
-    })
-  }
-
-  approveSelectedIssue(): void {
-    if (!this.issuadata?.stkNote) {
-      Swal.fire('ไม่พบหมายเลขหุ้น', '', 'error');
-      return
+    setView(view: string) {
+        this.activeView = view;
     }
 
-    Swal.fire({
-      // title: 'ท่านต้องการ อนุมัติรายการ ใบหุ้นชำรุด/สูญหาย',
-      // text: `ใบหุ้นหมายเลข : ${this.issuadata.stkNote}`,
-      html: `
-            <p style="font-family: 'Prompt', sans-serif;">ท่านต้องการ อนุมัติรายการ ${this.issuadata.note}</p>
-            <p style="font-family: 'Prompt', sans-serif;">ใบหุ้นหมายเลข : ${this.issuadata.stkNote}</p>
-            <p style="font-family: 'Prompt', sans-serif;">ชื่อผู้ถือหุ้น : ${this.issuadata.fullname}</p>
-            <p style="font-family: 'Prompt', sans-serif;">จำนวนหุ้น : ${this.issuadata.unit} หุ้น</p>
-            <p style="font-family: 'Prompt', sans-serif;">จำนวนเงิน : ${this.issuadata.unitValue} บาท</p>
+    loadList() {
+        const token = sessionStorage.getItem('token');
+        const decoder = this.jwtCoder.decodeToken(String(token));
+        const brName = decoder.BrCode;
+        if (this.issueList.length < this.pageSize) {
+            this.loading = true;
+            this.approveService.getApproveList('iSSUE', brName, this.pageNumber, this.pageSize).subscribe(data => {
+                this.issueList = data;
+                this.loading = false;
+                this.cd.detectChanges();
+            });
+        } else {
+            return
+        }
+    }
+
+    nextPage() {
+        if (this.issueList.length == this.pageSize) {
+            this.pageNumber++;
+
+        } else {
+            this.loadList();
+        }
+    }
+
+    prevPage() {
+        if (this.pageNumber > 1) {
+            this.pageNumber--;
+            this.loadList();
+        } else {
+            return
+        }
+    }
+
+    onsearch() {
+        const token = sessionStorage.getItem('token');
+        const decoder = this.jwtCoder.decodeToken(String(token));
+        const brName = decoder.BrCode;
+        this.loading = true;
+        this.approveService.getApproveList('iSSUE', brName, this.pageNumber, this.pageSize).subscribe({
+            next: (data) => {
+                this.issueList = data;
+                this.loading = false;
+                this.cd.detectChanges();
+            },
+            error: () => {
+                this.loading = false;
+                alert("ไม่สามารถโหลดข้อมูลรอรายการอนุมัติออกใบหุ้นได้ กรุณาติดต่อผู้พัฒนา");
+            }
+        })
+    }
+
+    detailIssue(stkNOTE: string) {
+        this.loading = true;
+        const payload = {
+            stkNote:stkNOTE
+        };
+        this.approveService.getDetail(payload).subscribe({
+            next: (data) => {
+                this.issuadata = data.stock;
+                console.log(data);
+                this.setView('detail')
+                this.loading = false;
+                this.cd.detectChanges();
+            }, error: (err) => {
+                this.loading = false;
+                console.log("Loading data fail...", err);
+            }
+        })
+    }
+
+    approveSelectedIssue(): void {
+        if (!this.issuadata?.stkNote) {
+            Swal.fire('ไม่พบหมายเลขหุ้น', '', 'error');
+            return
+        }
+
+        const payload = {
+            stkNOTEis: this.issuadata?.stkNote,
+            AiSQL: "iSSUE",
+            stkCONFiRM: "YES",
+            brCode: "",
+            DATETIMEUP: "",
+            USERID: "",
+            IPADDRESS: "",
+            HOSTNAME: ""
+        };
+        Swal.fire({
+            icon: 'question',
+            html: `
+                <div style="font-family: 'Prompt', sefit; text-align: center;">
+                <p>ท่านต้องการ อนุมัติออกใบหุ้น ${this.issuadata.status}</p>
+                <div style="display: flex; justify-content: center; gap: 40px; margin-top: 10px;">
+                    <div style="text-align: right;">
+                    <p>หมายเลขใบหุ้น</p>
+                    <p>ชื่อผู้ถือหุ้น</p>
+                    <p>จำนวนหุ้น</p>
+                    <p>จำนวนเงิน</p>
+                    </div>
+                    <div style="text-align: left;">
+                    <p>: ${this.issuadata.stkNote}</p>
+                    <p>: ${this.issuadata.fullname}</p>
+                    <p>: ${this.issuadata.unit}</p>
+                    <p>: ${Number(this.issuadata.unitValue).toLocaleString()} บาท</p>
+                    </div>
+                </div>
+                </div>
             `,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: '✅ อนุมัติ',
-      cancelButtonText: '❌ ยกเลิก',
-      confirmButtonColor: '#16a34a',
-      cancelButtonColor: '#ef4444'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.approveService.approveIssue(this.issuadata.stkNote).subscribe({
-          next: () => {
-            Swal.fire('อนุมัติเรียบร้อย', '', 'success');
-            this.activeView = 'table';
-            this.issueList = [];
-            this.cd.detectChanges();
-          },
-          error: (err) => {
-            console.error(err);
-            Swal.fire('เกิดข้อผิดพลาดในการอนุมัติ', '', 'error');
-            this.cd.detectChanges();
-          }
-        });
-      }
-    });
-  }
+            confirmButtonText: 'อนุมัติ',
+            showCancelButton: true,
+            cancelButtonText: 'ยกเลิก',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'กำลังอนุมัติ...',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
 
-  notApproveSelectedIssue(): void {
-    if (!this.issuadata?.stkNote) {
-      Swal.fire('ไม่พบหมายเลขหุ้น', '', 'error');
-      return
+                this.approveService.sentConfirm(payload).subscribe({
+                    next: () => {
+                        Swal.fire({
+                            icon: 'success',
+                            html: `<p>อนุมัติสำเร็จ</p>`,
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            this.issueList = [];
+                            this.setView('table');
+                            this.onsearch();
+                            this.cd.detectChanges();
+                        });
+                    },
+                    error: (err) => {
+                        console.error("Unable to save", err);
+                        Swal.fire({
+                            icon: 'error',
+                            html: `<p>เกิดข้อผิดพลาดในการอนุมัติ</p>`,
+                        }).then(() => {
+                            this.issueList = [];
+                            this.setView('table');
+                            this.onsearch();
+                            this.cd.detectChanges();
+                        });
+                    }
+                });
+            }
+        });
     }
 
-    Swal.fire({
-      html: `
-            <p style="font-family: 'Prompt', sans-serif;">ท่านต้องการ ยกเลิกรายการ ${this.issuadata.note}</p>
-            <p style="font-family: 'Prompt', sans-serif;">ใบหุ้นหมายเลข : ${this.issuadata.stkNote}</p>
-            <p style="font-family: 'Prompt', sans-serif;">ชื่อผู้ถือหุ้น : ${this.issuadata.fullname}</p>
-            <p style="font-family: 'Prompt', sans-serif;">จำนวนหุ้น : ${this.issuadata.unit} หุ้น</p>
-            <p style="font-family: 'Prompt', sans-serif;">จำนวนเงิน : ${this.issuadata.unitValue} บาท</p>
+    notApproveSelectedIssue(): void {
+        if (!this.issuadata?.stkNote) {
+            Swal.fire('ไม่พบหมายเลขหุ้น', '', 'error');
+            return
+        }
+
+        const payload = {
+            stkNOTEis: this.issuadata?.stkNote,
+            AiSQL: "iSSUE",
+            stkCONFiRM: "NO",
+            brCode: "",
+            DATETIMEUP: "",
+            USERID: "",
+            IPADDRESS: "",
+            HOSTNAME: ""
+        };
+        Swal.fire({
+            icon: 'question',
+            html: `
+                <div style="font-family: 'Prompt', sefit; text-align: center;">
+                <p>ท่านต้องการ ยกเลิกออกใบหุ้น ${this.issuadata.status}</p>
+                <div style="display: flex; justify-content: center; gap: 40px; margin-top: 10px;">
+                    <div style="text-align: right;">
+                    <p>หมายเลขใบหุ้น</p>
+                    <p>ชื่อผู้ถือหุ้น</p>
+                    <p>จำนวนหุ้น</p>
+                    <p>จำนวนเงิน</p>
+                    </div>
+                    <div style="text-align: left;">
+                    <p>: ${this.issuadata.stkNote}</p>
+                    <p>: ${this.issuadata.fullname}</p>
+                    <p>: ${this.issuadata.unit}</p>
+                    <p>: ${Number(this.issuadata.unitValue).toLocaleString()} บาท</p>
+                    </div>
+                </div>
+                </div>
             `,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: '✅ ใช่',
-      cancelButtonText: '❌ ยกเลิก',
-      confirmButtonColor: '#16a34a',
-      cancelButtonColor: '#ef4444'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.approveService.notapprove(this.issuadata.stkNote).subscribe({
-          next: () => {
-            Swal.fire('ไม่อนุมัติเรียบร้อย', '', 'success');
-            this.activeView = 'table';
-            this.issueList = [];
-            this.cd.detectChanges();
-          },
-          error: (err) => {
-            console.error(err);
-            Swal.fire('เกิดข้อผิดพลาดในรายการไม่อนุมัติ', '', 'error');
-            this.cd.detectChanges();
-          }
+            confirmButtonText: 'ไม่อนุมัติ',
+            showCancelButton: true,
+            cancelButtonText: 'ยกเลิก',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'กำลังยกเลิกรายการ...',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                this.approveService.sentConfirm(payload).subscribe({
+                    next: () => {
+                        Swal.fire({
+                            icon: 'success',
+                            html: `<p>ยกเลิกสำเร็จ</p>`,
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            this.issueList = [];
+                            this.setView('table');
+                            this.onsearch();
+                            this.cd.detectChanges();
+                        });
+                    },
+                    error: (err) => {
+                        console.error("Unable to save", err);
+                        Swal.fire({
+                            icon: 'error',
+                            html: `<p>เกิดข้อผิดพลาดโปรดติดต่อผู้พัฒนา</p>`,
+                        }).then(() => {
+                            this.issueList = [];
+                            this.setView('table');
+                            this.onsearch();
+                            this.cd.detectChanges();
+                        });
+                    }
+                });
+            }
         });
-      }
-    });
-  }
-
-  ngOnInit(): void {
-    this.onsearch();
-  }
-
-  closeWindows(): void {
-    this.setView('table');
-    this.cd.detectChanges();
-  }
-
-  formatThaiDateTimeWithDash(input: string): string {
-    // ตรวจสอบรูปแบบ yyyyMMdd-HHmmss
-    if (!/^\d{8}-\d{6}$/.test(input)) {
-      throw new Error("รูปแบบวันที่เวลาไม่ถูกต้อง ต้องเป็น yyyyMMdd-HHmmss เช่น 20250704-152035");
     }
 
-    const [datePart, timePart] = input.split("-");
-
-    const yearCE = parseInt(datePart.substring(0, 4), 10);
-    const month = parseInt(datePart.substring(4, 6), 10);
-    const day = parseInt(datePart.substring(6, 8), 10);
-
-    const hour = timePart.substring(0, 2);
-    const minute = timePart.substring(2, 4);
-    const second = timePart.substring(4, 6);
-
-    const thaiYear = yearCE;
-
-    const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-
-    if (month < 1 || month > 12) {
-      throw new Error("เดือนไม่ถูกต้อง");
+    ngOnInit(): void {
+        const token = sessionStorage.getItem('token');
+        const decoder = this.jwtCoder.decodeToken(String(token));
+        this.brName = decoder.BrName;
+        this.cd.markForCheck();
+        this.onsearch();
     }
 
-    return `${day} ${thaiMonths[month - 1]} ${thaiYear} ${hour}:${minute}:${second}`;
-  }
-
-  formatThaiDateTime(input: string): string {
-    if (input.length !== 8) {
-      throw new Error("รูปแบบวันที่และเวลาไม่ถูกต้อง ต้องเป็น 14 หลัก เช่น 25680715");
+    closeWindows(): void {
+        this.issuadata = null;
+        this.setView('table');
+        this.cd.detectChanges();
     }
 
-    const year = input.substring(0, 4);   // 2568
-    const month = input.substring(4, 6);  // 07
-    const day = input.substring(6, 8);    // 15
+    formatDate(datetimeup: string): string {
+        if (!datetimeup || !/^\d{8}-\d{6}$/.test(datetimeup)) return '';
+        const [dataPart, timePart] = datetimeup.split('-');
+        const datetimeYear = parseInt(dataPart.substring(0, 4), 10);
+        const datetimeMonth = parseInt(dataPart.substring(4, 6), 10);
+        const datetimeDay = parseInt(dataPart.substring(6, 8), 10);
+        const datetimeHour = parseInt(timePart.substring(0, 2), 10);
+        const datetimeMinute = parseInt(timePart.substring(2, 4), 10);
+        const datetimeSecond = parseInt(timePart.substring(4, 6), 10);
 
-    const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+        const monthNames = [
+            'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+            'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+        ];
 
-    const monthIndex = parseInt(month, 10) - 1;
+        const h = datetimeHour.toString().padStart(2, '0');
+        const m = datetimeMinute.toString().padStart(2, '0');
+        const s = datetimeSecond.toString().padStart(2, '0');
 
-    if (monthIndex < 0 || monthIndex > 11) {
-      throw new Error("เดือนไม่ถูกต้อง");
+        const thaiMonth = monthNames[datetimeMonth] || 'เดือนผิด';
+        return `${datetimeDay} ${thaiMonth} ${datetimeYear} เวลา ${h}:${m}:${s} น.`;
     }
-
-    return `${parseInt(day, 10)} ${thaiMonths[monthIndex]} ${year}`;
-  }
 
 }

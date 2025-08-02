@@ -37,11 +37,11 @@ export interface PendingTransferResponse {
   providedIn: 'root'
 })
 export class StocktransferService {
-  private apiUrl = 'https://localhost:7089/api/stocktransfer';
+  private readonly apiUrl = 'https://localhost:7089/api/stocktransfer';
 
   constructor(
-    private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private readonly http: HttpClient,
+    @Inject(PLATFORM_ID) private readonly platformId: Object
   ) { }
 
   transferRequest(payload: any): Observable<any> {

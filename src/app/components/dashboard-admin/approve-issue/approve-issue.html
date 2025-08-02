@@ -1,9 +1,12 @@
 <div *ngIf="activeView == 'table'" class="m-2 bg-white rounded-md">
     <div class="py-2 bg-green-500 rounded-t-md">
-        <p class="text-center text-white">สาขา{{ brName }} : อนุมัติออกใบหุ้น</p>
+        <p class="text-center text-white">{{ brName }} : อนุมัติออกใบหุ้น</p>
     </div>
 
-    <div class="overflow-x-auto mt-4 p-4">
+    <div *ngIf="issueList.length === 0" class="py-7 text-center">
+        <span class="text-2xl text-orange-600">ไม่พบรายการออกใบหุ้น</span>
+    </div>
+    <div *ngIf="issueList.length > 0" class="overflow-x-auto mt-4 p-4">
         <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
             <thead class="bg-green-400 text-white">
                 <tr>
@@ -20,23 +23,28 @@
             <tbody class="text-gray-700">
                 <tr *ngFor="let item of issueList; let i = index" class="even:bg-gray-100 hover:bg-gray-200">
                     <td class="py-2 px-4 text-center">{{ i+1 }}</td>
-                    <td class="py-2 px-4 text-center">{{item.cusId}}</td>
-                    <td class="py-2 px-4 text-center">{{item.fullName}}</td>
-                    <td class="py-2 px-4 text-center">{{item.brName}}</td>
-                    <td class="py-2 px-4 text-center">{{item.stkNote}}</td>
-                    <td class="py-2 px-4 text-center">{{item.unit}}</td>
-                    <td class="py-2 px-4 text-center">{{item.unitValue}}</td>
+                    <td class="py-2 px-4 text-center">{{item.cusiD}}</td>
+                    <td class="py-2 px-4 text-center">{{item.titleABBR}}{{item.cusFName}} {{item.cusLName}}</td>
+                    <td class="py-2 px-4 text-center">{{item.STKbrName}}</td>
+                    <td class="py-2 px-4 text-center">{{item.stkNOTE}}</td>
+                    <td class="py-2 px-4 text-center">{{item.stkUNiT}}</td>
+                    <td class="py-2 px-4 text-center">{{item.stkVALUE | number:'1.0-0'}}</td>
                     <td class="py-2 px-4 text-center">
-                        <button class="cursor-pointer" (click)="detailIssue(item)">📝</button>
+                        <button class="cursor-pointer" (click)="detailIssue(item.stkNOTE)">📝</button>
                     </td>
                 </tr>
             </tbody>
         </table>
+        <div class="flex justify-between items-center mt-4 px-4">
+            <button (click)="prevPage()" [disabled]="pageNumber <= 1"
+                class="bg-gray-300 px-3 py-1 rounded">หน้าก่อน</button>
+            <span>หน้า {{pageNumber}}</span>
+            <button (click)="nextPage()" class="bg-gray-300 px-3 py-1 rounded">หน้าถัดไป</button>
+        </div>
     </div>
-
 </div>
 
-<div *ngIf="activeView == 'detail-issue'" class="fixed inset-0 z-50 flex flex-col bg-white shadow-lg overflow-y-auto">
+<div *ngIf="activeView == 'detail'" class="fixed inset-0 z-50 flex flex-col bg-white shadow-lg overflow-y-auto">
     <!-- ปุ่มปิด -->
     <div class="ml-auto p-4">
         <button (click)="closeWindows()" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition">
@@ -44,39 +52,38 @@
         </button>
     </div>
     <!-- เนื้อหา -->
-    <div *ngIf="issuadata" class="flex items-center flex-col space-y-4 px-4 pb-6">
+    <div class="flex items-center flex-col space-y-4 px-4 pb-6">
         <!-- หัวข้อ: รายละเอียดสถานะ -->
-        <div class="w-full md:w-6/12 bg-orange-400 py-3 rounded-md shadow text-center text-white text-lg font-semibold">
-            รายละเอียด : สถานะ
+        <div class="w-full md:w-9/12 bg-orange-400 py-3 rounded-md shadow text-center text-white text-lg font-semibold">
+            รายละเอียด : รายการ{{issuadata.status}}
         </div>
         <!-- รายละเอียดสถานะ -->
-        <div class="w-full md:w-6/12 bg-gray-50 p-4 rounded-md shadow space-y-2">
-            <div class="grid grid-cols-2 gap-2">
+        <div class="w-full md:w-9/12 bg-gray-50 p-4 rounded-md shadow space-y-2">
+            <div class="flex gap-2">
                 <p>📅 วันที่บันทึกรายการ :</p>
-                <p>🕒 {{ formatThaiDateTimeWithDash(issuadata.datetimeup) }}</p>
+                <p>{{ formatDate(issuadata.datetimeup) }}</p>
             </div>
             <div class="flex gap-2">
                 <p>👤 ผู้บันทึกรายการ :</p>
-                <p>{{issuadata.userName}} ( {{issuadata.lvlCode}}:{{issuadata.lvlDesc}} )</p>
+                <p>{{issuadata.userName}} ( {{issuadata.lvlCode}} : {{issuadata.lvlDesc}} )</p>
             </div>
-            <div  class="flex gap-2">
+            <div class="flex gap-2">
                 <p>🏢 สาขาที่บันทึกรายการ :</p>
                 <p>{{issuadata.brCode}} : {{issuadata.brName}}</p>
             </div>
         </div>
         <!-- หัวข้อ: ผู้ถือหุ้น / ใบหุ้น -->
-        <div class="w-full md:w-6/12 bg-orange-400 py-3 rounded-md shadow text-center text-white text-lg font-semibold">
+        <div class="w-full md:w-9/12 bg-orange-400 py-3 rounded-md shadow text-center text-white text-lg font-semibold">
             รายละเอียด : ผู้ถือหุ้น / ใบหุ้น
         </div>
         <!-- รายละเอียดผู้ถือหุ้น -->
-        <div class="w-full md:w-6/12 bg-gray-50 p-4 rounded-md shadow space-y-4">
+        <div class="w-full md:w-9/12 bg-gray-50 p-4 rounded-md shadow space-y-4">
             <div class="grid grid-cols-2 gap-2">
                 <p>🪪 เลขที่บัตรแสดงตน: {{issuadata.cusId}}</p>
-                <p>🗓 วันที่มีผล : {{formatThaiDateTime(issuadata.dateIssue)}}</p>
+                <p>🗓 วันที่มีผล : {{formatDate(issuadata.dateIssue)}}</p>
             </div>
             <div class="grid grid-cols-2 gap-2">
-                <p>🙍‍♂️ ชื่อ-นามสกุล: {{issuadata.fullname}}</p>
-                <p>🕒 เวลา : 15:39:32 น.</p>
+                <p>🙍‍♂️ ชื่อ-นามสกุล : {{issuadata.fullname}} [{{issuadata.custype}}]</p>
             </div>
             <hr class="my-2 border-gray-300" />
             <div class="grid grid-cols-2 gap-2">
@@ -85,30 +92,48 @@
             </div>
             <div class="grid grid-cols-2 gap-2">
                 <p>🔢 จำนวนหุ้น : {{issuadata.unit}}</p>
-                <p>💰 มูลค่าหุ้น : {{issuadata.unitValue}}</p>
+                <p>💰 มูลค่าหุ้น : {{issuadata.unitValue | number:'1.0-0'}}</p>
             </div>
-            <div class="grid grid-cols-2 gap-2">
-                <p>🏦 รับเงินปันผลโดย: {{issuadata.paydesc}}</p>
+            <div class="grid grid-cols-2 gap-2" *ngIf="issuadata.acctype != '001'">
+                <p>🏦 รับเงินปันผลโดย : {{issuadata.paydesc}}</p>
+            </div>
+            <div *ngIf="issuadata.acctype == '001'">
+                <div class="flex gap-2">
+                    <p>🏦 รับเงินปันผลโดย : {{issuadata.paydesc}}{{issuadata.acctypedesc}} เลขที่บัญชี :
+                        {{issuadata.accno}} ชื่อบัญชี : {{issuadata.accname}}</p>
+                </div>
             </div>
             <hr class="my-2 border-gray-300" />
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-row-2 gap-2">
                 <p>📄 สถานะใบหุ้น : {{issuadata.statusDesc}}</p>
-                <p>📝 หมายเหตุ : {{issuadata.note}}</p>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-                <p>🔁 หมายเลขใบหุ้นเดิม : {{issuadata.stkNodeo}}</p>
-                <p>📅 บันทึกรายการเมื่อวันที่:</p>
+                <p>📝 หมายเหตุ : {{issuadata.note || "-"}}</p>
             </div>
             <hr class="my-2 border-gray-300" />
             <!-- ปุ่ม -->
             <div class="flex justify-center gap-4 pt-4">
-                <button (click)="approveSelectedIssue()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md transition">
+                <button (click)="approveSelectedIssue()"
+                    class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md transition">
                     ✅ อนุมัติ
                 </button>
-                <button (click)="notApproveSelectedIssue()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md transition">
+                <button (click)="notApproveSelectedIssue()"
+                    class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md transition">
                     ❌ ไม่อนุมัติ
                 </button>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- ✅ Loading Overlay แบบโปร่งใส + มองทะลุ + เบลอ -->
+<div *ngIf="loading"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-40 backdrop-blur-sm"
+    style="background-color: rgba(128, 128, 128, 0.7);">
+    <div class="text-center">
+        <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+        </svg>
+        <p class="text-lg text-white font-medium">🔄 กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
     </div>
 </div>
