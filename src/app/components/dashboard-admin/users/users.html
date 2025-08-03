@@ -23,7 +23,9 @@
         <table class="min-w-full border border-gray-300 text-sm text-left">
             <thead class="bg-gray-100 text-gray-700 uppercase tracking-wider">
                 <tr>
-                    <th class="px-4 py-2 border">ดำเนินการ</th>
+                    <th class="px-4 py-2 border">รีเซ็ตรหัสผ่าน</th>
+                    <th class="px-4 py-2 border">รีเซ็ตข้อมูลผู้ใช้และรหัสผ่าน</th>
+                    <th class="px-4 py-2 border">ลบผู้ใช้งาน</th>
                     <th class="px-4 py-2 border">รหัสผู้ใช้</th>
                     <th class="px-4 py-2 border">ชื่อ - นามสกุล</th>
                     <th class="px-4 py-2 border">ระดับการใช้งาน</th>
@@ -35,13 +37,11 @@
                 <tr *ngFor="let user of filteredUsers | paginate: { itemsPerPage: itemsPerPage, currentPage: page }"
                     class="hover:bg-gray-50 transition-colors">
                     <td class="px-4 py-2 border">
-                        <button (click)="resetPassword(user.usrId)" class="text-yellow-600 hover:underline">Reset
-                            Password</button>
-                        <button (click)="deleteUser()" class="text-orange-600 hover:underline">Reset User and
-                            Password</button>
-                        <button (click)="deleteUser()" class="text-red-600 hover:underline">Delete User</button>
-                        <button></button>
-                    </td>
+                        <button (click)="resetPassword(user.usrId)" class="text-yellow-600 hover:underline">🔄</button></td>
+                    <td class="px-4 py-2 border">
+                        <button (click)="deleteUser()" class="text-orange-600 hover:underline">👤</button></td>
+                    <td class="px-4 py-2 border">
+                        <button (click)="deleteUser()" class="text-red-600 hover:underline">🗑️</button></td>
                     <td class="px-4 py-2 border">{{ user.usrId }}</td>
                     <td class="px-4 py-2 border">{{ user.usrDesc }}</td>
                     <td class="px-4 py-2 border">{{ user.lvlDesc }}</td>
