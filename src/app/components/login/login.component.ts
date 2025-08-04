@@ -33,7 +33,6 @@ export class LoginComponent {
   onSubmit(): void {
     this.loading = true;
     this.errorMessage = '';
-    console.log('🟡 เริ่ม login');
 
     const loginData = {
       username: this.username,
@@ -67,7 +66,21 @@ export class LoginComponent {
         sessionStorage.setItem('fullname', res.fullName);
         sessionStorage.setItem('brCode', res.brCode);
         sessionStorage.setItem('brName', res.brName);
-        this.router.navigate(['/dashboard-admin/']);
+        sessionStorage.setItem('level', res.level || res.role || '');
+        console.log('🟡 เริ่ม login');
+    
+        // นำทางตาม user level
+        const userLevel = res.level || res.role || '';
+        if (userLevel === '98' || userLevel === '99' || userLevel === '90') {
+          // System level users ไป dashboard-admin
+          this.router.navigate(['/dashboard-admin/']);
+        } else if (userLevel === '89' || userLevel === '85' || userLevel === '80') {
+          // Head office level users ไป head-office
+          this.router.navigate(['/head-office/']);
+        } else {
+          // Default ไป dashboard-admin
+          this.router.navigate(['/dashboard-admin/']);
+        }
 
         // if (res.role === '99') {
         // } else if (res.role === '89') {

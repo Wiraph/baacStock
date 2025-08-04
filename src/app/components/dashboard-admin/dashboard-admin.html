@@ -19,7 +19,7 @@
 
     <!-- Navigation -->
     <nav class="p-4 space-y-2">
-      <ng-container *ngFor="let menu of menus">
+      <ng-container *ngFor="let menu of filteredMenus">
         <div class="relative">
           <!-- Menu Header -->
           <div (click)="openMenu(menu.key)"
@@ -40,9 +40,14 @@
           <div *ngIf="menu.open && !sidebarCollapsed" class="ml-10 mt-1 space-y-1">
             <ng-container *ngFor="let item of menu.children">
               <!-- รายการที่ไม่มี submenu -->
-              <a *ngIf="!item.submenu" [routerLink]="item.route" routerLinkActive="text-blue-600 font-semibold"
-                class="block text-sm text-gray-600 hover:text-blue-700 transition-colors">
+              <a *ngIf="!item.submenu && canView(item.key)" [routerLink]="item.route" routerLinkActive="text-blue-600 font-semibold"
+                class="block text-sm text-gray-600 hover:text-blue-700 transition-colors relative">
                 {{ item.icon }} {{ item.label }}
+                
+                <!-- แสดง badge ตามสิทธิ์ -->
+                <span *ngIf="canEdit(item.key)" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">แก้ไข</span>
+                <span *ngIf="canDelete(item.key)" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">ลบ</span>
+                <span *ngIf="canApprove(item.key)" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">อนุมัติ</span>
               </a>
 
               <!-- รายการที่มี submenu -->
@@ -122,9 +127,12 @@
         <div class="flex items-center space-x-3">
           <div
             class="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center">
-            <span class="text-white text-sm font-semibold">A</span>
+            <span class="text-white text-sm font-semibold">{{ getUserInitials(currentUser.fullname) }}</span>
           </div>
-          <span class="text-sm font-medium text-gray-700">Admin</span>
+          <div class="flex flex-col">
+            <span class="text-sm font-medium text-gray-700">{{ currentUser.fullname || 'ไม่ระบุชื่อ' }}</span>
+            <span class="text-xs text-gray-500">{{ getUserLevelName(currentUser.level) }}</span>
+          </div>
         </div>
       </div>
     </header>
