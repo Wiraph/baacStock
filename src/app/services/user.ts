@@ -27,7 +27,6 @@ export class UserService {
     return this.http.delete(`${this.apiUrl}/${userId}`);
   }
 
-
   // เปลี่ยนรหัสผ่าน
   changePassword(data: ChangePasswordDto): Observable<any> {
     console.log(data);
@@ -49,6 +48,41 @@ export class UserService {
 
   addUser(payload: any): Observable<any> {
     return this.http.post(`${this.apiUrl}`, payload, {headers: this.createAuthHeaders()});
+  }
+
+  getCurrentUser(): any {
+    if (isPlatformBrowser(this.platformId)) {
+      return {
+        username: sessionStorage.getItem('username') || '',
+        fullname: sessionStorage.getItem('fullname') || '',
+        brCode: sessionStorage.getItem('brCode') || '',
+        brName: sessionStorage.getItem('brName') || '',
+        level: sessionStorage.getItem('level') || '',
+        lvlDesc: sessionStorage.getItem('lvlDesc') || ''
+      };
+    }
+    return null;
+  }
+
+  // ดึงชื่อ level จาก lvlDesc
+  getUserLevelName(levelCode: string): string {
+    // ดึง lvlDesc จาก sessionStorage
+    const lvlDesc = sessionStorage.getItem('lvlDesc');
+    if (lvlDesc) {
+      return lvlDesc;
+    }
+    
+    return levelCode ;
+  }
+
+  // ดึงตัวอักษรแรกของชื่อ
+  getInitials(fullname: string): string {
+    if (!fullname) return 'U';
+    const names = fullname.trim().split(' ');
+    if (names.length >= 2) {
+      return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
+    }
+    return fullname.charAt(0).toUpperCase();
   }
   
   private createAuthHeaders(): HttpHeaders {

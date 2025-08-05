@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import {
   trigger, transition, style, animate
 } from '@angular/animations';
+import { UserService } from '../../services/user';
 
 
 @Component({
@@ -26,7 +27,12 @@ import {
   ],
 })
 export class DashboardHeadOfficeComponent {
-  constructor(private router: Router) {}
+  currentUser: any = {};
+  
+  constructor(
+    private router: Router,
+    private userService: UserService
+  ) {}
 
   sidebarCollapsed = false;
 
@@ -102,6 +108,9 @@ export class DashboardHeadOfficeComponent {
       const token = sessionStorage.getItem('token');
       if (!token) {
         this.router.navigate(['/login']);
+      } else {
+        // ดึงข้อมูล user ปัจจุบัน
+        this.currentUser = this.userService.getCurrentUser();
       }
     }
   }
@@ -110,6 +119,25 @@ export class DashboardHeadOfficeComponent {
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('fullname');
     sessionStorage.removeItem('username');
+    sessionStorage.removeItem('brCode');
+    sessionStorage.removeItem('brName');
+    sessionStorage.removeItem('level');
+    sessionStorage.removeItem('lvlDesc'); // เพิ่มการลบ lvlDesc
     this.router.navigate(['/login']);
+  }
+
+  // ดึงตัวอักษรแรกของชื่อ
+  getUserInitials(fullname: string): string {
+    return this.userService.getInitials(fullname);
+  }
+
+  // ดึงชื่อ level จาก code
+  getUserLevelName(levelCode: string): string {
+    return this.userService.getUserLevelName(levelCode);
+  }
+
+  // ดึงชื่อ level แบบ sync (สำหรับ backward compatibility)
+  getUserLevelNameSync(levelCode: string): string {
+    return this.userService.getUserLevelName(levelCode);
   }
 }

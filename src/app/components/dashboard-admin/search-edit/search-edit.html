@@ -48,7 +48,7 @@
 
         <result-default *ngSwitchCase="'default'" [results]="results" [currentPage]="currentPage" [pageSize]="pageSize"
           [totalItems]="totalItems" (edit)="onEdit($event)"
-          (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc, $event.viewMode)">
+          (viewStock)="setView('stock', $event.stockNotes, $event.cusId, $event.fullname, $event.stockList, $event.statusDesc, $event.viewMode)">
         </result-default>
 
           <result-common-stock *ngSwitchCase="'common'" [results]="results" [currentPage]="currentPage"
@@ -70,7 +70,7 @@
 
         <result-dividend *ngSwitchCase="'dividend'" [results]="results" [currentPage]="currentPage" [pageSize]="pageSize"
           [totalItems]="totalItems" (edit)="onDividend($event)"
-          (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc, $event.viewMode)">
+          (viewStock)="setView('stock', $event.stockNotes, $event.cusId, $event.fullName, $event.stockList, $event.statusDesc, $event.viewMode)">
         </result-dividend>
 
       </ng-container>

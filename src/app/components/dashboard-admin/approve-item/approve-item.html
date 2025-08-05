@@ -26,7 +26,7 @@
             <td class="p-3">{{ item.stockNote }}</td>
             <td class="p-3 text-right">{{ item.stockUnit | number:'1.0-0' }}</td>
             <td class="p-3 text-right">{{ item.stockValue | number:'1.0-0' }}</td>
-            <td class="p-3 text-center cursor-pointer hover:text-green-600" (click)="approveConfirm(item.stkNote, item.stkStatus)">📝</td>
+            <td class="p-3 text-center cursor-pointer hover:text-green-600" (click)="approveConfirm(item.stockNote, item.statusCode)">📝</td>
           </tr>
         </tbody>
       </table>
@@ -40,6 +40,10 @@
 
 <div *ngIf="showDetailComponentCreate">
   <app-approve-create></app-approve-create>
+</div>
+
+<div *ngIf="showDetailComponentSale">
+  <app-approve-sale></app-approve-sale>
 </div>
 
 <!-- ✅ Loading Overlay แบบโปร่งใส + มองทะลุ + เบลอ -->

@@ -33,7 +33,6 @@ export class LoginComponent {
   onSubmit(): void {
     this.loading = true;
     this.errorMessage = '';
-    console.log('🟡 เริ่ม login');
 
     const loginData = {
       username: this.username,
@@ -60,30 +59,27 @@ export class LoginComponent {
           return;
         }
 
-        // console.log('🎉 Login สำเร็จ!');
-
         sessionStorage.setItem('token', res.token);
         sessionStorage.setItem('username', res.userId);
-        sessionStorage.setItem('fullname', res.fullName);
+        sessionStorage.setItem('fullname', res.fullName || '');
         sessionStorage.setItem('brCode', res.brCode);
         sessionStorage.setItem('brName', res.brName);
+        sessionStorage.setItem('level', res.level || res.role || '');
+        sessionStorage.setItem('lvlDesc', res.lvlDesc || res.roleDescription || '');
+        console.log('🟡 เริ่ม login');
+        console.log('👤 Welcome:', res.fullName);
+
+        const userLevel = res.level || res.role || '';
         this.router.navigate(['/dashboard-admin/']);
 
-        // if (res.role === '99') {
-        // } else if (res.role === '89') {
-        //   this.router.navigate(['/head-office/']);
-        // } else {
-        //   this.errorMessage = 'คุณไม่มีสิทธิ์เข้าถึงระบบ';
-        // }
       },
       error: (err: HttpErrorResponse) => {
-        // console.error('❌ HTTP Error:', err);
+
         if (err) {
           alert('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง โปรดติดต่อผู้ดูแลระบบ');
           this.loading = false;
           this.cdRef.detectChanges(); // ⬅️ บังคับให้ UI รู้
         }
-
 
         if (err.status === 401) {
           this.errorMessage = err.error?.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
