@@ -4,13 +4,15 @@ import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import {
   trigger, transition, style, animate
 } from '@angular/animations';
+import { UserService } from '../../services/user';
+import { PermissionService } from '../../services/permission.service';
 
 interface MenuItem {
   key: string;
   label: string;
   icon: string;
   open: boolean;
-  children: { icon: string; label: string; route: string; submenu?: { icon: string; label: string; route: string }[] }[];
+  children: { key: string; icon: string; label: string; route: string; submenu?: { key: string; icon: string; label: string; route: string }[] }[];
 }
 
 @Component({
@@ -33,6 +35,8 @@ interface MenuItem {
 })
 export class AdminDashboardComponent implements OnInit {
   sidebarCollapsed = false;
+  currentUser: any = {};
+  filteredMenus: MenuItem[] = [];
 
   menus: MenuItem[] = [
     {
@@ -41,9 +45,9 @@ export class AdminDashboardComponent implements OnInit {
       icon: '📑',
       open: false,
       children: [
-        { icon: '🏠', label: 'Home', route: '/dashboard-admin/' },
-        { icon: '📞', label: 'ติดต่อ', route: '/dashboard-admin/contact' },
-        { icon: '🔎', label: 'ค้นหา/แก้ไข', route: '/dashboard-admin/search-edit' }
+        { key: 'home', icon: '🏠', label: 'Home', route: '/dashboard-admin/' },
+        { key: 'contact', icon: '📞', label: 'ติดต่อ', route: '/dashboard-admin/contact' },
+        { key: 'search-edit', icon: '🔎', label: 'ค้นหา/แก้ไข', route: '/dashboard-admin/search-edit' }
       ]
     },
     {
@@ -52,14 +56,14 @@ export class AdminDashboardComponent implements OnInit {
       icon: '📊',
       open: false,
       children: [
-        { icon: '🛒', label: 'พิมพ์คำขอซื้อหุ้น', route: '/dashboard-admin/print-share-purchase-request' },
-        { icon: '😶‍🌫️', label: 'ขายหุ้นสามัญ', route: '/dashboard-admin/common-shares' },
-        { icon: '📄', label: 'การออกใบหุ้นใหม่ แทนใบหุ้นที่ชำรุด/สูญหาย', route: '/dashboard-admin/cratenewsharecertificate' },
-        { icon: '♾️', label: 'โอนเปลี่ยนมือ', route: '/dashboard-admin/transfer-share' },
-        { icon: '✅', label: 'อนุมัติรายการ', route: '/dashboard-admin/approve-item' },
-        { icon: '📝', label: 'อนุมัติออกใบหุ้น', route: '/dashboard-admin/approve-issue' },
-        { icon: '🖨️', label: 'พิมพ์ใบหุ้น', route: '/dashboard-admin/print-certificates' },
-        { icon: '🔒', label: 'บล็อค/ยกเลิกบล็อค ใบหุ้น', route: '/dashboard-admin/block-certificates' }
+        { key: 'print-share-purchase-request', icon: '🛒', label: 'พิมพ์คำขอซื้อหุ้น', route: '/dashboard-admin/print-share-purchase-request' },
+        { key: 'common-shares', icon: '😶‍🌫️', label: 'ขายหุ้นสามัญ', route: '/dashboard-admin/common-shares' },
+        { key: 'cratenewsharecertificate', icon: '📄', label: 'การออกใบหุ้นใหม่ แทนใบหุ้นที่ชำรุด/สูญหาย', route: '/dashboard-admin/cratenewsharecertificate' },
+        { key: 'transfer-share', icon: '♾️', label: 'โอนเปลี่ยนมือ', route: '/dashboard-admin/transfer-share' },
+        { key: 'approve-item', icon: '✅', label: 'อนุมัติรายการ', route: '/dashboard-admin/approve-item' },
+        { key: 'approve-issue', icon: '📝', label: 'อนุมัติออกใบหุ้น', route: '/dashboard-admin/approve-issue' },
+        { key: 'print-certificates', icon: '🖨️', label: 'พิมพ์ใบหุ้น', route: '/dashboard-admin/print-certificates' },
+        { key: 'block-certificates', icon: '🔒', label: 'บล็อค/ยกเลิกบล็อค ใบหุ้น', route: '/dashboard-admin/block-certificates' }
       ]
     },
     {
@@ -68,16 +72,13 @@ export class AdminDashboardComponent implements OnInit {
       icon: '💰',
       open: false,
       children: [
-        { icon: '💰', label: 'เงินปันผล', route: '/dashboard-admin/dividend' },
-        { icon: '📊', 
-          label: 'ภ.ง.ด.', 
-          route: '',
+        { key: 'dividend', icon: '💰', label: 'เงินปันผล', route: '/dashboard-admin/dividend' },
+        { key: 'pnd', icon: '📊', label: 'ภ.ง.ด.', route: '', 
           submenu: [
-            { icon: '📄', label: 'ภ.ง.ด. 2', route: '/dashboard-admin/pnd2' },
-            { icon: '📋', label: 'ภ.ง.ด. 2 ก', route: '/dashboard-admin/pnd2a' },
-            { icon: '📊', label: 'ภ.ง.ด. 53', route: '/dashboard-admin/pnd53' }
-          ]
-        }
+          { key: 'pnd2', icon: '📄', label: 'ภ.ง.ด. 2', route: '/dashboard-admin/pnd2' },
+          { key: 'pnd2a', icon: '📋', label: 'ภ.ง.ด. 2 ก', route: '/dashboard-admin/pnd2a' },
+          { key: 'pnd53', icon: '📊', label: 'ภ.ง.ด. 53', route: '/dashboard-admin/pnd53' }
+        ]}
       ]
     },
     {
@@ -86,8 +87,8 @@ export class AdminDashboardComponent implements OnInit {
       icon: '⚡',
       open: false,
       children: [
-        { icon: '⚡', label: 'สร้าง SPIN FILE ส่ง SCB', route: '/dashboard-admin/create-spin-files' },
-        { icon: '🔌', label: 'รับผล SPIN FILE จาก SCB', route: '/dashboard-admin/spin-files' }
+        { key: 'create-spin-files', icon: '⚡', label: 'สร้าง SPIN FILE ส่ง SCB', route: '/dashboard-admin/create-spin-files' },
+        { key: 'spin-files', icon: '🔌', label: 'รับผล SPIN FILE จาก SCB', route: '/dashboard-admin/spin-files' }
       ]
     },
     {
@@ -96,7 +97,7 @@ export class AdminDashboardComponent implements OnInit {
       icon: '📄',
       open: false,
       children: [
-        { icon: '📄', label: 'รายงาน', route: '/dashboard-admin/reports' }
+        { key: 'reports', icon: '📄', label: 'รายงาน', route: '/dashboard-admin/reports' }
       ]
     },
     {
@@ -105,8 +106,8 @@ export class AdminDashboardComponent implements OnInit {
       icon: '👪',
       open: false,
       children: [
-        { icon: '👤', label: 'รายชื่อผู้ใช้งาน', route: '/dashboard-admin/users' },
-        { icon: '🔑', label: 'เปลี่ยนรหัสผ่าน', route: '/dashboard-admin/change-password' }
+        { key: 'users', icon: '👤', label: 'รายชื่อผู้ใช้งาน', route: '/dashboard-admin/users' },
+        { key: 'change-password', icon: '🔑', label: 'เปลี่ยนรหัสผ่าน', route: '/dashboard-admin/change-password' }
       ]
     },
     {
@@ -115,39 +116,40 @@ export class AdminDashboardComponent implements OnInit {
       icon: '🛠️',
       open: false,
       children: [
-        { icon: '🛠️', label: 'ควบคุมระบบ', route: '/dashboard-admin/system' },
-        { 
-          icon: '📘', 
-          label: 'คู่มือ / เอกสาร', 
-          route: '', 
-          submenu: [
-            { icon: '', label: 'Upload เอกสาร', route: '/dashboard-admin/documents/upload' },
-            { icon: '', label: 'แบบพิมพ์ / วิธีปฏิบัติงานหุ้น', route: '/dashboard-admin/documents/forms-procedures' },
-            { icon: '', label: 'คู่มือการใช้งานระบบ', route: '/dashboard-admin/documents/user-manual' }
-          ]
-        },
-        { icon: '💻', label: 'DEVELOPER', route: '/dashboard-admin/developer' }
+        { key: 'system', icon: '🛠️', label: 'ควบคุมระบบ', route: '/dashboard-admin/system' },
+        { key: 'documents-upload', icon: '📘', label: 'Upload เอกสาร', route: '/dashboard-admin/documents/upload' },
+        { key: 'documents-forms-procedures', icon: '📋', label: 'แบบพิมพ์/วิธีปฏิบัติงานหุ้น', route: '/dashboard-admin/documents/forms-procedures' },
+        { key: 'documents-user-manual', icon: '📖', label: 'คู่มือการใช้งานระบบ', route: '/dashboard-admin/documents/user-manual' },
+        { key: 'developer', icon: '💻', label: 'DEVELOPER', route: '/dashboard-admin/developer' }
       ]
     }
   ];
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private userService: UserService,
+    private permissionService: PermissionService
+  ) { }
 
   toggleSidebar() {
     this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
   openMenu(key: string) {
+    // อัพเดท state ใน menus
     this.menus = this.menus.map(menu => {
       const isTarget = menu.key === key;
-      if (isTarget) {
-        // console.log(`เปิดเมนู: ${menu.label}`);
-      }
       return {
         ...menu,
         open: isTarget ? !menu.open : false
       };
     });
+    
+    // อัพเดท filteredMenus ด้วย
+    this.filteredMenus = this.permissionService.filterMenusByPermission(
+      this.menus, 
+      this.currentUser.level
+    );
   }
 
 
@@ -156,11 +158,54 @@ export class AdminDashboardComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  // ดึงชื่อ level จาก code
+  getUserLevelName(levelCode: string): string {
+    return this.userService.getUserLevelName(levelCode);
+  }
+
+  // ดึงตัวอักษรแรกของชื่อ
+  getUserInitials(fullname: string): string {
+    return this.userService.getInitials(fullname);
+  }
+
+  // Filter menus ตามสิทธิ์
+  private filterMenusByPermission(): void {
+    this.filteredMenus = this.permissionService.filterMenusByPermission(
+      this.menus, 
+      this.currentUser.level
+    );
+  }
+
+  // ตรวจสอบสิทธิ์ใน component
+  canView(menuId: string): boolean {
+    return this.permissionService.hasActionPermission(menuId, 'view', this.currentUser.level);
+  }
+
+  canEdit(menuId: string): boolean {
+    return this.permissionService.hasActionPermission(menuId, 'edit', this.currentUser.level);
+  }
+
+  canDelete(menuId: string): boolean {
+    return this.permissionService.hasActionPermission(menuId, 'delete', this.currentUser.level);
+  }
+
+  canApprove(menuId: string): boolean {
+    return this.permissionService.hasActionPermission(menuId, 'approve', this.currentUser.level);
+  }
+
+  // ดึงสิทธิ์ทั้งหมดของ user สำหรับ menu นี้
+  getUserMenuPermissions(menuId: string): string[] {
+    return this.permissionService.getUserPermissions(menuId, this.currentUser.level);
+  }
+
   ngOnInit(): void {
     if (typeof window !== 'undefined') {
       const token = sessionStorage.getItem('token');
       if (!token) {
         this.router.navigate(['/login']);
+      } else {
+        this.currentUser = this.userService.getCurrentUser();
+        this.filterMenusByPermission();
       }
     }
   }

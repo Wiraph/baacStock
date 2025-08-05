@@ -41,13 +41,8 @@
             <ng-container *ngFor="let item of menu.children">
               <!-- รายการที่ไม่มี submenu -->
               <a *ngIf="!item.submenu && canView(item.key)" [routerLink]="item.route" routerLinkActive="text-blue-600 font-semibold"
-                class="block text-sm text-gray-600 hover:text-blue-700 transition-colors relative">
+                class="block text-sm text-gray-600 hover:text-blue-700 transition-colors">
                 {{ item.icon }} {{ item.label }}
-                
-                <!-- แสดง badge ตามสิทธิ์ -->
-                <span *ngIf="canEdit(item.key)" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">แก้ไข</span>
-                <span *ngIf="canDelete(item.key)" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">ลบ</span>
-                <span *ngIf="canApprove(item.key)" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">อนุมัติ</span>
               </a>
 
               <!-- รายการที่มี submenu -->
