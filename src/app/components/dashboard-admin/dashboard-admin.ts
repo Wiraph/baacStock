@@ -72,18 +72,6 @@ export class AdminDashboardComponent implements OnInit {
       icon: '💰',
       open: false,
       children: [
-<<<<<<< HEAD
-        { icon: '💰', label: 'เงินปันผล', route: '/dashboard-admin/dividend' },
-        { icon: '📊', 
-          label: 'ภ.ง.ด.', 
-          route: '',
-          submenu: [
-            { icon: '📄', label: 'ภ.ง.ด. 2', route: '/dashboard-admin/pnd2' },
-            { icon: '📋', label: 'ภ.ง.ด. 2 ก', route: '/dashboard-admin/pnd2a' },
-            { icon: '📊', label: 'ภ.ง.ด. 53', route: '/dashboard-admin/pnd53' }
-          ]
-        }
-=======
         { key: 'dividend', icon: '💰', label: 'เงินปันผล', route: '/dashboard-admin/dividend' },
         { key: 'pnd', icon: '📊', label: 'ภ.ง.ด.', route: '', 
           submenu: [
@@ -91,7 +79,6 @@ export class AdminDashboardComponent implements OnInit {
           { key: 'pnd2a', icon: '📋', label: 'ภ.ง.ด. 2 ก', route: '/dashboard-admin/pnd2a' },
           { key: 'pnd53', icon: '📊', label: 'ภ.ง.ด. 53', route: '/dashboard-admin/pnd53' }
         ]}
->>>>>>> develop
       ]
     },
     {
