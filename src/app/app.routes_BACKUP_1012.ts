@@ -21,7 +21,7 @@ import { SpinFilesComponent } from './components/dashboard-admin/spin-files/spin
 import { BlockCertificatesComponent } from './components/dashboard-admin/block-certificates/block-certificates.component';
 import { DividendComponent } from './components/dashboard-admin/dividend/dividend.component';
 import { DashboardHeadOfficeComponent } from './components/dashboard-head-office/dashboard-head-office';
-import { ApproveIssue } from './components/dashboard-admin/approve-issue/approve-issue';
+// import { ApproveIssue } from './components/dashboard-admin/approve-issue/approve-issue';
 import { FormsProceduresComponent } from './components/dashboard-admin/forms-procedures/forms-procedures.component';
 import { UploadComponent } from './components/dashboard-admin/upload-document/upload.component';
 import { UserManualComponent } from './components/dashboard-admin/user-manual/user-manual.component';
@@ -48,7 +48,7 @@ export const routes: Routes = [
       { path: 'headoffice', component: DashboardHeadOfficeComponent},
       { path: 'transfer-share', component: TransferShareComponent }, // ✅ เพิ่มเส้นทางสำหรับ TransferShareComponent
       { path: 'approve-item', component: ApproveItemComponent},
-      { path: 'approve-issue', component: ApproveIssue},
+      // { path: 'approve-issue', component: ApproveIssue},
       { path: 'block-certificates', component: BlockCertificatesComponent},
       { path: 'print-certificates', component: PrintCertificatesComponent},
       { path: 'create-spin-files', component: CreateSpinFilesComponent },
