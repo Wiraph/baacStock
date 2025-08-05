@@ -15,23 +15,6 @@ export interface ChangePasswordDto {
 export class UserService {
   private apiUrl = 'https://localhost:7089/api/user';
 
-  // User Level Mapping
-  private userLevelMap: { [key: string]: string } = {
-    '99': 'System Super Administrator',
-    '98': 'ทดสอบ',
-    '90': 'System Administrator',
-    '89': 'สนญ.-Administrator',
-    '85': 'สนญ.-Authorize',
-    '80': 'สนญ.-Operator',
-    '50': 'Stock Viewer',
-    '20': 'PND Collector (ภ.ง.ด.)',
-    '19': 'สนจ.-Administrator',
-    '10': 'สนจ.-Operator',
-    '09': 'สาขา-Administrator',
-    '05': 'สาขา-Authorize',
-    '00': 'สาขา-Operator'
-  };
-
   constructor(private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object
   ) { }
@@ -67,7 +50,6 @@ export class UserService {
     return this.http.post(`${this.apiUrl}`, payload, {headers: this.createAuthHeaders()});
   }
 
-  // ดึงข้อมูล user ปัจจุบันจาก sessionStorage
   getCurrentUser(): any {
     if (isPlatformBrowser(this.platformId)) {
       return {
@@ -75,16 +57,22 @@ export class UserService {
         fullname: sessionStorage.getItem('fullname') || '',
         brCode: sessionStorage.getItem('brCode') || '',
         brName: sessionStorage.getItem('brName') || '',
-        level: sessionStorage.getItem('level') || ''
+        level: sessionStorage.getItem('level') || '',
+        lvlDesc: sessionStorage.getItem('lvlDesc') || ''
       };
     }
     return null;
   }
 
-  // ดึงชื่อ level จาก code
+  // ดึงชื่อ level จาก lvlDesc
   getUserLevelName(levelCode: string): string {
-    const result = this.userLevelMap[levelCode] || 'ไม่ระบุ';
-    return result;
+    // ดึง lvlDesc จาก sessionStorage
+    const lvlDesc = sessionStorage.getItem('lvlDesc');
+    if (lvlDesc) {
+      return lvlDesc;
+    }
+    
+    return levelCode ;
   }
 
   // ดึงตัวอักษรแรกของชื่อ

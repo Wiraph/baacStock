@@ -122,7 +122,13 @@ export class DashboardHeadOfficeComponent {
     sessionStorage.removeItem('brCode');
     sessionStorage.removeItem('brName');
     sessionStorage.removeItem('level');
+    sessionStorage.removeItem('lvlDesc'); // เพิ่มการลบ lvlDesc
     this.router.navigate(['/login']);
+  }
+
+  // ดึงตัวอักษรแรกของชื่อ
+  getUserInitials(fullname: string): string {
+    return this.userService.getInitials(fullname);
   }
 
   // ดึงชื่อ level จาก code
@@ -130,8 +136,8 @@ export class DashboardHeadOfficeComponent {
     return this.userService.getUserLevelName(levelCode);
   }
 
-  // ดึงตัวอักษรแรกของชื่อ
-  getUserInitials(fullname: string): string {
-    return this.userService.getInitials(fullname);
+  // ดึงชื่อ level แบบ sync (สำหรับ backward compatibility)
+  getUserLevelNameSync(levelCode: string): string {
+    return this.userService.getUserLevelName(levelCode);
   }
 }

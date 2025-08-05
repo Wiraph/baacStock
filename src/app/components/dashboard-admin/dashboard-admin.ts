@@ -158,7 +158,7 @@ export class AdminDashboardComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  // ดึงชื่อ level จาก code
+  // ดึงชื่อ level จาก lvlDesc
   getUserLevelName(levelCode: string): string {
     return this.userService.getUserLevelName(levelCode);
   }
@@ -178,24 +178,7 @@ export class AdminDashboardComponent implements OnInit {
 
   // ตรวจสอบสิทธิ์ใน component
   canView(menuId: string): boolean {
-    return this.permissionService.hasActionPermission(menuId, 'view', this.currentUser.level);
-  }
-
-  canEdit(menuId: string): boolean {
-    return this.permissionService.hasActionPermission(menuId, 'edit', this.currentUser.level);
-  }
-
-  canDelete(menuId: string): boolean {
-    return this.permissionService.hasActionPermission(menuId, 'delete', this.currentUser.level);
-  }
-
-  canApprove(menuId: string): boolean {
-    return this.permissionService.hasActionPermission(menuId, 'approve', this.currentUser.level);
-  }
-
-  // ดึงสิทธิ์ทั้งหมดของ user สำหรับ menu นี้
-  getUserMenuPermissions(menuId: string): string[] {
-    return this.permissionService.getUserPermissions(menuId, this.currentUser.level);
+    return this.permissionService.hasActionPermission(menuId, this.currentUser.level);
   }
 
   ngOnInit(): void {
@@ -205,6 +188,7 @@ export class AdminDashboardComponent implements OnInit {
         this.router.navigate(['/login']);
       } else {
         this.currentUser = this.userService.getCurrentUser();
+        
         this.filterMenusByPermission();
       }
     }

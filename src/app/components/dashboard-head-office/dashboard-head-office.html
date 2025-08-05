@@ -265,8 +265,8 @@
             <span class="text-white text-sm font-semibold">{{ getUserInitials(currentUser.fullname) }}</span>
           </div>
           <div class="flex flex-col">
-            <span class="text-sm font-medium text-gray-700">{{ currentUser.fullname || 'ไม่ระบุชื่อ' }}</span>
-            <span class="text-xs text-gray-500">{{ getUserLevelName(currentUser.level) }}</span>
+            <span class="text-sm font-medium text-gray-700">{{ currentUser.fullname }}</span>
+            <span class="text-xs text-gray-500">{{ currentUser.lvlDesc }}</span>
           </div>
         </div>
       </div>

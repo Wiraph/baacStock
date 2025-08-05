@@ -195,42 +195,26 @@ export class PermissionService {
     }
   };
 
-  constructor() { }
-
   // ตรวจสอบสิทธิ์เมนูหลัก
   hasMenuPermission(menuKey: string, userLevel: string): boolean {
     const menuConfig = this.menuPermissions[menuKey];
     return menuConfig?.levels.includes(userLevel) || false;
   }
 
-  // ตรวจสอบสิทธิ์ตาม action (simplified)
-  hasActionPermission(menuId: string, action: 'view' | 'edit' | 'delete' | 'approve', userLevel: string): boolean {
+  // ตรวจสอบสิทธิ์ 
+  hasActionPermission(menuId: string, userLevel: string): boolean {
     const menuConfig = this.subMenuPermissions[menuId];
     if (!menuConfig) return false;
     
     return menuConfig.levels.includes(userLevel);
   }
 
-  // ตรวจสอบสิทธิ์หลาย action พร้อมกัน
-  hasAnyPermission(menuId: string, actions: string[], userLevel: string): boolean {
-    return actions.some(action => this.hasActionPermission(menuId, action as any, userLevel));
-  }
-
-  // ตรวจสอบสิทธิ์ทุก action
-  hasAllPermissions(menuId: string, actions: string[], userLevel: string): boolean {
-    return actions.every(action => this.hasActionPermission(menuId, action as any, userLevel));
-  }
-
-  // ดึงสิทธิ์ที่ user มี (simplified)
-  getUserPermissions(menuId: string, userLevel: string): string[] {
-    const menuConfig = this.subMenuPermissions[menuId];
-    if (!menuConfig) return [];
-
-    return menuConfig.levels.includes(userLevel) ? ['view'] : [];
-  }
-
   // Filter menus ตามสิทธิ์
   filterMenusByPermission(menus: any[], userLevel: string): any[] {
+    if (!userLevel || userLevel === '') {
+      return menus;
+    }
+    
     const filteredMenus = menus.filter(menu => {
       // ตรวจสอบ menu หลัก
       const hasMenuPermission = this.hasMenuPermission(menu.key, userLevel);
@@ -241,7 +225,7 @@ export class PermissionService {
 
       // ตรวจสอบ sub-menus
       menu.children = menu.children.filter((child: any) => {
-        const hasViewPermission = this.hasActionPermission(child.key, 'view', userLevel);
+        const hasViewPermission = this.hasActionPermission(child.key, userLevel);
         return hasViewPermission;
       });
 
@@ -249,25 +233,5 @@ export class PermissionService {
     });
     
     return filteredMenus;
-  }
-
-  // ดึงข้อมูล menu permission
-  getMenuPermission(menuKey: string): MenuPermission | undefined {
-    return this.menuPermissions[menuKey];
-  }
-
-  // ดึงข้อมูล sub-menu permission
-  getSubMenuPermission(menuId: string): SubMenuPermission | undefined {
-    return this.subMenuPermissions[menuId];
-  }
-
-  // ดึงรายการ menu permissions ทั้งหมด
-  getAllMenuPermissions(): MenuPermission[] {
-    return Object.values(this.menuPermissions);
-  }
-
-  // ดึงรายการ sub-menu permissions ทั้งหมด
-  getAllSubMenuPermissions(): SubMenuPermission[] {
-    return Object.values(this.subMenuPermissions);
   }
 } 
