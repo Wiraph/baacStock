@@ -90,13 +90,6 @@ export class StockService {
       headers: this.createAuthHeaders()
     });
   }
-  
-  getApproveDetail(stkNote: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/approve`, {
-      params: {stkNote: stkNote},
-      headers: this.createAuthHeaders()
-    });
-  }
 
   saleStock(payload: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/purchase`, payload, {

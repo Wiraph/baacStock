@@ -15,5 +15,6 @@ export class ManageUserComponent {
   editUser(user: any) {
     // ตัวอย่าง: เปิด modal หรือ navigate ไปหน้าแก้ไขผู้ใช้
     console.log('กำลังแก้ไข', user);
+    // this.router.navigate(['/dashboard-admin/users/edit', user.id]);
   }
 }

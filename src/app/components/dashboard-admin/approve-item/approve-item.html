@@ -1,132 +1,51 @@
-<div class="m-2 bg-white shadow-md rounded-md"
-  *ngIf="!showDetailComponent && !showDetailComponentCreate && activeView=='table'">
+<div class="m-2 bg-white shadow-md rounded-md" *ngIf="!showDetailComponent && !showDetailComponentCreate">
   <div class="py-2 bg-green-400 flex justify-center rounded-t-md">
     <p class="text-white font-semibold">{{ brName }} : อนุมัติรายการ</p>
   </div>
-  <div *ngIf="requestList.length === 0" class="py-7 text-center">
-    <span class="text-2xl text-orange-600">ไม่พบรายการอนุมัติ</span>
-  </div>
-  <div *ngIf="requestList.length > 0" class="p-4">
+  <div class="p-4">
     <div class="overflow-x-auto">
       <table class="w-full table-auto border-collapse shadow-lg rounded-lg overflow-hidden text-sm">
         <thead class="bg-gradient-to-r from-green-200 to-green-100 text-gray-800">
           <tr>
-            <th class="p-3 text-center border-b font-semibold">ลำดับ</th>
-            <th class="p-3 text-center border-b font-semibold">เลขที่บัตรแสดงตน</th>
-            <th class="p-3 text-center border-b font-semibold">ชื่อ-นามสกุล</th>
-            <th class="p-3 text-center border-b font-semibold">สาขา</th>
-            <th class="p-3 text-center border-b font-semibold">หมายเลขใบหุ้น</th>
-            <th class="p-3 text-center border-b font-semibold">จำนวนหุ้น</th>
-            <th class="p-3 text-center border-b font-semibold">จำนวนเงิน</th>
+            <th class="p-3 text-left border-b font-semibold">ลำดับ</th>
+            <th class="p-3 text-left border-b font-semibold">เลขที่บัตรแสดงตน</th>
+            <th class="p-3 text-left border-b font-semibold">ชื่อ-นามสกุล</th>
+            <th class="p-3 text-left border-b font-semibold">สาขา</th>
+            <th class="p-3 text-left border-b font-semibold">หมายเลขใบหุ้น</th>
+            <th class="p-3 text-right border-b font-semibold">จำนวนหุ้น</th>
+            <th class="p-3 text-right border-b font-semibold">จำนวนเงิน</th>
             <th class="p-3 text-center border-b font-semibold">แสดง</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
           <tr *ngFor="let item of requestList; let i = index" class="hover:bg-green-50 transition duration-150">
             <td class="p-3 text-center">{{ i + 1 }}</td>
-            <td class="p-3 text-center">{{ item.cusiD }}</td>
-            <td class="p-3 text-center">{{ item.titleABBR }}{{ item.cusFName }} {{ item.cusLName }}</td>
-            <td class="p-3 text-center">{{ item.STKbrName }}</td>
-            <td class="p-3 text-center">{{ item.stkNOTE }}</td>
-            <td class="p-3 text-center">{{ item.stkUNiT | number:'1.0-0' }}</td>
-            <td class="p-3 text-center">{{ item.stkVALUE | number:'1.0-0' }}</td>
-            <td class="p-3 text-center">
-              <button type="button" class="cursor-pointer hover:text-green-600 focus:outline-none"
-                (click)="approveConfirm(item.stkNOTE, item.stCODEs)">
-                📝
-              </button>
-            </td>
+            <td class="p-3">{{ item.customerId }}</td>
+            <td class="p-3">{{ item.title }}{{ item.customerFirstName }} {{ item.customerLastName }}</td>
+            <td class="p-3">{{ item.branchName }}</td>
+            <td class="p-3">{{ item.stockNote }}</td>
+            <td class="p-3 text-right">{{ item.stockUnit | number:'1.0-0' }}</td>
+            <td class="p-3 text-right">{{ item.stockValue | number:'1.0-0' }}</td>
+            <td class="p-3 text-center cursor-pointer hover:text-green-600" (click)="approveConfirm(item.stockNote, item.statusCode)">📝</td>
           </tr>
         </tbody>
       </table>
-      <div class="flex justify-between items-center mt-4 px-4">
-        <button (click)="prevPage()" [disabled]="pageNumber <= 1"
-          class="bg-gray-300 px-3 py-1 rounded">หน้าก่อน</button>
-        <span>หน้า {{pageNumber}}</span>
-        <button (click)="nextPage()" class="bg-gray-300 px-3 py-1 rounded">หน้าถัดไป</button>
-      </div>
     </div>
   </div>
 </div>
 
-<div *ngIf="activeView == 'detail'" class="fixed inset-0 z-50 flex flex-col bg-white shadow-lg overflow-y-auto">
-  <!-- ปุ่มปิด -->
-  <div class="ml-auto p-4">
-    <button (click)="closeWindows()" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition">
-      ❌ ปิดหน้าต่างนี้
-    </button>
-  </div>
-  <!-- เนื้อหา -->
-  <div class="flex items-center flex-col space-y-4 px-4 pb-6">
-    <!-- หัวข้อ: รายละเอียดสถานะ -->
-    <div class="w-full md:w-9/12 bg-orange-400 py-3 rounded-md shadow text-center text-white text-lg font-semibold">
-      รายละเอียด : รายการ{{detailData?.status}}
-    </div>
-    <!-- รายละเอียดสถานะ -->
-    <div class="w-full md:w-9/12 bg-gray-50 p-4 rounded-md shadow space-y-2">
-      <div class="flex gap-2">
-        <p>📅 วันที่บันทึกรายการ :</p>
-        <p>{{ formatDate(detailData?.datetimeup || "") }}</p>
-      </div>
-      <div class="flex gap-2">
-        <p>👤 ผู้บันทึกรายการ :</p>
-        <p>{{detailData?.userName}} ( {{detailData?.lvlCode}} : {{detailData?.lvlDesc}} )</p>
-      </div>
-      <div class="flex gap-2">
-        <p>🏢 สาขาที่บันทึกรายการ :</p>
-        <p>{{detailData?.brCode}} : {{detailData?.brName}}</p>
-      </div>
-    </div>
-    <!-- หัวข้อ: ผู้ถือหุ้น / ใบหุ้น -->
-    <div class="w-full md:w-9/12 bg-orange-400 py-3 rounded-md shadow text-center text-white text-lg font-semibold">
-      รายละเอียด : ผู้ถือหุ้น / ใบหุ้น
-    </div>
-    <!-- รายละเอียดผู้ถือหุ้น -->
-    <div class="w-full md:w-9/12 bg-gray-50 p-4 rounded-md shadow space-y-4">
-      <div class="grid grid-cols-2 gap-2">
-        <p>🪪 เลขที่บัตรแสดงตน: {{detailData?.cusId}}</p>
-        <p>🗓 วันที่มีผล : {{formatDate(detailData?.dateIssue || "")}}</p>
-      </div>
-      <div class="grid grid-cols-2 gap-2">
-        <p>🙍‍♂️ ชื่อ-นามสกุล : {{detailData?.fullname}} [ {{detailData?.custype}} ]</p>
-      </div>
-      <hr class="my-2 border-gray-300" />
-      <div class="grid grid-cols-2 gap-2">
-        <p>🔖 หมายเลขใบหุ้น : {{detailData?.stkNote}}</p>
-        <p>🆔 หมายเลขหุ้น : {{detailData?.stkNostart}} - {{detailData?.stkNoend }}</p>
-      </div>
-      <div class="grid grid-cols-2 gap-2">
-        <p>🔢 จำนวนหุ้น : {{detailData?.unit}}</p>
-        <p>💰 มูลค่าหุ้น : {{detailData?.unitValue | number:'1.0-0'}}</p>
-      </div>
-      <div class="grid grid-cols-2 gap-2" *ngIf="detailData?.acctype != '001'">
-        <p>🏦 รับเงินปันผลโดย : {{detailData?.paydesc}}</p>
-      </div>
-      <div *ngIf="detailData?.acctype == '001'">
-        <div class="flex gap-2">
-          <p>🏦 รับเงินปันผลโดย : {{detailData?.paydesc}}{{detailData?.acctypedesc}} เลขที่บัญชี :
-            {{detailData?.accno}} ชื่อบัญชี : {{detailData?.accname}}</p>
-        </div>
-      </div>
-      <hr class="my-2 border-gray-300" />
-      <div class="grid grid-row-2 gap-2">
-        <p>📄 สถานะใบหุ้น : {{detailData?.statusDesc}}</p>
-        <p>📝 หมายเหตุ : {{detailData?.note || "-"}}</p>
-      </div>
-      <hr class="my-2 border-gray-300" />
-      <!-- ปุ่ม -->
-      <div class="flex justify-center gap-4 pt-4">
-        <button (click)="approveSelectedIssue()"
-          class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md transition">
-          ✅ อนุมัติ
-        </button>
-        <button (click)="notapproveSelectedIssue()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md transition">
-          ❌ ไม่อนุมัติ
-        </button>
-      </div>
-    </div>
-  </div>
+<div *ngIf="showDetailComponent">
+  <app-approve-transfer></app-approve-transfer>
 </div>
+
+<div *ngIf="showDetailComponentCreate">
+  <app-approve-create></app-approve-create>
+</div>
+
+<div *ngIf="showDetailComponentSale">
+  <app-approve-sale></app-approve-sale>
+</div>
+
 <!-- ✅ Loading Overlay แบบโปร่งใส + มองทะลุ + เบลอ -->
 <div *ngIf="loading"
   class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-40 backdrop-blur-sm"
