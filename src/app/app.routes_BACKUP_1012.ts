@@ -3,7 +3,7 @@ import { LoginComponent } from './components/login/login.component';
 import { AdminDashboardComponent } from './components/dashboard-admin/dashboard-admin';
 import { AuthGuard } from './guards/auth-guard';
 import { HomeComponent } from './components/dashboard-admin/home/home';
-import { CommonSharesComponent } from './components/dashboard-admin/common-shares/common-shares';
+// import { CommonSharesComponent } from './components/dashboard-admin/common-shares/common-shares';
 import { StocksComponent } from './components/dashboard-admin/stocks/stocks';
 import { UsersComponent } from './components/dashboard-admin/users/users';
 import { ManageUserComponent } from './components/dashboard-admin/manage-user/manage-user';
@@ -44,7 +44,7 @@ export const routes: Routes = [
       { path: 'contact', component: ContactComponent }, // ✅ เพิ่มเส้นทางสำหรับ ContactComponent
       { path: 'change-password', component: ChangePasswordComponent }, // ✅ เพิ่มเส้นทางสำหรับ ChangePasswordComponent
       { path: 'search-edit', component: SearchEditComponent}, // ✅ เพิ่มเส้นทางสำหรับ SearchEditComponent
-      { path: 'common-shares', component: CommonSharesComponent},
+      // { path: 'common-shares', component: CommonSharesComponent},
       { path: 'headoffice', component: DashboardHeadOfficeComponent},
       { path: 'transfer-share', component: TransferShareComponent }, // ✅ เพิ่มเส้นทางสำหรับ TransferShareComponent
       { path: 'approve-item', component: ApproveItemComponent},
@@ -69,7 +69,7 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', component: HomeComponent },
-      { path: 'common-shares', component: CommonSharesComponent },
+      // { path: 'common-shares', component: CommonSharesComponent },
       { path: 'stocks', component: StocksComponent },
       { path: 'users', component: UsersComponent },
       { path: 'manage-user', component: ManageUserComponent },

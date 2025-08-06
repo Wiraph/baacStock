@@ -45,15 +45,9 @@ export class AdminDashboardComponent implements OnInit {
       icon: '📑',
       open: false,
       children: [
-<<<<<<< HEAD
         { key: 'home', icon: '🏠', label: 'Home', route: '/dashboard-admin/' },
         { key: 'contact', icon: '📞', label: 'ติดต่อ', route: '/dashboard-admin/contact' },
-        { key: 'search-edit', icon: '🔎', label: 'ค้นหา/แก้ไข', route: '/dashboard-admin/search-edit' }
-=======
-        { icon: '🏠', label: 'Home', route: '/dashboard-admin/' },
-        { icon: '📞', label: 'ติดต่อ', route: '/dashboard-admin/contact' },
-        { icon: '🔎', label: 'ค้นหา/แก้ไข', route: '/dashboard-admin/editcustomer' }
->>>>>>> feature/search-customer
+        { key: 'search-edit', icon: '🔎', label: 'ค้นหา/แก้ไข', route: '/dashboard-admin/editcustomer' }
       ]
     },
     {

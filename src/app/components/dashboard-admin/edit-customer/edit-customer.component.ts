@@ -62,6 +62,7 @@ export class EditCustomerComponent implements OnInit {
 
   ngOnInit(): void {
     this.dataTransfer.setPageStatus('1');
+    console.log(this.dataTransfer.getPageStatus());
     this.customerForm = this.fb.group({
       customer: this.fb.group({
         cusCODE: [''],
