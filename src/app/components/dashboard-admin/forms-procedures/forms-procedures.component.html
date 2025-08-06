@@ -5,82 +5,64 @@
     <p class="text-gray-600">เอกสารแบบพิมพ์และคู่มือวิธีปฏิบัติงานด้านหุ้นธนาคาร</p>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="loading" class="flex justify-center items-center py-12">
-    <div class="flex items-center space-x-3">
-      <div class="inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-      <span class="text-gray-600">กำลังโหลดเอกสาร...</span>
-    </div>
-  </div>
-
-  <!-- Documents Table -->
-  <div *ngIf="!loading" class="bg-white rounded-xl shadow-md overflow-hidden">
-    <!-- Table Header -->
-    <div class="bg-blue-500 text-white text-center py-4">
-      <h2 class="text-lg font-semibold">รายการ Download ไฟล์</h2>
+  <!-- Documents List -->
+  <div *ngIf="!loading && documents.length > 0" class="bg-white rounded-xl shadow-md p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-800">📚 เอกสารที่อัปโหลดแล้ว</h2>
+      <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+        {{ documents.length }} ไฟล์
+      </span>
     </div>
 
-    <!-- Table Content -->
-    <div class="overflow-x-auto">
-      <table class="w-full">
+    <!-- Files Table -->
+    <div class="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 hover:scrollbar-thumb-slate-400">
+      <table class="w-full table-auto">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">ไฟล์</th>
+            <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">จัดการ</th>
+          </tr>
+        </thead>
         <tbody class="divide-y divide-gray-200">
-          <tr *ngFor="let document of documents; let i = index" 
-              class="hover:bg-gray-50 transition-all duration-200"
-              [class.bg-yellow-50]="i % 2 === 0">
+          <tr *ngFor="let doc of documents; trackBy: trackByFileName" 
+              class="hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200">
             
-            <!-- Document Info -->
-            <td class="px-6 py-4">
+            <td class="px-4 py-4">
               <div class="flex items-center space-x-3">
-                <span class="text-2xl transition-transform duration-200 hover:scale-110">
-                  {{ getFileIcon(document.fileName) }}
+                <span class="text-2xl transition-transform duration-200 hover:scale-110 drop-shadow-sm">
+                  {{ getFileIcon(doc.fileName || doc.name) }}
                 </span>
                 <div class="flex-1">
                   <div class="flex items-center space-x-2 mb-1">
-                    <p class="font-medium text-gray-800">{{ document.fileName }}</p>
-                    <span [class]="getCategoryBadge(document.category).class + ' px-2 py-1 rounded-full text-xs font-medium'">
-                      {{ getCategoryBadge(document.category).text }}
-                    </span>
+                    <p class="font-medium text-gray-800">{{ doc.fileName || doc.name || 'ไม่ระบุชื่อไฟล์' }}</p>
                   </div>
                   <div class="flex items-center space-x-4 text-sm text-gray-500">
-                    <span>📅 {{ document.uploadDate | date:'dd/MM/yyyy' }}</span>
-                    <span>📦 {{ formatFileSize(document.fileSize) }}</span>
+                    <span *ngIf="doc.uploadDate || doc.createdDate">
+                      📅 {{ (doc.uploadDate || doc.createdDate) | date:'dd/MM/yyyy' }}
+                    </span>
+                    <span *ngIf="doc.size || doc.fileSize">
+                      📏 {{ formatFileSize(doc.size || doc.fileSize) }}
+                    </span>
                   </div>
-                  <p *ngIf="document.description" class="text-sm text-gray-600 mt-1">
-                    {{ document.description }}
+                  <p *ngIf="doc.description" class="text-sm text-gray-600 mt-1">
+                    {{ doc.description }}
                   </p>
                 </div>
               </div>
             </td>
-
-            <!-- Download Button -->
-            <td class="px-6 py-4 text-right">
-              <button 
-                (click)="downloadDocument(document)"
-                class="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg hover:bg-blue-200 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 font-medium">
-                Download
-              </button>
-            </td>
-          </tr>
-          
-          <!-- Empty State -->
-          <tr *ngIf="documents.length === 0">
-            <td colspan="2" class="px-6 py-12 text-center text-gray-500">
-              <div class="space-y-3">
-                <div class="text-5xl">📂</div>
-                <p class="text-lg">ไม่มีเอกสารในระบบ</p>
-                <p class="text-sm">กรุณาติดต่อผู้ดูแลระบบ</p>
+            <td class="px-4 py-4">
+              <div class="flex items-center justify-center space-x-1 md:space-x-2 flex-col md:flex-row gap-1 md:gap-0">
+                <button 
+                  (click)="downloadDocument(doc)"
+                  class="text-blue-600 hover:text-blue-800 hover:scale-110 hover:bg-blue-50 transition-all duration-200 p-2 rounded-full"
+                  title="ดาวน์โหลด">
+                  📥
+                </button>
               </div>
             </td>
           </tr>
         </tbody>
       </table>
-    </div>
-
-    <!-- Footer Info -->
-    <div class="bg-gray-50 px-6 py-4 border-t">
-      <div class="flex items-center justify-between text-sm text-gray-600">
-        <span>📊 ทั้งหมด {{ documents.length }} เอกสาร</span>
-      </div>
     </div>
   </div>
 </div>
