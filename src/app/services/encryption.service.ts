@@ -8,20 +8,18 @@ import { environment } from '../../environments/environments';
 export class EncryptionService {
   private readonly encryptionKey = environment.encryptionKey ;
 
-  encryptPayload(payload: any): { Data: string; IV: string } {
-    const json = JSON.stringify(payload);
-
-    const iv = CryptoJS.lib.WordArray.random(16);
-    const key = CryptoJS.enc.Utf8.parse(this.encryptionKey);
-    const encrypted = CryptoJS.AES.encrypt(json, key, {
-      iv: iv,
-      mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7
-    });
-
-    return {
-      Data: encrypted.toString(),
-      IV: CryptoJS.enc.Base64.stringify(iv)
-    };
-  }
+  encrypPayload(payload: any): { data: string; iv: string } {
+      const iv = CryptoJS.lib.WordArray.random(16);
+      const keyWA = CryptoJS.enc.Utf8.parse(this.encryptionKey);
+      const payloadStr = JSON.stringify(payload);
+      const encrypted = CryptoJS.AES.encrypt(payloadStr, keyWA, {
+        iv: iv,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7,
+      });
+      return {
+        data: encrypted.ciphertext.toString(CryptoJS.enc.Base64),
+        iv: iv.toString(CryptoJS.enc.Base64),
+      };
+    }
 }

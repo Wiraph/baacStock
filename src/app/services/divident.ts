@@ -1,13 +1,13 @@
-import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { EncryptionService } from './encryption.service';
+import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CustomerStockService {
-  private readonly apiUrl = 'https://localhost:7089/api/CustomerStock';
+export class Divident {
+  private readonly apiUrl = 'https://localhost:7089/api/Dividend';
 
   constructor(
     private readonly http: HttpClient,
@@ -15,9 +15,12 @@ export class CustomerStockService {
     private readonly encryptionService: EncryptionService
   ) { }
 
-  searchCustomerStock(requestPayload: any) {
+  getDividend(requestPayload: any) {
     const encrypPayload = this.encryptionService.encrypPayload(requestPayload);
-    return this.http.post<any[]>(`${this.apiUrl}/search`, encrypPayload, {headers: this.createAuthHeaders()});
+    console.log("ข้อมูลเตรียมส่ง ", encrypPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/dividend`, encrypPayload, {
+      headers: this.createAuthHeaders()
+    });
   }
 
   private createAuthHeaders(): HttpHeaders {
