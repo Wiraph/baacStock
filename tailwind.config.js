@@ -2,9 +2,15 @@
 module.exports = {
   content: ['./src/**/*.{html,ts}'],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'sans': ['"Prompt"', '"Roboto"', '"Helvetica Neue"', 'sans-serif'],
+        'prompt': ['"Prompt"', 'sans-serif'],
+        'roboto': ['"Roboto"', 'sans-serif'],
+      },
+    },
   },
   plugins: [
-    require('@tailwindcss/typography'), // หากคุณใช้ plugin typography
+    require('@tailwindcss/typography'), 
   ],
 };

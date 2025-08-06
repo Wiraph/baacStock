@@ -2,4 +2,53 @@
 @import "tailwindcss";
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { 
+  margin: 0; 
+  font-family: "Prompt", "Roboto", "Helvetica Neue", sans-serif; 
+}
+
+/* Global font family override for all elements */
+* {
+  font-family: "Prompt", "Roboto", "Helvetica Neue", sans-serif !important;
+}
+
+/* Ensure Tailwind uses Prompt as the default font */
+.font-sans {
+  font-family: "Prompt", "Roboto", "Helvetica Neue", sans-serif !important;
+}
+
+/* Custom font weights for Prompt */
+.font-light {
+  font-weight: 300 !important;
+}
+
+.font-normal {
+  font-weight: 400 !important;
+}
+
+.font-medium {
+  font-weight: 500 !important;
+}
+
+.font-semibold {
+  font-weight: 600 !important;
+}
+
+.font-bold {
+  font-weight: 700 !important;
+}
+
+/* Ensure all text elements use Prompt */
+h1, h2, h3, h4, h5, h6, p, span, div, button, input, textarea, select, label {
+  font-family: "Prompt", "Roboto", "Helvetica Neue", sans-serif !important;
+}
+
+/* SweetAlert2 font override */
+.swal2-popup {
+  font-family: "Prompt", "Roboto", "Helvetica Neue", sans-serif !important;
+}
+
+/* Material Design components font override */
+.mat-typography {
+  font-family: "Prompt", "Roboto", "Helvetica Neue", sans-serif !important;
+}
