@@ -38,7 +38,7 @@ export class FileService {
     const url = `${this.apiUrl}/download/${encodedFileName}`;
 
     return this.http.get(url, {
-      responseType: 'blob'  // สำคัญ ต้องเป็น blob เพราะเป็น binary file
+      responseType: 'blob' 
     });
   }
 

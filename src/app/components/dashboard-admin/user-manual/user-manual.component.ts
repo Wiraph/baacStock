@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 
@@ -23,7 +23,7 @@ export class UserManualComponent implements OnInit {
   manuals: Manual[] = [];
   loading = false;
 
-  constructor() { }
+  constructor(private cd: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.loadManuals();
@@ -32,6 +32,7 @@ export class UserManualComponent implements OnInit {
   // Load Manuals (Mock Data)
   private loadManuals() {
     this.loading = true;
+    this.cd.markForCheck(); // Force UI update
     
     // Load data immediately without delay
     this.manuals = [
@@ -155,6 +156,7 @@ export class UserManualComponent implements OnInit {
     ];
     
     this.loading = false;
+    this.cd.markForCheck(); // Force UI update after data loaded
   }
 
   // Download Manual
@@ -199,13 +201,8 @@ export class UserManualComponent implements OnInit {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
-  // Get Category Badge Style
-  getCategoryBadge(category: string): { text: string; class: string } {
-    return { text: '📖 คู่มือ - เอกสาร', class: 'bg-green-100 text-green-800' };
-  }
-
-  // Get Total Count
-  get totalCount(): number {
-    return this.manuals.length;
+  // Track By Function for ngFor
+  trackByFileName(index: number, manual: Manual): string {
+    return manual.fileName || index.toString();
   }
 }

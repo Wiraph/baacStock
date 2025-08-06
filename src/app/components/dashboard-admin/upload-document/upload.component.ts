@@ -129,6 +129,7 @@ export class UploadComponent implements OnInit {
           error: err => {
             entry.status = 'error';
             console.error(`❌ Upload failed for ${file.name}`, err);
+            Swal.fire('ผิดพลาด', `ไม่สามารถอัปโหลดไฟล์ ${file.name} ได้`, 'error');
             resolve();
           }
         });
@@ -154,27 +155,20 @@ export class UploadComponent implements OnInit {
       text: `ลบไฟล์ ${file} ใช่หรือไม่?`,
       showCancelButton: true,
       confirmButtonText: 'ลบ',
-      cancelButtonColor: '#d33'
+      cancelButtonText: 'ยกเลิก',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6'
     }).then(result => {
       if (result.isConfirmed) {
         this.fileService.delete(file).subscribe({
           next: () => {
-            Swal.fire({
-              icon: 'success',
-              title: 'ลบไฟล์สำเร็จ',
-              text: `${file} ถูกลบเรียบร้อยแล้ว`,
-              showConfirmButton: true
-            });
+            Swal.fire('สำเร็จ', `ลบไฟล์ ${file} เรียบร้อยแล้ว`, 'success');
             this.loadUploadedFiles();
             this.cd.markForCheck();
           },
           error: err => {
-            Swal.fire({
-              icon: 'error',
-              title: 'เกิดข้อผิดพลาด',
-              text: `ไม่สามารถลบไฟล์ ${file} ได้: ${err?.message || 'กรุณาลองใหม่'}`,
-              showConfirmButton: true
-            });
+            console.error(`❌ Delete failed for ${file}`, err);
+            Swal.fire('ผิดพลาด', `ไม่สามารถลบไฟล์ ${file} ได้`, 'error');
           }
         });
       }
@@ -186,6 +180,7 @@ export class UploadComponent implements OnInit {
       Swal.fire('ไม่มีชื่อไฟล์', 'กรุณาเลือกไฟล์ที่ต้องการดาวน์โหลด', 'warning');
       return;
     }
+    
     this.fileService.downloadFile(fileName).subscribe({
       next: (blob) => {
         const link = document.createElement('a');
@@ -195,6 +190,8 @@ export class UploadComponent implements OnInit {
         link.click();
         window.URL.revokeObjectURL(url);
         this.cd.markForCheck();
+        
+        Swal.fire('สำเร็จ', `ดาวน์โหลด ${fileName} เรียบร้อยแล้ว`, 'success');
       },
       error: (err) => {
         console.error(`❌ Download failed for ${fileName}`, err);
