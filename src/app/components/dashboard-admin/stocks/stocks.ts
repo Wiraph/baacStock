@@ -42,7 +42,6 @@ export class StocksComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['cusId'] && this.cusId) {
       this.loadStock();
-      this.loadCus(this.cusId);
 
       console.log('view mode: ', this.viewMode);
 
@@ -67,19 +66,7 @@ export class StocksComponent implements OnChanges {
     });
   }
 
-  loadCus(cusId: string) {
-    this.customerService.getCustomerById(cusId).subscribe({
-      next: async (data) => {
-        console.log('cus Data', data);
-        this.cusData = data;
-        console.log(this.cusData);
-        this.cd.detectChanges();
-      },
-      error: () => {
-        alert("ไม่สามารถดึงข้อมูลผู้ใช้งานได้");
-      }
-    });
-  }
+  
 
   formatThaiDateTime(datetimeup: string): string {
     if (!datetimeup || !datetimeup.includes('-')) return '-';

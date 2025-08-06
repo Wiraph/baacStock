@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
-import { Observable } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
+import { EncryptionService } from './encryption.service';
 
 export interface CustomerSearchDto {
   cusId?: string;
@@ -14,63 +14,28 @@ export interface CustomerSearchDto {
   providedIn: 'root'
 })
 export class CustomerService {
-  private apiUrl = 'https://localhost:7089/api/customer';
+  private readonly apiUrl = 'https://localhost:7089/api/Customer';
 
   constructor(
-    private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private readonly http: HttpClient,
+    @Inject(PLATFORM_ID) private readonly platformId: Object,
+    private readonly encryped: EncryptionService
   ) { }
 
-  getAllCustype(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/custype`, { headers: this.createAuthHeaders() });
+  getCustomer(requestPayload: any) {
+    const encrypPayload = this.encryped.encrypPayload(requestPayload);
+    console.log("log", encrypPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/customer`, encrypPayload, { headers: this.createAuthHeaders() });
   }
 
-  getCustomerDataById(cusId: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/customer`, { params: {cusId }, headers: this.createAuthHeaders() })
+  getCustomerTr(requestPayload: any) {
+    const encrypPayload = this.encryped.encrypPayload(requestPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/customer2tr`, encrypPayload, { headers: this.createAuthHeaders() });
   }
 
-  getCustomerById(cusId: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/edit`, { params: {cusId }, headers: this.createAuthHeaders() });
-  }
-
-  getAllDoctype(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/doctype`, { headers: this.createAuthHeaders() });
-  }
-
-  getAllTitle(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/title`, { headers: this.createAuthHeaders() });
-  }
-
-  getAllProvince(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/province`, { headers: this.createAuthHeaders() });
-  }
-
-  getAumphor(prvCode: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/aumphor/${prvCode}`, { headers: this.createAuthHeaders() });
-  }
-
-  getTumbons(prvCode: string, ampCode: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/tumbons/${prvCode}/${ampCode}`, { headers: this.createAuthHeaders() });
-  }
-
-  updateCustomer(data: {
-    customer: any;
-    homeAddress: any;
-    currentAddress: any;
-  }): Observable<any> {
-    const headers = this.createAuthHeaders();
-    return this.http.put(`${this.apiUrl}/update`, data, { headers });
-  }
-
-  getAllAcctypes(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/acctyps`, { headers: this.createAuthHeaders() });
-  }
-
-  searchCustomer(criteria: any, page: number, pageSize: number) {
-    return this.http.post<any>(
-      `${this.apiUrl}/search?pageNumber=${page}&pageSize=${pageSize}`,
-      criteria , { headers: this.createAuthHeaders() }
-    );
+  postUpdateCustomer(requestPayload: any) {
+    const encrypPayload = this.encryped.encrypPayload(requestPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/update`, encrypPayload, { headers: this.createAuthHeaders() });
   }
 
   private createAuthHeaders(): HttpHeaders {

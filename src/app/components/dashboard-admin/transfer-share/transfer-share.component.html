@@ -1,5 +1,5 @@
 <div *ngIf="activeView == 'search'">
-  <app-search-edit [InputtransferShare]="internalViewName" (viewStock)="onViewStock($event)"
+  <app-search-edit (viewStock)="onViewStock($event)"
     (transferStock)="onTransferStockSelected($event)"></app-search-edit>
 </div>
 

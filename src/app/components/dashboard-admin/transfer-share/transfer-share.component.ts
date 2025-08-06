@@ -165,14 +165,7 @@ export class TransferShareComponent implements OnInit {
 
   onTransferStockSelected(stock: any) {
     // เรียก api เพื่อดึงข้อมูลของลูกค้า
-    this.customerService.getCustomerDataById(stock.cusId).subscribe({
-      next: (stock) => {
-        this.selectedcustomer = stock;
-        this.activeView = 'stock-transfer';
-        console.log("ข้อมูลที่ได้รับจาก stock", this.selectedcustomer);
-        this.cdRef.detectChanges();
-      }
-    });
+    
   }
 
   confirmReceiver() {
