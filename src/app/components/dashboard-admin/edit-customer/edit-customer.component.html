@@ -4,7 +4,7 @@
 <div *ngIf="activeView == 'edit' && customer">
     <div class="m-4 bg-white rounded-md shadow-md">
         <div class="py-3 bg-green-400 rounded-t-md">
-            <p class="text-center text-xl text-white font-semibold"> : แก้ไขข้อมูล</p>
+            <p class="text-center text-xl text-white font-semibold">✏️ แก้ไขข้อมูล</p>
         </div>
         <div class="p-4">
             <form (ngSubmit)="onSubmit($event)" [formGroup]="customerForm">

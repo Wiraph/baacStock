@@ -9,7 +9,7 @@
         <th class="border px-4 py-2 text-center">ชื่อ - นามสกุล</th>
         <th class="border px-4 py-2 text-center">สถานะ</th>
         <th class="border px-4 py-2 text-center">ใบหุ้น</th>
-        <th class="border px-4 py-2 text-center">แก้ไข</th>
+        <th *ngIf="canEdit()" class="border px-4 py-2 text-center">แก้ไข</th>
       </tr>
     </thead>
     <tbody>
@@ -22,11 +22,6 @@
         <td class="border px-4 py-1 text-center">
           <button class="cursor-pointer" (click)="onViewStockClick(r)">
             📄
-          </button>
-        </td>
-        <td class="border px-4 py-1 text-center">
-          <button class="cursor-pointer " (click)="onEditClick(r)">
-            ✏️
           </button>
         </td>
       </tr>

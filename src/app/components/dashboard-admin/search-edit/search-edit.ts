@@ -5,6 +5,7 @@ import { CustomerStockService } from '../../../services/customer-stock-service';
 import { JwtDecoder } from '../../../services/jwt-decoder';
 import { DataTransfer } from '../../../services/data-transfer';
 import { StocksComponent } from '../stocks/stocks';
+import { UserService } from '../../../services/user';
 
 
 @Component({
@@ -46,12 +47,14 @@ export class SearchEditComponent implements OnInit {
   pageSize = 20;
   statusPage = '1';
   icon = '';
+  currentUser: any;
 
   constructor(
     private readonly cd: ChangeDetectorRef,
     private readonly cusstomerStockService: CustomerStockService,
     private readonly jwtCoder: JwtDecoder,
     private readonly dataTrasfer: DataTransfer,
+    private readonly userService: UserService,
   ) { }
 
   nextPage() {
@@ -88,6 +91,9 @@ export class SearchEditComponent implements OnInit {
     const token = sessionStorage.getItem('token');
     const decoder = this.jwtCoder.decodeToken(String(token));
     this.branch = decoder.BrName ?? "";
+    
+    // โหลดข้อมูล user ปัจจุบัน
+    this.currentUser = this.userService.getCurrentUser();
   }
 
   onSubmit(event: Event) {

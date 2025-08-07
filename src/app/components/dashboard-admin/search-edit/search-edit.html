@@ -45,7 +45,7 @@
             <th class="px-4 py-3 text-center font-medium">ชื่อ - นามสกุล</th>
             <th class="px-4 py-3 text-center font-medium">สถานะ</th>
             <th class="px-4 py-3 text-center font-medium">ใบหุ้น</th>
-            <th class="px-4 py-3 text-center font-medium">แก้ไข</th>
+            <th *ngIf="currentUser?.level === '99' || currentUser?.level === '85' || currentUser?.level === '05'" class="px-4 py-3 text-center font-medium">แก้ไข</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200 text-sm">
@@ -60,7 +60,7 @@
                 📄
               </button>
             </td>
-            <td class="px-4 py-2 text-center">
+            <td *ngIf="currentUser?.level === '99' || currentUser?.level === '85' || currentUser?.level === '05'" class="px-4 py-2 text-center">
               <button class="text-yellow-600 hover:text-yellow-800" (click)="onHandle(r.cusiD)">
                 {{ this.icon }}
               </button>
