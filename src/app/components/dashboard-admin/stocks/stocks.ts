@@ -72,7 +72,7 @@ export class StocksComponent implements OnInit {
   
 
   formatThaiDateTime(datetimeup: string): string {
-    if (!datetimeup || !datetimeup.includes('-')) return '-';
+    if (!datetimeup?.includes('-')) return '-';
 
     const [datePart, timePart] = datetimeup.split('-');
     if (datePart.length !== 8 || timePart.length !== 6) return '-';
