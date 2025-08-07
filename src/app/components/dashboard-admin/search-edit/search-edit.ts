@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { CustomerStockService } from '../../../services/customer-stock-service';
 import { JwtDecoder } from '../../../services/jwt-decoder';
 import { DataTransfer } from '../../../services/data-transfer';
+import { StocksComponent } from '../stocks/stocks';
 
 
 @Component({
@@ -12,13 +13,16 @@ import { DataTransfer } from '../../../services/data-transfer';
   imports: [
     FormsModule,
     CommonModule,
+    StocksComponent
 ],
   templateUrl: './search-edit.html',
   styleUrls: ['./search-edit.css']
 })
 export class SearchEditComponent implements OnInit {
   @Output() statusView = new EventEmitter<{ view: string; cusId: string }>();
+  // @Output() cusId = new EventEmitter<{cusid: string}>();
 
+  cusId: string = '';
   titleSearch: string = '';
   branch = '';
   activeView = 'search';
@@ -163,6 +167,12 @@ export class SearchEditComponent implements OnInit {
       this.activeView = 'edit';
       this.statusView.emit({ view: 'edit', cusId: cusId });
     }
+  }
+
+  onViewStock(cusId: string) {
+    this.cusId = cusId;
+    this.activeView = 'stock';
+    this.cd.detectChanges();
   }
 }
 

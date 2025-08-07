@@ -126,9 +126,9 @@ export class AdminDashboardComponent implements OnInit {
   ];
 
   constructor(
-    private router: Router,
-    private userService: UserService,
-    private permissionService: PermissionService
+    private readonly router: Router,
+    private readonly userService: UserService,
+    private readonly permissionService: PermissionService
   ) { }
 
   toggleSidebar() {

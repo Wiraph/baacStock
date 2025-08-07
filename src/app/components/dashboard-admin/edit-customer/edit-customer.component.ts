@@ -251,7 +251,7 @@ export class EditCustomerComponent implements OnInit {
         cusTAXid: this.customer.cusTAXid || '',
         cusFName: this.customer.cusFName || '',
         cusLName: this.customer.cusLName || '',
-        unit: this.unit || '',  // ใช้ this.unit ที่เก็บแยกไว้
+        unit: this.unit || '0',  // ใช้ this.unit ที่เก็บแยกไว้
         titleCode: this.customer.titleCode || '',
         email: this.customer.email || '',
         phonE_MOBILE: this.customer.phonE_MOBILE || ''

@@ -1,10 +1,7 @@
-import { Component, Input, SimpleChanges, OnChanges, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy } from '@angular/core';
 import { StockService, StockItem } from '../../../services/stock';
-import { ChangeDetectorRef } from '@angular/core';
 import { CustomerService } from '../../../services/customer';
-import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-stocks',
@@ -12,44 +9,28 @@ import { ActivatedRoute, Router } from '@angular/router';
   imports: [CommonModule],
   templateUrl: './stocks.html',
   // styleUrl: ['./stocks.css'],
-  changeDetection: ChangeDetectionStrategy.Default
 })
-export class StocksComponent implements OnChanges {
+export class StocksComponent implements OnInit {
   @Input() cusId: string = '';
-  @Input() fullName: string = '';
-  @Input() statusDesc: string = '';
-  @Input() stNotesList: string[] = [];
-  @Input() viewMode: string = '';
-  @Output() back = new EventEmitter<void>();
-  @Output() success = new EventEmitter<void>();
-  @Output() transferStock = new EventEmitter<any>();
+  @Output() back = new EventEmitter<string>();
 
 
-  stockList: StockItem[] = [];
+  stockList: any[] = [];
   cusData: any = null;
   showTransferForm = false;
   selectedStock: StockItem | null = null;
 
 
   constructor(
-    private stockService: StockService,
-    private customerService: CustomerService,
-    private cd: ChangeDetectorRef,
-    private router: Router,
-    private route: ActivatedRoute
+    private readonly stockService: StockService,
+    private readonly customerService: CustomerService,
+    private readonly cd: ChangeDetectorRef,
   ) { }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['cusId'] && this.cusId) {
-      this.loadStock();
-
-      console.log('view mode: ', this.viewMode);
-
-      if (this.viewMode === 'transfer') {
-
-      } else if (this.viewMode === 'viewOnly') {
-        // ห้ามแก้ไข
-      }
+  ngOnInit(): void {
+    if (this.cusId != '') {
+      console.log("CudId ที่ถูกส่งมา ", this.cusId);
+      this.loadCustomerStock(this.cusId);
     }
   }
 
@@ -64,6 +45,28 @@ export class StocksComponent implements OnChanges {
         console.error('❌ เกิดข้อผิดพลาดในการโหลดใบหุ้น', err);
       }
     });
+  }
+
+  loadCustomerStock(cusiD: string) {
+    const payload = {
+      GetDtl: "bySTK@byCUS",
+      StkNo: "",
+      CusId: cusiD,
+      CusFirstName: "",
+      CusLastName: "",
+      StkA: "1",
+      PageNumber: 1,
+      PageSize: 9999999
+    };
+
+    this.customerService.searchCustomerStk(payload).subscribe({
+      next: (res) => {
+        this.stockList = res;
+        this.cd.detectChanges();
+      }, error: (err) => {
+        console.log("Load data fail...", err);
+      }
+    })
   }
 
   
@@ -83,7 +86,6 @@ export class StocksComponent implements OnChanges {
 
     if (isNaN(year) || isNaN(month) || isNaN(day)) return '-';
 
-    const date = new Date(year, month, day, hour, minute, second);
     const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
     const pad = (n: number) => n < 10 ? '0' + n : n.toString();
 
@@ -105,13 +107,8 @@ export class StocksComponent implements OnChanges {
     this.selectedStock = null;
   }
 
-  onTransferStockClick(stock: StockItem) {
-    alert("ระบบทำงาน");
-    this.transferStock.emit(stock);
-  }
-
 
   goBack() {
-    this.back.emit();
+    this.back.emit('search');
   }
 }

@@ -56,7 +56,7 @@
             <td class="px-4 py-2 text-center">{{ r.titleABBR }}{{ r.cuSfname }} {{ r.cuSlname }}</td>
             <td class="px-4 py-2 text-center">{{ r.stDESC || '-' }}</td>
             <td class="px-4 py-2 text-center">
-              <button class="text-blue-600 hover:text-blue-800" title="ดูใบหุ้น">
+              <button (click)="onViewStock(r.cusiD)" class="text-blue-600 hover:text-blue-800" title="ดูใบหุ้น">
                 📄
               </button>
             </td>
@@ -96,4 +96,8 @@
       </div>
     </div>
   </div>
+</div>
+
+<div *ngIf="activeView == 'stock'">
+  <app-stocks [cusId]="cusId" (back)="activeView = $event"></app-stocks>
 </div>
