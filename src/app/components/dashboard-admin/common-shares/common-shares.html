@@ -16,8 +16,7 @@
   </div>
 </div> -->
 <div *ngIf="activeView === 'search'">
-  <app-search-edit [commonShare]="commonShares" [attr.debug]="commonShares"
-    (common)="onCommondSelected($event)"></app-search-edit>
+  <app-search-edit></app-search-edit>
 </div>
 
 <div *ngIf="activeView === 'sale-stock-common'" class="rounded-xl bg-white shadow-lg">

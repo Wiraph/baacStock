@@ -1,6 +1,6 @@
 <!-- หน้าค้นหา -->
 <div *ngIf="activeView === 'search'">
-  <app-search-edit [InputblockCertificates]="internalViewName" 
+  <app-search-edit 
                    (viewStock)="onViewStock($event)"
                    (blockCertificate)="onBlockCertificateSelected($event)">
   </app-search-edit>

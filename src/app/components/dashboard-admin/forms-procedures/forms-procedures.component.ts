@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 import { FileService } from '../../../services/file';
@@ -21,21 +21,34 @@ interface Document {
 })
 export class FormsProceduresComponent implements OnInit {
 
-  documents: Document[] = [];
+  documents: any[] = [];
   loading = false;
 
+<<<<<<< HEAD
   constructor(private fileService: FileService) { }
+=======
+  constructor(
+    private fileService: FileService,
+    private cd: ChangeDetectorRef
+  ) { }
+>>>>>>> develop
 
   ngOnInit(): void {
     this.loadDocuments();
   }
 
+<<<<<<< HEAD
   // Load Documents จาก API
+=======
+  // Load Documents จาก API - แบบเรียบง่ายเหมือน upload component
+>>>>>>> develop
   private loadDocuments() {
     this.loading = true;
+    this.cd.markForCheck(); // Force UI update
     
     this.fileService.getFiles().subscribe({
       next: (files) => {
+<<<<<<< HEAD
         
         if (!files || files.length === 0) {
           this.documents = [];
@@ -93,6 +106,23 @@ export class FormsProceduresComponent implements OnInit {
 
   // Download Document
   downloadDocument(doc: Document): void {
+=======
+        this.documents = files || [];
+        this.loading = false;
+        this.cd.markForCheck(); // Force UI update after data loaded
+      },
+      error: (error) => {
+        this.documents = [];
+        this.loading = false;
+        this.cd.markForCheck(); // Force UI update on error
+        Swal.fire('ผิดพลาด', 'ไม่สามารถโหลดเอกสารได้', 'error');
+      }
+    });
+  }
+
+  // Download Document
+  downloadDocument(doc: any): void {
+>>>>>>> develop
     if (!doc.fileName) {
       Swal.fire('ไม่มีชื่อไฟล์', 'กรุณาเลือกไฟล์ที่ต้องการดาวน์โหลด', 'warning');
       return;
@@ -137,4 +167,12 @@ export class FormsProceduresComponent implements OnInit {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
+<<<<<<< HEAD
+=======
+  // Track By Function for ngFor
+  trackByFileName(index: number, doc: any): string {
+    return doc.fileName || doc.name || index.toString();
+  }
+
+>>>>>>> develop
 }

@@ -92,15 +92,12 @@
             <div class="flex gap-4">
                 <div class="mb-4 flex-1">
                     <label class="block mb-1 text-sm">จังหวัด:</label>
-                    <select [(ngModel)]="homeAddress.prvCode" (change)="loadHomeAumphor(homeAddress.prvCode)"
                         class="w-full border rounded px-3 py-2">
                         <option *ngFor="let pv of provinceList" [value]="pv.prvCode">{{ pv.prvName }}</option>
-                    </select>
                 </div>
                 <div class="mb-4 flex-1">
                     <label class="block mb-1 text-sm">อำเภอ:</label>
                     <select [(ngModel)]="homeAddress.ampCode"
-                        (change)="loadHomeTumbon(homeAddress.prvCode, homeAddress.ampCode)"
                         class="w-full border rounded px-3 py-2">
                         <option *ngFor="let amp of homeAumphors" [value]="amp.ampCode">{{ amp.ampName }}</option>
                     </select>
@@ -147,15 +144,12 @@
             <div class="flex gap-4">
                 <div class="mb-4 flex-1">
                     <label class="block mb-1 text-sm">จังหวัด:</label>
-                    <select [(ngModel)]="currentAddress.prvCode" (change)="loadCurrentAumphor(currentAddress.prvCode)"
                         class="w-full border rounded px-3 py-2">
                         <option *ngFor="let pv of provinceList" [value]="pv.prvCode">{{ pv.prvName }}</option>
-                    </select>
                 </div>
                 <div class="mb-4 flex-1">
                     <label class="block mb-1 text-sm">อำเภอ:</label>
                     <select [(ngModel)]="currentAddress.ampCode"
-                        (change)="loadCurrentTumbon(currentAddress.prvCode, currentAddress.ampCode)"
                         class="w-full border rounded px-3 py-2">
                         <option *ngFor="let amp of currentAumphors" [value]="amp.ampCode">{{ amp.ampName }}</option>
                     </select>
@@ -194,8 +188,7 @@
         </div>
 
         <div class="flex justify-end space-x-2 mt-6">
-            <button (click)="onCancelEdit()" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">❌
-                ยกเลิก</button>
+     
             <button (click)="onSaveEdit()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">💾
                 บันทึก</button>
         </div>

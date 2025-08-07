@@ -1,6 +1,6 @@
 <!-- หน้าค้นหา -->
 <div *ngIf="activeView === 'search'">
-  <app-search-edit [InputDividend]="internalViewName" 
+  <app-search-edit 
                    (viewStock)="onViewStock($event)"
                    (dividend)="onDividendSelected($event)">
   </app-search-edit>

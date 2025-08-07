@@ -5,45 +5,43 @@
     <p class="text-gray-600">คู่มือและเอกสารการใช้งานระบบหุ้นธนาคาร</p>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="loading" class="flex justify-center items-center py-12">
-    <div class="flex items-center space-x-3">
-      <div class="inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-      <span class="text-gray-600">กำลังโหลดคู่มือ...</span>
-    </div>
-  </div>
-
-  <!-- Manuals Table -->
-  <div *ngIf="!loading" class="bg-white rounded-xl shadow-md overflow-hidden">
-    <!-- Table Header -->
-    <div class="bg-blue-500 text-white text-center py-4">
-      <h2 class="text-lg font-semibold">รายการ Download ไฟล์</h2>
+  <!-- Manuals List -->
+  <div *ngIf="!loading && manuals.length > 0" class="bg-white rounded-xl shadow-md p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-800">📚 คู่มือการใช้งาน</h2>
+      <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+        {{ manuals.length }} ไฟล์
+      </span>
     </div>
 
-    <!-- Table Content -->
-    <div class="overflow-x-auto">
-      <table class="w-full">
+    <!-- Files Table -->
+    <div class="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 hover:scrollbar-thumb-slate-400">
+      <table class="w-full table-auto">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">ไฟล์</th>
+            <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">จัดการ</th>
+          </tr>
+        </thead>
         <tbody class="divide-y divide-gray-200">
-          <tr *ngFor="let manual of manuals; let i = index" 
-              class="hover:bg-gray-50 transition-all duration-200"
-              [class.bg-yellow-50]="i % 2 === 0">
+          <tr *ngFor="let manual of manuals; trackBy: trackByFileName" 
+              class="hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200">
             
-            <!-- Manual Info -->
-            <td class="px-6 py-4">
+            <td class="px-4 py-4">
               <div class="flex items-center space-x-3">
-                <span class="text-2xl transition-transform duration-200 hover:scale-110">
+                <span class="text-2xl transition-transform duration-200 hover:scale-110 drop-shadow-sm">
                   {{ getFileIcon(manual.fileName) }}
                 </span>
                 <div class="flex-1">
                   <div class="flex items-center space-x-2 mb-1">
                     <p class="font-medium text-gray-800">{{ manual.fileName }}</p>
-                    <span [class]="getCategoryBadge(manual.category).class + ' px-2 py-1 rounded-full text-xs font-medium'">
-                      {{ getCategoryBadge(manual.category).text }}
+                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                      📖 คู่มือ
                     </span>
                   </div>
                   <div class="flex items-center space-x-4 text-sm text-gray-500">
                     <span>📅 {{ manual.uploadDate | date:'dd/MM/yyyy' }}</span>
-                    <span>📦 {{ formatFileSize(manual.fileSize) }}</span>
+                    <span>📏 {{ formatFileSize(manual.fileSize) }}</span>
                   </div>
                   <p *ngIf="manual.description" class="text-sm text-gray-600 mt-1">
                     {{ manual.description }}
@@ -51,36 +49,20 @@
                 </div>
               </div>
             </td>
-
-            <!-- Download Button -->
-            <td class="px-6 py-4 text-right">
-              <button 
-                (click)="downloadManual(manual)"
-                class="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg hover:bg-blue-200 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 font-medium">
-                Download
-              </button>
-            </td>
-          </tr>
-          
-          <!-- Empty State -->
-          <tr *ngIf="manuals.length === 0">
-            <td colspan="2" class="px-6 py-12 text-center text-gray-500">
-              <div class="space-y-3">
-                <div class="text-5xl">📂</div>
-                <p class="text-lg">ไม่มีคู่มือในระบบ</p>
-                <p class="text-sm">กรุณาติดต่อผู้ดูแลระบบ</p>
+ 
+            <td class="px-4 py-4">
+              <div class="flex items-center justify-center space-x-1 md:space-x-2 flex-col md:flex-row gap-1 md:gap-0">
+                <button 
+                  (click)="downloadManual(manual)"
+                  class="text-blue-600 hover:text-blue-800 hover:scale-110 hover:bg-blue-50 transition-all duration-200 p-2 rounded-full"
+                  title="ดาวน์โหลด">
+                  📥
+                </button>
               </div>
             </td>
           </tr>
         </tbody>
       </table>
-    </div>
-
-    <!-- Footer Info -->
-    <div class="bg-gray-50 px-6 py-4 border-t">
-      <div class="flex items-center justify-between text-sm text-gray-600">
-        <span>📊 ทั้งหมด {{ totalCount }} คู่มือ</span>
-      </div>
     </div>
   </div>
 </div>

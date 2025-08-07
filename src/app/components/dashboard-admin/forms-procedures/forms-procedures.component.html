@@ -5,6 +5,7 @@
     <p class="text-gray-600">เอกสารแบบพิมพ์และคู่มือวิธีปฏิบัติงานด้านหุ้นธนาคาร</p>
   </div>
 
+<<<<<<< HEAD
   <!-- Loading State -->
   <div *ngIf="loading" class="flex justify-center items-center py-12">
     <div class="flex items-center space-x-3">
@@ -15,6 +16,10 @@
 
   <!-- Documents List -->
   <div *ngIf="!loading" class="bg-white rounded-xl shadow-md p-6">
+=======
+  <!-- Documents List -->
+  <div *ngIf="!loading && documents.length > 0" class="bg-white rounded-xl shadow-md p-6">
+>>>>>>> develop
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-lg font-semibold text-gray-800">📚 เอกสารที่อัปโหลดแล้ว</h2>
       <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
@@ -32,12 +37,17 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
+<<<<<<< HEAD
           <tr *ngFor="let doc of documents" 
+=======
+          <tr *ngFor="let doc of documents; trackBy: trackByFileName" 
+>>>>>>> develop
               class="hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200">
             
             <td class="px-4 py-4">
               <div class="flex items-center space-x-3">
                 <span class="text-2xl transition-transform duration-200 hover:scale-110 drop-shadow-sm">
+<<<<<<< HEAD
                   {{ getFileIcon(doc.fileName) }}
                 </span>
                 <div class="flex-1">
@@ -46,6 +56,21 @@
                   </div>
                   <div class="flex items-center space-x-4 text-sm text-gray-500">
                     <span>📅 {{ doc.uploadDate | date:'dd/MM/yyyy' }}</span>
+=======
+                  {{ getFileIcon(doc.fileName || doc.name) }}
+                </span>
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2 mb-1">
+                    <p class="font-medium text-gray-800">{{ doc.fileName || doc.name || 'ไม่ระบุชื่อไฟล์' }}</p>
+                  </div>
+                  <div class="flex items-center space-x-4 text-sm text-gray-500">
+                    <span *ngIf="doc.uploadDate || doc.createdDate">
+                      📅 {{ (doc.uploadDate || doc.createdDate) | date:'dd/MM/yyyy' }}
+                    </span>
+                    <span *ngIf="doc.size || doc.fileSize">
+                      📏 {{ formatFileSize(doc.size || doc.fileSize) }}
+                    </span>
+>>>>>>> develop
                   </div>
                   <p *ngIf="doc.description" class="text-sm text-gray-600 mt-1">
                     {{ doc.description }}
@@ -53,17 +78,23 @@
                 </div>
               </div>
             </td>
+<<<<<<< HEAD
  
             <!-- Actions -->
             <td class="px-4 py-4">
               <div class="flex items-center justify-center space-x-1 md:space-x-2 flex-col md:flex-row gap-1 md:gap-0">
                 <!-- Download Button -->
+=======
+            <td class="px-4 py-4">
+              <div class="flex items-center justify-center space-x-1 md:space-x-2 flex-col md:flex-row gap-1 md:gap-0">
+>>>>>>> develop
                 <button 
                   (click)="downloadDocument(doc)"
                   class="text-blue-600 hover:text-blue-800 hover:scale-110 hover:bg-blue-50 transition-all duration-200 p-2 rounded-full"
                   title="ดาวน์โหลด">
                   📥
                 </button>
+<<<<<<< HEAD
               </div>
             </td>
           </tr>
@@ -75,6 +106,8 @@
                 <div class="text-4xl">📂</div>
                 <p>ยังไม่มีเอกสารในระบบ</p>
                 <p class="text-sm">กรุณาติดต่อผู้ดูแลระบบ</p>
+=======
+>>>>>>> develop
               </div>
             </td>
           </tr>

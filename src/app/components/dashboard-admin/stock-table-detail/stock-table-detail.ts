@@ -34,16 +34,7 @@ export class StockTableDetailComponent implements OnInit, OnChanges {
   }
 
   private loadCustomer(cusId: string): void {
-    this.customerService.getCustomerDataById(cusId).subscribe({
-      next: (customer) => {
-        this.selectedCustomer = customer;
-        console.log('ลูกค้าที่โหลดได้', this.selectedCustomer);
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        console.error('โหลดข้อมูลลูกค้าไม่สำเร็จ:', err);
-      }
-    });
+    
   }
   
   handleRequestNewStock(stock: any): void {

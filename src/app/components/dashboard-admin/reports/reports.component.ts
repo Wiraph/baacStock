@@ -51,8 +51,6 @@ export class ReportsComponent implements OnInit {
   }
 
   onReportClick(report: ReportItem): void {
-    console.log('🔍 เลือกรายงาน:', report.title);
-    // TODO: เพิ่มการนำทางไปยังหน้ารายงานที่เลือก
   }
 
   get normalReports(): ReportItem[] {

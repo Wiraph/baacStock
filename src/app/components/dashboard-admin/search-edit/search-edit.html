@@ -2,34 +2,28 @@
   <div class="max-w-4xl mx-auto p-6 bg-white rounded shadow">
     <h2 class="text-xl font-medium mb-4 text-center">{{ branch }} : ค้นหาข้อมูลผู้ใช้งาน : {{titleSearch || "ค้นหา" }}
     </h2>
-
     <p class="mb-2">กรุณาระบุข้อมูลอย่างน้อยหนึ่งช่องรายการ</p>
-
     <form #searchForm="ngForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4" (ngSubmit)="onSubmit($event)">
       <div>
-        <label class="block text-sm font-medium text-gray-700">เลขที่บัตรแสดงตน</label>
-        <input type="text" [(ngModel)]="criteria.cusId" name="cusId"
+        <label for="cusId" class="block text-sm font-medium text-gray-700">เลขที่บัตรแสดงตน</label>
+        <input id="cusId" type="text" [(ngModel)]="criteria.cusId" name="cusId"
           class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
       </div>
-
       <div>
-        <label class="block text-sm font-medium text-gray-700">หมายเลขแสดงใบหุ้น</label>
-        <input type="text" [(ngModel)]="criteria.stockId" name="stockId"
+        <label for="stockId" class="block text-sm font-medium text-gray-700">หมายเลขแสดงใบหุ้น</label>
+        <input id="stockId" type="text" [(ngModel)]="criteria.stockId" name="stockId"
           class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
       </div>
-
       <div>
-        <label class="block text-sm font-medium text-gray-700">ชื่อ</label>
-        <input type="text" [(ngModel)]="criteria.fname" name="cusFname"
+        <label for="cusFname" class="block text-sm font-medium text-gray-700">ชื่อ</label>
+        <input id="cusFname" type="text" [(ngModel)]="criteria.fname" name="cusFname"
           class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
       </div>
-
       <div>
-        <label class="block text-sm font-medium text-gray-700">นามสกุล</label>
-        <input type="text" [(ngModel)]="criteria.lname" name="lname"
+        <label for="lname" class="block text-sm font-medium text-gray-700">นามสกุล</label>
+        <input id="lname" type="text" [(ngModel)]="criteria.lname" name="lname"
           class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
       </div>
-
       <div class="col-span-1 md:col-span-2 flex justify-end space-x-2 mt-2">
         <button type="submit"
           class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700">
@@ -41,59 +35,54 @@
         </button>
       </div>
     </form>
-
-    <!-- ตารางแสดงผลลัพธ์ -->
-    <div *ngIf="searched">
-      <ng-container [ngSwitch]="currentResultType">
-
-        <result-default *ngSwitchCase="'default'" [results]="results" [currentPage]="currentPage" [pageSize]="pageSize"
-          [totalItems]="totalItems" (edit)="onEdit($event)"
-          (viewStock)="setView('stock', $event.stockNotes, $event.cusId, $event.fullname, $event.stockList, $event.statusDesc, $event.viewMode)">
-        </result-default>
-
-          <result-common-stock *ngSwitchCase="'common'" [results]="results" [currentPage]="currentPage"
-            [pageSize]="pageSize" [totalItems]="totalItems" [mode]="'sale-stock-common'" (edit)="onCommon($event)" (modeNotify)="onModeNotify($event)">
-          </result-common-stock>
-
-        <result-new-certificate *ngSwitchCase="'new-cert'" [results]="results" [currentPage]="currentPage"
-          [pageSize]="pageSize" [totalItems]="totalItems" (edit)="onCreateNew($event)">
-        </result-new-certificate>
-
-        <result-tranfer-share *ngSwitchCase="'transfer'" [results]="results" [currentPage]="currentPage"
-          [pageSize]="pageSize" [totalItems]="totalItems" [mode]="'stock-transfer'" (edit)="onTransfer($event)" (modeNotify)="onModeNotify($event)">
-        </result-tranfer-share>
-
-        <result-block-certificate *ngSwitchCase="'block-cert'" [results]="results" [currentPage]="currentPage" [pageSize]="pageSize"
-          [totalItems]="totalItems" [mode]="'block-certificate'" (edit)="onBlockCertificate($event)"
-          (viewStock)="setView('stock', $event.stockNotes, $event.cusiD, $event.fullName, $event.stockList, $event.statusDesc, $event.viewMode)">
-        </result-block-certificate>
-
-        <result-dividend *ngSwitchCase="'dividend'" [results]="results" [currentPage]="currentPage" [pageSize]="pageSize"
-          [totalItems]="totalItems" (edit)="onDividend($event)"
-          (viewStock)="setView('stock', $event.stockNotes, $event.cusId, $event.fullName, $event.stockList, $event.statusDesc, $event.viewMode)">
-        </result-dividend>
-
-      </ng-container>
+    <div class="overflow-x-auto mt-6" *ngIf="table == true">
+      <table class="min-w-full divide-y divide-gray-200 rounded-lg shadow-md overflow-hidden">
+        <thead class="bg-green-600 text-white text-sm">
+          <tr>
+            <th class="px-4 py-3 text-center font-medium">ลำดับ</th>
+            <th class="px-4 py-3 text-center font-medium">สาขา</th>
+            <th class="px-4 py-3 text-center font-medium">เลขที่บัตรแสดงตน</th>
+            <th class="px-4 py-3 text-center font-medium">ชื่อ - นามสกุล</th>
+            <th class="px-4 py-3 text-center font-medium">สถานะ</th>
+            <th class="px-4 py-3 text-center font-medium">ใบหุ้น</th>
+            <th class="px-4 py-3 text-center font-medium">แก้ไข</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200 text-sm">
+          <tr *ngFor="let r of customerStocks;" class="hover:bg-gray-50 transition">
+            <td class="px-4 py-2 text-center">{{ r.roWi }}</td>
+            <td class="px-4 py-2 text-center">{{ r.brCode }}</td>
+            <td class="px-4 py-2 text-center">{{ r.cusiD }}</td>
+            <td class="px-4 py-2 text-center">{{ r.titleABBR }}{{ r.cuSfname }} {{ r.cuSlname }}</td>
+            <td class="px-4 py-2 text-center">{{ r.stDESC || '-' }}</td>
+            <td class="px-4 py-2 text-center">
+              <button class="text-blue-600 hover:text-blue-800" title="ดูใบหุ้น">
+                📄
+              </button>
+            </td>
+            <td class="px-4 py-2 text-center">
+              <button class="text-yellow-600 hover:text-yellow-800" (click)="onHandle(r.cusiD)">
+                {{ this.icon }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="customerStocks.length == 0">
+        <p class="text-center text-2xl text-red-300">ไม่มีข้อมูลลูกค้า</p>
+      </div>
+      <!-- ปุ่มเปลี่ยนหน้า -->
+      <div class="flex justify-between items-center mt-4 px-2 text-sm">
+        <button (click)="prevPage()" [disabled]="pageNumber <= 1"
+          class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+          ◀ หน้าก่อน
+        </button>
+        <span class="text-gray-700">หน้า {{ pageNumber }}</span>
+        <button (click)="nextPage()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">
+          หน้าถัดไป ▶
+        </button>
+      </div>
     </div>
-
-
-    <!-- ปุ่มเปลี่ยนหน้า -->
-    <div *ngIf="results.length && totalPages > 1" class="flex justify-center gap-4 mt-4">
-      <button (click)="onSearch(currentPage - 1)" [disabled]="currentPage === 1"
-        class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400">⬅️ ก่อนหน้า</button>
-
-      <span class="font-semibold">หน้า {{ currentPage }} จาก {{ totalPages }}</span>
-
-      <button (click)="onSearch(currentPage + 1)" [disabled]="currentPage === totalPages"
-        class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400">ถัดไป ➡️</button>
-    </div>
-
-    <!-- ไม่พบผลลัพธ์ -->
-    <div *ngIf="!loading && searched && results.length === 0" class="text-red-500 mt-2">
-      ไม่พบข้อมูลที่คุณค้นหา
-    </div>
-
-    <!-- ✅ Loading Overlay แบบโปร่งใส + มองทะลุ + เบลอ -->
     <div *ngIf="loading"
       class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-40 backdrop-blur-sm"
       style="background-color: rgba(128, 128, 128, 0.7);">
@@ -106,46 +95,5 @@
         <p class="text-lg text-white font-medium">🔄 กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
       </div>
     </div>
-
-
   </div>
 </div>
-
-<!-- หน้าแสดงผลลัพธ์ -->
-<div *ngIf="activeView === 'edit'">
-  <app-edit-customer [cusId]="selectedCusId" [mode]="mode" (back)="setView('search')" (success)="onEditSuccess()"></app-edit-customer>
-</div>
-
-<!-- หน้าแสดงหุ้น -->
-<div *ngIf="activeView === 'stock'">
-  <app-stocks
-    [cusId]="selectedCusId"
-    [fullName]="selectedName"
-    [statusDesc]="selectedStatus"
-    [stNotesList]="selectedStockNotes"
-    [viewMode]="viewMode"
-    (transferStock)="onStockTransfer($event)"
-    (back)="setView('search')"
-    (success)="onEditSuccess()">
-  </app-stocks>
-</div>
-
-<!-- หน้าโอนหุ้นเปลี่ยนมือ -->
-<!-- <div *ngIf="activeView === 'transfer'">
-  <h1>Hello World</h1>
-</div> -->
-
-
-<!-- หน้าขายหุ้นสามัญ -->
-<!-- <div *ngIf="activeView === 'commonStock'">
-  <app-common-stock [editingItem]="editingItem" [homeAddress]="homeAddress" [currentAddress]="currentAddress"
-    [stockDividend]="stockDividend" [setViewFn]="setView.bind(this)">
-  </app-common-stock>
-</div> -->
-
-<!-- หน้าสร้างใบหุ้นใหม่ -->
-<!-- <div *ngIf="activeView === 'createNewShareCertificate'">
-  <app-view-stock [editingItem]="editingItem" [homeAddress]="homeAddress" [currentAddress]="currentAddress"
-    [stockDividend]="stockDividend" [setViewFn]="setView.bind(this)">
-  </app-view-stock>
-</div> -->
