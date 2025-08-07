@@ -27,10 +27,10 @@ export class PrintSharePurchaseRequestComponent implements AfterViewInit {
   timeoutHandle: any;
 
   constructor(
-    private pdfService: PdfService,
-    private sanitizer: DomSanitizer,
-    @Inject(PLATFORM_ID) private platformId: Object,
-    private cdr: ChangeDetectorRef
+    private readonly pdfService: PdfService,
+    private readonly sanitizer: DomSanitizer,
+    @Inject(PLATFORM_ID) private readonly platformId: Object,
+    private readonly cdr: ChangeDetectorRef
   ) {
   }
 
