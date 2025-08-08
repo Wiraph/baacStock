@@ -3,7 +3,7 @@
 </div>
 <div *ngIf="activeView == 'edit' && customer">
     <div class="m-4 bg-white rounded-md shadow-md">
-        <div class="py-3 bg-green-400 rounded-t-md">
+        <div class="py-3 bg-green-500 rounded-t-md">
             <p class="text-center text-xl text-white font-semibold">✏️ แก้ไขข้อมูล</p>
         </div>
         <div class="p-4">
@@ -51,16 +51,16 @@
                                         </select>
                                     </div>
                                     <div class="flex items-center gap-2">
-                                        <label for="idNumber"
-                                            class="whitespace-nowrap text-gray-700 font-semibold">เลขที่ : </label>
-                                        <input id="idNumber" type="text" formControlName="cusiD"
-                                            class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-grow" />
+                                         <label for="idNumber"
+                                             class="whitespace-nowrap text-gray-700 font-semibold">เลขที่ : </label>
+                                         <input id="idNumber" type="text" formControlName="cusiD" readonly
+                                             class="border border-gray-300 rounded-md p-2 bg-blue-100 font-semibold w-full cursor-not-allowed pointer-events-none" />
                                     </div>
                                     <div class="flex items-center gap-2">
-                                        <label for="ref" class="whitespace-nowrap text-gray-700 font-semibold">ref. :
-                                        </label>
-                                        <input id="ref" type="text" formControlName="brCode"
-                                            class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-grow" />
+                                         <label for="ref" class="whitespace-nowrap text-gray-700 font-semibold">ref. :
+                                         </label>
+                                         <input id="ref" type="text" formControlName="brCode" readonly
+                                             class="border border-gray-300 rounded-md p-2 bg-blue-100 font-semibold w-full cursor-not-allowed pointer-events-none" />
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-3 gap-6 px-4 mt-2">
@@ -76,22 +76,22 @@
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <label for="cusTAXid" class="whitespace-nowrap text-gray-700 font-semibold">
-                                            ผู้เสียภาษี :
+                                             ผู้เสียภาษี :
                                         </label>
-                                        <input type="text"
-                                            class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-                                            formControlName="cusTAXid">
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <label for="unit" class="whitespace-nowrap text-gray-700 font-semibold">ถือหุ้น
-                                            :
-                                        </label>
-                                        <div class="flex align-bottom gap-4 items-center">
-                                            <input
-                                                class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-                                                type="text" formControlName="unit"> หุ้น
-                                        </div>
-                                    </div>
+                                        <input type="text" readonly
+                                             class="border border-gray-300 rounded-md p-2 bg-blue-100 font-semibold w-full cursor-not-allowed pointer-events-none"
+                                             formControlName="cusTAXid">
+                                     </div>
+                                     <div class="flex items-center gap-2">
+                                         <label for="unit" class="whitespace-nowrap text-gray-700 font-semibold">ถือหุ้น
+                                             :
+                                         </label>
+                                         <div class="flex align-bottom gap-4 items-center">
+                                             <input
+                                                 class="border border-gray-300 rounded-md p-2 bg-blue-100 font-semibold w-full cursor-not-allowed pointer-events-none"
+                                                 type="text" formControlName="unit" readonly> หุ้น
+                                         </div>
+                                     </div>
                                 </div>
                                 <div class="grid grid-cols-2 px-4 mt-2 gap-4">
                                     <div class="flex items-center gap-2">
@@ -313,31 +313,35 @@
                                 <div>
                                     <p class="text-xl text-center mb-3">ที่อยู่ที่สามารถติดต่อได้จากระบบเดิม</p>
                                 </div>
-                                <div class="flex flex-col gap-2">
-                                    <div class="flex items-center gap-2">
-                                        <label class="whitespace-nowrap text-gray-700 font-semibold" for="">ที่อยู่ 1 :
-                                        </label>
-                                        <input
-                                            class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-                                            type="text" name="" id="" formControlName="addR1">
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <label class="whitespace-nowrap text-gray-700 font-semibold" for="">ที่อยู่ 2 :
-                                        </label>
-                                        <input
-                                            class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-                                            type="text" formControlName="addR2">
-                                    </div>
-                                </div>
+                                    <div class="flex flex-col gap-2">
+                                     <div class="flex items-center gap-2">
+                                         <label class="whitespace-nowrap text-gray-700 font-semibold" for="">ที่อยู่ 1 :
+                                         </label>
+                                         <input
+                                             class="border border-gray-300 rounded-md p-2 bg-blue-100 font-semibold w-full cursor-not-allowed pointer-events-none"
+                                             type="text" name="" id="" formControlName="addR1" readonly>
+                                     </div>
+                                     <div class="flex items-center gap-2">
+                                         <label class="whitespace-nowrap text-gray-700 font-semibold" for="">ที่อยู่ 2 :
+                                         </label>
+                                         <input
+                                             class="border border-gray-300 rounded-md p-2 bg-blue-100 font-semibold w-full cursor-not-allowed pointer-events-none"
+                                             type="text" formControlName="addR2" readonly>
+                                     </div>
+                                 </div>
                             </div>
                         </div>
-                        <div class="py-4 flex gap-6 justify-center">
+                        <div class="py-6 flex gap-4 justify-center">
                             <button
-                                class="py-2 px-4 bg-green-500 font-semibold text-sm text-white cursor-pointer rounded-xs hover:bg-green-300"
-                                type="submit" value="UPD">บันทึก</button>
+                                class="inline-flex items-center px-6 py-3 bg-green-500 text-white font-semibold text-sm rounded-lg shadow-lg hover:bg-green-600"
+                                type="submit" value="UPD">
+                                💾 บันทึก
+                            </button>
                             <button
                                 (click)="onBack()"
-                                class="py-2 px-5 bg-green-500 font-semibold text-sm text-white cursor-pointer rounded-xs hover:bg-green-300">กลับ</button>
+                                class="inline-flex items-center px-6 py-3 bg-gray-500 text-white font-semibold text-sm rounded-lg shadow-lg hover:bg-gray-600">
+                                ⬅️ กลับ
+                            </button>
                         </div>
                     </mat-tab>
                     <mat-tab label="การรับเงินปันผล">
@@ -367,10 +371,10 @@
                                                     class="whitespace-nowrap font-semibold text-gray-700">บัญชีเงินฝาก
                                                     :</label>
                                                 <select id="accountType" name="accountType"
-                                                    class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    formControlName="stkACCtype">
-                                                    <option *ngFor="let act of actypeList" [value]="act.accType">
-                                                        {{act.accDesc}}</option>
+                                                     class="border border-gray-300 rounded-md p-2 bg-blue-100 font-semibold w-full cursor-not-allowed pointer-events-none"
+                                                     formControlName="stkACCtype" [disabled]="true">
+                                                     <option *ngFor="let act of actypeList" [value]="act.accType">
+                                                         {{act.accDesc}}</option>
                                                 </select>
                                             </div>
                                             <!-- Account Number -->
@@ -404,13 +408,17 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="py-4 flex gap-6 justify-center">
+                        <div class="py-6 flex gap-4 justify-center">
                             <button
-                                class="py-2 px-4 bg-green-500 font-semibold text-sm text-white cursor-pointer rounded-xs hover:bg-green-300"
-                                type="submit" value="UPP">บันทึก</button>
+                                class="inline-flex items-center px-6 py-3 bg-green-500 text-white font-semibold text-sm rounded-lg shadow-lg hover:bg-green-600"
+                                type="submit" value="UPP">
+                                💾 บันทึก
+                            </button>
                             <button
                                 (click)="onBack()"
-                                class="py-2 px-5 bg-green-500 font-semibold text-sm text-white cursor-pointer rounded-xs hover:bg-green-300">กลับ</button>
+                                class="inline-flex items-center px-6 py-3 bg-gray-500 text-white font-semibold text-sm rounded-lg shadow-lg hover:bg-gray-600">
+                                ⬅️ กลับ
+                            </button>
                         </div>
                     </mat-tab>
                 </mat-tab-group>

@@ -23,7 +23,7 @@ export class UserManualComponent implements OnInit {
   manuals: Manual[] = [];
   loading = false;
 
-  constructor(private cd: ChangeDetectorRef) { }
+  constructor(private readonly cd: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.loadManuals();

@@ -42,8 +42,8 @@ export class UploadComponent implements OnInit {
   allowedExtensions = ['.pdf', '.doc', '.docx', '.txt'];
 
   constructor(
-    private cd: ChangeDetectorRef,
-    private fileService: FileService
+    private readonly cd: ChangeDetectorRef,
+    private readonly fileService: FileService
   ) { }
 
   ngOnInit(): void {

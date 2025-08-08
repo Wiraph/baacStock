@@ -117,7 +117,7 @@ export class AdminDashboardComponent implements OnInit {
       open: false,
       children: [
         { key: 'system', icon: '🛠️', label: 'ควบคุมระบบ', route: '/dashboard-admin/system' },
-        { key: 'documents-upload', icon: '📘', label: 'Upload เอกสาร', route: '/dashboard-admin/documents/upload' },
+        { key: 'documents-upload', icon: '📁', label: 'Upload เอกสาร', route: '/dashboard-admin/documents/upload' },
         { key: 'documents-forms-procedures', icon: '📋', label: 'แบบพิมพ์/วิธีปฏิบัติงานหุ้น', route: '/dashboard-admin/documents/forms-procedures' },
         { key: 'documents-user-manual', icon: '📖', label: 'คู่มือการใช้งานระบบ', route: '/dashboard-admin/documents/user-manual' },
         { key: 'developer', icon: '💻', label: 'DEVELOPER', route: '/dashboard-admin/developer' }

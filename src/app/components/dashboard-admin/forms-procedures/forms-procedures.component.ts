@@ -25,8 +25,8 @@ export class FormsProceduresComponent implements OnInit {
   loading = false;
 
   constructor(
-    private fileService: FileService,
-    private cd: ChangeDetectorRef
+    private readonly fileService: FileService,
+    private readonly cd: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
