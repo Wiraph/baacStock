@@ -119,45 +119,7 @@ export class TransferShareComponent implements OnInit {
 
     if (!this.tempCID) return;
 
-    this.stockService.getStocksByCusId(this.tempCID).subscribe({
-      next: (response) => {
-        const stockList = response.stockList;
-
-        if (!stockList || stockList.length === 0) {
-          alert('ไม่พบข้อมูลหุ้นของผู้ถือหุ้นรายนี้');
-          return;
-        }
-
-
-        const validStock = stockList.find((s: StockItem) => s.stkStatus === 'S000');
-
-
-        if (!validStock) {
-          const statusList = [...new Set(stockList.map((s: StockItem) => s.statusDesc || s.stkStatus))].join(', ');
-          alert(`ไม่สามารถโอนได้ เนื่องจากสถานะ: ${statusList}`);
-          return;
-        }
-
-        this.selectedTransfer = {
-          cid: this.tempCID,
-          fullName: validStock.fullname || '',
-          shareAmount: 0,
-          branch: sessionStorage.getItem('brName') ?? undefined,
-          payType: validStock.stkPayType || '',
-          accType: validStock.stkAcctype || '001',
-          accNo: validStock.stkAccno || '',
-          accName: validStock.stkAccname || '',
-          remCode: '',
-          stkNote: validStock.stkNote || '',
-        };
-
-        this.isEnteringNewPerson = false;
-        this.cdRef.detectChanges();
-      },
-      error: () => {
-        alert('เกิดข้อผิดพลาดในการดึงข้อมูลหุ้น');
-      }
-    });
+    
   }
 
 
@@ -369,19 +331,7 @@ export class TransferShareComponent implements OnInit {
 
 
   funcDetail(stkNote: string) {
-    this.stockService.getResultsTransfer(stkNote).subscribe({
-      next: (data) => {
-        this.transferResult = data;
-        this.loading = false;
-        this.activeView = 'detail';
-        console.log(data);
-        this.cdRef.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error fetching transfer result:', err);
-        this.loading = false;
-      }
-    });
+    
   }
 
   goBack() {

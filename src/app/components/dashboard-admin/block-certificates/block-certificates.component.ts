@@ -39,7 +39,6 @@ export class BlockCertificatesComponent implements OnInit {
   loading = false;
 
   constructor(
-    private stockService: StockService,
     private stockBlockService: StockBlockService,
     private customerService: CustomerService,
     private cdRef: ChangeDetectorRef
@@ -70,24 +69,24 @@ export class BlockCertificatesComponent implements OnInit {
     // ดึงข้อมูลใบหุ้นของลูกค้า
     if (stock.cusId) {
       this.loading = true;
-      this.stockService.getStocksByCusId(stock.cusId).subscribe({
-        next: (stockData: any) => {
-          this.selectedcustomer = {
-            ...stock,
-            stock: stockData.stockList || []
-          };
-          this.setView('certificate-list');
-          this.loading = false;
-          this.cdRef.detectChanges();
-        },
-        error: (error: any) => {
-          console.error('Error fetching stock data:', error);
-          this.loading = false;
-          // ใช้ข้อมูลเดิมถ้าดึงไม่ได้
-          this.setView('certificate-list');
-          this.cdRef.detectChanges();
-        }
-      });
+      // this.stockService.getStocksByCusId(stock.cusId).subscribe({
+      //   next: (stockData: any) => {
+      //     this.selectedcustomer = {
+      //       ...stock,
+      //       stock: stockData.stockList || []
+      //     };
+      //     this.setView('certificate-list');
+      //     this.loading = false;
+      //     this.cdRef.detectChanges();
+      //   },
+      //   error: (error: any) => {
+      //     console.error('Error fetching stock data:', error);
+      //     this.loading = false;
+      //     // ใช้ข้อมูลเดิมถ้าดึงไม่ได้
+      //     this.setView('certificate-list');
+      //     this.cdRef.detectChanges();
+      //   }
+      // });
     } else {
       this.setView('certificate-list');
       this.cdRef.detectChanges();
@@ -224,21 +223,21 @@ export class BlockCertificatesComponent implements OnInit {
   private refreshStockData() {
     if (this.selectedcustomer?.cusId) {
       this.loading = true;
-      this.stockService.getStocksByCusId(this.selectedcustomer.cusId).subscribe({
-        next: (stockData: any) => {
-          this.selectedcustomer = {
-            ...this.selectedcustomer,
-            stock: stockData.stockList || []
-          };
-          this.loading = false;
-          this.cdRef.detectChanges();
-        },
-        error: (error: any) => {
-          console.error('Error refreshing stock data:', error);
-          this.loading = false;
-          this.cdRef.detectChanges();
-        }
-      });
+      // this.stockService.getStocksByCusId(this.selectedcustomer.cusId).subscribe({
+      //   next: (stockData: any) => {
+      //     this.selectedcustomer = {
+      //       ...this.selectedcustomer,
+      //       stock: stockData.stockList || []
+      //     };
+      //     this.loading = false;
+      //     this.cdRef.detectChanges();
+      //   },
+      //   error: (error: any) => {
+      //     console.error('Error refreshing stock data:', error);
+      //     this.loading = false;
+      //     this.cdRef.detectChanges();
+      //   }
+      // });
     }
   }
 

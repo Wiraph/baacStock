@@ -27,15 +27,15 @@ export class ApproveTransfer implements OnInit {
 
   ngOnInit(): void {
     const stkNote = this.dataTransfer.getStkNote();
-    this.stockService.getResultsTransfer(stkNote).subscribe({
-      next: (data) => {
-        this.dataconfirm = data;
-        console.log("ทดสอบการส่งข้อมูลกลับมา", data);
-        this.cd.detectChanges();
-      }, error: (err) => {
-        console.error('เกิดข้อผิดพลาดในการดึงข้อมูลหุ้น', err);
-      }
-    })
+    // this.stockService.getResultsTransfer(stkNote).subscribe({
+    //   next: (data) => {
+    //     this.dataconfirm = data;
+    //     console.log("ทดสอบการส่งข้อมูลกลับมา", data);
+    //     this.cd.detectChanges();
+    //   }, error: (err) => {
+    //     console.error('เกิดข้อผิดพลาดในการดึงข้อมูลหุ้น', err);
+    //   }
+    // })
   }
 
   convertTimeFormat(timeStr: string): string {

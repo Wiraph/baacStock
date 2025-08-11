@@ -35,16 +35,16 @@ export class ApproveSale implements OnInit {
     this.status = this.dataTransfer.getStatus();
 
     if (this.stkNote) {
-      this.stockService.getResultSale(this.stkNote).subscribe({
-        next: (data) => {
-          this.resultSale = data;
-          console.log(this.resultSale);
-          this.loading = false;
-          this.cd.detectChanges();
-        }, error: (err) => {
-          console.error('Error fetching result sale:', err);
-        }
-      })
+      // this.stockService.getResultSale(this.stkNote).subscribe({
+      //   next: (data) => {
+      //     this.resultSale = data;
+      //     console.log(this.resultSale);
+      //     this.loading = false;
+      //     this.cd.detectChanges();
+      //   }, error: (err) => {
+      //     console.error('Error fetching result sale:', err);
+      //   }
+      // })
     }
   }
 

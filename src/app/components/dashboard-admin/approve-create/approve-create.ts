@@ -25,14 +25,14 @@ export class ApproveCreate implements OnInit {
 
   ngOnInit(): void {
     const stkNote = this.dataTransfer.getStkNote();
-    this.stockService.getResultCreate(stkNote).subscribe({
-      next: (data) => {
-        this.dataconfirm = data;
-        console.log(this.dataconfirm);
-        this.loading = false;
-        this.cd.detectChanges();
-      }
-    })
+    // this.stockService.getResultCreate(stkNote).subscribe({
+    //   next: (data) => {
+    //     this.dataconfirm = data;
+    //     console.log(this.dataconfirm);
+    //     this.loading = false;
+    //     this.cd.detectChanges();
+    //   }
+    // })
   }
 
   onConfirm() {

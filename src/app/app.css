@@ -3,3 +3,20 @@
 @import "tailwindcss/forms";
 @import url('https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
+/* ปรับ container overlay */
+.cdk-overlay-container {
+  background-color: transparent !important;
+}
+
+.cdk-overlay-pane {
+  background-color: white !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1) !important;
+  padding: 0.5rem !important;
+}
+
+/* ถ้าใช้ Angular Material 14+ */
+.mat-datepicker-content {
+  background-color: white !important;
+  border-radius: 0.5rem !important;
+}
