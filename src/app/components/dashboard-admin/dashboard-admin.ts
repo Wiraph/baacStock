@@ -57,7 +57,7 @@ export class AdminDashboardComponent implements OnInit {
       open: false,
       children: [
         { key: 'print-share-purchase-request', icon: '🛒', label: 'พิมพ์คำขอซื้อหุ้น', route: '/dashboard-admin/print-share-purchase-request' },
-        { key: 'common-shares', icon: '😶‍🌫️', label: 'ขายหุ้นสามัญ', route: '/dashboard-admin/common-shares' },
+        { key: 'common-shares', icon: '😶‍🌫️', label: 'ขายหุ้นสามัญ', route: '/dashboard-admin/salestock' },
         { key: 'cratenewsharecertificate', icon: '📄', label: 'การออกใบหุ้นใหม่ แทนใบหุ้นที่ชำรุด/สูญหาย', route: '/dashboard-admin/cratenewsharecertificate' },
         { key: 'transfer-share', icon: '♾️', label: 'โอนเปลี่ยนมือ', route: '/dashboard-admin/transfer-share' },
         { key: 'approve-item', icon: '✅', label: 'อนุมัติรายการ', route: '/dashboard-admin/approve-item' },

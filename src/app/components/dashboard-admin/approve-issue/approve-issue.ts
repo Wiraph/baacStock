@@ -14,9 +14,9 @@ import Swal from 'sweetalert2';
 export class ApproveIssue implements OnInit {
 
   constructor(
-    private StockApproveService: StockService,
-    private cd: ChangeDetectorRef,
-    private approveService: ApproveService
+    private readonly StockApproveService: StockService,
+    private readonly cd: ChangeDetectorRef,
+    private readonly approveService: ApproveService
   ) { }
 
   activeView: string = "table";
@@ -30,27 +30,27 @@ export class ApproveIssue implements OnInit {
   }
 
   onsearch() {
-    this.StockApproveService.getIssueApprove().subscribe({
-      next: (data) => {
-        this.issueList = data;
-        this.cd.detectChanges();
-      },
-      error: () => {
-        alert("ไม่สามารถโหลดข้อมูลรอรายการอนุมัติออกใบหุ้นได้ กรุณาติดต่อผู้พัฒนา")
-      }
-    })
+    // this.StockApproveService.getIssueApprove().subscribe({
+    //   next: (data) => {
+    //     this.issueList = data;
+    //     this.cd.detectChanges();
+    //   },
+    //   error: () => {
+    //     alert("ไม่สามารถโหลดข้อมูลรอรายการอนุมัติออกใบหุ้นได้ กรุณาติดต่อผู้พัฒนา")
+    //   }
+    // })
   }
 
   detailIssue(item: any) {
     console.log(item);
     this.setView('detail-issue')
-    this.StockApproveService.getIssueByStkNote(item.stkNote).subscribe({
-      next: (data) => {
-        this.issuadata = data;
-        console.log("ข้อมูลที่จะอนุมัติ", this.issuadata);
-        this.cd.detectChanges();
-      }
-    })
+    // this.StockApproveService.getIssueByStkNote(item.stkNote).subscribe({
+    //   next: (data) => {
+    //     this.issuadata = data;
+    //     console.log("ข้อมูลที่จะอนุมัติ", this.issuadata);
+    //     this.cd.detectChanges();
+    //   }
+    // })
   }
 
   approveSelectedIssue(): void {

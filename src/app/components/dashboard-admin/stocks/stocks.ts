@@ -34,19 +34,6 @@ export class StocksComponent implements OnInit {
     }
   }
 
-  loadStock() {
-    this.stockService.getStocksByCusId(this.cusId).subscribe({
-      next: (data) => {
-        console.log('📦 ได้ข้อมูลจาก API:', data);
-        this.stockList = data.stockList || [];
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        console.error('❌ เกิดข้อผิดพลาดในการโหลดใบหุ้น', err);
-      }
-    });
-  }
-
   loadCustomerStock(cusiD: string) {
     const payload = {
       GetDtl: "bySTK@byCUS",
