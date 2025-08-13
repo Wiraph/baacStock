@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
-import { Observable, retry } from 'rxjs';
+import { Observable } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { EncryptionService } from './encryption.service';
 
@@ -56,6 +56,13 @@ export class StockService {
     const encodePayload = this.encrypt.encrypPayload(requestPayload);
     console.log("ข้อมูลที่จะส่งไป", encodePayload);
     return this.http.post<any[]>(`${this.apiUrl}/stkdetail`, encodePayload, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
+  stockLog(requestPayload: any): Observable<any[]> {
+    const encodePayload = this.encrypt.encrypPayload(requestPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/logstock`, encodePayload , {
       headers: this.createAuthHeaders()
     });
   }

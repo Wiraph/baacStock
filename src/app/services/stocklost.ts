@@ -25,6 +25,13 @@ export class Stocklost {
     });
   }
 
+  stockLost(payload: any): Observable<any[]> {
+    const encrypPayload = this.encryption.encrypPayload(payload);
+    return this.http.post<any[]>(`${this.apiUrl}/stocklost`, encrypPayload, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
   private createAuthHeaders(): HttpHeaders {
     let token = '';
     if (isPlatformBrowser(this.platformId)) {
