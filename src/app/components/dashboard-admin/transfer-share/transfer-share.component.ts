@@ -11,6 +11,7 @@ import { StocktransferService } from '../../../services/stocktransfer';
 import Swal from 'sweetalert2';
 import { DataTransfer } from '../../../services/data-transfer';
 import { MetadataService } from '../../../services/metadata';
+import { CustomerStockService } from '../../../services/customer-stock-service';
 
 interface TransferReceiver {
   cid: string;
@@ -58,6 +59,8 @@ export class TransferShareComponent implements OnInit {
   globalRemCode: string = '';
   transferResult: any;
   loading = false;
+  stkTransList: any[] = [];
+  customerData: any = '';
 
   // สำหรับเพิ่มรายการผู้รับโอน
   transferList: TransferReceiver[] = [];
@@ -79,37 +82,14 @@ export class TransferShareComponent implements OnInit {
     private readonly StockTrnsferService: StocktransferService,
     private readonly cdRef: ChangeDetectorRef,
     private readonly dataTransfer: DataTransfer,
-    private readonly metadataService: MetadataService
+    private readonly metadataService: MetadataService,
+    private readonly customerService: CustomerService,
+    private readonly customerStockService: CustomerStockService
   ) { }
 
   ngOnInit(): void {
-    this.remcodeService.getRemCodes().subscribe({
-      next: (data) => {
-        this.remcodeList = data.filter(rem =>
-          rem.remCode === '0030' || rem.remCode === '0031'
-        );
-      },
-      error: () => {
-        alert('ไม่สามารถโหลดเหตุผลการโอนหุ้น');
-      }
-    });
+    this.dataTransfer.setPageStatus('4');
 
-    this.paytypeService.getAll().subscribe({
-      next: (data) => {
-        this.payTypes = data;
-      },
-      error: () => {
-      }
-    });
-
-    this.metadataService.getAcctypes().subscribe({
-      next: (data) => {
-        this.accTypes = data;
-      },
-      error: () => {
-        alert('ไม่สามารถโหลดประเภทบัญชี');
-      }
-    });
 
   }
 
@@ -124,9 +104,46 @@ export class TransferShareComponent implements OnInit {
 
 
 
-  onTransferStockSelected(stock: any) {
+  onTransferStockSelected(event: any) {
     // เรียก api เพื่อดึงข้อมูลของลูกค้า
-    
+    this.cusId = event.cusId;
+    this.activeView = event.view;
+    this.onLoadTransferList(this.cusId);
+  }
+
+  onLoadTransferList(cusiD: string) {
+    const payload = {
+      GetDTL: 'bySTK@bySTK-TRF',
+      STKno: '',
+      CUSid: cusiD,
+      CUSfn: '',
+      CUSln: '',
+      stkA: '1',
+      PGNum: 1,
+      PGSize: 9999999
+    };
+    this.customerStockService.searchCustomerStock(payload).subscribe({
+      next: (res) => {
+        this.stkTransList = res;
+        console.log("stkTransList", this.stkTransList);
+        this.cdRef.detectChanges();
+      }, error: (err) => {
+        console.log("Errors", err);
+      }
+    })
+
+    const payload2 = {
+      CUSid: cusiD
+    }
+
+    this.customerService.getCustomerTable(payload2).subscribe({
+      next: (res) => {
+        this.customerData = res;
+        this.cdRef.detectChanges();
+      }, error: (err) => {
+        console.log("Error", err);
+      }
+    })
   }
 
   confirmReceiver() {
