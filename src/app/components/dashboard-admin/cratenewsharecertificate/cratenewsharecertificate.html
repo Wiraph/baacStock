@@ -41,7 +41,7 @@
                         <td class="px-4 py-2 text-center">{{ item.stDESC }}</td>
                         <td class="px-4 py-2 text-center">{{ formatThaiDateTime(item.datetimeup) || '-' }}</td>
                         <td class="px-4 py-2 text-center">
-                            <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600" (click)="handleNewStockRequest({ stkNote: item.stkNOTE, stkStart: item.stkNOStart, stkEnd: item.stkNOStop, unit: item.stkUNiT, unitValue: item.stkVALUE })">
+                            <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600" (click)="handleNewStockRequest(item.stkNOTE)">
                                 ออกใบหุ้น
                             </button>
                         </td>
@@ -59,30 +59,30 @@
         </div>
         <div class="p-5">
             <div class="grid grid-cols-3 mb-3">
-                <div class="flex" *ngIf="selectedStock">
-                    <p>เลขที่บัตรแสดงตน : <span>{{ selectedStock.cusId }}</span></p>
+                <div class="flex">
+                    <p>เลขที่บัตรแสดงตน : <span>{{ stockDetail.cusId }}</span></p>
                 </div>
-                <div class="flex" *ngIf="selectedRequest">
-                    <p>หมายเลขใบหุ้น : <span>{{ selectedRequest.stkNote }}</span></p>
+                <div class="flex">
+                    <p>หมายเลขใบหุ้น : <span>{{ stockDetail.stkNote }}</span></p>
                 </div>
-                <div class="flex" *ngIf="selectedRequest">
-                    <p>หมายเลขหุ้น : <span>{{ selectedRequest.stkStart }} - {{ selectedRequest.stkEnd }}</span></p>
+                <div class="flex">
+                    <p>หมายเลขหุ้น : <span>{{ stockDetail.stkNoStart }} - {{ stockDetail.stkNoStop }}</span></p>
                 </div>
             </div>
             <div class="grid grid-cols-3 mb-3">
-                <div class="flex" *ngIf="selectedStock">
-                    <p>ชื่อ-นามสกุล : <span>{{ selectedStock.fullName }}</span></p>
+                <div class="flex">
+                    <p>ชื่อ-นามสกุล : <span>{{ stockDetail.titleDesc }}{{ stockDetail.cusFName }} {{ stockDetail.cusLName }}</span></p>
                 </div>
                 <div></div>
                 <div></div>
             </div>
             <div class="grid grid-cols-3 mb-3">
-                <div *ngIf="selectedStock">
-                    <p>สถานะ : <span>{{ selectedStock.status }}</span></p>
+                <div>
+                    <p>สถานะ : <span>{{ stockDetail.stDesc }}</span></p>
                 </div>
                 <div></div>
-                <div *ngIf="selectedRequest">
-                    <p>จำนวนหุ้น : <span>{{ selectedRequest.unit }} หุ้น / {{ selectedRequest.unitValue }} บาท</span>
+                <div>
+                    <p>จำนวนหุ้น : <span>{{ stockDetail.stkUnit }} หุ้น / {{ stockDetail.stkValue | number:'1.0-0' }} บาท</span>
                     </p>
                 </div>
             </div>

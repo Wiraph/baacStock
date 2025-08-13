@@ -8,6 +8,8 @@ import { DataTransfer } from '../../../services/data-transfer';
 import { Stocklost } from '../../../services/stocklost';
 import { CustomerService } from '../../../services/customer';
 import { CustomerStockService } from '../../../services/customer-stock-service';
+import { StockService } from '../../../services/stock';
+import Swal from 'sweetalert2';
 
 @Component({
   standalone: true,
@@ -29,6 +31,7 @@ export class CratenewsharecertificateComponent implements OnInit {
   selectedRequest: any;
   stkLostList: any[] = [];
   customerData: any = "";
+  stockDetail: any = '';
 
   reasonForm!: FormGroup; // ✅ ใช้ FormGroup
   remCodes: {
@@ -45,7 +48,8 @@ export class CratenewsharecertificateComponent implements OnInit {
     private readonly dataTransfer: DataTransfer,
     private readonly stockLostService: Stocklost,
     private readonly customerService: CustomerService,
-    private readonly customerStockService: CustomerStockService
+    private readonly customerStockService: CustomerStockService,
+    private readonly stockService: StockService
   ) { }
 
   ngOnInit(): void {
@@ -107,11 +111,19 @@ export class CratenewsharecertificateComponent implements OnInit {
   }
 
 
-  handleNewStockRequest(stock: any) {
-    console.log('ผู้ใช้กดออกใหม่ที่ใบหุ้น:', stock);
+  handleNewStockRequest(stkNote: string) {
     this.activeView = "select";
-    this.selectedRequest = stock;
-
+    const payload = {
+      stkNote: stkNote
+    };
+    this.stockService.getStockDetail(payload).subscribe({
+      next: (res) => {
+        this.stockDetail = res;
+        this.cd.detectChanges();
+      }, error: (err) => {
+        console.log("Error", err);
+      }
+    })
     this.remcodeServive.getRemCodes().subscribe({
       next: (res) => {
         const allowCode = ["0020", "0021"];
@@ -131,22 +143,50 @@ export class CratenewsharecertificateComponent implements OnInit {
     if (this.reasonForm.valid) {
       const selectedCode = this.reasonForm.value.remCode;
 
-      const payload = {
+      const payloadLogStock = {
+        stkNOTE: this.stockDetail.stkNote,
+        ACT: "INSERT"
+      };
+
+      const payloadNewLost = {
         remCode: selectedCode,
-        stkNote2: this.selectedRequest.stkNote,
-        stkNostart: this.selectedRequest.stkStart,
-        stkNoend: this.selectedRequest.stkEnd,
-        stkUnit: this.selectedRequest.unit,
-        stkValue: this.selectedRequest.unitValue,
+        StkNOTE: this.stockDetail.stkNote,
+        BrCode: '',
+        UserId: '',
+        IpAddress: '',
+        HostName: '',
+        Act: 'UPDATE'
       }
 
-      console.log("ข้อมูลที่เตรียมส่งออกไป : ", payload);
-      this.StockRequestServer.stockRequest(payload).subscribe({
-        next: (res) => {
-          console.log('✅ ส่งคำขอสำเร็จ:', res);
-          alert('บันทึกคำขอออกใบหุ้นใหม่สำเร็จ');
-          this.onCancelReason();
-          this.cd.detectChanges();
+      Swal.fire({
+        icon: 'question',
+        text: 'ยืนยัน ต้องการออกใบหุ้นใหม่ทดแทนใบหุ้นชำรุด/สูญหาย',
+        confirmButtonText: "ตกลง",
+        cancelButtonText: "ยกเลิก",
+        showCancelButton: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.stockService.stockLog(payloadLogStock).subscribe({
+            next: () => {
+              this.stockLostService.stockLost(payloadNewLost).subscribe({
+                next: () => {
+                  Swal.fire({
+                    icon: 'success',
+                    text: 'บันทึกเรียบร้อยแล้ว',
+                    timer: 3000,
+                    timerProgressBar: true,
+                  })
+                  this.activeView = 'search';
+                  this.customerData = '';
+                  this.cd.detectChanges();
+                }, error: (err) => {
+                  console.log("เกิดข้อผิดพลาด", err);
+                }
+              })
+            }, error: (err) => {
+              console.log("เกิดข้อผิดพลาด",err);
+            }
+          })
         }
       })
     }
