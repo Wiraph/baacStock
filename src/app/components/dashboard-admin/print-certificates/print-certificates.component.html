@@ -1,73 +1,297 @@
 <!-- หน้าพิมพ์ใบหุ้น -->
-<div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-  <div class="max-w-2xl w-full">
-    <!-- การ์ดหลัก -->
-    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-      
-      <!-- หัวเรื่อง -->
-      <div class="bg-gradient-to-r from-green-500 to-green-600 text-center py-8">
-        <div class="text-6xl mb-4">🖨️</div>
-        <h1 class="text-3xl font-bold text-white mb-2">พิมพ์ใบหุ้น</h1>
-        <p class="text-green-100 text-lg">ระบบพิมพ์ใบหุ้นสำหรับสมาชิก</p>
+<div class="bg-white shadow-md">
+  <!-- Header สีเขียว -->
+  <div class="w-full bg-green-500 h-auto text-white text-center text-xl font-bold py-2 rounded-t-lg">
+    ใบหุ้น
       </div>
       
       <!-- เนื้อหาหลัก -->
-      <div class="p-8 text-center">
-        <div class="mb-8">
-          <div class="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
-            <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-            </svg>
-          </div>
-          <h2 class="text-2xl font-semibold text-gray-800 mb-3">ระบบพิมพ์ใบหุ้น</h2>
-          <p class="text-gray-600 text-lg leading-relaxed max-w-md mx-auto">
-            ระบบสำหรับพิมพ์ใบหุ้นและเอกสารที่เกี่ยวข้องสำหรับสมาชิกสหกรณ์
-          </p>
+  <div class="p-8">
+    <!-- ฟอร์มค้นหา -->
+    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-6 text-center">ค้นหาใบหุ้น</h3>
+      
+      <!-- เงื่อนไขการค้นหา -->
+      <div class="space-y-4 mb-6">
+        <!-- เลขที่ใบหุ้น -->
+        <div class="flex items-center space-x-3">
+          <input type="radio" id="stockNumber" name="searchBy" value="stockNumber" 
+                 [(ngModel)]="searchBy"
+                 (change)="onSearchByChange('stockNumber')"
+                 class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 focus:ring-green-500">
+          <input type="text" placeholder="เลขที่ใบหุ้น" 
+                 [(ngModel)]="stockNumber"
+                 [disabled]="isStockNumberDisabled()"
+                 [class]="isStockNumberDisabled() ? 'flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500 ' : 'flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
         </div>
 
-        <!-- คุณสมบัติของระบบ -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div class="text-center">
-            <div class="text-3xl mb-2">📄</div>
-            <h3 class="font-semibold text-gray-800">ใบหุ้น</h3>
-            <p class="text-sm text-gray-600">พิมพ์ใบหุ้นสมาชิก</p>
+        <!-- วันที่: เลือกหมวดก่อน (ออกเลขที่ใบหุ้น/ช่วงวันที่ขาย/วันที่สาขาอนุมัติ) -->
+        <div class="flex items-center space-x-3">
+          <input type="radio" id="date" name="searchBy" value="date" 
+                 [(ngModel)]="searchBy"
+                 (change)="onSearchByChange('date')"
+                 class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 focus:ring-green-500">
+          <!-- Dropdown เลือกหมวดวันที่ -->
+          <select [(ngModel)]="dateCategory" (change)="onDateCategoryChange(dateCategory)"
+                  [disabled]="isDateDisabled()"
+                  [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
+            <option value="issue">วันที่ออกเลขที่ใบหุ้น</option>
+            <option value="sale">ช่วงวันที่ขาย</option>
+            <option value="approve">วันที่สาขาอนุมัติ</option>
+          </select>
+          <select [(ngModel)]="dateType" (change)="onDateTypeChange(dateType)" 
+                  [disabled]="isDateDisabled()"
+                  [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
+            <option value="date">ปี</option>
+            <option value="dateRange">ช่วงวันที่</option>
+            <option value="year">วันที่</option>
+          </select>
+          
+          <!-- วันที่เดียว -->
+          <div class="flex space-x-2 flex-1" *ngIf="searchBy === 'date' && dateType === 'date'" [class]="isDateDisabled() ? 'opacity-50 pointer-events-none' : ''">
+            <select [(ngModel)]="issueDay" 
+                    [disabled]="isDateDisabled()"
+                    [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500 cursor-not-allowed' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
+              <option value="" disabled selected>วัน</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+              <option value="11">11</option>
+              <option value="12">12</option>
+              <option value="13">13</option>
+              <option value="14">14</option>
+              <option value="15">15</option>
+              <option value="16">16</option>
+              <option value="17">17</option>
+              <option value="18">18</option>
+              <option value="19">19</option>
+              <option value="20">20</option>
+              <option value="21">21</option>
+              <option value="22">22</option>
+              <option value="23">23</option>
+              <option value="24">24</option>
+              <option value="25">25</option>
+              <option value="26">26</option>
+              <option value="27">27</option>
+              <option value="28">28</option>
+              <option value="29">29</option>
+              <option value="30">30</option>
+              <option value="31">31</option>
+            </select>
+            <select [(ngModel)]="issueMonth" 
+                    [disabled]="isDateDisabled()"
+                    [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500 cursor-not-allowed' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
+              <option value="" disabled selected>เดือน</option>
+              <option value="1">มกราคม</option>
+              <option value="2">กุมภาพันธ์</option>
+              <option value="3">มีนาคม</option>
+              <option value="4">เมษายน</option>
+              <option value="5">พฤษภาคม</option>
+              <option value="6">มิถุนายน</option>
+              <option value="7">กรกฎาคม</option>
+              <option value="8">สิงหาคม</option>
+              <option value="9">กันยายน</option>
+              <option value="10">ตุลาคม</option>
+              <option value="11">พฤศจิกายน</option>
+              <option value="12">ธันวาคม</option>
+            </select>
+            <select [(ngModel)]="issueYear" 
+                    [disabled]="isDateDisabled()"
+                    [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500 cursor-not-allowed' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
+              <option value="" disabled selected>ปี</option>
+              <option value="2568">2568</option>
+              <option value="2567">2567</option>
+              <option value="2566">2566</option>
+              <option value="2565">2565</option>
+              <option value="2564">2564</option>
+              <option value="2563">2563</option>
+            </select>
           </div>
           
-          <div class="text-center">
-            <div class="text-3xl mb-2">🏦</div>
-            <h3 class="font-semibold text-gray-800">สหกรณ์</h3>
-            <p class="text-sm text-gray-600">เอกสารสหกรณ์</p>
+          <!-- ปี -->
+          <div class="flex-1" *ngIf="searchBy === 'date' && dateType === 'year'">
+            <select [(ngModel)]="selectedYear" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+              <option value="" disabled selected>เลือกปี</option>
+              <option value="2568">2568</option>
+              <option value="2567">2567</option>
+              <option value="2566">2566</option>
+              <option value="2565">2565</option>
+              <option value="2564">2564</option>
+              <option value="2563">2563</option>
+            </select>
+          </div>
           </div>
           
-          <div class="text-center">
-            <div class="text-3xl mb-2">✅</div>
-            <h3 class="font-semibold text-gray-800">พร้อมใช้งาน</h3>
-            <p class="text-sm text-gray-600">ระบบพร้อมให้บริการ</p>
+        <!-- ช่วงวันที่ -->
+        <div *ngIf="searchBy === 'date' && dateType === 'dateRange'" class="ml-7">
+          <div class="flex items-center space-x-3 mb-2">
+            <label class="text-sm font-medium text-gray-700 min-w-[140px]">วันที่เริ่มต้น</label>
+            <div class="flex space-x-2 flex-1">
+              <select [(ngModel)]="startDay" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <option value="" disabled selected>วัน</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20">20</option>
+                <option value="21">21</option>
+                <option value="22">22</option>
+                <option value="23">23</option>
+                <option value="24">24</option>
+                <option value="25">25</option>
+                <option value="26">26</option>
+                <option value="27">27</option>
+                <option value="28">28</option>
+                <option value="29">29</option>
+                <option value="30">30</option>
+                <option value="31">31</option>
+              </select>
+              <select [(ngModel)]="startMonth" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <option value="" disabled selected>เดือน</option>
+                <option value="1">มกราคม</option>
+                <option value="2">กุมภาพันธ์</option>
+                <option value="3">มีนาคม</option>
+                <option value="4">เมษายน</option>
+                <option value="5">พฤษภาคม</option>
+                <option value="6">มิถุนายน</option>
+                <option value="7">กรกฎาคม</option>
+                <option value="8">สิงหาคม</option>
+                <option value="9">กันยายน</option>
+                <option value="10">ตุลาคม</option>
+                <option value="11">พฤศจิกายน</option>
+                <option value="12">ธันวาคม</option>
+              </select>
+              <select [(ngModel)]="startYear" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <option value="" disabled selected>ปี</option>
+                <option value="2568">2568</option>
+                <option value="2567">2567</option>
+                <option value="2566">2566</option>
+                <option value="2565">2565</option>
+                <option value="2564">2564</option>
+                <option value="2563">2563</option>
+              </select>
+            </div>
           </div>
-        </div>
-
-        <!-- ปุ่มการทำงาน -->
-        <div class="space-y-4">
-          <button class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200 transform flex items-center justify-center gap-3 shadow-md">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-            </svg>
-            เริ่มพิมพ์ใบหุ้น
-          </button>
-          <button class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
-            ดูตัวอย่างใบหุ้น
-          </button>
+          
+          <div class="text-center text-sm text-gray-600 mb-2">ถึง</div>
+          
+          <div class="flex items-center space-x-3">
+            <label class="text-sm font-medium text-gray-700 min-w-[140px]">วันที่สิ้นสุด</label>
+            <div class="flex space-x-2 flex-1">
+              <select [(ngModel)]="endDay" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <option value="" disabled selected>วัน</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20">20</option>
+                <option value="21">21</option>
+                <option value="22">22</option>
+                <option value="23">23</option>
+                <option value="24">24</option>
+                <option value="25">25</option>
+                <option value="26">26</option>
+                <option value="27">27</option>
+                <option value="28">28</option>
+                <option value="29">29</option>
+                <option value="30">30</option>
+                <option value="31">31</option>
+              </select>
+              <select [(ngModel)]="endMonth" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <option value="" disabled selected>เดือน</option>
+                <option value="1">มกราคม</option>
+                <option value="2">กุมภาพันธ์</option>
+                <option value="3">มีนาคม</option>
+                <option value="4">เมษายน</option>
+                <option value="5">พฤษภาคม</option>
+                <option value="6">มิถุนายน</option>
+                <option value="7">กรกฎาคม</option>
+                <option value="8">สิงหาคม</option>
+                <option value="9">กันยายน</option>
+                <option value="10">ตุลาคม</option>
+                <option value="11">พฤศจิกายน</option>
+                <option value="12">ธันวาคม</option>
+              </select>
+              <select [(ngModel)]="endYear" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <option value="" disabled selected>ปี</option>
+                <option value="2568">2568</option>
+                <option value="2567">2567</option>
+                <option value="2566">2566</option>
+                <option value="2565">2565</option>
+                <option value="2564">2564</option>
+                <option value="2563">2563</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- ส่วนท้าย -->
-      <div class="bg-gray-50 px-8 py-4 border-t">
-        <div class="flex items-center justify-between text-sm text-gray-600">
-          <span>ระบบจัดการใบหุ้นสหกรณ์</span>
-          <span>{{ getCurrentDate() }}</span>
+      <!-- ตัวอย่างผู้ลงนาม -->
+      <div class="space-y-4 mb-6">
+        <div class="flex items-center space-x-3">
+          <label class="text-sm font-medium text-gray-700 min-w-[140px]">ผู้ลงนาม 1</label>
+          <select [(ngModel)]="signatory1" class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+            <option value="">เลือกผู้ลงนาม</option>
+            <option value="นาย ก">นาย ก</option>
+            <option value="นาง ข">นาง ข</option>
+            <option value="นางสาว ค">นางสาว ค</option>
+          </select>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+          <label class="text-sm font-medium text-gray-700 min-w-[140px]">ผู้ลงนาม 2</label>
+          <select [(ngModel)]="signatory2" class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+            <option value="">เลือกผู้ลงนาม</option>
+            <option value="นาย ก">นาย ก</option>
+            <option value="นาง ข">นาง ข</option>
+            <option value="นางสาว ค">นางสาว ค</option>
+          </select>
         </div>
       </div>
       
+      <!-- ปุ่มค้นหา -->
+      <div class="text-center">
+        <button (click)="onSearch()" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors duration-200 transform flex items-center justify-center gap-3 shadow-md mx-auto">
+          🔍 ค้นหา
+        </button>
+      </div>
     </div>
   </div>
 </div> 
