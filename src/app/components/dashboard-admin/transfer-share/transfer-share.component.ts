@@ -5,11 +5,12 @@ import { RemCodeService, Remcode } from '../../../services/rem-code';
 import { FormsModule } from '@angular/forms';
 import { PayTypeService, PayType } from '../../../services/pay-type';
 import { StockService, StockItem } from '../../../services/stock';
-import { AccTypeService, AccType } from '../../../services/acc-type';
 import { CustomerService } from '../../../services/customer';
 import { StockRequestService } from '../../../services/stock-request';
 import { StocktransferService } from '../../../services/stocktransfer';
 import Swal from 'sweetalert2';
+import { DataTransfer } from '../../../services/data-transfer';
+import { MetadataService } from '../../../services/metadata';
 
 interface TransferReceiver {
   cid: string;
@@ -48,7 +49,7 @@ export class TransferShareComponent implements OnInit {
   isEnteringNewPerson = true; // true = แสดงแค่ช่องกรอกบัตร
   selectedTransfer: TransferReceiver | null = null;
   payTypes: PayType[] = [];
-  accTypes: AccType[] = [];
+  accTypes: any[] = [];
   selectedRemCode: string = '';
   stockCusid: string = '';
   selectedcustomer: any = null;
@@ -73,14 +74,12 @@ export class TransferShareComponent implements OnInit {
   };
 
   constructor(
-    private stockService: StockService,
-    private remcodeService: RemCodeService,
-    private paytypeService: PayTypeService,
-    private acctypeService: AccTypeService,
-    private customerService: CustomerService,
-    private StockRequestService: StockRequestService,
-    private StockTrnsferService: StocktransferService,
-    private cdRef: ChangeDetectorRef
+    private readonly remcodeService: RemCodeService,
+    private readonly paytypeService: PayTypeService,
+    private readonly StockTrnsferService: StocktransferService,
+    private readonly cdRef: ChangeDetectorRef,
+    private readonly dataTransfer: DataTransfer,
+    private readonly metadataService: MetadataService
   ) { }
 
   ngOnInit(): void {
@@ -103,7 +102,7 @@ export class TransferShareComponent implements OnInit {
       }
     });
 
-    this.acctypeService.getAllAccTypes().subscribe({
+    this.metadataService.getAcctypes().subscribe({
       next: (data) => {
         this.accTypes = data;
       },

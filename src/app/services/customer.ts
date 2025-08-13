@@ -22,6 +22,11 @@ export class CustomerService {
     private readonly encryped: EncryptionService
   ) { }
 
+  getCustomerTable(requestPayload: any) {
+    const encrypPayload = this.encryped.encrypPayload(requestPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/detailcus`, encrypPayload, { headers: this.createAuthHeaders() });
+  }
+
   getCustomer(requestPayload: any) {
     const encrypPayload = this.encryped.encrypPayload(requestPayload);
     console.log("log", encrypPayload);

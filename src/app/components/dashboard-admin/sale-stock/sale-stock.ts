@@ -552,7 +552,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
         });
         this.cd.detectChanges();
       },
-      error: (err) => {
+      error: (err: any) => {
         console.log("Load Address Fail...", err);
       }
     });
@@ -802,16 +802,6 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
       error: (error) => {
         console.error("Update failed:", error);
         this.loading = false;
-        // กำหนดข้อความ error ตามประเภทของ error
-        const errorMessage =
-          error?.error?.message ??
-          error?.message ??
-          (error.status === 0 && 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต') ??
-          (error.status >= 500 && 'เกิดข้อผิดพลาดจากเซิร์ฟเวอร์ กรุณาลองใหม่ในภายหลัง') ??
-          (error.status === 401 && 'ไม่มีสิทธิ์ในการเข้าถึง กรุณาเข้าสู่ระบบใหม่') ??
-          (error.status === 403 && 'ไม่มีสิทธิ์ในการแก้ไขข้อมูลนี้') ??
-          'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง';
-
         // แสดง SweetAlert เมื่อเกิดข้อผิดพลาด
         Swal.fire({
           icon: 'error',

@@ -70,6 +70,12 @@ export class MetadataService {
     })
   }
 
+  getRemCode(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/remcode`, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
 
   private createAuthHeaders(): HttpHeaders {
     let token = '';

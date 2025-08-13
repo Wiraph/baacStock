@@ -47,7 +47,15 @@ export class StockService {
   stockManage(requestPayload: any): Observable<any[]> {
     const encodePayload = this.encrypt.encrypPayload(requestPayload);
     console.log("ข้อมูลที่จะส่งไป", encodePayload);
-    return this.http.post<any[]>(`${this.apiUrl}/manage`, encodePayload , {
+    return this.http.post<any[]>(`${this.apiUrl}/manage`, encodePayload, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
+  getStockDetail(requestPayload: any): Observable<any[]> {
+    const encodePayload = this.encrypt.encrypPayload(requestPayload);
+    console.log("ข้อมูลที่จะส่งไป", encodePayload);
+    return this.http.post<any[]>(`${this.apiUrl}/stkdetail`, encodePayload, {
       headers: this.createAuthHeaders()
     });
   }
@@ -60,5 +68,5 @@ export class StockService {
     return new HttpHeaders({
       Authorization: `Bearer ${token}`
     });
-  } 
+  }
 }

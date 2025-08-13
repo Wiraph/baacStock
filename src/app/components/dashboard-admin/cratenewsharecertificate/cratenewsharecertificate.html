@@ -1,11 +1,55 @@
 <div *ngIf="activeView === 'search'">
-    <app-search-edit 
-        (createnew)="onCreatenew($event)"></app-search-edit>
+    <app-search-edit (statusView)="onShowdetail($event)"></app-search-edit>
 </div>
 
-<div *ngIf="activeView === 'create'">
-    <app-stock-table-detail [stockData]="selectedStock"
-        (onRequestNewStock)="handleNewStockRequest($event)"></app-stock-table-detail>
+<div *ngIf="activeView === 'newcertificate'">
+    <div class="m-4 rounded-md shadow-md bg-white">
+        <p class="text-center py-3 rounded-t-md bg-green-400 text-xl font-semibold text-white">รายการใบหุ้น :
+            ออกใบหุ้นใหม่แทนใบหุ้นที่ชำรุด/สูญหาย</p>
+        <div class="text-center py-4 gap-4">
+            <div class="flex justify-center gap-4">
+                <p>บัตรแสดงตนเลขที่ :  {{ customerData.cusiD }}</p>
+                <p>สถานะ : {{ customerData.staDesc }} </p>
+            </div>
+            <p>ชื่อ - นามสกุล : {{ customerData.title }}{{ customerData.fname }} {{ customerData.lname }}</p>
+        </div>
+        <div class="p-4">
+            <table class="table-auto w-full border border-gray-300 rounded-lg shadow-sm">
+                <thead>
+                    <tr class="bg-blue-600 text-white text-sm uppercase tracking-wider">
+                        <th class="px-4 py-2 text-center">ลำดับ</th>
+                        <th class="px-4 py-2 text-left">สาขา</th>
+                        <th class="px-4 py-2 text-left">หมายเลขใบหุ้น</th>
+                        <th class="px-4 py-2 text-left">หมายเลขใบหุ้นเดิม</th>
+                        <th class="px-4 py-2 text-left">หมายเลขหุ้น</th>
+                        <th class="px-4 py-2 text-right">จำนวนหุ้น</th>
+                        <th class="px-4 py-2 text-right">มูลค่าหุ้น</th>
+                        <th class="px-4 py-2 text-center">สถานะ</th>
+                        <th class="px-4 py-2 text-center">วันเวลาที่ทำรายการ</th>
+                        <th class="px-4 py-2 text-center">ออกใบหุ้นใหม่</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200" *ngFor="let item of stkLostList; ">
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-4 py-2 text-center">{{ item.roWi }}</td>
+                        <td class="px-4 py-2">{{ item.brCode }}</td>
+                        <td class="px-4 py-2">{{ item.stkNOTE }}</td>
+                        <td class="px-4 py-2">{{ item.stkNOTEo }}</td>
+                        <td class="px-4 py-2">{{ item.stkNOStart }} - {{ item.stkNOStop }}</td>
+                        <td class="px-4 py-2 text-right">{{ item.stkUNiT | number:'1.0-0' }}</td>
+                        <td class="px-4 py-2 text-right">{{ item.stkVALUE | number:'1.0-0'}}</td>
+                        <td class="px-4 py-2 text-center">{{ item.stDESC }}</td>
+                        <td class="px-4 py-2 text-center">{{ formatThaiDateTime(item.datetimeup) || '-' }}</td>
+                        <td class="px-4 py-2 text-center">
+                            <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
+                                ออกใบหุ้น
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <div *ngIf="activeView === 'select'" class="w-full p-4">
@@ -38,16 +82,18 @@
                 </div>
                 <div></div>
                 <div *ngIf="selectedRequest">
-                    <p>จำนวนหุ้น : <span>{{ selectedRequest.unit }} หุ้น / {{ selectedRequest.unitValue }} บาท</span></p>
+                    <p>จำนวนหุ้น : <span>{{ selectedRequest.unit }} หุ้น / {{ selectedRequest.unitValue }} บาท</span>
+                    </p>
                 </div>
             </div>
         </div>
         <div>
-            <form [formGroup]="reasonForm" (ngSubmit)="onSubmitReason()" *ngIf="reasonForm" class="flex flex-col items-center">
+            <form [formGroup]="reasonForm" (ngSubmit)="onSubmitReason()" *ngIf="reasonForm"
+                class="flex flex-col items-center">
                 <div>
                     <label for="reason" class="mr-4">เหตุผลในการออกหุ้นใหม่</label>
                     <select class="bg-green-100 p-2 rounded-md" id="reason" formControlName="remCode">
-                        <option value="" disabled >-- กรุณาเลือกเหตุผล --</option>
+                        <option value="" disabled>-- กรุณาเลือกเหตุผล --</option>
                         <option *ngFor="let rem of remCodes" [value]="rem.remCode">
                             {{ rem.remDesc }}
                         </option>
@@ -58,17 +104,11 @@
                     กรุณาเลือกเหตุผล
                 </div>
                 <div class="m-4 flex gap-3">
-                    <button 
-                        class="px-6 py-2 bg-green-300 rounded-md hover:shadow-md cursor-pointer" 
-                        type="submit" 
-                        [disabled]="reasonForm.invalid"
-                        >ตกลง
+                    <button class="px-6 py-2 bg-green-300 rounded-md hover:shadow-md cursor-pointer" type="submit"
+                        [disabled]="reasonForm.invalid">ตกลง
                     </button>
-                    <button 
-                        class="px-6 py-2 bg-red-300 rounded-md hover:shadow-md cursor-pointer"
-                        type="button" 
-                        (click)="onCancelReason()"
-                        >
+                    <button class="px-6 py-2 bg-red-300 rounded-md hover:shadow-md cursor-pointer" type="button"
+                        (click)="onCancelReason()">
                         ยกเลิก
                     </button>
                 </div>
