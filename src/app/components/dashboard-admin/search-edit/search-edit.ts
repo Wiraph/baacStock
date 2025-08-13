@@ -176,6 +176,8 @@ export class SearchEditComponent implements OnInit {
       this.statusView.emit({ view: 'sale', cusId: cusId});
     } else if (this.statusPage == '3') {
       this.statusView.emit({ view: 'newcertificate', cusId: cusId});
+    } else if (this.statusPage == '4') {
+      this.statusView.emit({view: 'transfer', cusId: cusId });
     }
   }
 
