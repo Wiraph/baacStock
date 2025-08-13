@@ -29,7 +29,7 @@ interface TransferReceiver {
 @Component({
   selector: 'app-transfer-share',
   standalone: true,
-  imports: [CommonModule, SearchEditComponent, FormsModule],
+  imports: [CommonModule, FormsModule, SearchEditComponent],
   templateUrl: './transfer-share.component.html',
 })
 export class TransferShareComponent implements OnInit {
@@ -61,11 +61,22 @@ export class TransferShareComponent implements OnInit {
     salary: '',
     incomeSource: '',
     date: '',
-    address: ''
+    address: '',
+    position: '',
+    memberId: '',
+    shareAmount: 0,
+    payType: '',
+    accountType: '',
+    accountNumber: '',
+    accountName: ''
   };
+
+  foundUser: any = null;
   selectedTransfer: TransferReceiver | null = null;
   payTypes: PayType[] = [];
   accTypes: any[] = [];
+  actypeList: any[] = [];
+  dividendData: any = null;
   selectedRemCode: string = '';
   stockCusid: string = '';
   selectedcustomer: any = null;
@@ -398,6 +409,30 @@ export class TransferShareComponent implements OnInit {
       });
     }
 
+    // โหลดข้อมูล payTypes ถ้ายังไม่มี
+    if (this.payTypes.length === 0) {
+      this.paytypeService.getAll().subscribe({
+        next: (types: PayType[]) => {
+          this.payTypes = types;
+          console.log('PayTypes loaded:', this.payTypes);
+          this.cdRef.detectChanges();
+        },
+        error: (err: any) => console.error('Error loading paytypes:', err)
+      });
+    }
+
+    // โหลดข้อมูล account types ถ้ายังไม่มี
+    if (this.actypeList.length === 0) {
+      this.metadataService.getAcctypes().subscribe({
+        next: (types: any[]) => {
+          this.actypeList = types;
+          console.log('Account types loaded:', this.actypeList);
+          this.cdRef.detectChanges();
+        },
+        error: (err: any) => console.error('Error loading account types:', err)
+      });
+    }
+
     // เปลี่ยนไปหน้าโอนหุ้น
     this.activeView = 'transfers';
     this.cdRef.detectChanges();
@@ -408,7 +443,176 @@ export class TransferShareComponent implements OnInit {
     // TODO: เพิ่ม logic การบันทึกข้อมูลการโอน
   }
 
+  onAddPerson() {
+    console.log('เพิ่มบุคคล:', this.transferForm.idCard);
+    
+    if (!this.transferForm.idCard.trim()) {
+      console.log('กรุณากรอกเลขบัตรแสดงตน');
+      alert('กรุณากรอกเลขบัตรแสดงตน');
+      return;
+    }
+
+    // Mock data ผู้รับโอน
+    const mockUsers = [
+      {
+        idCard: '1234567890123',
+        title: 'นาย',
+        firstName: 'สมชาย',
+        lastName: 'ใจดี',
+        fullName: 'นายสมชาย ใจดี',
+        address: '123 หมู่ 1 ตำบลบางกะปิ อำเภอห้วยขวาง จังหวัดกรุงเทพฯ 10310',
+        phone: '081-234-5678',
+        email: 'somchai@email.com',
+        salary: '25000',
+        position: 'พนักงาน',
+        memberId: 'M001234',
+        gender: 'ชาย',
+        age: '35'
+      },
+      {
+        idCard: '9876543210987',
+        title: 'นาง',
+        firstName: 'สมใส',
+        lastName: 'รักดี',
+        fullName: 'นางสมใส รักดี',
+        address: '456 หมู่ 2 ตำบลคลองเตย อำเภอคลองเตย จังหวัดกรุงเทพฯ 10110',
+        phone: '082-345-6789',
+        email: 'somsai@email.com',
+        salary: '30000',
+        position: 'หัวหน้าแผนก',
+        memberId: 'M005678',
+        gender: 'หญิง',
+        age: '42'
+      },
+      {
+        idCard: '5555555555555',
+        title: 'นางสาว',
+        firstName: 'วิไล',
+        lastName: 'สุขใจ',
+        fullName: 'นางสาววิไล สุขใจ',
+        address: '789 หมู่ 3 ตำบลบางนา อำเภอบางนา จังหวัดกรุงเทพฯ 10260',
+        phone: '083-456-7890',
+        email: 'wilai@email.com',
+        salary: '35000',
+        position: 'ผู้จัดการ',
+        memberId: 'M009876',
+        gender: 'หญิง',
+        age: '28'
+      }
+    ];
+
+    // ค้นหา mock user ที่ตรงกับเลขบัตรที่กรอก
+    const foundMockUser = mockUsers.find(user => user.idCard === this.transferForm.idCard);
+
+    if (foundMockUser) {
+      // พบข้อมูล - แสดงข้อมูลที่พบ
+      console.log('พบข้อมูล Mock User:', foundMockUser);
+      
+      // เติมข้อมูลในฟอร์ม
+      this.transferForm.title = foundMockUser.title;
+      this.transferForm.firstName = foundMockUser.firstName;
+      this.transferForm.lastName = foundMockUser.lastName;
+      this.transferForm.salary = foundMockUser.salary;
+      this.transferForm.address = foundMockUser.address;
+      this.transferForm.position = foundMockUser.position;
+      this.transferForm.memberId = foundMockUser.memberId;
+      
+      // เก็บข้อมูลผู้ใช้ที่พบ (สำหรับแสดงผล)
+      this.foundUser = foundMockUser;
+      
+      alert(`พบข้อมูลผู้รับโอน: ${foundMockUser.fullName}`);
+    } else {
+      // ไม่พบข้อมูล
+      console.log('ไม่พบข้อมูลสำหรับเลขบัตร:', this.transferForm.idCard);
+      this.foundUser = null;
+      alert('ไม่พบข้อมูลผู้รับโอน กรุณาตรวจสอบเลขบัตรแสดงตน');
+    }
+  }
+
+  onConfirmUser() {
+    console.log('ยืนยันข้อมูลผู้รับโอน:', this.foundUser);
+    console.log('ข้อมูลฟอร์ม:', this.transferForm);
+    alert(`ยืนยันข้อมูลผู้รับโอน: ${this.foundUser.fullName}`);
+    // TODO: เพิ่ม logic การยืนยันข้อมูล
+  }
+
+  onRemoveUser() {
+    this.foundUser = null;
+    this.transferForm.title = '';
+    this.transferForm.firstName = '';
+    this.transferForm.lastName = '';
+    this.transferForm.salary = '';
+    this.transferForm.address = '';
+    this.transferForm.position = '';
+    this.transferForm.memberId = '';
+    this.transferForm.shareAmount = 0;
+    this.transferForm.payType = '';
+    this.transferForm.accountType = '';
+    this.transferForm.accountNumber = '';
+    this.transferForm.accountName = '';
+    console.log('ลบข้อมูลผู้รับโอนแล้ว');
+  }
+
+  onConfirmShareAmount() {
+    if (!this.transferForm.shareAmount || this.transferForm.shareAmount <= 0) {
+      Swal.fire({
+        title: 'ข้อผิดพลาด!',
+        text: 'กรุณากรอกจำนวนหุ้นที่ต้องการโอน',
+        icon: 'error',
+        confirmButtonText: 'ตกลง'
+      });
+      return;
+    }
+
+    if (this.transferForm.shareAmount > (this.selectStockTransfer?.unit || 0)) {
+      Swal.fire({
+        title: 'ข้อผิดพลาด!',
+        text: `จำนวนหุ้นที่กรอกเกินจำนวนที่มี (สูงสุด ${this.selectStockTransfer?.unit || 0} หุ้น)`,
+        icon: 'error',
+        confirmButtonText: 'ตกลง'
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: 'ยืนยันจำนวนหุ้น',
+      text: `ยืนยันการโอน ${this.transferForm.shareAmount} หุ้น ให้กับ ${this.foundUser?.fullName || ''}`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'ยืนยัน',
+      cancelButtonText: 'ยกเลิก'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'ยืนยันแล้ว!',
+          text: `จำนวนหุ้นที่จะโอน: ${this.transferForm.shareAmount} หุ้น`,
+          icon: 'success',
+          confirmButtonText: 'ตกลง'
+        });
+      }
+    });
+  }
+
+  increaseShares() {
+    const maxShares = this.selectStockTransfer?.unit || 0;
+    if (this.transferForm.shareAmount < maxShares) {
+      this.transferForm.shareAmount++;
+    }
+    console.log('เพิ่มจำนวนหุ้น:', this.transferForm.shareAmount);
+  }
+
+  decreaseShares() {
+    if (this.transferForm.shareAmount > 0) {
+      this.transferForm.shareAmount--;
+    }
+    console.log('ลดจำนวนหุ้น:', this.transferForm.shareAmount);
+  }
+
+
   onCancelTransfer() {
+    this.activeView = 'transfer';
     this.transferForm = {
       reason: '',
       idCard: '',
@@ -419,8 +623,16 @@ export class TransferShareComponent implements OnInit {
       salary: '',
       incomeSource: '',
       date: '',
-      address: ''
+      address: '',
+      position: '',
+      memberId: '',
+      shareAmount: 0,
+      payType: '',
+      accountType: '',
+      accountNumber: '',
+      accountName: ''
     };
+    this.foundUser = null;
   }
 
   funcDetail(stkNote: string) {
