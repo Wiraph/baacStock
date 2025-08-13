@@ -67,6 +67,13 @@ export class StockService {
     });
   }
 
+  blockStock(requestPayload: any): Observable<any[]> {
+    const encodePayload = this.encrypt.encrypPayload(requestPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/block`, encodePayload, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
   private createAuthHeaders(): HttpHeaders {
     let token = '';
     if (isPlatformBrowser(this.platformId)) {
