@@ -48,6 +48,21 @@ export class TransferShareComponent implements OnInit {
   remcodeList: Remcode[] = [];
   tempCID: string = '';
   isEnteringNewPerson = true; // true = แสดงแค่ช่องกรอกบัตร
+  
+  // ตัวแปรสำหรับหน้าโอนหุ้น
+
+  transferForm = {
+    reason: '',
+    idCard: '',
+    fee: '',
+    title: '',
+    firstName: '',
+    lastName: '',
+    salary: '',
+    incomeSource: '',
+    date: '',
+    address: ''
+  };
   selectedTransfer: TransferReceiver | null = null;
   payTypes: PayType[] = [];
   accTypes: any[] = [];
@@ -334,7 +349,7 @@ export class TransferShareComponent implements OnInit {
                 this.goBack();
                 this.cdRef.detectChanges();
               }
-            })
+            });
           },
           error: (err) => {
             console.error('❌ เกิดข้อผิดพลาดในการโอน:', err);
@@ -345,6 +360,68 @@ export class TransferShareComponent implements OnInit {
     });
   }
 
+  // เมธอดสำหรับหน้าโอนหุ้น
+
+  onTransferClick(item: any) {
+    console.log('เลือกโอนหุ้น:', item);
+    
+    // เซ็ตข้อมูลหุ้นที่เลือก
+    this.selectStockTransfer = {
+      stkNote: item.stkNOTE,
+      stkStart: item.stkNOStart,
+      stkEnd: item.stkNOStop,
+      unit: item.stkUNiT,
+      unitValue: item.stkVALUE,
+      branchName: item.brCode
+    };
+
+    // เซ็ตข้อมูลลูกค้า (ถ้ามี)
+    if (this.customerData) {
+      this.selectedcustomer = {
+        cusId: this.customerData.cusiD,
+        fullName: `${this.customerData.title}${this.customerData.fname} ${this.customerData.lname}`,
+        branchName: this.customerData.branchName || item.brCode
+      };
+    }
+
+    // โหลดข้อมูล remcodeList ถ้ายังไม่มี (กรองเฉพาะ 3 รายการที่ต้องการ)
+    if (this.remcodeList.length === 0) {
+      this.remcodeService.getRemCodes().subscribe({
+        next: (codes) => {
+          // กรองเฉพาะ remCode ที่ต้องการ: 0030, 0031, 0040
+          this.remcodeList = codes.filter(code => 
+            ['0030', '0031', '0040'].includes(code.remCode)
+          );
+          this.cdRef.detectChanges();
+        },
+        error: (err) => console.error('Error loading remcodes:', err)
+      });
+    }
+
+    // เปลี่ยนไปหน้าโอนหุ้น
+    this.activeView = 'transfers';
+    this.cdRef.detectChanges();
+  }
+
+  onSaveTransfer() {
+    console.log('บันทึกข้อมูลการโอน:', this.transferForm);
+    // TODO: เพิ่ม logic การบันทึกข้อมูลการโอน
+  }
+
+  onCancelTransfer() {
+    this.transferForm = {
+      reason: '',
+      idCard: '',
+      fee: '',
+      title: '',
+      firstName: '',
+      lastName: '',
+      salary: '',
+      incomeSource: '',
+      date: '',
+      address: ''
+    };
+  }
 
   funcDetail(stkNote: string) {
     
