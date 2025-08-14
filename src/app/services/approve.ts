@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -7,11 +7,11 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ApproveService {
-  private apiUrl = 'https://localhost:7089/api/approve';
+  private readonly apiUrl = 'https://localhost:7089/api/approve';
 
   constructor(
-    private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: object
+    private readonly http: HttpClient,
+    @Inject(PLATFORM_ID) private readonly platformId: object
   ) { }
 
   getStockApprove(): Observable<any[]> {

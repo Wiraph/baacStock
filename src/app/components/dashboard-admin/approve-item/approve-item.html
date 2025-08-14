@@ -26,7 +26,9 @@
             <td class="p-3">{{ item.stockNote }}</td>
             <td class="p-3 text-right">{{ item.stockUnit | number:'1.0-0' }}</td>
             <td class="p-3 text-right">{{ item.stockValue | number:'1.0-0' }}</td>
-            <td class="p-3 text-center cursor-pointer hover:text-green-600" (click)="approveConfirm(item.stockNote, item.statusCode)">📝</td>
+            <td class="p-3 text-center cursor-pointer hover:text-green-600">
+              <button (click)="approveConfirm(item.stockNote, item.statusCode)">📝</button>
+            </td>
           </tr>
         </tbody>
       </table>
