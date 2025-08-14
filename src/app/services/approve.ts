@@ -2,6 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Observable } from 'rxjs';
+import { EncryptionService } from './encryption.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +12,7 @@ export class ApproveService {
 
   constructor(
     private readonly http: HttpClient,
+    private readonly encryption: EncryptionService,
     @Inject(PLATFORM_ID) private readonly platformId: object
   ) { }
 
@@ -45,8 +47,9 @@ export class ApproveService {
     );
   }
 
-  confirmStock(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/confirm`, data, {
+  confirmStock(payload: any): Observable<any> {
+    const encrypPayload = this.encryption.encrypPayload(payload);
+    return this.http.post(`${this.apiUrl}/confirm`, encrypPayload, {
       headers: this.createAuthHeaders()
     });
   }

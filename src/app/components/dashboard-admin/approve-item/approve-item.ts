@@ -8,6 +8,9 @@ import { ApproveTransfer } from '../approve-transfer/approve-transfer';
 import { ApproveCreate } from '../approve-create/approve-create';
 import { StocktransferService } from '../../../services/stocktransfer';
 import { ApproveSale } from '../approve-sale/approve-sale';
+import { MatDialog } from '@angular/material/dialog';
+import { PopupDetail } from '../../popup-detail/popup-detail';
+
 
 @Component({
   standalone: true,
@@ -26,14 +29,16 @@ export class ApproveItemComponent implements OnInit {
   showDetailComponentCreate = false;
   showDetailComponentSale = false;
   brCode = sessionStorage.getItem('brCode') || '';
+  stknoteDetail: any[] = [];
+  activeView = '';
 
   constructor(
-    private stockService: StockService,
-    private approveService: ApproveService,
-    private dataTransfer: DataTransfer,
-    private cdr: ChangeDetectorRef,
-    private stockTransferService: StocktransferService
-
+    private readonly stockService: StockService,
+    private readonly approveService: ApproveService,
+    private readonly dataTransfer: DataTransfer,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly stockTransferService: StocktransferService,
+    private readonly dialog: MatDialog
   ) { }
 
   stockList: string[] = [];
@@ -52,6 +57,43 @@ export class ApproveItemComponent implements OnInit {
       }
     });
 
+  }
+
+  approveDetail(stkNote: string, stkStatus: string) {
+    const payload = {
+      stkNOTEDTL: stkNote
+    };
+
+    this.stockService.noteDetial(payload).subscribe({
+      next: (res) => {
+        this.stknoteDetail = res;
+        console.log("StknoteDetail", this.stknoteDetail);
+        this.cdr.detectChanges();
+      }, error: (err) => {
+        console.log("ไม่สามารถดึงรายละเอียดอนุมัติได้", err);
+      }
+    })
+
+    this.openPopup(stkNote, stkStatus);
+    this.cdr.detectChanges();
+  }
+
+  openPopup(stkNote: string, stkStatus: string) {
+    const dialogRef = this.dialog.open(PopupDetail, {
+      width: '300px',
+      data: { 
+        stkNote: stkNote,
+        stkStatus: stkStatus
+       }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('กดตกลง');
+      } else {
+        console.log('ยกเลิก');
+      }
+    });
   }
 
   approveConfirm(stkNote: string, stkStatus: string) {

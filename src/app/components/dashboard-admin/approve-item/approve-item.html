@@ -27,11 +27,27 @@
             <td class="p-3 text-right">{{ item.stockUnit | number:'1.0-0' }}</td>
             <td class="p-3 text-right">{{ item.stockValue | number:'1.0-0' }}</td>
             <td class="p-3 text-center cursor-pointer hover:text-green-600">
-              <button (click)="approveConfirm(item.stockNote, item.statusCode)">📝</button>
+              <button (click)="approveDetail(item.stockNote, item.statusCode)">📝</button>
             </td>
           </tr>
         </tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+
+<div *ngIf="activeView == 'detail'">
+  <div>
+    <!-- รายละเอียดผู้ทำรายการ -->
+    <div>
+      
+    </div>
+    <div>
+
+    </div>
+    <div>
+
     </div>
   </div>
 </div>
