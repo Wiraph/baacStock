@@ -87,6 +87,7 @@ export class TransferShareComponent implements OnInit {
   loading = false;
   stkTransList: any[] = [];
   customerData: any = '';
+  isShareAmountConfirmed = false;
 
   // สำหรับเพิ่มรายการผู้รับโอน
   transferList: TransferReceiver[] = [];
@@ -574,42 +575,96 @@ export class TransferShareComponent implements OnInit {
       return;
     }
 
-    Swal.fire({
-      title: 'ยืนยันจำนวนหุ้น',
-      text: `ยืนยันการโอน ${this.transferForm.shareAmount} หุ้น ให้กับ ${this.foundUser?.fullName || ''}`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'ยืนยัน',
-      cancelButtonText: 'ยกเลิก'
-    }).then((result) => {
-      if (result.isConfirmed) {
+    // ล็อคจำนวนหุ้นทันทีโดยไม่ต้องมี alert
+    this.isShareAmountConfirmed = true;
+    console.log('ยืนยันจำนวนหุ้นแล้ว:', this.transferForm.shareAmount);
+  }
+
+  onEditShareAmount() {
+    // ปลดล็อคเพื่อให้แก้ไขจำนวนหุ้นได้อีกครั้ง
+    this.isShareAmountConfirmed = false;
+    console.log('ปลดล็อคการแก้ไขจำนวนหุ้น');
+  }
+
+  onSaveTransferRecord() {
+    // ตรวจสอบข้อมูลก่อนบันทึก
+    if (!this.transferForm.reason) {
+      Swal.fire({
+        title: 'ข้อผิดพลาด!',
+        text: 'กรุณาเลือกเหตุผลการโอนหุ้น',
+        icon: 'error',
+        confirmButtonText: 'ตกลง'
+      });
+      return;
+    }
+
+    if (!this.foundUser) {
+      Swal.fire({
+        title: 'ข้อผิดพลาด!',
+        text: 'กรุณาค้นหาและเลือกผู้รับโอน',
+        icon: 'error',
+        confirmButtonText: 'ตกลง'
+      });
+      return;
+    }
+
+    if (!this.isShareAmountConfirmed) {
+      Swal.fire({
+        title: 'ข้อผิดพลาด!',
+        text: 'กรุณายืนยันจำนวนหุ้นก่อนบันทึก',
+        icon: 'error',
+        confirmButtonText: 'ตกลง'
+      });
+      return;
+    }
+
+    if (!this.transferForm.payType) {
+      Swal.fire({
+        title: 'ข้อผิดพลาด!',
+        text: 'กรุณาเลือกประเภทการรับเงินปันผล',
+        icon: 'error',
+        confirmButtonText: 'ตกลง'
+      });
+      return;
+    }
+
+    // ถ้าเลือกโอนเข้าบัญชี ต้องกรอกข้อมูลบัญชี
+    if (this.transferForm.payType === '001') {
+      if (!this.transferForm.accountNumber || !this.transferForm.accountName) {
         Swal.fire({
-          title: 'ยืนยันแล้ว!',
-          text: `จำนวนหุ้นที่จะโอน: ${this.transferForm.shareAmount} หุ้น`,
-          icon: 'success',
+          title: 'ข้อผิดพลาด!',
+          text: 'กรุณากรอกข้อมูลบัญชีให้ครบถ้วน',
+          icon: 'error',
           confirmButtonText: 'ตกลง'
         });
+        return;
       }
+    }
+
+    // แสดง alert ตามระบบต้นแบบ
+    Swal.fire({
+      title: 'ทำการโอนเปลี่ยนมือเรียบร้อย',
+      text: 'การโอนหุ้นเปลี่ยนมือเสร็จสิ้น',
+      icon: 'success',
+      confirmButtonText: 'ตกลง'
+    }).then(() => {
+      // TODO: เรียก API บันทึกข้อมูลการโอน
+      console.log('บันทึกข้อมูลการโอน:', {
+        reason: this.transferForm.reason,
+        receiver: this.foundUser,
+        shareAmount: this.transferForm.shareAmount,
+        payType: this.transferForm.payType,
+        accountInfo: this.transferForm.payType === '001' ? {
+          accountType: this.transferForm.accountType,
+          accountNumber: this.transferForm.accountNumber,
+          accountName: this.transferForm.accountName
+        } : null
+      });
+      
+      // รีเซ็ตฟอร์มและกลับไปหน้าแรก
+      this.onCancelTransfer();
     });
   }
-
-  increaseShares() {
-    const maxShares = this.selectStockTransfer?.unit || 0;
-    if (this.transferForm.shareAmount < maxShares) {
-      this.transferForm.shareAmount++;
-    }
-    console.log('เพิ่มจำนวนหุ้น:', this.transferForm.shareAmount);
-  }
-
-  decreaseShares() {
-    if (this.transferForm.shareAmount > 0) {
-      this.transferForm.shareAmount--;
-    }
-    console.log('ลดจำนวนหุ้น:', this.transferForm.shareAmount);
-  }
-
 
   onCancelTransfer() {
     this.activeView = 'transfer';
@@ -633,6 +688,7 @@ export class TransferShareComponent implements OnInit {
       accountName: ''
     };
     this.foundUser = null;
+    this.isShareAmountConfirmed = false;
   }
 
   funcDetail(stkNote: string) {

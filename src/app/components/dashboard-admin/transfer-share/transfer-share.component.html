@@ -98,7 +98,7 @@
                 <input type="text" [(ngModel)]="transferForm.idCard" name="idCard" class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
                 <button type="button" 
                         (click)="onAddPerson()"
-                        class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded flex items-center justify-center">
+                        class="bg-green-300 hover:bg-green-400 text-white px-3 py-2 rounded flex items-center justify-center">
                     <span class="text-lg">➕</span>
                 </button>
             </div>
@@ -130,12 +130,24 @@
                                        name="shareAmount" 
                                        min="0" 
                                        [max]="selectStockTransfer?.unit || 0"
-                                       class="border border-gray-300 rounded px-3 py-2 text-center w-24 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                       [disabled]="isShareAmountConfirmed"
+                                       [class]="isShareAmountConfirmed ? 'border border-gray-300 rounded px-3 py-2 text-center w-24 bg-gray-100 cursor-not-allowed' : 'border border-gray-300 rounded px-3 py-2 text-center w-24 focus:outline-none focus:ring-2 focus:ring-blue-500'">
                                 <span class="text-gray-700 font-medium">หุ้น</span>
-                                <button type="button" 
+                                
+                                <!-- ปุ่มยืนยัน - แสดงเมื่อยังไม่ยืนยัน -->
+                                <button *ngIf="!isShareAmountConfirmed" 
+                                        type="button" 
                                         (click)="onConfirmShareAmount()"
-                                        class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium ml-2">
-                                    ยืนยัน
+                                        class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm font-medium ml-2">
+                                    ✔️
+                                </button>
+                                
+                                <!-- ปุ่มแก้ไข - แสดงเมื่อยืนยันแล้ว -->
+                                <button *ngIf="isShareAmountConfirmed" 
+                                        type="button" 
+                                        (click)="onEditShareAmount()"
+                                        class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded text-sm font-medium ml-2">
+                                    ✖️
                                 </button>
                             </div>
                         </div>
@@ -163,7 +175,7 @@
                                     <!-- Account Type -->
                                     <div class="flex items-center gap-2">
                                         <label for="accountType"
-                                            class="whitespace-nowrap font-semibold text-gray-700">บัญชีเงินฝาก :</label>
+                                            class="whitespace-nowrap text-gray-700">บัญชีเงินฝาก :</label>
                                         <select id="accountType" name="accountType"
                                              class="border border-gray-300 rounded-md p-2 bg-blue-100 font-semibold w-full cursor-not-allowed pointer-events-none"
                                              [(ngModel)]="transferForm.accountType" [disabled]="true">
@@ -174,7 +186,7 @@
                                     <!-- Account Number -->
                                     <div class="flex items-center gap-2">
                                         <label for="accountNumber"
-                                            class="whitespace-nowrap font-semibold text-gray-700">บัญชีเลขที่
+                                            class="whitespace-nowrap text-gray-700">บัญชีเลขที่
                                             :</label>
                                         <input type="text" id="accountNumber" name="accountNumber"
                                             [(ngModel)]="transferForm.accountNumber"
@@ -184,17 +196,13 @@
                                 <!-- Account Name -->
                                 <div class="flex items-center gap-2">
                                     <label for="accountName"
-                                        class="whitespace-nowrap font-semibold text-gray-700">ชื่อบัญชี :
+                                        class="whitespace-nowrap text-gray-700">ชื่อบัญชี :
                                     </label>
                                     <input type="text" id="accountName" name="accountName"
                                         [(ngModel)]="transferForm.accountName"
                                         class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 </div>
                             </div>
-                        </div>
-                        <div class="flex gap-4 mt-2">
-                            <input type="radio" name="stkPayType" value="002" [(ngModel)]="transferForm.payType">
-                            <label>เงินสด</label>
                         </div>
                         <div class="flex gap-4 mt-2">
                             <input type="radio" name="stkPayType" value="003" [(ngModel)]="transferForm.payType">
@@ -204,11 +212,19 @@
                 </div>
             
             <div class="flex justify-center space-x-4 mt-6">
+                <!-- ปุ่มบันทึก - แสดงเมื่อยืนยันจำนวนหุ้นแล้ว -->
+                <button *ngIf="isShareAmountConfirmed && foundUser" 
+                        type="button" 
+                        (click)="onSaveTransferRecord()"
+                        class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded flex items-center">
+                    บันทึก
+                </button>
+                
                 <button type="button" 
-                (click)="onCancelTransfer()"
-                class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded flex items-center">
-                ยกเลิก
-            </button>
+                        (click)="onCancelTransfer()"
+                        class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded flex items-center">
+                    ยกเลิก
+                </button>
             </div>
         </form>
 </div>
