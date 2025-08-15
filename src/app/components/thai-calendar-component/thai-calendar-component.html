@@ -1,0 +1,8 @@
+<div class="overlay" (click)="onBackgroundClick($event)">
+  <mat-card class="calendar-card" (click)="$event.stopPropagation()">
+    <mat-calendar
+      [selected]="selected"
+      (selectedChange)="onDateSelected($event)">
+    </mat-calendar>
+  </mat-card>
+</div>
