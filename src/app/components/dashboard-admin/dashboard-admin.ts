@@ -73,6 +73,7 @@ export class AdminDashboardComponent implements OnInit {
       open: false,
       children: [
         { key: 'dividend', icon: '💰', label: 'เงินปันผล', route: '/dashboard-admin/dividend' },
+        { key: 'dividend', icon: '😵‍💫', label: 'คำนวณเงินปันผลประจำปี', route: '/dashboard-admin/AnnualDividendCalculatorComponent' },
         { key: 'pnd', icon: '📊', label: 'ภ.ง.ด.', route: '', 
           submenu: [
           { key: 'pnd2', icon: '📄', label: 'ภ.ง.ด. 2', route: '/dashboard-admin/pnd2' },

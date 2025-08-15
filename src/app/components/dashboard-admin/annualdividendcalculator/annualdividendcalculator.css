@@ -1,0 +1,29 @@
+::ng-deep .mat-datepicker-content,
+::ng-deep .mat-calendar,
+::ng-deep .mat-datepicker-popup,
+::ng-deep .mat-datepicker-content-container {
+  background-color: white !important;
+  color: black !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.mat-mdc-form-field.mat-form-field-animations-enabled .mdc-text-field__input {
+    color: black !important;
+    font-size: 1rem !important;
+    font-weight: 300 !important;
+    margin: 0 !important;
+}
+
+.mat-mdc-form-field-infix {
+    width: 100% !important;
+}
+
+.mdc-text-field {
+    padding: 0 !important;
+}
+
+.input {
+    background: oklch(96.7% 0.067 122.328);
+    border: 2px solid oklch(84.1% 0.238 128.85);
+}

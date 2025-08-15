@@ -1,0 +1,65 @@
+<div *ngIf="activeView == 'data'; else nodata">
+    <div class="m-4 bg-white rounded-md shadow-md">
+        <p class="text-center bg-green-500 rounded-t-md text-white text-xl py-3">การคำนวณเงินปันผลหุ้นสามัญ</p>
+
+        <div class="py-4 ">
+            <div class="grid grid-cols-3 gap-3 items-center">
+                <label for="" class="text-right">ปีบัญชีที่จ่ายเงินปันผล : </label>
+                <input type="text" [value]="dividend?.stkYEARc"
+                    class="peer w-full bg-lime-100 placeholder:text-slate-400 text-slate-700 text-sm border-2 border-lime-400 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none shadow-sm focus:shadow">
+                <p>(ระบุเป็นปี พ.ศ. 4 หลัก เท่านั้น)</p>
+            </div>
+            <div class="grid grid-cols-3 gap-3 items-center mt-4">
+                <label for="" class="text-right">ครั้งที่จ่ายเงินปันผล :</label>
+                <input type="text" [value]="dividend?.stkTIME"
+                    class="peer w-full bg-lime-100 placeholder:text-slate-400 text-slate-700 text-sm border-2 border-lime-400 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none shadow-sm focus:shadow">
+                <p>(ตามการประชุมใหญ่สามัญ)</p>
+            </div>
+            <div class="grid grid-cols-3 gap-3 items-center mt-4">
+                <label for="" class="text-right">วันที่ประชุมใหญ่ :</label>
+                <div>
+                    <!-- Input Tailwind -->
+                    <input type="text"
+                        class="peer w-full bg-lime-100 placeholder:text-slate-400 text-slate-700 text-sm border-2 border-lime-400 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none shadow-sm focus:shadow"
+                        [value]="selectedDate | date:'dd/MM/yyyy'" (focus)="showCalendar = true" readonly />
+
+                    <!-- แสดง Calendar Popup -->
+                    <div *ngIf="showCalendar" class="absolute z-50">
+                        <app-calendar-popup *ngIf="showCalendar" [(selected)]="selectedDate"
+                            (closed)="showCalendar = false">
+                        </app-calendar-popup>
+                    </div>
+                </div>
+                <p></p>
+            </div>
+            <div class="grid grid-cols-3 gap-3 items-center mt-4">
+                <label for="" class="text-right">อัตราเงินปันผล :</label>
+                <input type="text"
+                    class="peer w-full bg-lime-100 placeholder:text-slate-400 text-slate-700 text-sm border-2 border-lime-400 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none shadow-sm focus:shadow">
+                <p>(บาท/หุ้น)</p>
+            </div>
+            <div class="grid grid-cols-3 gap-3 items-center mt-4">
+                <label for="" class="text-right">วันที่จ่ายเงินปันผล :</label>
+                <input type="text"
+                    class="peer w-full bg-lime-100 placeholder:text-slate-400 text-slate-700 text-sm border-2 border-lime-400 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none shadow-sm focus:shadow">
+                <p></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #nodata>
+    
+</ng-template>
+
+<!-- Loading Overlay -->
+<div *ngIf="loading" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50"
+    style="background-color: rgba(128, 128, 128, 0.7);">
+    <div class="text-center">
+        <svg class="animate-spin h-10 w-10 text-blue-300 mx-auto mb-4" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="white" stroke-width="4" />
+            <path class="opacity-75" fill="white" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+        </svg>
+        <p class="text-white font-semibold">กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
+    </div>
+</div>
