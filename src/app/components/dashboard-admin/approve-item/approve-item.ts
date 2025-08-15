@@ -7,12 +7,14 @@ import { PopupDetail } from '../../popup-detail/popup-detail';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import Swal from 'sweetalert2';
 import { JwtDecoder } from '../../../services/jwt-decoder';
-
+import { ApproveService } from '../../../services/approve';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatButtonModule} from '@angular/material/button';
 
 @Component({
   standalone: true,
   selector: 'app-approve-item',
-  imports: [FormsModule, CommonModule, MatPaginatorModule],
+  imports: [FormsModule, CommonModule, MatPaginatorModule, MatButtonModule, MatTooltipModule],
   templateUrl: './approve-item.html',
   styleUrl: './approve-item.css'
 })
@@ -31,7 +33,8 @@ export class ApproveItemComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef,
     private readonly stockTransferService: StocktransferService,
     private readonly dialog: MatDialog,
-    private readonly jwtDecoder: JwtDecoder
+    private readonly jwtDecoder: JwtDecoder,
+    private readonly approveService: ApproveService
   ) { }
 
   stockList: string[] = [];
@@ -46,23 +49,28 @@ export class ApproveItemComponent implements OnInit {
     const decoder = this.jwtDecoder.decodeToken(String(sessionStorage.getItem('token')));
     this.brCode = decoder.BrCode;
     this.brName = decoder.BrName;
-    this.stockTransferService.getPendingTransfers('APPROVE', this.brCode, pageNumber, pageSize).subscribe({
-      next: (response) => {
-        console.log('Response from getPendingTransfers:', response);
-        this.requestList = response.data;
+    const payload = {
+      ACT: 'APPROVE',
+      stkBRC: this.brCode,
+      PGNum: pageNumber,
+      PGSize: pageSize
+    };
+
+    this.approveService.getStockApprove(payload).subscribe({
+      next: (res) => {
+        this.requestList = res;
         this.loading = false;
         this.cdr.detectChanges();
-      },
-      error: () => {
+      }, error: () => {
         Swal.fire({
-          title: "โหลดข้อมูลไม่สำเร็จ",
+          title: "Error",
           text: "โปรดติดต่อผู้พัฒนา",
-          icon: "error"
-        });
+          icon: 'error'
+        })
         this.loading = false;
+        this.cdr.detectChanges();
       }
-    });
-
+    })
   }
 
   nextPage() {

@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { Approve } from './approve';
+import { ApproveService } from './approve';
 
 describe('Approve', () => {
-  let service: Approve;
+  let service: ApproveService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(Approve);
+    service = TestBed.inject(ApproveService);
   });
 
   it('should be created', () => {

@@ -5,6 +5,7 @@ import { JwtDecoder } from '../../../services/jwt-decoder';
 import { MatDialog } from '@angular/material/dialog';
 import { PopupDetail } from '../../popup-detail/popup-detail';
 import Swal from 'sweetalert2';
+import { ApproveService } from '../../../services/approve';
 
 @Component({
   standalone: true,
@@ -19,11 +20,12 @@ export class ApproveIssue implements OnInit {
     private readonly cd: ChangeDetectorRef,
     private readonly stockTransferService: StocktransferService,
     private readonly jwtDecoder: JwtDecoder,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private readonly approveService: ApproveService
   ) { }
 
   activeView: string = "table";
-  brName:string = '';
+  brName: string = '';
   issueList: any[] = [];
   issuadata: any;
   brCode = '';
@@ -34,7 +36,7 @@ export class ApproveIssue implements OnInit {
 
   ngOnInit(): void {
     this.loading = true;
-    this.onsearch(1,20);
+    this.onsearch(1, 20);
   }
 
   setView(view: string) {
@@ -63,20 +65,28 @@ export class ApproveIssue implements OnInit {
     const decoder = this.jwtDecoder.decodeToken(String(sessionStorage.getItem('token')));
     this.brCode = decoder.BrCode;
     this.brName = decoder.BrName;
-    this.stockTransferService.getPendingTransfers('iSSUE', this.brCode, pageNumber, pageSize).subscribe({
-      next: (response) => {
-        this.issueList = response.data;
+    const payload = {
+      ACT: 'iSSUE',
+      stkBRC: this.brCode,
+      PGNum: pageNumber,
+      PGSize: pageSize
+    };
+
+    this.approveService.getStockApprove(payload).subscribe({
+      next: (res) => {
+        this.issueList = res;
         this.loading = false;
         this.cd.detectChanges();
-      },
-      error: () => {
+      }, error: () => {
         Swal.fire({
-          title: "โหลดข้อมูลไม่สำเร็จ",
+          title: "Error",
           text: "โปรดติดต่อผู้พัฒนา",
-          icon: "error"
-        });
+          icon: 'error'
+        })
+        this.loading = false;
+        this.cd.detectChanges();
       }
-    });
+    })
   }
 
   showPopup(stkNote: string, stkStatus: string) {
@@ -86,11 +96,11 @@ export class ApproveIssue implements OnInit {
   openPopup(stkNote: string, stkStatus: string, action: string) {
     const dialogRef = this.dialog.open(PopupDetail, {
       width: '300px',
-      data: { 
+      data: {
         stkNote: stkNote,
         stkStatus: stkStatus,
         action: action
-       }
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {

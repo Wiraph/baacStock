@@ -19,15 +19,18 @@
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
           <tr *ngFor="let item of requestList; let i = index" class="hover:bg-green-50 transition duration-150">
-            <td class="p-3 text-center">{{ i + 1 }}</td>
-            <td class="p-3">{{ item.customerId }}</td>
-            <td class="p-3">{{ item.title }}{{ item.customerFirstName }} {{ item.customerLastName }}</td>
-            <td class="p-3">{{ item.branchName }}</td>
-            <td class="p-3">{{ item.stockNote }}</td>
-            <td class="p-3 text-right">{{ item.stockUnit | number:'1.0-0' }}</td>
-            <td class="p-3 text-right">{{ item.stockValue | number:'1.0-0' }}</td>
+            <td class="p-3 text-center">{{ item.roWi }}</td>
+            <td class="p-3">{{ item.cusiD }}</td>
+            <td class="p-3">{{ item.titleABBR }}{{ item.cusFName }} {{ item.cusLName }}</td>
+            <td class="p-3">{{ item.stKbrName }}</td>
+            <td class="p-3">{{ item.stkNOTE }}</td>
+            <td class="p-3 text-center">{{ item.stkUNiT | number:'1.0-0' }}</td>
+            <td class="p-3 text-center">{{ item.stkVALUE | number:'1.0-0' }}</td>
             <td class="p-3 text-center cursor-pointer hover:text-green-600">
-              <button (click)="approveDetail(item.stockNote, item.statusCode)">📝</button>
+              <button
+                matButton="elevated"
+                matTooltip={{item.stDESCs}}
+                (click)="approveDetail(item.stkNOTE, item.stCODE)">📝</button>
             </td>
           </tr>
         </tbody>

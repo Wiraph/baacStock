@@ -16,35 +16,16 @@ export class ApproveService {
     @Inject(PLATFORM_ID) private readonly platformId: object
   ) { }
 
-  getStockApprove(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/approve`, {
+  test(payload:any) {
+    const encrypPayload = this.encryption.encrypPayload(payload);
+    console.log("Tesst ", encrypPayload);
+  }
+
+  getStockApprove(payloadRequst: any): Observable<any[]> {
+    const encrypPayload = this.encryption.encrypPayload(payloadRequst);
+    return this.http.post<any[]>(`${this.apiUrl}/stktransai`, encrypPayload, {
       headers: this.createAuthHeaders()
-    })
-  }
-
-  approveIssue(id: string): Observable<any> {
-    const headers = this.createAuthHeaders();
-    return this.http.put<any>(
-      `${this.apiUrl}/create/${id}`,
-      null,
-      { headers }
-    );
-  }
-
-  notapprove(id: string): Observable<any> {
-    const headers = this.createAuthHeaders();
-    return this.http.put<any>(
-      `${this.apiUrl}/notapproved/${id}`,
-      null,
-      { headers }
-    );
-  }
-
-  refuseList(stkNote: string): Observable<any> {
-    const headers = this.createAuthHeaders();
-    return this.http.put<any>(
-      `${this.apiUrl}/refuse/${stkNote}`, null, {headers}
-    );
+    });
   }
 
   confirmStock(payload: any): Observable<any> {

@@ -19,15 +19,15 @@
             </thead>
             <tbody class="text-gray-700">
                 <tr *ngFor="let item of issueList" class="even:bg-gray-100 hover:bg-gray-200">
-                    <td class="py-2 px-4 text-center">{{ item.rowNumber }}</td>
-                    <td class="py-2 px-4 text-center">{{item.customerId}}</td>
-                    <td class="py-2 px-4 text-center">{{item.customerFirstName}}</td>
-                    <td class="py-2 px-4 text-center">{{item.branchName}}</td>
-                    <td class="py-2 px-4 text-center">{{item.stockNote}}</td>
-                    <td class="py-2 px-4 text-center">{{item.stockUnit}}</td>
-                    <td class="py-2 px-4 text-center">{{item.stockValue | number:'1.0-0'}}</td>
+                    <td class="py-2 px-4 text-center">{{ item.roWi }}</td>
+                    <td class="py-2 px-4 text-center">{{item.cusiD}}</td>
+                    <td class="py-2 px-4 text-center">{{item.titleABBR}}{{item.cusFName}} {{item.cusLName}}</td>
+                    <td class="py-2 px-4 text-center">{{item.stKbrName}}</td>
+                    <td class="py-2 px-4 text-center">{{item.stkNOTE}}</td>
+                    <td class="py-2 px-4 text-center">{{item.stkUNiT}}</td>
+                    <td class="py-2 px-4 text-center">{{item.stkVALUE | number:'1.0-0'}}</td>
                     <td class="py-2 px-4 text-center">
-                        <button class="cursor-pointer" (click)="showPopup(item.stockNote, item.statusCode)">📝</button>
+                        <button class="cursor-pointer" (click)="showPopup(item.stkNOTE, item.stCODE)">📝</button>
                     </td>
                 </tr>
             </tbody>
