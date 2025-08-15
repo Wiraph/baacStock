@@ -24,6 +24,7 @@ export class PopupDetail implements OnInit {
   owner: any = '';
   other: any[] = [];
   loading = true;
+  action: string = '';
 
   constructor(
     public dialogRef: MatDialogRef<PopupDetail>,
@@ -37,6 +38,8 @@ export class PopupDetail implements OnInit {
     console.log("StkNotePopup", this.data.stkNote, this.data.stkStatus);
     this.stkStatus = this.data.stkStatus;
     this.loading = true;
+    this.action = this.data.action;
+    console.log("Action",this.action);
 
     if (this.stkStatus != null) {
       switch (this.stkStatus) {
@@ -54,9 +57,22 @@ export class PopupDetail implements OnInit {
           this.titleDetail = "ผู้รับโอน"
           this.showContent = true;
           break;
+        case "C000":
+          this.titleHead = "รายการขาย"
+          this.titleContent = "ผู้ถือหุ้น / ใบหุ้น";
+          break;
+        case "C002":
+          this.titleHead = "รายการออกใบหุ้นแทน ใบหุ้นที่ชำรุด/สูญหาย"
+          this.titleContent = "รายการออกใบหุ้นแทน ใบหุ้นที่ชำรุด/สูญหาย";
+          break;
+        case "C003":
+          this.titleHead = "รายการโอนเปลี่ยนมือ"
+          this.titleContent = "ผู้โอน";
+          this.titleDetail = "ผู้รับโอน"
+          this.showContent = true;
+          break;
       }
     }
-
     this.onloadDetail(this.data.stkNote);
   }
 
@@ -115,7 +131,7 @@ export class PopupDetail implements OnInit {
       if (result.isConfirmed) {
         const payload = {
           stkNOTEis: this.owner.stkNOTE,
-          AiSQL: "APPROVE",
+          AiSQL: this.action,
           stkCONFiRM: "YES"
         };
 
@@ -160,7 +176,7 @@ export class PopupDetail implements OnInit {
       if (result.isConfirmed) {
         const payload = {
           stkNOTEis: this.owner.stkNOTE,
-          AiSQL: "APPROVE",
+          AiSQL: this.action,
           stkCONFiRM: "NO"
         };
 

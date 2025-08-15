@@ -39,7 +39,7 @@
                 </div>
                 <div class="grid grid-cols-4 gap-4">
                     <label for="" class="col-span-1 text-right">ชื่อ - นามสกุล :</label>
-                    <p class="col-span-3">{{ owner.titleABBR }}{{ owner.cusFName }} : {{ owner.cusLName }}</p>
+                    <p class="col-span-3">{{ owner.titleABBR }}{{ owner.cusFName }} {{ owner.cusLName }} [ {{ owner.cusDESC }} ]</p>
                 </div>
                 <div class="grid grid-cols-4 gap-4">
                     <label for="" class="col-span-1 text-right">หมายเลขใบหุ้น :</label>
@@ -93,7 +93,7 @@
             <div class="flex flex-col gap-2" *ngFor="let item of other">
                 <div class="grid grid-cols-4 gap-4">
                     <label for="" class="col-span-1 text-right">เลขที่บัตรแสดงตน :</label>
-                    <p class="col-span-3">( {{ item.cusiD }} )</p>
+                    <p class="col-span-3"> {{ item.cusiD }} </p>
                 </div>
                 <div class="grid grid-cols-4 gap-4">
                     <label for="" class="col-span-1 text-right">วันที่มีผล :</label>
@@ -101,7 +101,7 @@
                 </div>
                 <div class="grid grid-cols-4 gap-4">
                     <label for="" class="col-span-1 text-right">ชื่อ - นามสกุล :</label>
-                    <p class="col-span-3">{{ item.titleABBR }}{{ item.cusFName }} : {{ item.cusLName }}</p>
+                    <p class="col-span-3">{{ item.titleABBR }}{{ item.cusFName }} {{ item.cusLName }} [ {{ item.cusDESC }} ]</p>
                 </div>
                 <div class="grid grid-cols-4 gap-4">
                     <label for="" class="col-span-1 text-right">หมายเลขใบหุ้น :</label>
