@@ -199,13 +199,20 @@ export class TransferShareComponent implements OnInit {
     if (this.transferForm.valid) {
       const transfers = this.transferForm.value.transfers;
       const payload = {
-      CUSid: transfers.map((t: TransferItem ) => t.CUSid).join('|'),
-      CUSun: transfers.map((t: TransferItem ) => t.CUSun).join('|'),
-      accTY: transfers.map((t: TransferItem ) => t.accTY).join('|'),
-      accNO: transfers.map((t: TransferItem ) => t.accNO).join('|'),
-      accNA: transfers.map((t: TransferItem ) => t.accNA).join('|'),
-      payTY: transfers.map((t: TransferItem ) => t.payTY).join('|')
-    };
+        TRF_CUSid: this.selectedcustomer.cusId,
+        TRF_stkNOTE: this.selectedcustomer.stkNote,
+        TRF_stkSTA: this.selectedcustomer.stCode,
+        TRF_stkSTP: "",
+        TRF_stkUNiTALL: this.selectedcustomer.stkUnit,
+
+        TR2_RemCode: this.transferReason,
+        TR2_LST_CUSid: transfers.map((t: TransferItem) => t.CUSid).join('|'),
+        TR2_LST_CUSun: transfers.map((t: TransferItem) => t.CUSun).join('|'),
+        TR2_LST_accTY: transfers.map((t: TransferItem) => t.accTY).join('|'),
+        TR2_LST_accNO: transfers.map((t: TransferItem) => t.accNO).join('|'),
+        TR2_LST_accNA: transfers.map((t: TransferItem) => t.accNA).join('|'),
+        TR2_LST_payTY: transfers.map((t: TransferItem) => t.payTY).join('|')
+      };
       console.log("Final Payload", payload);
     } else {
       Swal.fire("Error", "กรุณากรอกข้อมูลให้ครบ", "error");
