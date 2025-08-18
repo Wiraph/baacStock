@@ -70,6 +70,12 @@ export class CustomerService {
     return this.http.post<any[]>(`${this.apiUrl}/search`, encrypPayload, { headers: this.createAuthHeaders() });
   }
 
+  createNewShareholder(requestPayload: any) {
+    const encrypPayload = this.encryped.encrypPayload(requestPayload);
+    console.log("ข้อมูลผู้ถือหุ้นใหม่ที่ถูกเข้ารหัส", encrypPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/create`, encrypPayload, { headers: this.createAuthHeaders() });
+  }
+
   private createAuthHeaders(): HttpHeaders {
     let token = '';
     if (isPlatformBrowser(this.platformId)) {

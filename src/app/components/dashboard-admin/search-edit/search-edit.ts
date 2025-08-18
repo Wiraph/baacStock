@@ -1,11 +1,13 @@
 import { Component,  ChangeDetectorRef, OnInit, Output, EventEmitter} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { CustomerStockService } from '../../../services/customer-stock-service';
 import { JwtDecoder } from '../../../services/jwt-decoder';
 import { DataTransfer } from '../../../services/data-transfer';
 import { StocksComponent } from '../stocks/stocks';
 import { UserService } from '../../../services/user';
+import Swal from 'sweetalert2';
 
 
 @Component({
@@ -55,6 +57,7 @@ export class SearchEditComponent implements OnInit {
     private readonly jwtCoder: JwtDecoder,
     private readonly dataTrasfer: DataTransfer,
     private readonly userService: UserService,
+    private readonly router: Router,
   ) { }
 
   nextPage() {
@@ -189,6 +192,54 @@ export class SearchEditComponent implements OnInit {
     this.cusId = cusId;
     this.activeView = 'stock';
     this.cd.detectChanges();
+  }
+
+  // ตรวจสอบเลขบัตร 13 หลัก
+  isValidIdCard(): boolean {
+    const idCard = this.criteria.cusId;
+    
+    // ตรวจสอบความยาว 13 หลัก
+    if (!idCard || idCard.length !== 13 || !/^\d{13}$/.test(idCard)) {
+      return false;
+    }
+    
+    // ตรวจสอบ checksum
+    return this.validateIdCardChecksum(idCard);
+  }
+
+  // ตรวจสอบ checksum ของเลขบัตร
+  validateIdCardChecksum(idCard: string): boolean {
+    const digits = idCard.split('').map(Number);
+    const weights = [13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2];
+    
+    let sum = 0;
+    for (let i = 0; i < 12; i++) {
+      sum += digits[i] * weights[i];
+    }
+    
+    const checkDigit = (11 - (sum % 11)) % 10;
+    return checkDigit === digits[12];
+  }
+
+  // ฟังก์ชันสำหรับปุ่มผู้ถือหุ้นรายใหม่
+  onNewShareholder() {
+    if (!this.isValidIdCard()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'เลขบัตรแสดงตนไม่ถูกต้อง',
+        text: 'กรุณาใส่เลขบัตรแสดงตน 13 หลัก ที่ถูกต้องในช่อง "เลขที่บัตรแสดงตน" ก่อน',
+        confirmButtonText: 'เข้าใจแล้ว'
+      });
+      return;
+    }
+
+    // นำทางไปยังหน้า formdetail
+    this.router.navigate(['/dashboard-admin/formdetail'], {
+      queryParams: { 
+        idCard: this.criteria.cusId,
+        mode: 'new-shareholder'
+      }
+    });
   }
 }
 

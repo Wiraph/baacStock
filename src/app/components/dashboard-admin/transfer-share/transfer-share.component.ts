@@ -453,8 +453,8 @@ export class TransferShareComponent implements OnInit {
           this.stocktransferService.transferRequest(payload).subscribe({
             next: (res) => {
               console.log("Success", res);
-              Swal.fire({
-                icon: 'success',
+        Swal.fire({
+          icon: 'success',
                 title: 'บันทึกสำเร็จ',
                 text: 'การโอนหุ้นได้รับการบันทึกเรียบร้อยแล้ว',
                 confirmButtonText: 'ตกลง'
@@ -465,13 +465,13 @@ export class TransferShareComponent implements OnInit {
                 icon: 'error',
                 title: 'เกิดข้อผิดพลาด',
                 text: 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
-                confirmButtonText: 'ตกลง'
-              });
+          confirmButtonText: 'ตกลง'
+        });
             }
           })
           console.log('บันทึกข้อมูล:', payload);
-        }
-      });
+      }
+    });
     } else {
       Swal.fire("Error", "กรุณากรอกข้อมูลให้ครบ", "error");
     }
