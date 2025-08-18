@@ -137,7 +137,17 @@ export class TransferShareComponent implements OnInit {
     })
   }
 
-  onTransferClick(item: any) {
+  onTransferClick(item: any) {    
+    // ตรวจสอบสถานะใบหุ้น
+    if (item.stDESC !== 'ปกติ') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'ไม่สามารถโอนหุ้นได้',
+        text: 'หุ้นใบนี้ไม่สามารถทำการโอนได้ เนื่องจากสถานะไม่ใช่ปกติ'
+      });
+      return;
+    }
+
     console.log(item);
     this.activeView = 'transfers';
     this.getStockDetail(item.stkNOTE);
@@ -161,7 +171,7 @@ export class TransferShareComponent implements OnInit {
     });
   }
 
-  searchReceiver() {
+    searchReceiver() {
     const cusId = this.searchForm.value.stkOWNiD;
     
     // 🔍 ตรวจสอบ 1: ไม่ให้โอนหุ้นให้กับหมายเลขหุ้นเดี่ยวกับหุ้นโอน
@@ -187,6 +197,21 @@ export class TransferShareComponent implements OnInit {
       return;
     }
 
+    // 🔍 ตรวจสอบ 3: ไม่ให้เพิ่มผู้รับโอนถ้าหุ้นหมดแล้ว
+    const availableShares = this.selectedcustomer?.stkUnit || 0;
+    const totalUsedShares = existingTransfers.reduce((sum: number, transfer: any) => {
+      return sum + (transfer.CUSun || 0);
+    }, 0);
+    
+    if (totalUsedShares >= availableShares) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'จำนวนหุ้นไม่เพียงพอ',
+        text: `จำนวนหุ้นที่ใช้ไปแล้ว (${totalUsedShares.toLocaleString()} หุ้น) เท่ากับหรือเกินจำนวนหุ้นที่มี (${availableShares.toLocaleString()} หุ้น) ไม่สามารถเพิ่มผู้รับโอนได้อีก`
+      });
+      return;
+    }
+
     const payload = {
       cusId: cusId
     };
@@ -200,8 +225,13 @@ export class TransferShareComponent implements OnInit {
         this.transfers.push(group);   // ⬅️ เพิ่มเข้า list
         // this.sesstionSearch = false;
 
-        console.log("All transfers", this.transferForm.value.transfers);
-        this.searchForm.reset();
+                console.log("All transfers", this.transferForm.value.transfers);
+        
+        // ล้างค่าในช่องค้นหา
+        this.searchForm.patchValue({
+          stkOWNiD: ''
+        });
+        
                 this.cdRef.detectChanges();
           },
           error: (err) => {
@@ -263,6 +293,69 @@ export class TransferShareComponent implements OnInit {
     return Math.max(0, remainingShares);
   }
 
+
+
+  // 🔍 ฟังก์ชันสำหรับควบคุมจำนวนหุ้นแบบ real-time
+  onShareAmountChange(currentIndex: number) {
+    const transfers = this.transferForm.value.transfers || [];
+    const availableShares = this.selectedcustomer?.stkUnit || 0;
+    let totalUsedShares = 0;
+    
+    // คำนวณจำนวนหุ้นที่ใช้ไปแล้ว (ไม่รวมคนปัจจุบัน)
+    for (let i = 0; i < transfers.length; i++) {
+      if (i < currentIndex) {
+        totalUsedShares += transfers[i].CUSun || 0;
+      }
+    }
+    
+    // ตรวจสอบจำนวนหุ้นของคนปัจจุบัน
+    const currentShares = transfers[currentIndex]?.CUSun || 0;
+    const remainingForCurrent = availableShares - totalUsedShares;
+    
+    if (currentShares > remainingForCurrent) {
+      // รีเซ็ตค่ากลับไปเป็นค่าสูงสุดที่สามารถใส่ได้
+      const transferControl = this.transfers.at(currentIndex);
+      if (transferControl) {
+        transferControl.patchValue({
+          CUSun: Math.max(0, remainingForCurrent)
+        });
+      }
+    }
+
+    // 🔍 ตรวจสอบและปรับค่าคนอื่นๆ ที่อยู่หลังคนปัจจุบัน
+    this.adjustSubsequentRecipients(currentIndex);
+  }
+
+  // 🔍 ปรับค่าคนอื่นๆ ที่อยู่หลังคนปัจจุบัน
+  adjustSubsequentRecipients(changedIndex: number) {
+    const transfers = this.transferForm.value.transfers || [];
+    const availableShares = this.selectedcustomer?.stkUnit || 0;
+    
+    // คำนวณจำนวนหุ้นที่ใช้ไปแล้วจนถึงคนที่เปลี่ยน
+    let totalUsedShares = 0;
+    for (let i = 0; i <= changedIndex; i++) {
+      totalUsedShares += transfers[i]?.CUSun || 0;
+    }
+    
+    // ปรับค่าคนที่อยู่หลัง
+    for (let i = changedIndex + 1; i < transfers.length; i++) {
+      const remainingForNext = availableShares - totalUsedShares;
+      const currentShares = transfers[i]?.CUSun || 0;
+      
+      // ถ้าจำนวนหุ้นปัจจุบันเกินจำนวนที่เหลือ ให้รีเซ็ต
+      if (currentShares > remainingForNext) {
+        const transferControl = this.transfers.at(i);
+        if (transferControl) {
+          transferControl.patchValue({
+            CUSun: Math.max(0, remainingForNext)
+          });
+        }
+      }
+      
+      totalUsedShares += transfers[i]?.CUSun || 0;
+    }
+  }
+
   submitAll() {
 
     if (this.transferReason == '') {
@@ -305,8 +398,8 @@ export class TransferShareComponent implements OnInit {
        // 🔍 ตรวจสอบ 3: จำนวนหุ้นที่สามารถโอนได้
        const shareCheck = this.checkTransferableShares();
        if (!shareCheck.canTransfer) {
-         Swal.fire({
-           icon: 'error',
+      Swal.fire({
+        icon: 'error',
            title: 'จำนวนหุ้นเกิน',
            text: shareCheck.message,
            confirmButtonText: 'เข้าใจแล้ว'
@@ -320,9 +413,11 @@ export class TransferShareComponent implements OnInit {
            icon: 'warning',
            title: 'กรุณาระบุจำนวนหุ้น',
            text: 'กรุณาระบุจำนวนหุ้นที่ต้องการโอนให้กับผู้รับโอน'
-         });
-         return;
-       }
+      });
+      return;
+    }
+
+
 
       const payload = {
         TRF_CUSid: this.selectedcustomer.cusId,
