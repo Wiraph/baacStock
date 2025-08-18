@@ -53,6 +53,7 @@ export class StockService {
 
   getStockDetail(requestPayload: any): Observable<any[]> {
     const encodePayload = this.encrypt.encrypPayload(requestPayload);
+    console.log(encodePayload);
     return this.http.post<any[]>(`${this.apiUrl}/stkdetail`, encodePayload, {
       headers: this.createAuthHeaders()
     });
@@ -60,7 +61,7 @@ export class StockService {
 
   stockLog(requestPayload: any): Observable<any[]> {
     const encodePayload = this.encrypt.encrypPayload(requestPayload);
-    return this.http.post<any[]>(`${this.apiUrl}/logstock`, encodePayload , {
+    return this.http.post<any[]>(`${this.apiUrl}/logstock`, encodePayload, {
       headers: this.createAuthHeaders()
     });
   }
@@ -89,4 +90,23 @@ export class StockService {
       Authorization: `Bearer ${token}`
     });
   }
+}
+
+
+export interface StockDetailDto {
+  CusId?: string;
+  TitleDesc?: string;
+  CusFName?: string;
+  CusLName?: string;
+  StCode?: string;
+  StDesc?: string;
+  StkNote?: string;
+  StkNoStart?: string;
+  StkNoStop?: string;
+  StkUnit?: number;
+  StkValue?: number;
+  DvnLST?: number;
+  CbsDAT?: number;
+  CbsOUT?: number;
+  AllowGen?: number;
 }

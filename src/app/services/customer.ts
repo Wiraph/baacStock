@@ -10,6 +10,27 @@ export interface CustomerSearchDto {
   lname?: string;
 }
 
+export interface CustomerDetailDto2 {
+  stkOWNiD?: string;
+  UNT000: number;
+  UNT008: number;
+  titleDESC?: string;
+  cusiD?: string;
+  cusTAXid?: string;
+  titleCode?: string;
+  cusFName?: string;
+  cusLName?: string;
+  cusCODE?: string;
+  cusCODEg?: string;
+  docTYPE?: string;
+  stCODE?: string;
+  brCode?: string;
+  DATETIMEUP?: string;
+  USERID?: string;
+  IPADDRESS?: string;
+  HOSTNAME?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
