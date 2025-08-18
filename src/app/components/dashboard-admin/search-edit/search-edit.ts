@@ -172,6 +172,16 @@ export class SearchEditComponent implements OnInit {
     if (this.statusPage == '1') {
       this.activeView = 'edit';
       this.statusView.emit({ view: 'edit', cusId: cusId });
+    } else if (this.statusPage == '2') {
+      this.statusView.emit({ view: 'sale', cusId: cusId});
+    } else if (this.statusPage == '3') {
+      this.statusView.emit({ view: 'newcertificate', cusId: cusId});
+    } else if (this.statusPage == '4') {
+      this.statusView.emit({view: 'transfer', cusId: cusId });
+    } else if (this.statusPage == '5') {
+      this.statusView.emit({view: 'dividend', cusId: cusId});
+    } else if (this.statusPage == '6') {
+      this.statusView.emit({view: 'block', cusId: cusId});
     }
   }
 

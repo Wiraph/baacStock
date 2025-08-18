@@ -1,9 +1,10 @@
-import { Component, Input, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, Input, OnInit, ChangeDetectorRef} from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { SearchEditComponent } from '../search-edit/search-edit';
 import { FormsModule } from '@angular/forms';
-import { StockService, StockItem } from '../../../services/stock';
-import { CustomerService } from '../../../services/customer';
+import { DataTransfer } from '../../../services/data-transfer';
+import { Divident } from '../../../services/divident';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-dividend',
@@ -13,33 +14,43 @@ import { CustomerService } from '../../../services/customer';
   styleUrls: ['./dividend.component.css']
 })
 export class DividendComponent implements OnInit {
-
   @Input() InputDividend!: string;
-
-  // View Management
   internalViewName = 'dividend';
-  activeView = 'search';  // เริ่มต้นที่หน้าค้นหาเสมอ
-
-  // Customer data
+  activeView = '';  // เริ่มต้นที่หน้าค้นหาเสมอ
   customerData: any = null;
-
-  // Branch data for session (SSR safe)
   brName = '';
   brCode = '';
+  dividendData: any = '';
 
   constructor(
-    private stockService: StockService,
-    private customerService: CustomerService,
-    private cdRef: ChangeDetectorRef,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private readonly dataTransfer: DataTransfer,
+    private readonly cd: ChangeDetectorRef,
+    private readonly dividendService: Divident
   ) { }
 
   ngOnInit(): void {
-    // Initialize branch data from sessionStorage (SSR safe)
-    if (isPlatformBrowser(this.platformId)) {
-      this.brName = sessionStorage.getItem('brName') || '';
-      this.brCode = sessionStorage.getItem('brCode') || '';
-    }
+   this.activeView = 'search';
+   this.dataTransfer.setPageStatus('5');
+  }
+
+  onHandle(event: any) {
+    this.activeView = event.view;
+    this.onLoadDivident();
+  }
+
+  onLoadDivident() {
+    this.dividendService.getAllDividend().subscribe({
+      next: (res) => {
+        this.dividendData = res;
+        this.cd.detectChanges();
+      }, error: () =>{
+        Swal.fire({
+          icon: 'error',
+          title: "เกิดข้อผิดพลาด",
+          text: 'โปรดติดต่อผู้พัฒนา'
+        })
+      }
+    })
   }
 
   // Handle search result from SearchEditComponent

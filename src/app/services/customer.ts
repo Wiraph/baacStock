@@ -10,6 +10,27 @@ export interface CustomerSearchDto {
   lname?: string;
 }
 
+export interface CustomerDetailDto2 {
+  stkOWNiD?: string;
+  UNT000: number;
+  UNT008: number;
+  titleDESC?: string;
+  cusiD?: string;
+  cusTAXid?: string;
+  titleCode?: string;
+  cusFName?: string;
+  cusLName?: string;
+  cusCODE?: string;
+  cusCODEg?: string;
+  docTYPE?: string;
+  stCODE?: string;
+  brCode?: string;
+  DATETIMEUP?: string;
+  USERID?: string;
+  IPADDRESS?: string;
+  HOSTNAME?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -21,6 +42,11 @@ export class CustomerService {
     @Inject(PLATFORM_ID) private readonly platformId: Object,
     private readonly encryped: EncryptionService
   ) { }
+
+  getCustomerTable(requestPayload: any) {
+    const encrypPayload = this.encryped.encrypPayload(requestPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/detailcus`, encrypPayload, { headers: this.createAuthHeaders() });
+  }
 
   getCustomer(requestPayload: any) {
     const encrypPayload = this.encryped.encrypPayload(requestPayload);

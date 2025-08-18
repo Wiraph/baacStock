@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { Observable } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
+import { EncryptionService } from './encryption.service';
 
 export interface PendingTransfer {
   rowNumber: number;
@@ -37,15 +38,18 @@ export interface PendingTransferResponse {
   providedIn: 'root'
 })
 export class StocktransferService {
-  private apiUrl = 'https://localhost:7089/api/stocktransfer';
+  private readonly apiUrl = 'https://localhost:7089/api/stocktransfer';
 
   constructor(
-    private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private readonly http: HttpClient,
+    @Inject(PLATFORM_ID) private readonly platformId: Object,
+    private readonly encryped: EncryptionService
   ) { }
 
-  transferRequest(payload: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/transfer`, payload, { headers: this.createAuthHeaders() });
+  transferRequest(payload: any): Observable<any[]> {
+    const encryptedPayload = this.encryped.encrypPayload(payload);
+    console.log(encryptedPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/transfer`, encryptedPayload, { headers: this.createAuthHeaders() });
   }
 
   transferCancel(payload: any): Observable<any> {

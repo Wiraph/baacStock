@@ -1,84 +1,117 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { StockService } from '../../../services/stock';
-import { ApproveService } from '../../../services/approve';
 import { CommonModule } from '@angular/common';
-import { DataTransfer } from '../../../services/data-transfer';
-import { ApproveTransfer } from '../approve-transfer/approve-transfer';
-import { ApproveCreate } from '../approve-create/approve-create';
 import { StocktransferService } from '../../../services/stocktransfer';
-import { ApproveSale } from '../approve-sale/approve-sale';
+import { MatDialog } from '@angular/material/dialog';
+import { PopupDetail } from '../../popup-detail/popup-detail';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import Swal from 'sweetalert2';
+import { JwtDecoder } from '../../../services/jwt-decoder';
+import { ApproveService } from '../../../services/approve';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatButtonModule} from '@angular/material/button';
 
 @Component({
   standalone: true,
   selector: 'app-approve-item',
-  imports: [FormsModule, CommonModule, ApproveTransfer, ApproveCreate, ApproveSale],
+  imports: [FormsModule, CommonModule, MatPaginatorModule, MatButtonModule, MatTooltipModule],
   templateUrl: './approve-item.html',
   styleUrl: './approve-item.css'
 })
 export class ApproveItemComponent implements OnInit {
-  brName = sessionStorage.getItem('brName');
+  brName = '';
   searchText = '';
   filterType = '';
   requestList: any[] = [];
   loading = false;
-  showDetailComponent = false;
-  showDetailComponentCreate = false;
-  showDetailComponentSale = false;
-  brCode = sessionStorage.getItem('brCode') || '';
+  brCode = '';
+  activeView = 'table';
+  pageNumber = 1;
+  pageSize = 20;
 
   constructor(
-    private stockService: StockService,
-    private approveService: ApproveService,
-    private dataTransfer: DataTransfer,
-    private cdr: ChangeDetectorRef,
-    private stockTransferService: StocktransferService
-
+    private readonly cdr: ChangeDetectorRef,
+    private readonly stockTransferService: StocktransferService,
+    private readonly dialog: MatDialog,
+    private readonly jwtDecoder: JwtDecoder,
+    private readonly approveService: ApproveService
   ) { }
 
   stockList: string[] = [];
 
-  onSearch() {
-    this.stockTransferService.getPendingTransfers('APPROVE', this.brCode, 1, 20).subscribe({
-      next: (response) => {
-        console.log('Response from getPendingTransfers:', response);
-        this.requestList = response.data; 
+  ngOnInit(): void {
+    this.loading = true;
+    this.onSearch(this.pageNumber, this.pageSize);
+    this.cdr.detectChanges();
+  }
+
+  onSearch(pageNumber: number, pageSize: number) {
+    const decoder = this.jwtDecoder.decodeToken(String(sessionStorage.getItem('token')));
+    this.brCode = decoder.BrCode;
+    this.brName = decoder.BrName;
+    const payload = {
+      ACT: 'APPROVE',
+      stkBRC: this.brCode,
+      PGNum: pageNumber,
+      PGSize: pageSize
+    };
+
+    this.approveService.getStockApprove(payload).subscribe({
+      next: (res) => {
+        this.requestList = res;
         this.loading = false;
         this.cdr.detectChanges();
-      },
-      error: () => {
-        alert("ไม่สามารถโหลดข้อมูลรายการอนุมัติได้");
+      }, error: () => {
+        Swal.fire({
+          title: "Error",
+          text: "โปรดติดต่อผู้พัฒนา",
+          icon: 'error'
+        })
         this.loading = false;
+        this.cdr.detectChanges();
+      }
+    })
+  }
+
+  nextPage() {
+    if (this.requestList.length == this.pageSize) {
+      this.pageNumber++;
+      this.onSearch(this.pageNumber, this.pageSize);
+    } else {
+      this.onSearch(this.pageNumber, this.pageSize);
+    }
+  }
+
+  prevPage() {
+    if (this.pageNumber > 1) {
+      this.pageNumber--;
+      this.onSearch(this.pageNumber, this.pageSize);
+    } else {
+      return
+    }
+  }
+
+  approveDetail(stkNote: string, stkStatus: string) {
+    this.openPopup(stkNote, stkStatus);
+    this.cdr.detectChanges();
+  }
+
+  openPopup(stkNote: string, stkStatus: string) {
+    const dialogRef = this.dialog.open(PopupDetail, {
+      width: '300px',
+      data: {
+        stkNote: stkNote,
+        stkStatus: stkStatus,
+        action: "APPROVE"
       }
     });
 
-  }
-
-  approveConfirm(stkNote: string, stkStatus: string) {
-    console.log('อนุมัติรายการ: ', stkNote, stkStatus);
-    this.dataTransfer.setStkNote(stkNote);
-    if (stkStatus == "A003") {
-      this.showDetailComponent = true;
-    } else if (stkStatus == "A002") {
-      this.showDetailComponentCreate = true;
-    } else if (stkStatus == "A000") {
-      this.showDetailComponentSale = true;
-    }
-    this.cdr.detectChanges();
-  }
-
-  reject(item: any) {
-    // เรียก API เพื่อไม่อนุมัติรายการ
-    console.log('ไม่อนุมัติรายการ: ', item);
-  }
-
-  detail(item: any) {
-    // แสดงรายละเอียด
-  }
-
-  ngOnInit(): void {
-    this.loading = true;
-    this.onSearch();
-    this.cdr.detectChanges();
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('กดตกลง');
+      } else {
+        console.log('ยกเลิก');
+      }
+    });
   }
 } 

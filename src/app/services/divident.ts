@@ -23,6 +23,12 @@ export class Divident {
     });
   }
 
+  getAllDividend() {
+    return this.http.get<any[]>(`${this.apiUrl}/dividend`, {
+      headers: this.createAuthHeaders()
+    })
+  }
+
   private createAuthHeaders(): HttpHeaders {
     let token = '';
     if (isPlatformBrowser(this.platformId)) {

@@ -1,0 +1,176 @@
+<div class="fixed inset-0 z-50 flex flex-col align-middle items-center bg-gray-100 bg-opacity-40 backdrop-blur-sm p-4">
+    <!-- Header -->
+    <div class="w-full flex justify-end">
+        <button (click)="close(false)" class="text-right cursor-pointer hover:bg-red-200 rounded-md px-4 py-2">
+            ❌ ปิดหน้าต่างนี้
+        </button>
+    </div>
+    <div class="w-9/12 rounded-sm p-4 overflow-auto">
+        <!-- Content -->
+        <div class="overflow-auto bg-white shadow-md max-h-[70vh] p-4">
+            <p class="text-center pb-3">รายละเอียด : {{titleHead}}</p>
+            <div class="flex flex-col gap-2">
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">วันที่บันทึกรายการ :</label>
+                    <p class="col-span-3">( {{ formatThaiDateTime(owner.approve_DATETIMEUP) }} )</p>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">ผู้บันทึกรายการ :</label>
+                    <p class="col-span-3">{{ owner.approve_USRDesc }} ( {{ owner.approve_LVLCode }}:{{
+                        owner.approve_LVLDesc }} )</p>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">สาขาที่บันทึกรายการ :</label>
+                    <p class="col-span-3">{{ owner.approve_brCode }} : {{ owner.approve_brName }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="overflow-auto bg-white shadow-md max-h-[70vh] p-4 mt-4">
+            <p class="text-center pb-3">รายละเอียด : {{titleContent}}</p>
+            <div class="flex flex-col gap-2">
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">เลขที่บัตรแสดงตน :</label>
+                    <p class="col-span-3">{{ owner.cusiD }}</p>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">วันที่มีผล :</label>
+                    <p class="col-span-3">{{ formatDate(owner.stkDateEffect) }}</p>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">ชื่อ - นามสกุล :</label>
+                    <p class="col-span-3">{{ owner.titleABBR }}{{ owner.cusFName }} {{ owner.cusLName }} [ {{ owner.cusDESC }} ]</p>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">หมายเลขใบหุ้น :</label>
+                    <p class="col-span-3">{{ owner.stkNOTE }}</p>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">หมายเลขหุ้น :</label>
+                    <p class="col-span-3">{{ owner.stkNOStart }} - {{ owner.stkNOStop }}</p>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">จำนวนหุ้น :</label>
+                    <p class="col-span-3">{{ owner.stkUNiT }}</p>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">มูลค่าหุ้น :</label>
+                    <p class="col-span-3">{{ owner.stkVALUE | number:'1.0-0' }}</p>
+                </div>
+                <div *ngIf="owner.payDESC == 'รับเงินสด'">
+                    <div class="grid grid-cols-4 gap-4">
+                        <label for="" class="col-span-1 text-right">รับเงินปันผลโดย :</label>
+                        <p class="col-span-3">{{ owner.payDESC }}</p>
+                    </div>
+                </div>
+                <div *ngIf="owner.payDESC != 'รับเงินสด'">
+                    <div class="grid grid-cols-4 gap-4">
+                        <label for="" class="col-span-1 text-right">รับเงินปันผลโดย :</label>
+                        <p class="col-span-3">{{ owner.payDESC }}{{ owner.accDESC }}</p>
+                    </div>
+                    <div class="grid grid-cols-4 gap-4">
+                        <label for="" class="col-span-1 text-right">เลขที่บัญชี :</label>
+                        <p class="col-span-3">{{ owner.stkACCno }}</p>
+                    </div>
+                    <div class="grid grid-cols-4 gap-4">
+                        <label for="" class="col-span-1 text-right">ชื่อบัญชี :</label>
+                        <p class="col-span-3">{{ owner.stkACCname }}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">สถานะใบหุ้น :</label>
+                    <p class="col-span-3">{{ owner.staDESCstk }}</p>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">หมายเหตุ :</label>
+                    <p class="col-span-3">{{ owner.remDesc }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="showContent" class="overflow-auto bg-white shadow-md max-h-[70vh] p-4 mt-4">
+            <p class="text-center pb-3">รายละเอียด : {{titleDetail}}</p>
+            <div class="flex flex-col gap-2" *ngFor="let item of other">
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">เลขที่บัตรแสดงตน :</label>
+                    <p class="col-span-3"> {{ item.cusiD }} </p>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">วันที่มีผล :</label>
+                    <p class="col-span-3">{{ formatDate(item.stkDateEffect) }}</p>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">ชื่อ - นามสกุล :</label>
+                    <p class="col-span-3">{{ item.titleABBR }}{{ item.cusFName }} {{ item.cusLName }} [ {{ item.cusDESC }} ]</p>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">หมายเลขใบหุ้น :</label>
+                    <p class="col-span-3">{{ item.stkNOTE }}</p>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">หมายเลขหุ้น :</label>
+                    <p class="col-span-3">{{ item.stkNOStart }} - {{ item.stkNOStop }}</p>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">จำนวนหุ้น :</label>
+                    <p class="col-span-3">{{ item.stkUNiT }}</p>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">มูลค่าหุ้น :</label>
+                    <p class="col-span-3">{{ item.stkVALUE | number:'1.0-0' }}</p>
+                </div>
+                <div *ngIf="item.payDESC == 'รับเงินสด'; else other">
+                    <div class="grid grid-cols-4 gap-4">
+                        <label for="" class="col-span-1 text-right">รับเงินปันผลโดย :</label>
+                        <p class="col-span-3">{{ item.payDESC }}</p>
+                    </div>
+                </div>
+                <ng-template #other>
+                    <div class="grid grid-cols-4 gap-4">
+                        <label for="" class="col-span-1 text-right">รับเงินปันผลโดย :</label>
+                        <p class="col-span-3">{{ item.payDESC }}{{ item.accDESC }}</p>
+                    </div>
+                    <div class="grid grid-cols-4 gap-4" *ngIf="item.accDESC">
+                        <label for="" class="col-span-1 text-right">เลขที่บัญชี :</label>
+                        <p class="col-span-3">{{ item.stkACCno }}</p>
+                    </div>
+                    <div class="grid grid-cols-4 gap-4" *ngIf="item.accDESC">
+                        <label for="" class="col-span-1 text-right">ชื่อบัญชี :</label>
+                        <p class="col-span-3">{{ item.stkACCname }}</p>
+                    </div>
+                </ng-template>
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">สถานะใบหุ้น :</label>
+                    <p class="col-span-3">{{ item.staDESCstk }}</p>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <label for="" class="col-span-1 text-right">หมายเหตุ :</label>
+                    <p class="col-span-3">{{ item.remDesc }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-center gap-6 mt-4 mb-6">
+            <button 
+                (click)="approve()"
+                class="bg-green-500 px-4 py-2 text-white hover:shadow-amber-500 hover:shadow-xl">ตกลง</button>
+            <button
+                (click)="notapprove()"
+                class="bg-red-500 px-4 py-2 text-white hover:shadow-amber-500 hover:shadow-xl">ยกเลิก</button>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="loading"
+  class="fixed inset-0 z-100 flex items-center justify-center bg-gray-100 bg-opacity-40 backdrop-blur-sm"
+  style="background-color: rgba(128, 128, 128, 0.7);">
+  <div class="text-center">
+    <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+      viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+    </svg>
+    <p class="text-lg text-white font-medium">🔄 กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
+  </div>
+</div>

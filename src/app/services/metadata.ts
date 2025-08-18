@@ -58,6 +58,24 @@ export class MetadataService {
     });
   }
 
+  getStaTypes(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/stktypes`, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
+  getSyscfg(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/syscfg`, {
+      headers: this.createAuthHeaders()
+    })
+  }
+
+  getRemCode(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/remcode`, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
 
   private createAuthHeaders(): HttpHeaders {
     let token = '';

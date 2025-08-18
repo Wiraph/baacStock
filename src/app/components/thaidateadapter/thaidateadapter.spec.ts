@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ApproveTransfer } from './approve-transfer';
+import { Thaidateadapter } from './thaidateadapter';
 
-describe('ApproveTransfer', () => {
-  let component: ApproveTransfer;
-  let fixture: ComponentFixture<ApproveTransfer>;
+describe('Thaidateadapter', () => {
+  let component: Thaidateadapter;
+  let fixture: ComponentFixture<Thaidateadapter>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ApproveTransfer]
+      imports: [Thaidateadapter]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ApproveTransfer);
+    fixture = TestBed.createComponent(Thaidateadapter);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
