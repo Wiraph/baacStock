@@ -24,7 +24,7 @@ export class Divident {
   }
 
   getAllDividend() {
-    return this.http.get<any[]>(`${this.apiUrl}/dividend`, {
+    return this.http.get<any[]>(`${this.apiUrl}/dividends`, {
       headers: this.createAuthHeaders()
     })
   }

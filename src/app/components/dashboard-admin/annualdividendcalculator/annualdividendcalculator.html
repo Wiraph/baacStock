@@ -1,55 +1,73 @@
 <div *ngIf="activeView == 'data'; else nodata">
     <div class="m-4 bg-white rounded-md shadow-md">
         <p class="text-center bg-green-500 rounded-t-md text-white text-xl py-3">การคำนวณเงินปันผลหุ้นสามัญ</p>
+        <div *ngIf="dividend?.result; else nodataresult">
+            <p class="text-center py-4 text-orange-400 text-xl">{{ dividend?.result }}</p>
+        </div>
+        <ng-template #nodataresult>
+            <form action="" (ngSubmit)="submit()">
+                <div class="py-4 ">
+                    <div class="grid grid-cols-3 gap-3 items-center">
+                        <label for="" class="text-right">ปีบัญชีที่จ่ายเงินปันผล : </label>
+                        <input type="text" [(ngModel)]="dataForm.year" name="year"
+                            class="peer w-full bg-lime-100 placeholder:text-slate-400 text-slate-700 text-sm border-2 border-lime-400 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none shadow-sm focus:shadow">
+                        <p>(ระบุเป็นปี พ.ศ. 4 หลัก เท่านั้น)</p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 items-center mt-4">
+                        <label for="" class="text-right">ครั้งที่จ่ายเงินปันผล :</label>
+                        <input type="text" [(ngModel)]="dataForm.time" name="time"
+                            class="peer w-full bg-lime-100 placeholder:text-slate-400 text-slate-700 text-sm border-2 border-lime-400 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none shadow-sm focus:shadow">
+                        <p>(ตามการประชุมใหญ่สามัญ)</p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 items-center mt-4">
+                        <label for="" class="text-right">วันที่ประชุมใหญ่ :</label>
+                        <div>
+                            <!-- Input Tailwind -->
+                            <input type="text" name="datemeet"
+                                class="peer w-full bg-lime-100 placeholder:text-slate-400 text-slate-700 text-sm border-2 border-lime-400 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none shadow-sm focus:shadow"
+                                [value]="formatDate(selectedDateMeet)" (focus)="showCalendarMeet = true" readonly />
 
-        <div class="py-4 ">
-            <div class="grid grid-cols-3 gap-3 items-center">
-                <label for="" class="text-right">ปีบัญชีที่จ่ายเงินปันผล : </label>
-                <input type="text" [value]="dividend?.stkYEARc"
-                    class="peer w-full bg-lime-100 placeholder:text-slate-400 text-slate-700 text-sm border-2 border-lime-400 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none shadow-sm focus:shadow">
-                <p>(ระบุเป็นปี พ.ศ. 4 หลัก เท่านั้น)</p>
-            </div>
-            <div class="grid grid-cols-3 gap-3 items-center mt-4">
-                <label for="" class="text-right">ครั้งที่จ่ายเงินปันผล :</label>
-                <input type="text" [value]="dividend?.stkTIME"
-                    class="peer w-full bg-lime-100 placeholder:text-slate-400 text-slate-700 text-sm border-2 border-lime-400 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none shadow-sm focus:shadow">
-                <p>(ตามการประชุมใหญ่สามัญ)</p>
-            </div>
-            <div class="grid grid-cols-3 gap-3 items-center mt-4">
-                <label for="" class="text-right">วันที่ประชุมใหญ่ :</label>
-                <div>
-                    <!-- Input Tailwind -->
-                    <input type="text"
-                        class="peer w-full bg-lime-100 placeholder:text-slate-400 text-slate-700 text-sm border-2 border-lime-400 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none shadow-sm focus:shadow"
-                        [value]="selectedDate | date:'dd/MM/yyyy'" (focus)="showCalendar = true" readonly />
-
-                    <!-- แสดง Calendar Popup -->
-                    <div *ngIf="showCalendar" class="absolute z-50">
-                        <app-calendar-popup *ngIf="showCalendar" [(selected)]="selectedDate"
-                            (closed)="showCalendar = false">
-                        </app-calendar-popup>
+                            <!-- แสดง Calendar Popup -->
+                            <div *ngIf="showCalendarMeet" class="absolute z-50">
+                                <app-calendar-popup *ngIf="showCalendarMeet" [(selected)]="selectedDateMeet"
+                                    (closed)="showCalendarMeet = false">
+                                </app-calendar-popup>
+                            </div>
+                            <div *ngIf="showCalendarPaid" class="absolute z-50">
+                                <app-calendar-popup *ngIf="showCalendarPaid" [(selected)]="selectedDatePaid"
+                                    (closed)="showCalendarPaid = false">
+                                </app-calendar-popup>
+                            </div>
+                        </div>
+                        <p></p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 items-center mt-4">
+                        <label for="" class="text-right">อัตราเงินปันผล :</label>
+                        <input type="text" [(ngModel)]="dataForm.dividend" name="dividedn"
+                            class="peer w-full bg-lime-100 placeholder:text-slate-400 text-slate-700 text-sm border-2 border-lime-400 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none shadow-sm focus:shadow">
+                        <p>(บาท/หุ้น)</p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 items-center mt-4">
+                        <label for="" class="text-right">วันที่จ่ายเงินปันผล :</label>
+                        <input type="text" name="datepaid"
+                            class="peer w-full bg-lime-100 placeholder:text-slate-400 text-slate-700 text-sm border-2 border-lime-400 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none shadow-sm focus:shadow"
+                            [value]="formatDate(selectedDatePaid)" (focus)="showCalendarPaid = true" readonly />
+                        <p></p>
+                    </div>
+                    <div class="flex justify-center mt-4">
+                        <button type="submit"
+                            class="bg-lime-500 text-white py-3 px-6 rounded shadow-sm cursor-pointer hover:scale-110">
+                            ตกลง
+                        </button>
                     </div>
                 </div>
-                <p></p>
-            </div>
-            <div class="grid grid-cols-3 gap-3 items-center mt-4">
-                <label for="" class="text-right">อัตราเงินปันผล :</label>
-                <input type="text"
-                    class="peer w-full bg-lime-100 placeholder:text-slate-400 text-slate-700 text-sm border-2 border-lime-400 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none shadow-sm focus:shadow">
-                <p>(บาท/หุ้น)</p>
-            </div>
-            <div class="grid grid-cols-3 gap-3 items-center mt-4">
-                <label for="" class="text-right">วันที่จ่ายเงินปันผล :</label>
-                <input type="text"
-                    class="peer w-full bg-lime-100 placeholder:text-slate-400 text-slate-700 text-sm border-2 border-lime-400 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none shadow-sm focus:shadow">
-                <p></p>
-            </div>
-        </div>
+            </form>
+        </ng-template>
     </div>
 </div>
 
 <ng-template #nodata>
-    
+
 </ng-template>
 
 <!-- Loading Overlay -->
