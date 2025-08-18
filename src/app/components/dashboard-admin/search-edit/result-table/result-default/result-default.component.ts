@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { PermissionService } from '../../../../../services/permission.service';
 
 @Component({
   selector: 'result-default',
@@ -14,9 +15,17 @@ export class ResultDefaultComponent {
   @Input() pageSize: number = 10;
   @Input() totalItems: number = 0;
   @Input() viewMode: string = '';
+  @Input() userLevel: string = ''; 
 
   @Output() edit = new EventEmitter<any>();
   @Output() viewStock = new EventEmitter<any>();
+
+  constructor(private readonly permissionService: PermissionService) {}
+
+  // ตรวจสอบสิทธิ์การแก้ไข (เฉพาะ level 99, 85, 05)
+  canEdit(): boolean {
+    return this.permissionService.hasEditPermission(this.userLevel);
+  }
 
   onEditClick(item: any) {
     const dataToEdit = {

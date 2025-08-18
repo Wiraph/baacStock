@@ -88,34 +88,34 @@ export class ViewStock implements OnChanges, OnInit {
   }
 
   loadStock() {
-    this.stockService.getStocksByCusId(this.cusId).subscribe({
-      next: (data) => {
-        const list: StockItem[] = data.stockList || [];
+    // this.stockService.getStocksByCusId(this.cusId).subscribe({
+    //   next: (data) => {
+    //     const list: StockItem[] = data.stockList || [];
 
-        // สร้าง Map สำหรับจับคู่ stkNote เดิม -> stkNote ใหม่
-        const replacedMap = new Map<string, string>();
-        list.forEach(item => {
-          if (item.stkNoteo) {
-            replacedMap.set(item.stkNoteo, item.stkNote); // ใบหุ้นเดิม => ใบหุ้นใหม่
-          }
-        });
+    //     // สร้าง Map สำหรับจับคู่ stkNote เดิม -> stkNote ใหม่
+    //     const replacedMap = new Map<string, string>();
+    //     list.forEach(item => {
+    //       if (item.stkNoteo) {
+    //         replacedMap.set(item.stkNoteo, item.stkNote); // ใบหุ้นเดิม => ใบหุ้นใหม่
+    //       }
+    //     });
 
-        // เพิ่ม flag ให้ stockList
-        this.stockList = list.map(s => {
-          const newNote = replacedMap.get(s.stkNote);
-          return {
-            ...s,
-            hasBeenReplaced: !!newNote,
-            replacedByNote: newNote || null,
-          };
-        });
+    //     // เพิ่ม flag ให้ stockList
+    //     this.stockList = list.map(s => {
+    //       const newNote = replacedMap.get(s.stkNote);
+    //       return {
+    //         ...s,
+    //         hasBeenReplaced: !!newNote,
+    //         replacedByNote: newNote || null,
+    //       };
+    //     });
 
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        console.error('❌ เกิดข้อผิดพลาดในการโหลดใบหุ้น', err);
-      }
-    });
+    //     this.cd.detectChanges();
+    //   },
+    //   error: (err) => {
+    //     console.error('❌ เกิดข้อผิดพลาดในการโหลดใบหุ้น', err);
+    //   }
+    // });
   }
 
   formatThaiDateTime(datetimeup: string): string {

@@ -3,7 +3,6 @@ import { LoginComponent } from './components/login/login.component';
 import { AdminDashboardComponent } from './components/dashboard-admin/dashboard-admin';
 import { AuthGuard } from './guards/auth-guard';
 import { HomeComponent } from './components/dashboard-admin/home/home';
-// import { CommonSharesComponent } from './components/dashboard-admin/common-shares/common-shares';
 import { StocksComponent } from './components/dashboard-admin/stocks/stocks';
 import { UsersComponent } from './components/dashboard-admin/users/users';
 import { ManageUserComponent } from './components/dashboard-admin/manage-user/manage-user';
@@ -29,6 +28,8 @@ import { UserManualComponent } from './components/dashboard-admin/user-manual/us
 import { Pnd2Component } from './components/dashboard-admin/pnd-system/pnd2/pnd2.component';
 import { Pnd2aComponent } from './components/dashboard-admin/pnd-system/pnd2a/pnd2a.component';
 import { Pnd53Component } from './components/dashboard-admin/pnd-system/pnd53/pnd53.component';
+import { SaleStockComponent } from './components/dashboard-admin/sale-stock/sale-stock';
+import { AnnualdividendcalculatorComponent } from './components/dashboard-admin/annualdividendcalculator/annualdividendcalculator';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -49,7 +50,7 @@ export const routes: Routes = [
       { path: 'change-password', component: ChangePasswordComponent }, // ✅ เพิ่มเส้นทางสำหรับ ChangePasswordComponent
       { path: 'search-edit', component: SearchEditComponent}, // ✅ เพิ่มเส้นทางสำหรับ SearchEditComponent
       { path: 'editcustomer', component: EditCustomerComponent},
-      // { path: 'common-shares', component: CommonSharesComponent},
+      { path: 'salestock', component: SaleStockComponent},
       { path: 'headoffice', component: DashboardHeadOfficeComponent},
       { path: 'transfer-share', component: TransferShareComponent }, // ✅ เพิ่มเส้นทางสำหรับ TransferShareComponent
       { path: 'approve-item', component: ApproveItemComponent},
@@ -68,6 +69,7 @@ export const routes: Routes = [
       { path: 'pnd2', component: Pnd2Component },
       { path: 'pnd2a', component: Pnd2aComponent },
       { path: 'pnd53', component: Pnd53Component },
+      { path: 'AnnualDividendCalculatorComponent', component: AnnualdividendcalculatorComponent }
     ]
   },
   {

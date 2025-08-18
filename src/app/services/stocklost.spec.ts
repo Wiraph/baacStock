@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { AccType } from './acc-type';
+import { Stocklost } from './stocklost';
 
-describe('AccType', () => {
-  let service: AccType;
+describe('Stocklost', () => {
+  let service: Stocklost;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(AccType);
+    service = TestBed.inject(Stocklost);
   });
 
   it('should be created', () => {

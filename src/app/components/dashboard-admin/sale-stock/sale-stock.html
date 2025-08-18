@@ -1,0 +1,601 @@
+<div *ngIf="activeView == 'search'">
+    <app-search-edit (statusView)="handleData($event)"></app-search-edit>
+</div>
+<div *ngIf="activeView == 'sale' && customer">
+    <div class="m-4 bg-white rounded-md shadow-md">
+        <div class="py-3 bg-green-400 rounded-t-md">
+            <p class="text-center text-xl text-white font-semibold"> : แก้ไขข้อมูล</p>
+        </div>
+        <div class="p-4">
+            <form (ngSubmit)="onSubmit($event)" [formGroup]="customerForm">
+                <div class="p-2">
+                    <!-- ข้อมูลลูกค้า -->
+                    <div formGroupName="customer">
+                        <div class="grid grid-cols-3 gap-6 px-4">
+                            <div class="flex items-center gap-2">
+                                <label for="custype" class="whitespace-nowrap text-gray-700 font-semibold">
+                                    ประเภทลูกค้า :
+                                </label>
+                                <select
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                    formControlName="cusCODE" id="custype">
+                                    <option *ngFor="let item of custypeList" [value]="item.cusCode">
+                                        {{item.cusCode}} : {{item.cusDesc}}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label for="" class="whitespace-nowrap text-gray-700 font-semibold">ประเภทผู้ถือหุ้น
+                                    :</label>
+                                <p class="text-blue-600 text-xl font-semibold m-0">
+                                    ( {{ customerForm.get('customer.cusCODEg')?.value }} ) {{
+                                    customerForm.get('customer.cusDESCgABBR')?.value }}
+                                </p>
+                            </div>
+                            <div></div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-6 px-4 mt-2">
+                            <div class="flex items-center gap-2">
+                                <label for="idCard" class="whitespace-nowrap text-gray-700 font-semibold">บัตรแสดงตน
+                                    :</label>
+                                <select id="idCard" formControlName="docTYPE" name="docType"
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
+                                    <option *ngFor="let title of doctypeList" [value]="title.docType">
+                                        {{title.docDesc}}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label for="idNumber" class="whitespace-nowrap text-gray-700 font-semibold">เลขที่ :
+                                </label>
+                                <input id="idNumber" type="text" formControlName="cusiD"
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-grow" />
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label for="ref" class="whitespace-nowrap text-gray-700 font-semibold">ref. :
+                                </label>
+                                <input id="ref" type="text" formControlName="brCode"
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-grow" />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-6 px-4 mt-2">
+                            <div class="flex items-center gap-2">
+                                <label for="" class="whitespace-nowrap text-gray-700 font-semibold">คำนำหน้าชื่อ
+                                    : </label>
+                                <select formControlName="titleCode" name="title"
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
+                                    <option *ngFor="let title of titleList" [value]="title?.titleCode">
+                                        {{title.titleDesc}}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label for="cusTAXid" class="whitespace-nowrap text-gray-700 font-semibold">
+                                    ผู้เสียภาษี :
+                                </label>
+                                <input type="text"
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                    formControlName="cusTAXid">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label for="unit" class="whitespace-nowrap text-gray-700 font-semibold">ถือหุ้น
+                                    :
+                                </label>
+                                <div class="flex align-bottom gap-4 items-center">
+                                    <input
+                                        class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                        type="text" formControlName="unit"> หุ้น
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 px-4 mt-2 gap-4">
+                            <div class="flex items-center gap-2">
+                                <label for="cusFName" class="whitespace-nowrap text-gray-700 font-semibold">
+                                    ชื่อ :
+                                </label>
+                                <input
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                    type="text" formControlName="cusFName">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label for="cusLName" class="whitespace-nowrap text-gray-700 font-semibold">นามสกุล
+                                    : </label>
+                                <input
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                    type="text" formControlName="cusLName">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="my-6">
+                        <hr>
+                    </div>
+
+                    <!-- ข้อมูลที่อยู่ -->
+                    <div formGroupName="homeAddress">
+                        <p class="text-xl text-center mb-3">ที่อยู่ตามทะเบียนบ้าน</p>
+                        <div>
+                            <div class="grid grid-cols-3 gap-6 px-4 mt-2">
+                                <div class="flex items-center gap-2">
+                                    <label for="" class="whitespace-nowrap text-gray-700 font-semibold">เลขที่ :
+                                    </label>
+                                    <input type="text"
+                                        class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                        name="" id="" formControlName="housEno">
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <label for="" class="whitespace-nowrap text-gray-700 font-semibold">ซอย :
+                                    </label>
+                                    <input type="text"
+                                        class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                        formControlName="troG_SOI">
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <label for="" class="whitespace-nowrap text-gray-700 font-semibold">ถนน :
+                                    </label>
+                                    <input type="text"
+                                        class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                        formControlName="road">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-6 px-4 mt-2">
+                                <div class="flex items-center gap-2">
+                                    <label for="" class="whitespace-nowrap text-gray-700 font-semibold">จังหวัด
+                                        :
+                                    </label>
+                                    <select
+                                        class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                        formControlName="prvCODE" name="homeAddressPrvCode"
+                                        (change)="onProvinceChangeHome(homeAddress.prvCODE)">
+                                        <option *ngFor="let prv of prvData" [value]="prv.prvCode">
+                                            {{prv.prvName}}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <label for="" class="whitespace-nowrap text-gray-700 font-semibold">เขต/อำเภอ :
+                                    </label>
+                                    <select
+                                        class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                        formControlName="ampCODE" name="homeAddressAmpCode"
+                                        (change)="onAumphorChangeHome(homeAddress.prvCODE, homeAddress.ampCODE)">
+                                        <option *ngFor="let amp of ampDataHome" [value]="amp.ampCode">{{
+                                            amp.ampName
+                                            }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <label for="" class="whitespace-nowrap text-gray-700 font-semibold">แขวง/ตำบล :
+                                    </label>
+                                    <select
+                                        class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                        name="homeAddressTmbCode" formControlName="tmbCODE">
+                                        <option *ngFor="let tmb of tumbonDataHome" [value]="tmb.tmbCode">{{
+                                            tmb.tmbName
+                                            }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-6 px-4 mt-2">
+                                <div class="flex items-center gap-2">
+                                    <label for="" class="whitespace-nowrap text-gray-700 font-semibold">รหัสไปรษณีย์
+                                        :
+                                    </label>
+                                    <p class="text-blue-600 text-xl font-semibold m-0">{{ zipCodeHome || '-' }}
+                                    </p>
+                                </div>
+                                <div class="flex items-center gap-2 col-span-2">
+                                    <label for="" class="whitespace-nowrap text-gray-700 font-semibold">โทรศัพท์บ้าน
+                                        :
+                                    </label>
+                                    <input type="text"
+                                        class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                        formControlName="phone">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="my-6">
+                        <hr>
+                    </div>
+                    <div formGroupName="currentAddress">
+                        <p class="text-xl text-center mb-3">ที่อยู่ที่สามารถติดต่อได้</p>
+                        <div class="grid grid-cols-3 gap-6 px-4 mt-2">
+                            <div class="flex items-center gap-2">
+                                <label for="" class="whitespace-nowrap text-gray-700 font-semibold">เลขที่ :
+                                </label>
+                                <input type="text"
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                    name="" id="" formControlName="housEno">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label for="" class="whitespace-nowrap text-gray-700 font-semibold">ซอย :
+                                </label>
+                                <input type="text"
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                    formControlName="troG_SOI">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label for="" class="whitespace-nowrap text-gray-700 font-semibold">ถนน :
+                                </label>
+                                <input type="text"
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                    formControlName="road">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-6 px-4 mt-2">
+                            <div class="flex items-center gap-2">
+                                <label for="" class="whitespace-nowrap text-gray-700 font-semibold">จังหวัด :
+                                </label>
+                                <select
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                    formControlName="prvCODE" name="currentAddressPrvCode"
+                                    (change)="onProvinceChangeCurrent(currentAddress.prvCODE)">
+                                    <option *ngFor="let prv of prvData" [value]="prv.prvCode">{{prv.prvName}}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label for="" class="whitespace-nowrap text-gray-700 font-semibold">เขต/อำเภอ :
+                                </label>
+                                <select
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                    formControlName="ampCODE" name="currentAddressAmpcode"
+                                    (change)="onAumphorChangeCurrent(currentAddress.prvCODE, currentAddress.ampCODE)">
+                                    <option *ngFor="let amp of ampDataCurrent" [value]="amp.ampCode">{{
+                                        amp.ampName
+                                        }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label for="" class="whitespace-nowrap text-gray-700 font-semibold">แขวง/ตำบล :
+                                </label>
+                                <select
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                    name="currentAddressTmbCode" formControlName="tmbCODE">
+                                    <option *ngFor="let tmb of tumbonDataCurrent" [value]="tmb.tmbCode">{{
+                                        tmb.tmbName
+                                        }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-6 px-4 mt-2">
+                            <div class="col-span-1 flex gap-2 items-center">
+                                <label for="" class="whitespace-nowrap text-gray-700 font-semibold">รหัสไปรษณีย์
+                                    :
+                                </label>
+                                <p class="text-blue-600 text-xl font-semibold m-0">{{ zipCodeCurrent || '-' }}
+                                </p>
+                            </div>
+                            <div class="col-span-2 flex items-center gap-2">
+                                <label for="" class="whitespace-nowrap text-gray-700 font-semibold">โทรศัพท์มือถือ :
+                                </label>
+                                <div class="flex gap-2 items-center w-full">
+                                    <input type="text"
+                                        class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                        formControlName="phone">
+                                    <p class="whitespace-nowrap">( ตัวเลข 10 หลักเท่านั้น )</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="py-6">
+                            <hr>
+                        </div>
+                        <div class="grid grid-cols-3 gap-6 px-4 mt-2">
+                            <div>
+                            </div>
+                            <div class="col-span-2 flex items-center gap-2">
+                                <label class="whitespace-nowrap text-gray-700 font-semibold" for="">อีเมล :
+                                </label>
+                                <input type="text"
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                    [value]="customer.email || '-'">
+                            </div>
+                        </div>
+                        <div class="py-6">
+                            <hr>
+                        </div>
+                        <div>
+                            <p class="text-xl text-center mb-3">ที่อยู่ที่สามารถติดต่อได้จากระบบเดิม</p>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <div class="flex items-center gap-2">
+                                <label class="whitespace-nowrap text-gray-700 font-semibold" for="">ที่อยู่ 1 :
+                                </label>
+                                <input
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                    type="text" name="" id="" formControlName="addR1">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="whitespace-nowrap text-gray-700 font-semibold" for="">ที่อยู่ 2 :
+                                </label>
+                                <input
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                    type="text" formControlName="addR2">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="my-6">
+                        <hr>
+                    </div>
+                    <div formGroupName="detailSale">
+                        <div>
+                            <p class="text-2xl text-center font-bold mb-6 text-gray-800">มีความประสงค์ซื้อหุ้นดังนี้</p>
+                            <!-- Template สำหรับแต่ละ row -->
+                            <div class="space-y-4">
+                                <!-- Row 1 -->
+                                <div class="grid grid-cols-3 gap-6">
+                                    <div class="col-span-1"></div>
+                                    <div class="col-span-2 grid grid-cols-[15%_85%] gap-2 items-center">
+                                        <label for=""
+                                            class="whitespace-nowrap text-right text-gray-700 font-semibold">เลขที่ใบคำขอ
+                                            : </label>
+                                        <div class="flex justify-start">
+                                            <input type="text" formControlName="stkReqNo"
+                                                class="flex-1 border border-green-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-green-500 max-w-80" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Row 2 -->
+                                <div class="grid grid-cols-3 gap-6">
+                                    <div class="flex items-center gap-4">
+                                        <label for=""
+                                            class="whitespace-nowrap w-40 text-right text-gray-700 font-semibold">ประเภทหุ้น
+                                            :</label>
+                                        <select formControlName="stkTYPE" name="currentAddressPrvCode"
+                                            class="flex-1 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option *ngFor="let stk of stkTypeList" [value]="stk.stkType">
+                                                {{ stk.stkDesc }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-span-2 grid grid-cols-[15%_85%] gap-2 items-center">
+                                        <label for=""
+                                            class="whitespace-nowrap text-right text-gray-700 font-semibold">ราคาหุ้นละ
+                                            :</label>
+                                        <div class="flex justify-start items-center gap-2">
+                                            <input type="text"
+                                                class="flex-1 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-80"
+                                                [value]="pricePerUnit.stkBv" disabled /> บาท
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Row 3 -->
+                                <div class="grid grid-cols-3 gap-6">
+                                    <div class="col-span-1"></div>
+                                    <div class="col-span-2 grid grid-cols-[15%_85%] gap-2 items-center">
+                                        <label for=""
+                                            class="whitespace-nowrap text-right text-gray-700 font-semibold">จำนวน
+                                            :</label>
+                                        <div class="flex flex-1 gap-2 items-center">
+                                            <input type="text" formControlName="stkUNiT" (input)="onUnitInput($event)"
+                                                class="flex-1 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-80" />
+                                            <p class="whitespace-nowrap text-gray-600">หุ้น</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-3 gap-6">
+                                    <div class="col-span-1"></div>
+                                    <div class="col-span-2 grid grid-cols-[15%_85%] gap-2 items-center">
+                                        <div></div>
+                                        <div class="flex flex-1 gap-2 items-center">
+                                            <p>(  {{unitText}}  )</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Row 4 -->
+                                 <div class="grid grid-cols-3 gap-6">
+                                    <div class="col-span-1"></div>
+                                    <div class="col-span-2 grid grid-cols-[15%_85%] gap-2 items-center">
+                                        <label for=""
+                                            class="whitespace-nowrap text-right text-gray-700 font-semibold">รวมเป็นเงิน
+                                            :</label>
+                                        <div class="flex-1 flex gap-2 items-center">
+                                            <input type="text" formControlName="stkValue" readonly
+                                                class="flex-1 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-80" />
+                                            <p class="whitespace-nowrap text-gray-600">บาท</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                 <div class="grid grid-cols-3 gap-6">
+                                    <div class="col-span-1"></div>
+                                    <div class="col-span-2 grid grid-cols-[15%_85%] gap-2 items-center">
+                                        <div></div>
+                                        <div class="flex flex-1 gap-2 items-center">
+                                            <p>(  {{valueText}}  )</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="py-6">
+                            <hr>
+                        </div>
+                        <div class="grid grid-cols-6 gap-6 px-4 mt-2">
+                            <div class="col-span-1 flex">
+                                <label for="" class="whitespace-nowrap text-gray-700 font-semibold">ชำระโดย :
+                                </label>
+                            </div>
+                            <div class="col-span-5 space-y-6">
+                                <!-- เงินสด -->
+                                <div class="flex items-center gap-2">
+                                    <input type="radio" name="stkPayTypeDetail" id="cash" formControlName="stkPayTypeDetail" value="002" />
+                                    <label for="cash">เงินสด</label>
+                                </div>
+                                <!-- โอนจากบัญชี -->
+                                <div class="flex flex-col gap-2">
+                                    <div class="flex items-center gap-2">
+                                        <input type="radio" name="stkPayTypeDetail" id="bankTransfer" formControlName="stkPayTypeDetail" value="001" />
+                                        <label for="bankTransfer" class="text-sm">โอนจากบัญชีเงินฝาก
+                                            ธ.ก.ส.</label>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pl-6">
+                                        <!-- เลขที่บัญชี -->
+                                        <div class="flex items-center gap-2">
+                                            <label for="" class="whitespace-nowrap w-24 text-right">เลขที่
+                                                :</label>
+                                            <input type="text"
+                                                formControlName="stkSaleByTRACCno"
+                                                class="flex-1 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                        <!-- ชื่อบัญชี -->
+                                        <div class="flex items-center gap-2">
+                                            <label for="" class="whitespace-nowrap w-24 text-right">ชื่อบัญชี
+                                                :</label>
+                                            <input type="text"
+                                                formControlName="stkSaleByTRACCname"
+                                                class="flex-1 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- เช็ค -->
+                                <div class="flex flex-col gap-2">
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <input type="radio" name="stkPayTypeDetail" id="cheque" formControlName="stkPayTypeDetail" value="004" />
+                                        <label for="cheque" class="text-sm">เช็ค</label>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pl-6">
+                                        <!-- เลขที่เช็ค -->
+                                        <div class="flex items-center gap-2">
+                                            <label for="" class="whitespace-nowrap w-24 text-right">เลขที่
+                                                :</label>
+                                            <input type="text"
+                                                formControlName="stkSaleByCHQno"
+                                                class="flex-1 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                        <!-- วันที่ -->
+                                        <div class="flex items-center gap-2">
+                                            <label for="" class="whitespace-nowrap w-24 text-right">วันที่
+                                                :</label>
+                                            <mat-form-field>
+                                                <mat-label>เลือกวันที่</mat-label>
+                                                <input 
+                                                formControlName="stkSaleByCHQdat"
+                                                matInput [matDatepicker]="picker" />
+
+                                                <!-- เพิ่มคลาส bg-white, rounded, shadow ให้ปุ่ม toggle -->
+                                                <mat-datepicker-toggle matIconSuffix
+                                                    [for]="picker"></mat-datepicker-toggle>
+
+                                                <mat-datepicker #picker startView="year"
+                                                    [startAt]="startDate"></mat-datepicker>
+                                            </mat-form-field>
+                                        </div>
+                                        <!-- ธนาคาร -->
+                                        <div class="flex items-center gap-2">
+                                            <label for="" class="whitespace-nowrap w-24 text-right">ธนาคาร
+                                                :</label>
+                                            <input type="text"
+                                                formControlName="stkSaleByCHQbnk"
+                                                class="flex-1 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                        <!-- สาขา -->
+                                        <div class="flex items-center gap-2">
+                                            <label for="" class="whitespace-nowrap w-24 text-right">สาขา
+                                                :</label>
+                                            <input type="text"
+                                                formControlName="stkSaleByCHQbrn"
+                                                class="flex-1 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="py-6">
+                            <hr>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-4 gap-6 px-4 mt-2 items-center o">
+                    <label class="col-span-1 whitespace-nowrap text-gray-700 font-semibold text-right" for="">
+                        ปัจจุบันรับเงินปันผลโดย :
+                    </label>
+                    <p class="col-span-3">{{ dividendData?.payDESC || '-' }}</p>
+                </div>
+                <div class="grid grid-cols-4 gap-6 px-4 mt-2 items-start" formGroupName="dividend">
+                    <label class="col-span-1 whitespace-nowrap text-gray-700 font-semibold text-right" for="">
+                        รับเงินปันผลเป็น :
+                    </label>
+                    <div class="col-span-3">
+                        <div class="flex gap-4 items-start">
+                            <!-- Radio -->
+                            <input type="radio" name="dividendStkPayType" id="bankAccount" class="mt-2" value="001"
+                                formControlName="dividendStkPayType">
+
+                            <!-- Form -->
+                            <div class="flex flex-col gap-4 w-full">
+                                <!-- Grid 2 columns -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <!-- Account Type -->
+                                    <div class="flex items-center gap-2">
+                                        <label for="accountType"
+                                            class="whitespace-nowrap font-semibold text-gray-700">บัญชีเงินฝาก
+                                            :</label>
+                                        <select id="accountType" name="accountType"
+                                            class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            formControlName="stkACCtype">
+                                            <option *ngFor="let act of actypeList" [value]="act.accType">
+                                                {{act.accDesc}}</option>
+                                        </select>
+                                    </div>
+                                    <!-- Account Number -->
+                                    <div class="flex items-center gap-2">
+                                        <label for="accountNumber"
+                                            class="whitespace-nowrap font-semibold text-gray-700">บัญชีเลขที่
+                                            :</label>
+                                        <input type="text" id="accountNumber" name="accountNumber"
+                                            formControlName="stkACCno"
+                                            class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                                <!-- Account Name -->
+                                <div class="flex items-center gap-2">
+                                    <label for="accountName"
+                                        class="whitespace-nowrap font-semibold text-gray-700">ชื่อบัญชี
+                                        :</label>
+                                    <input type="text" id="accountName" name="accountName" formControlName="stkACCname"
+                                        class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <input type="radio" name="dividendStkPayType" value="002" formControlName="dividendStkPayType">
+                            <label for="">เงินสด</label>
+                        </div>
+                        <div class="flex gap-4">
+                            <input type="radio" name="dividendStkPayType" value="003" formControlName="dividendStkPayType">
+                            <label for="">บริจาคให้ ธ.ก.ส.</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="py-4 flex gap-6 justify-center">
+                    <button
+                        class="py-2 px-4 bg-green-500 font-semibold text-sm text-white cursor-pointer rounded-xs hover:bg-green-300"
+                        type="submit" value="UPP">บันทึก</button>
+                    <button (click)="onBack()"
+                        class="py-2 px-5 bg-green-500 font-semibold text-sm text-white cursor-pointer rounded-xs hover:bg-green-300">กลับ</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div *ngIf="loading" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50"
+    style="background-color: rgba(128, 128, 128, 0.7);">
+    <div class="text-center">
+        <svg class="animate-spin h-10 w-10 text-blue-300 mx-auto mb-4" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="white" stroke-width="4" />
+            <path class="opacity-75" fill="white" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+        </svg>
+        <p class="text-white font-semibold">กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
+    </div>
+</div>

@@ -1,33 +1,29 @@
 import { Component, Input, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SearchEditComponent } from '../search-edit/search-edit';
-import { RemCodeService, Remcode } from '../../../services/rem-code';
-import { FormsModule } from '@angular/forms';
-import { PayTypeService, PayType } from '../../../services/pay-type';
-import { StockService, StockItem } from '../../../services/stock';
-import { AccTypeService, AccType } from '../../../services/acc-type';
-import { CustomerService } from '../../../services/customer';
-import { StockRequestService } from '../../../services/stock-request';
-import { StocktransferService } from '../../../services/stocktransfer';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CustomerService, CustomerDetailDto2 } from '../../../services/customer';
 import Swal from 'sweetalert2';
+import { DataTransfer } from '../../../services/data-transfer';
+import { MetadataService } from '../../../services/metadata';
+import { CustomerStockService } from '../../../services/customer-stock-service';
+import { StockService } from '../../../services/stock';
+import { Divident } from '../../../services/divident';
+import { forkJoin } from 'rxjs';
 
-interface TransferReceiver {
-  cid: string;
-  shareAmount: number;
-  remCode?: string;
-  branch?: string;
-  fullName?: string;
-  payType?: string;
-  accType?: string;
-  accNo?: string;
-  accName?: string;
-  stkNote?: string;
+interface TransferItem {
+  CUSid: string;
+  CUSun: number;
+  accTY?: string;
+  accNO?: string;
+  accNA?: string;
+  payTY?: string;
 }
 
 @Component({
   selector: 'app-transfer-share',
   standalone: true,
-  imports: [CommonModule, SearchEditComponent, FormsModule],
+  imports: [CommonModule, FormsModule, SearchEditComponent, ReactiveFormsModule],
   templateUrl: './transfer-share.component.html',
 })
 export class TransferShareComponent implements OnInit {
@@ -35,358 +31,245 @@ export class TransferShareComponent implements OnInit {
   @Input() InputtransferShare!: string;
 
   stockData: any;
-  internalViewName = 'transferShare';
-  cusId = '';
-  fullName = '';
-  statusDesc = '';
-  stockNotes: string[] = [];
-  viewMode = '';
+  stkTransList: any[] = [];
+  customerData: any = '';
   activeView = 'search';
-  selectedStock: string[] = [];
-  remcodeList: Remcode[] = [];
-  tempCID: string = '';
-  isEnteringNewPerson = true; // true = แสดงแค่ช่องกรอกบัตร
-  selectedTransfer: TransferReceiver | null = null;
-  payTypes: PayType[] = [];
-  accTypes: AccType[] = [];
-  selectedRemCode: string = '';
-  stockCusid: string = '';
-  selectedcustomer: any = null;
-  selectStockTransfer: any = null;
-  selectCusTransfer: any = null;
-  globalRemCode: string = '';
-  transferResult: any;
+  cusId = '';
+  selectedcustomer: any = '';
+  remcodeList: any[] = [];
+  accList: any[] = [];
+  transferRecipients: any[] = [];
+  transferReason: any = '';
+  sesstionSearch = true;
   loading = false;
 
-  // สำหรับเพิ่มรายการผู้รับโอน
-  transferList: TransferReceiver[] = [];
-  tempTransfer: TransferReceiver = {
-    cid: '',
-    shareAmount: 0,
-    branch: '',
-    payType: '',
-    accType: '',
-    accNo: '',
-    accName: '',
-    remCode: '',
-    stkNote: '',
-  };
+
+  // ข้อมูลสำหรับหน้าสรุปผล
+  transferSummary: any = null;
+
+  searchForm: FormGroup;
+  transferForm: FormGroup;
+  transferList: TransferItem[] = [];
+  foundReceiver: CustomerDetailDto2 | null = null;
 
   constructor(
-    private stockService: StockService,
-    private remcodeService: RemCodeService,
-    private paytypeService: PayTypeService,
-    private acctypeService: AccTypeService,
-    private customerService: CustomerService,
-    private StockRequestService: StockRequestService,
-    private StockTrnsferService: StocktransferService,
-    private cdRef: ChangeDetectorRef
-  ) { }
+    private readonly cdRef: ChangeDetectorRef,
+    private readonly dataTransfer: DataTransfer,
+    private readonly metadataService: MetadataService,
+    private readonly customerService: CustomerService,
+    private readonly customerStockService: CustomerStockService,
+    private readonly fb: FormBuilder,
+    private readonly stockService: StockService,
+    private readonly dividendService: Divident,
+  ) {
+    this.transferForm = this.fb.group({
+      transfers: this.fb.array([])
+    });
+
+    this.searchForm = this.fb.group({
+      stkOWNiD: ['', Validators.required]
+    })
+  }
 
   ngOnInit(): void {
-    this.remcodeService.getRemCodes().subscribe({
-      next: (data) => {
-        this.remcodeList = data.filter(rem =>
-          rem.remCode === '0030' || rem.remCode === '0031'
-        );
-      },
-      error: () => {
-        alert('ไม่สามารถโหลดเหตุผลการโอนหุ้น');
-      }
-    });
-
-    this.paytypeService.getAll().subscribe({
-      next: (data) => {
-        this.payTypes = data;
-      },
-      error: () => {
-      }
-    });
-
-    this.acctypeService.getAllAccTypes().subscribe({
-      next: (data) => {
-        this.accTypes = data;
-      },
-      error: () => {
-        alert('ไม่สามารถโหลดประเภทบัญชี');
-      }
-    });
-
+    this.dataTransfer.setPageStatus('4');
   }
 
-  fetchReceiverInfo() {
-    this.cdRef.detectChanges();
-
-    if (!this.tempCID) return;
-
-    this.stockService.getStocksByCusId(this.tempCID).subscribe({
-      next: (response) => {
-        const stockList = response.stockList;
-
-        if (!stockList || stockList.length === 0) {
-          alert('ไม่พบข้อมูลหุ้นของผู้ถือหุ้นรายนี้');
-          return;
-        }
-
-
-        const validStock = stockList.find((s: StockItem) => s.stkStatus === 'S000');
-
-
-        if (!validStock) {
-          const statusList = [...new Set(stockList.map((s: StockItem) => s.statusDesc || s.stkStatus))].join(', ');
-          alert(`ไม่สามารถโอนได้ เนื่องจากสถานะ: ${statusList}`);
-          return;
-        }
-
-        this.selectedTransfer = {
-          cid: this.tempCID,
-          fullName: validStock.fullname || '',
-          shareAmount: 0,
-          branch: sessionStorage.getItem('brName') ?? undefined,
-          payType: validStock.stkPayType || '',
-          accType: validStock.stkAcctype || '001',
-          accNo: validStock.stkAccno || '',
-          accName: validStock.stkAccname || '',
-          remCode: '',
-          stkNote: validStock.stkNote || '',
-        };
-
-        this.isEnteringNewPerson = false;
-        this.cdRef.detectChanges();
-      },
-      error: () => {
-        alert('เกิดข้อผิดพลาดในการดึงข้อมูลหุ้น');
-      }
-    });
-  }
-
-
-
-
-  onTransferStockSelected(stock: any) {
+  onTransferStockSelected(event: any) {
     // เรียก api เพื่อดึงข้อมูลของลูกค้า
-    
+    this.cusId = event.cusId;
+    this.activeView = event.view;
+    this.onLoadTransferList(this.cusId);
   }
 
-  confirmReceiver() {
-    if (!this.selectedTransfer || this.selectedTransfer.shareAmount <= 0) {
-      alert('กรุณาระบุจำนวนหุ้น');
-      return;
-    }
-
-    if (!this.globalRemCode || this.globalRemCode === '') {
-      alert('กรุณาเลือกเหตุผลในการโอนหุ้น');
-      return;
-    }
-
-    if (this.selectedTransfer?.payType === "001") {
-      const accNo = this.selectedTransfer.accNo?.trim();
-      const accName = this.selectedTransfer.accName?.trim();
-
-      if (!accNo || !accName) {
-        alert('กรุณากรอกข้อมูลบัญชีให้ครบถ้วน');
-        return;
-      }
-    }
-
-
-
-    console.log("ข้อมูลผู้รับที่จะเพิ่ม:", this.selectedTransfer);
-
-    this.transferList.push({
-      ...this.selectedTransfer,
-      remCode: this.globalRemCode // ใส่เหตุผลโอนหุ้นแบบกลาง
-    });
-
-    this.selectedTransfer = null;
-    this.tempCID = '';
-    this.isEnteringNewPerson = true;
-  }
-
-
-
-  setView(view: string) {
-    this.activeView = view;
-  }
-
-  onViewStock(data: any) {
-    this.setView('transfer');
-  }
-
-  addTransfer() {
-    if (!this.tempTransfer.cid || this.tempTransfer.shareAmount <= 0) {
-      alert('กรุณากรอกข้อมูลให้ครบถ้วนก่อนเพิ่ม');
-      return;
-    }
-
-    this.transferList.push({ ...this.tempTransfer });
-    this.resetTempTransfer();
-  }
-
-  removeTransfer(index: number) {
-    this.transferList.splice(index, 1);
-  }
-
-  resetTempTransfer() {
-    this.tempTransfer = {
-      cid: '',
-      shareAmount: 0,
-      branch: '',
-      payType: '',
-      accType: '',
-      accNo: '',
-      accName: '',
-      remCode: '',
-      stkNote: '',
-    };
-  }
-
-  resetTransferForm() {
-    this.selectedTransfer = null;
-    this.tempCID = '';
-    this.isEnteringNewPerson = true;
-  }
-
-
-
-
-  onSetTransfer(stock: any, customer: any) {
-    this.selectStockTransfer = stock;
-    this.selectCusTransfer = customer;
-    this.setView('transfer');
-    this.cdRef.detectChanges();
-  }
-
-  showDetail(stkNote: string) {
-    this.setView('detail');
-    this.funcDetail(stkNote)
-    this.cdRef.detectChanges();
-  }
-
-  formatThaiDateTime(dateTimeStr: string): string {
-    if (!dateTimeStr || dateTimeStr.length !== 15 || !dateTimeStr.includes('-')) return '-';
-
-    const datePart = dateTimeStr.substring(0, 8); // 20250704
-    const timePart = dateTimeStr.substring(9);   // 152035
-
-    const year = parseInt(datePart.substring(0, 4), 10);
-    const month = parseInt(datePart.substring(4, 6), 10);
-    const day = parseInt(datePart.substring(6, 8), 10);
-
-    const hour = timePart.substring(0, 2);
-    const minute = timePart.substring(2, 4);
-    const second = timePart.substring(4, 6);
-
-    const thaiMonths = [
-      '', 'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
-      'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
-    ];
-
-    const buddhistYear = year;
-
-    return `${day} ${thaiMonths[month]} ${buddhistYear} เวลา ${hour}:${minute}:${second} น.`;
-  }
-
-  submitTransfer() {
-    if (!this.selectedStock || this.transferList.length === 0) {
-      alert('กรุณาเลือกหุ้นและเพิ่มผู้รับโอนอย่างน้อย 1 ราย');
-      return;
-    }
-
-    if (!this.globalRemCode) {
-      alert('กรุณาเลือกเหตุผลการโอนหุ้น');
-      return;
-    }
-
-    const totalShareToTransfer = this.transferList.reduce((sum, t) => sum + (t.shareAmount || 0), 0);
-    const availableShares = this.selectStockTransfer.unit ?? 0;
-    if (totalShareToTransfer > availableShares) {
-      alert(`ขออภัยจำนวนหุ้นไม่พอ กรุณาโอนหุ้นไม่เกิน ${availableShares} หุ้น`);
-      return;
-    }
-
-
-    // สร้าง string lists ที่คั่นด้วย '|'
-    const list_CUSid = this.transferList.map(t => t.cid).join('|');
-    const list_CUSun = this.transferList.map(t => t.shareAmount).join('|');
-    const list_accTY = this.transferList.map(t => t.accType).join('|');
-    const list_accNO = this.transferList.map(t => t.accNo).join('|');
-    const list_accNA = this.transferList.map(t => t.accName).join('|');
-    const list_payTY = this.transferList.map(t => t.payType).join('|');
-
+  onLoadTransferList(cusiD: string) {
     const payload = {
-      TRF_CUSid: this.selectedcustomer?.cusId,
-      TRF_stkNOTE: this.selectStockTransfer.stkNote,
-      TRF_stkSTA: this.selectStockTransfer.stkStart,
-      TRF_stkSTP: this.selectStockTransfer.stkEnd,
-      TRF_stkUNiTALL: availableShares,
+      GetDTL: 'bySTK@bySTK-TRF',
+      STKno: '',
+      CUSid: cusiD,
+      CUSfn: '',
+      CUSln: '',
+      stkA: '1',
+      PGNum: 1,
+      PGSize: 9999999
+    };
+    this.customerStockService.searchCustomerStock(payload).subscribe({
+      next: (res) => {
+        this.stkTransList = res;
+        console.log("stkTransList", this.stkTransList);
+        this.cdRef.detectChanges();
+      }, error: (err) => {
+        console.log("Errors", err);
+      }
+    })
 
-      TR2_RemCode: this.globalRemCode,
+    const payload2 = {
+      CUSid: cusiD
+    }
 
-      TR2_LST_CUSid: list_CUSid,
-      TR2_LST_CUSun: list_CUSun,
-      TR2_LST_accTY: list_accTY,
-      TR2_LST_accNO: list_accNO,
-      TR2_LST_accNA: list_accNA,
-      TR2_LST_payTY: list_payTY,
+    this.customerService.getCustomerTable(payload2).subscribe({
+      next: (res: any) => {
+        this.customerData = res;
+        this.cdRef.detectChanges();
+      }, error: (err) => {
+        console.log("Error", err);
+      }
+    })
+  }
+
+  getStockDetail(stkNote: string) {
+    const payload = {
+      stkNote: stkNote
     };
 
-    Swal.fire({
-      html: `<p style="font-family: 'Prompt', sans-serif;">ยืนยันการโอนหุ้นเปลี่ยนมือ</p>`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'อนุมัติ',
-      cancelButtonText: 'ยกเลิก',
-      confirmButtonColor: '#16a34a',
-      cancelButtonColor: '#ef4444'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.StockTrnsferService.transferRequest(payload).subscribe({
-          next: (res) => {
-            console.log('✅ การโอนสำเร็จ:', res);
-            Swal.fire({
-              icon: 'success',
-              html: `<p style="font-family: 'Prompt', sans-serif;">บันทึกข้อมูลสำเร็จ</p>`,
-              confirmButtonText: 'ตกลง'
-            }).then((result) => {
-              if (result.isConfirmed) {
-                this.transferList = [];
-                this.selectStockTransfer = null;
-                this.funcDetail(this.selectedcustomer?.cusId);
-                this.goBack();
-                this.cdRef.detectChanges();
-              }
-            })
-          },
-          error: (err) => {
-            console.error('❌ เกิดข้อผิดพลาดในการโอน:', err);
-            alert('เกิดข้อผิดพลาดในการส่งคำขอโอน กรุณาลองใหม่อีกครั้ง');
-          }
-        });
+    this.stockService.getStockDetail(payload).subscribe({
+      next: (res: any) => {
+        this.selectedcustomer = res;
+        console.log("Selectedcustomer", this.selectedcustomer);
+        this.cdRef.detectChanges();
+      }, error: () => {
+        Swal.fire({
+          icon: 'error',
+          title: "Error",
+          text: "โปรดติดต่อผู้พัฒนา"
+        })
       }
+    })
+  }
+
+  onTransferClick(item: any) {
+    console.log(item);
+    this.activeView = 'transfers';
+    this.getStockDetail(item.stkNOTE);
+    this.loadMetaData();
+  }
+
+  get transfers(): FormArray {
+    return this.transferForm.get('transfers') as FormArray;
+  }
+
+  createTransferGroup(receiver: any, dividend: any): FormGroup {
+    const fullname = `${receiver.titleDESC}${receiver.cusFName} ${receiver.cusLName}`;
+    return this.fb.group({
+      CUSid: [receiver.cusiD, Validators.required],
+      Name: [fullname],
+      CUSun: [null, [Validators.required, Validators.min(1)]],
+      accTY: [dividend?.stkACCtype || ''],
+      accNO: [dividend?.stkACCno || ''],
+      accNA: [dividend?.stkACCname || ''],
+      payTY: [dividend?.stkPayType || '']
     });
   }
 
+  searchReceiver() {
+    const cusId = this.searchForm.value.stkOWNiD;
+    const payload = {
+      cusId: cusId
+    };
+    forkJoin({
+      customer: this.customerService.getCustomerTr(payload),
+      dividend: this.dividendService.getDividend(payload)
+    }).subscribe({
+      next: (res) => {
+        const group = this.createTransferGroup(res.customer, res.dividend);
+        this.transfers.push(group);   // ⬅️ เพิ่มเข้า list
+        // this.sesstionSearch = false;
 
-  funcDetail(stkNote: string) {
-    this.stockService.getResultsTransfer(stkNote).subscribe({
-      next: (data) => {
-        this.transferResult = data;
-        this.loading = false;
-        this.activeView = 'detail';
-        console.log(data);
+        console.log("All transfers", this.transferForm.value.transfers);
+        this.searchForm.reset();
         this.cdRef.detectChanges();
       },
       error: (err) => {
-        console.error('Error fetching transfer result:', err);
-        this.loading = false;
+        console.log("Error", err);
       }
-    });
+    })
+  }
+
+  removeAt(index: number) {
+    this.transfers.removeAt(index);
+  }
+
+  submitAll() {
+
+    if (this.transferReason == '') {
+      Swal.fire("Error", "กรุณาเลือกเหตุในการโอนหุ้น", "error");
+      return
+    };
+
+    if (this.transferForm.valid) {
+      const transfers = this.transferForm.value.transfers;
+      const payload = {
+      CUSid: transfers.map((t: TransferItem ) => t.CUSid).join('|'),
+      CUSun: transfers.map((t: TransferItem ) => t.CUSun).join('|'),
+      accTY: transfers.map((t: TransferItem ) => t.accTY).join('|'),
+      accNO: transfers.map((t: TransferItem ) => t.accNO).join('|'),
+      accNA: transfers.map((t: TransferItem ) => t.accNA).join('|'),
+      payTY: transfers.map((t: TransferItem ) => t.payTY).join('|')
+    };
+      console.log("Final Payload", payload);
+    } else {
+      Swal.fire("Error", "กรุณากรอกข้อมูลให้ครบ", "error");
+    }
+  }
+
+  cancelAll() {
+    this.transfers.clear();
+    this.transfers.reset();
+    this.activeView = 'transfer';
+    this.searchForm.reset();
+    this.cdRef.detectChanges();
+  }
+
+  loadMetaData() {
+    this.metadataService.getRemCode().subscribe({
+      next: (res) => {
+        this.remcodeList = res.filter((item: any) => item.remCode.startsWith("003"));
+        this.cdRef.detectChanges();
+        console.log("Remcode", this.remcodeList);
+      }, error: (err) => {
+        console.log("Fail Load remcode", err);
+      }
+    })
+
+    this.metadataService.getAcctypes().subscribe({
+      next: (res) => {
+        this.accList = res;
+        this.cdRef.detectChanges();
+        console.log("Acctype", this.accList);
+      }, error: (err) => {
+        console.log("Fail load Acctype", err);
+      }
+    })
   }
 
   goBack() {
     this.transferList = [];
-    this.selectStockTransfer = null;
     this.activeView = 'search';
+  }
+
+  formatThaiDateTime(datetimeup: string): string {
+    if (!datetimeup) return '-';
+
+    const [datePart, timePart] = datetimeup.split('-');
+    if (!datePart || !timePart) return '-';
+
+    let year = +datePart.substring(0, 4);
+    const month = +datePart.substring(4, 6) - 1;
+    const day = +datePart.substring(6, 8);
+    const hour = +timePart.substring(0, 2);
+    const minute = +timePart.substring(2, 4);
+    const second = +timePart.substring(4, 6);
+
+    // ✅ ตรวจว่าปีเป็น พ.ศ. อยู่แล้วหรือไม่
+    if (year > 2500) {
+      year = year - 543; // แปลงกลับเป็น ค.ศ.
+    }
+
+    const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+      'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+
+    const pad = (n: number) => n < 10 ? '0' + n : n.toString();
+
+    return `${day} ${thaiMonths[month]} ${year + 543} ${pad(hour)}:${pad(minute)}:${pad(second)} น.`;
   }
 }

@@ -1,50 +1,60 @@
-<div class="m-2 bg-white shadow-md rounded-md" *ngIf="!showDetailComponent && !showDetailComponentCreate">
+<div class="m-2 bg-white shadow-md rounded-md" *ngIf="activeView == 'table'">
   <div class="py-2 bg-green-400 flex justify-center rounded-t-md">
-    <p class="text-white font-semibold">{{ brName }} : อนุมัติรายการ</p>
+    <p class="text-white">{{ brName }} : อนุมัติรายการ</p>
   </div>
-  <div class="p-4">
+  <div class="p-4" *ngIf="requestList != ''; else nodata">
     <div class="overflow-x-auto">
-      <table class="w-full table-auto border-collapse shadow-lg rounded-lg overflow-hidden text-sm">
-        <thead class="bg-gradient-to-r from-green-200 to-green-100 text-gray-800">
+      <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+        <thead class="bg-green-400 text-white">
           <tr>
-            <th class="p-3 text-left border-b font-semibold">ลำดับ</th>
-            <th class="p-3 text-left border-b font-semibold">เลขที่บัตรแสดงตน</th>
-            <th class="p-3 text-left border-b font-semibold">ชื่อ-นามสกุล</th>
-            <th class="p-3 text-left border-b font-semibold">สาขา</th>
-            <th class="p-3 text-left border-b font-semibold">หมายเลขใบหุ้น</th>
-            <th class="p-3 text-right border-b font-semibold">จำนวนหุ้น</th>
-            <th class="p-3 text-right border-b font-semibold">จำนวนเงิน</th>
-            <th class="p-3 text-center border-b font-semibold">แสดง</th>
+            <th class="p-3 text-left border-b">ลำดับ</th>
+            <th class="p-3 text-left border-b">เลขที่บัตรแสดงตน</th>
+            <th class="p-3 text-left border-b">ชื่อ - นามสกุล</th>
+            <th class="p-3 text-left border-b">สาขา</th>
+            <th class="p-3 text-left border-b">หมายเลขใบหุ้น</th>
+            <th class="p-3 text-right border-b">จำนวนหุ้น</th>
+            <th class="p-3 text-right border-b">จำนวนเงิน</th>
+            <th class="p-3 text-center border-b">แสดง</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
           <tr *ngFor="let item of requestList; let i = index" class="hover:bg-green-50 transition duration-150">
-            <td class="p-3 text-center">{{ i + 1 }}</td>
-            <td class="p-3">{{ item.customerId }}</td>
-            <td class="p-3">{{ item.title }}{{ item.customerFirstName }} {{ item.customerLastName }}</td>
-            <td class="p-3">{{ item.branchName }}</td>
-            <td class="p-3">{{ item.stockNote }}</td>
-            <td class="p-3 text-right">{{ item.stockUnit | number:'1.0-0' }}</td>
-            <td class="p-3 text-right">{{ item.stockValue | number:'1.0-0' }}</td>
-            <td class="p-3 text-center cursor-pointer hover:text-green-600" (click)="approveConfirm(item.stockNote, item.statusCode)">📝</td>
+            <td class="p-3 text-center">{{ item.roWi }}</td>
+            <td class="p-3">{{ item.cusiD }}</td>
+            <td class="p-3">{{ item.titleABBR }}{{ item.cusFName }} {{ item.cusLName }}</td>
+            <td class="p-3">{{ item.stKbrName }}</td>
+            <td class="p-3">{{ item.stkNOTE }}</td>
+            <td class="p-3 text-center">{{ item.stkUNiT | number:'1.0-0' }}</td>
+            <td class="p-3 text-center">{{ item.stkVALUE | number:'1.0-0' }}</td>
+            <td class="p-3 text-center cursor-pointer hover:text-green-600">
+              <button
+                matButton="elevated"
+                matTooltip={{item.stDESCs}}
+                (click)="approveDetail(item.stkNOTE, item.stCODE)">📝</button>
+            </td>
           </tr>
         </tbody>
       </table>
+      <div class="flex justify-between items-center mt-4 px-2 text-sm">
+        <button (click)="prevPage()" [disabled]="pageNumber <= 1"
+          class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+          ◀ หน้าก่อน
+        </button>
+        <span class="text-gray-700">หน้า {{ pageNumber }}</span>
+        <button (click)="nextPage()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">
+          หน้าถัดไป ▶
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
-<div *ngIf="showDetailComponent">
-  <app-approve-transfer></app-approve-transfer>
-</div>
+<ng-template #nodata>
+  <div class="py-4">
+    <p class="text-center text-orange-500 text-xl">ไม่พบรายการขออนุมัติ</p>
+  </div>
+</ng-template>
 
-<div *ngIf="showDetailComponentCreate">
-  <app-approve-create></app-approve-create>
-</div>
-
-<div *ngIf="showDetailComponentSale">
-  <app-approve-sale></app-approve-sale>
-</div>
 
 <!-- ✅ Loading Overlay แบบโปร่งใส + มองทะลุ + เบลอ -->
 <div *ngIf="loading"

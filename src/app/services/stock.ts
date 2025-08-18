@@ -1,7 +1,8 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
-import { Observable, retry } from 'rxjs';
+import { Observable } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
+import { EncryptionService } from './encryption.service';
 
 
 export interface StockItem {
@@ -35,71 +36,47 @@ export interface StockType {
   providedIn: 'root'
 })
 export class StockService {
-  private apiUrl = 'https://localhost:7089/api/Stock';
+  private readonly apiUrl = 'https://localhost:7089/api/Stock';
 
   constructor(
-    private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private readonly http: HttpClient,
+    private readonly encrypt: EncryptionService,
+    @Inject(PLATFORM_ID) private readonly platformId: Object
   ) { }
 
-
-  getStocksByCusId(cusId: string): Observable<{ stockList: StockItem[]; stockUnitTotal: number }> {
-    const encodedCusId = encodeURIComponent(cusId);
-    return this.http.get<{ stockList: StockItem[]; stockUnitTotal: number }>(
-      `${this.apiUrl}/by-cusid/?cusId=${encodedCusId}`,
-      { headers: this.createAuthHeaders() }
-    );
-  }
-
-  getIssueByStkNote(stkNote: string): Observable<any[]> {
-    const encodedStkNote = encodeURIComponent(stkNote)
-    return this.http.get<any[]>(`${this.apiUrl}/issue?stkNote=${encodedStkNote}`, {
+  stockManage(requestPayload: any): Observable<any[]> {
+    const encodePayload = this.encrypt.encrypPayload(requestPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/manage`, encodePayload, {
       headers: this.createAuthHeaders()
     });
   }
 
-  getResultsTransfer(stkNote: string): Observable<any[]> {
-    const encodedStkNote = encodeURIComponent(stkNote)
-    return this.http.get<any[]>(`${this.apiUrl}/resultstransfer/${encodedStkNote}`, {
+  getStockDetail(requestPayload: any): Observable<any[]> {
+    const encodePayload = this.encrypt.encrypPayload(requestPayload);
+    console.log(encodePayload);
+    return this.http.post<any[]>(`${this.apiUrl}/stkdetail`, encodePayload, {
       headers: this.createAuthHeaders()
     });
   }
 
-  getResultCreate(stkNote: string): Observable<any[]> {
-    const encodedStkNote = encodeURIComponent(stkNote)
-    return this.http.get<any[]>(`${this.apiUrl}/resutlcreate/${encodedStkNote}`, {
+  stockLog(requestPayload: any): Observable<any[]> {
+    const encodePayload = this.encrypt.encrypPayload(requestPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/logstock`, encodePayload, {
       headers: this.createAuthHeaders()
     });
   }
 
-  getStockType(): Observable<StockType[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/stocktype`, {
+  blockStock(requestPayload: any): Observable<any[]> {
+    const encodePayload = this.encrypt.encrypPayload(requestPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/block`, encodePayload, {
       headers: this.createAuthHeaders()
     });
   }
 
-
-  // getStockApprove(): Observable<any[]> {
-  //   return this.http.get<any[]>(`${this.apiUrl}/approve`, {
-  //     headers: this.createAuthHeaders()
-  //   })
-  // }
-
-  getIssueApprove(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/approve-issue`, {
-      headers: this.createAuthHeaders()
-    });
-  }
-
-  saleStock(payload: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/purchase`, payload, {
-      headers: this.createAuthHeaders()
-    });
-  }
-
-  getResultSale(stkNote: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/resultpurchase`, {
-      params: {stkNote: stkNote},
+  noteDetial(requestPayload: any): Observable<any[]> {
+    const encodePayload = this.encrypt.encrypPayload(requestPayload);
+    console.log("=======================", encodePayload);
+    return this.http.post<any[]>(`${this.apiUrl}/notedetail`, encodePayload, {
       headers: this.createAuthHeaders()
     });
   }
@@ -112,5 +89,24 @@ export class StockService {
     return new HttpHeaders({
       Authorization: `Bearer ${token}`
     });
-  } 
+  }
+}
+
+
+export interface StockDetailDto {
+  CusId?: string;
+  TitleDesc?: string;
+  CusFName?: string;
+  CusLName?: string;
+  StCode?: string;
+  StDesc?: string;
+  StkNote?: string;
+  StkNoStart?: string;
+  StkNoStop?: string;
+  StkUnit?: number;
+  StkValue?: number;
+  DvnLST?: number;
+  CbsDAT?: number;
+  CbsOUT?: number;
+  AllowGen?: number;
 }

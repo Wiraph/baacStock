@@ -1,13 +1,10 @@
 <!-- หน้าค้นหา -->
 <div *ngIf="activeView === 'search'">
-  <app-search-edit 
-                   (viewStock)="onViewStock($event)"
-                   (dividend)="onDividendSelected($event)">
-  </app-search-edit>
+  <app-search-edit (statusView)="onHandle($event)"></app-search-edit>
 </div>
 
 <!-- หน้าแสดงข้อมูลลูกค้าที่ค้นหาได้ -->
-<div *ngIf="activeView === 'result'" class="p-4">
+<div *ngIf="activeView === 'dividend'" class="p-4">
   <div *ngIf="customerData" class="w-full bg-white rounded-xl shadow-md">
     <!-- ปุ่มกลับ -->
     <div class="flex justify-start px-4 py-2">

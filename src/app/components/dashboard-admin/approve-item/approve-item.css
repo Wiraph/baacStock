@@ -1,0 +1,12 @@
+::ng-deep .mat-tooltip {
+  background-color: #2b2b2b; /* พื้นหลัง */
+  color: #fff;              /* สีตัวอักษร */
+  font-size: 14px;          /* ขนาดตัวอักษร */
+  border-radius: 8px;       /* มุมโค้ง */
+  padding: 8px 12px;        /* ระยะห่าง */
+}
+
+.mat-mdc-tooltip-surface {
+    background-color: #2b2b2b !important;
+    color: #fff !important;
+}

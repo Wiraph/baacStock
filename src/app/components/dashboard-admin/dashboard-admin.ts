@@ -57,7 +57,7 @@ export class AdminDashboardComponent implements OnInit {
       open: false,
       children: [
         { key: 'print-share-purchase-request', icon: '🛒', label: 'พิมพ์คำขอซื้อหุ้น', route: '/dashboard-admin/print-share-purchase-request' },
-        { key: 'common-shares', icon: '😶‍🌫️', label: 'ขายหุ้นสามัญ', route: '/dashboard-admin/common-shares' },
+        { key: 'common-shares', icon: '😶‍🌫️', label: 'ขายหุ้นสามัญ', route: '/dashboard-admin/salestock' },
         { key: 'cratenewsharecertificate', icon: '📄', label: 'การออกใบหุ้นใหม่ แทนใบหุ้นที่ชำรุด/สูญหาย', route: '/dashboard-admin/cratenewsharecertificate' },
         { key: 'transfer-share', icon: '♾️', label: 'โอนเปลี่ยนมือ', route: '/dashboard-admin/transfer-share' },
         { key: 'approve-item', icon: '✅', label: 'อนุมัติรายการ', route: '/dashboard-admin/approve-item' },
@@ -73,6 +73,7 @@ export class AdminDashboardComponent implements OnInit {
       open: false,
       children: [
         { key: 'dividend', icon: '💰', label: 'เงินปันผล', route: '/dashboard-admin/dividend' },
+        { key: 'dividend', icon: '😵‍💫', label: 'คำนวณเงินปันผลประจำปี', route: '/dashboard-admin/AnnualDividendCalculatorComponent' },
         { key: 'pnd', icon: '📊', label: 'ภ.ง.ด.', route: '', 
           submenu: [
           { key: 'pnd2', icon: '📄', label: 'ภ.ง.ด. 2', route: '/dashboard-admin/pnd2' },
@@ -117,7 +118,7 @@ export class AdminDashboardComponent implements OnInit {
       open: false,
       children: [
         { key: 'system', icon: '🛠️', label: 'ควบคุมระบบ', route: '/dashboard-admin/system' },
-        { key: 'documents-upload', icon: '📘', label: 'Upload เอกสาร', route: '/dashboard-admin/documents/upload' },
+        { key: 'documents-upload', icon: '📁', label: 'Upload เอกสาร', route: '/dashboard-admin/documents/upload' },
         { key: 'documents-forms-procedures', icon: '📋', label: 'แบบพิมพ์/วิธีปฏิบัติงานหุ้น', route: '/dashboard-admin/documents/forms-procedures' },
         { key: 'documents-user-manual', icon: '📖', label: 'คู่มือการใช้งานระบบ', route: '/dashboard-admin/documents/user-manual' },
         { key: 'developer', icon: '💻', label: 'DEVELOPER', route: '/dashboard-admin/developer' }
