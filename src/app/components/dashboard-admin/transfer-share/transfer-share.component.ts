@@ -10,6 +10,7 @@ import { CustomerStockService } from '../../../services/customer-stock-service';
 import { StockService } from '../../../services/stock';
 import { Divident } from '../../../services/divident';
 import { forkJoin } from 'rxjs';
+import { StocktransferService } from '../../../services/stocktransfer';
 
 interface TransferItem {
   CUSid: string;
@@ -61,6 +62,7 @@ export class TransferShareComponent implements OnInit {
     private readonly fb: FormBuilder,
     private readonly stockService: StockService,
     private readonly dividendService: Divident,
+    private readonly stocktransferService: StocktransferService,
   ) {
     this.transferForm = this.fb.group({
       transfers: this.fb.array([])
@@ -448,6 +450,25 @@ export class TransferShareComponent implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
           // TODO: เรียก API บันทึกข้อมูล
+          this.stocktransferService.transferRequest(payload).subscribe({
+            next: (res) => {
+              console.log("Success", res);
+              Swal.fire({
+                icon: 'success',
+                title: 'บันทึกสำเร็จ',
+                text: 'การโอนหุ้นได้รับการบันทึกเรียบร้อยแล้ว',
+                confirmButtonText: 'ตกลง'
+              });
+            }, error: (err) => {
+              console.log("Fail", err);
+              Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
+                confirmButtonText: 'ตกลง'
+              });
+            }
+          })
           console.log('บันทึกข้อมูล:', payload);
         }
       });

@@ -46,9 +46,10 @@ export class StocktransferService {
     private readonly encryped: EncryptionService
   ) { }
 
-  transferRequest(payload: any): Observable<any> {
+  transferRequest(payload: any): Observable<any[]> {
     const encryptedPayload = this.encryped.encrypPayload(payload);
-    return this.http.post(`${this.apiUrl}/transfer`, encryptedPayload, { headers: this.createAuthHeaders() });
+    console.log(encryptedPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/transfer`, encryptedPayload, { headers: this.createAuthHeaders() });
   }
 
   transferCancel(payload: any): Observable<any> {
