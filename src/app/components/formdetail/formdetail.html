@@ -50,13 +50,17 @@
                                 </label>
                                 <input id="idNumber" type="text" formControlName="cusiD"
                                     class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-grow" />
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <label for="ref" class="whitespace-nowrap text-gray-700 font-semibold">ref. :
-                                </label>
-                                <input id="ref" type="text" formControlName="brCode"
-                                    class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-grow" />
-                            </div>
+                                </div>
+                                    <div class="flex items-center gap-2">
+                                        <label for="ref" class="whitespace-nowrap text-gray-700 font-semibold">ref. :</label>
+                                        <input id="ref" type="text" formControlName="brCode"
+                                            class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-grow"
+                                            [disabled]="mode === 'new-shareholder'"
+                                            [class.bg-gray-100]="mode === 'new-shareholder'"
+                                            [class.text-gray-500]="mode === 'new-shareholder'"
+                                            [readonly]="mode === 'new-shareholder'"
+                                            autocomplete="off" />
+                                    </div>
                         </div>
                         <div class="grid grid-cols-3 gap-6 px-4 mt-2">
                             <div class="flex items-center gap-2">
@@ -146,7 +150,7 @@
                                     <select
                                         class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                                         formControlName="prvCODE" name="homeAddressPrvCode"
-                                        (change)="onProvinceChangeHome(homeAddress.prvCODE)">
+                                        (change)="onProvinceChangeHome($event.target.value, false)">
                                         <option *ngFor="let prv of prvData" [value]="prv.prvCode">
                                             {{prv.prvName}}
                                         </option>
@@ -158,7 +162,7 @@
                                     <select
                                         class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                                         formControlName="ampCODE" name="homeAddressAmpCode"
-                                        (change)="onAumphorChangeHome(homeAddress.prvCODE, homeAddress.ampCODE)">
+                                        (change)="onAumphorChangeHome(customerForm.get('homeAddress.prvCODE')?.value, $event.target.value)">
                                         <option *ngFor="let amp of ampDataHome" [value]="amp.ampCode">{{
                                             amp.ampName
                                             }}
@@ -170,7 +174,8 @@
                                     </label>
                                     <select
                                         class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-                                        name="homeAddressTmbCode" formControlName="tmbCODE">
+                                        name="homeAddressTmbCode" formControlName="tmbCODE"
+                                        (change)="onZipcodeChangeHome(customerForm.get('homeAddress.prvCODE')?.value, customerForm.get('homeAddress.ampCODE')?.value, $event.target.value)">
                                         <option *ngFor="let tmb of tumbonDataHome" [value]="tmb.tmbCode">{{
                                             tmb.tmbName
                                             }}
@@ -232,7 +237,7 @@
                                 <select
                                     class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                                     formControlName="prvCODE" name="currentAddressPrvCode"
-                                    (change)="onProvinceChangeCurrent(currentAddress.prvCODE)">
+                                    (change)="onProvinceChangeCurrent($event.target.value, false)">
                                     <option *ngFor="let prv of prvData" [value]="prv.prvCode">{{prv.prvName}}
                                     </option>
                                 </select>
@@ -243,7 +248,7 @@
                                 <select
                                     class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                                     formControlName="ampCODE" name="currentAddressAmpcode"
-                                    (change)="onAumphorChangeCurrent(currentAddress.prvCODE, currentAddress.ampCODE)">
+                                    (change)="onAumphorChangeCurrent(customerForm.get('currentAddress.prvCODE')?.value, $event.target.value)">
                                     <option *ngFor="let amp of ampDataCurrent" [value]="amp.ampCode">{{
                                         amp.ampName
                                         }}
@@ -255,7 +260,8 @@
                                 </label>
                                 <select
                                     class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-                                    name="currentAddressTmbCode" formControlName="tmbCODE">
+                                    name="currentAddressTmbCode" formControlName="tmbCODE"
+                                    (change)="onZipcodeChangeCurrent(customerForm.get('currentAddress.prvCODE')?.value, customerForm.get('currentAddress.ampCODE')?.value, $event.target.value)">
                                     <option *ngFor="let tmb of tumbonDataCurrent" [value]="tmb.tmbCode">{{
                                         tmb.tmbName
                                         }}

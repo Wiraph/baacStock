@@ -9,7 +9,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MetadataService } from '../../services/metadata';
 import { AddressService, AddressDto } from '../../services/address';
 import { of, forkJoin } from 'rxjs';
-import { finalize, switchMap, map, catchError } from 'rxjs/operators';
+import { finalize, switchMap, catchError } from 'rxjs/operators';
 import { Divident } from '../../services/divident';
 import Swal from 'sweetalert2';
 import flatpickr from 'flatpickr';
@@ -23,9 +23,7 @@ import ThaiBahtText from 'thai-baht-text';
 import { StockService } from '../../services/stock';
 
 export const THAI_DATE_FORMATS = {
-  parse: {
-    dateInput: 'DD/MM/YYYY',
-  },
+  parse: { dateInput: 'DD/MM/YYYY' },
   display: {
     dateInput: 'd MMMM yyyy',
     monthYearLabel: 'MMMM yyyy',
@@ -33,6 +31,7 @@ export const THAI_DATE_FORMATS = {
     monthYearA11yLabel: 'MMMM yyyy',
   },
 };
+
 @Component({
   standalone: true,
   selector: 'app-sale-stock',
@@ -56,14 +55,9 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
   unit: number = 0;
   homeAddress!: AddressDto;
   currentAddress!: AddressDto;
-  zipCodeHome: any = {};
-  zipCodeCurrent: any = {};
-  dividendData: any = {
-    payDESC: '',
-    stkPayType: '',
-    stkACCno: '',
-    stkACCname: ''
-  };
+  zipCodeHome: string = '';
+  zipCodeCurrent: string = '';
+  dividendData: any = { payDESC: '', stkPayType: '', stkACCno: '', stkACCname: '' };
   pricePerUnit: any;
   unitText: string = "";
   valueText: string = "";
@@ -80,11 +74,8 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
   actypeList: any[] = [];
   stkTypeList: any[] = [];
   res: any[] = [];
-  
-  // Properties สำหรับ new-shareholder mode
   mode: string = '';
   idCard: string = '';
-
   customerForm!: FormGroup;
 
   constructor(
@@ -103,45 +94,11 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.dataTransfer.setPageStatus('2');
     
-    // ตรวจสอบ query parameters สำหรับ new-shareholder mode
-    this.route.queryParams.subscribe(params => {
-      if (params['mode'] === 'new-shareholder' && params['idCard']) {
-        this.mode = 'new-shareholder';
-        this.idCard = params['idCard'];
-        
-        // ตั้งค่า activeView เป็น 'sale' เพื่อแสดงฟอร์ม
-        this.activeView = 'sale';
-        
-        // เติมเลขบัตรในช่อง "เลขที่" ตามภาพ
-        if (this.customerForm) {
-          this.customerForm.patchValue({
-            customer: {
-              cusId: this.idCard // หรือ field ที่เหมาะสมสำหรับช่อง "เลขที่"
-            }
-          });
-        }
-        
-        // เตรียมฟอร์มสำหรับสร้างผู้ถือหุ้นใหม่
-        // เรียกใช้หลังจาก customerForm ถูกสร้างแล้ว
-        setTimeout(() => {
-          this.initializeNewShareholderForm();
-          this.cd.detectChanges(); // บังคับให้ UI อัปเดต
-        }, 100);
-      }
-    });
+    // ตั้งค่าเริ่มต้นสำหรับ pricePerUnit และ address
+    this.pricePerUnit = { stkBv: 0 };
+    this.homeAddress = this.addressService.getDefaultAddress();
+    this.currentAddress = this.addressService.getDefaultAddress();
     
-    // โหลดข้อมูล metadata ที่จำเป็นสำหรับฟอร์ม
-    this.loadInitialMetadata();
-    
-    this.metadataService.getSyscfg().subscribe({
-      next: (res: any) => {
-        this.pricePerUnit = res;
-        this.cd.detectChanges();
-      },       error: (err) => {
-        console.error("Loading fail...", err);
-      }
-    })
-
     this.customerForm = this.fb.group({
       customer: this.fb.group({
         cusCODE: [''],
@@ -206,10 +163,38 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
         stkSaleByCHQbnk: [''],
         stkSaleByCHQbrn: [''],
       })
-    })
+    });
+    
+    // ตรวจสอบ query parameters หลังจากสร้าง form แล้ว
+    this.route.queryParams.subscribe(params => {
+      if (params['mode'] === 'new-shareholder' && params['idCard']) {
+        this.mode = 'new-shareholder';
+        this.idCard = params['idCard'];
+        this.activeView = 'sale';
+        
+        this.customerForm.patchValue({
+          customer: { cusId: this.idCard }
+        });
+        
+        this.initializeNewShareholderForm();
+        this.cd.detectChanges();
+      }
+    });
+    
+    this.loadInitialMetadata();
+    
+    this.metadataService.getSyscfg().subscribe({
+      next: (res: any) => {
+        this.pricePerUnit = res || { stkBv: 0 };
+        this.cd.detectChanges();
+      },
+      error: (err) => {
+        this.pricePerUnit = { stkBv: 0 };
+        this.cd.detectChanges();
+      }
+    });
   }
 
-  // โหลดข้อมูล metadata ที่จำเป็นสำหรับฟอร์ม
   loadInitialMetadata() {
     const metadataCalls = [
       { service: this.metadataService.getProvince(), setter: (res: any) => this.prvData = res },
@@ -231,27 +216,21 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // ฟังก์ชันสำหรับเตรียมฟอร์มผู้ถือหุ้นใหม่
   initializeNewShareholderForm() {
-    // เตรียมฟอร์มสำหรับสร้างผู้ถือหุ้นใหม่
-
-    
-    // ตั้งค่าเริ่มต้นสำหรับฟอร์มผู้ถือหุ้นใหม่
     if (this.customerForm && this.idCard) {
       this.customerForm.patchValue({
         customer: {
           cusId: this.idCard,
-          docTYPE: '0001', // บัตรประชาชน
-          titleCode: '001', // นาย
-          cusCODE: '001', // ประเภทลูกค้าทั่วไป
-          // เพิ่มค่าเริ่มต้นอื่นๆ ตามต้องการ
+          docTYPE: '0001',
+          titleCode: '001',
+          cusCODE: '001',
+          brCode: 'New' 
         }
       });
     }
   }
 
   ngAfterViewInit(): void {
-    // ฟังก์ชันแปลงปี ค.ศ. เป็น พ.ศ.
     function toThaiYear(date: Date): Date {
       const d = new Date(date);
       d.setFullYear(d.getFullYear() + 543);
@@ -352,12 +331,10 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
   }
 
   populateCustomerForm() {
-
     if (this.customer) {
-
       const customerFormData = {
         cusCODE: this.customer.cusCODE || '',
-        cusDESC: this.customer.cusDESCg || '', // ใช้ cusDESCg จาก API
+        cusDESC: this.customer.cusDESCg || '',
         cusCODEg: this.customer.cusCODEg || '',
         cusDESCgABBR: this.customer.cusDESCgABBR || '',
         docTYPE: this.customer.docTYPE || '',
@@ -366,7 +343,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
         cusTAXid: this.customer.cusTAXid || '',
         cusFName: this.customer.cusFName || '',
         cusLName: this.customer.cusLName || '',
-        unit: this.unit || '0',  // ใช้ this.unit ที่เก็บแยกไว้
+        unit: this.unit || '0',
         titleCode: this.customer.titleCode || '',
         email: this.customer.email || '',
         phonE_MOBILE: this.customer.phonE_MOBILE || ''
@@ -417,7 +394,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
       ampCODE: this.homeAddress?.ampCODE || '',
       tmbCODE: this.homeAddress?.tmbCODE || '',
       phone: this.homeAddress?.phone || '',
-      zipcodeHome: this.homeAddress?.zipcode || ''  // ✅ ใช้ zipcode จาก API
+      zipcodeHome: this.homeAddress?.zipcode || ''
     };
 
     const currentAddressData = {
@@ -428,7 +405,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
       ampCODE: this.currentAddress?.ampCODE || '',
       tmbCODE: this.currentAddress?.tmbCODE || '',
       phone: this.currentAddress?.phone || '',
-      zipcodeCurrent: this.currentAddress?.zipcode || '',  // ✅ ใช้ zipcode จาก API
+      zipcodeCurrent: this.currentAddress?.zipcode || '',
       addR1: this.currentAddress?.addR1 || '',
       addR2: this.currentAddress?.addR2 || ''
     };
@@ -438,11 +415,9 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
       currentAddress: currentAddressData
     });
 
-    // อัปเดต zipcode variables ด้วยข้อมูลจาก API
     this.zipCodeHome = this.homeAddress?.zipcode || '';
     this.zipCodeCurrent = this.currentAddress?.zipcode || '';
 
-    // Update zipcode immediately if data is available (fallback)
     if (this.homeAddress?.prvCODE && this.homeAddress?.ampCODE && this.homeAddress?.tmbCODE) {
       this.updateHomeZipcode();
     }
@@ -454,7 +429,6 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
   }
 
   updateHomeZipcode() {
-    // ใช้ zipcode จาก API ก่อน ถ้าไม่มีค่อยคำนวณใหม่
     if (this.homeAddress?.zipcode) {
       this.zipCodeHome = this.homeAddress.zipcode;
     } else if (this.homeAddress && this.tumbonDataHome?.length > 0) {
@@ -464,7 +438,6 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
   }
 
   updateCurrentZipcode() {
-    // ใช้ zipcode จาก API ก่อน ถ้าไม่มีค่อยคำนวณใหม่
     if (this.currentAddress?.zipcode) {
       this.zipCodeCurrent = this.currentAddress.zipcode;
     } else if (this.currentAddress && this.tumbonDataCurrent?.length > 0) {
@@ -472,13 +445,6 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
       this.zipCodeCurrent = zip;
     }
   }
-
-
-
-
-
-
-
 
   onProvinceChangeHome(prvCode: string, isFormMode = false) {
     this.metadataService.getAumphor(prvCode).subscribe({
@@ -501,20 +467,16 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
 
   onZipcodeChangeHome(prvCode: string, ampCode: string, tmbCode: string): string {
     const match = this.tumbonDataHome.find(z =>
-      z.prvCode == prvCode &&
-      z.ampCode == ampCode &&
-      z.tmbCode == tmbCode
+      z.prvCode == prvCode && z.ampCode == ampCode && z.tmbCode == tmbCode
     );
     const zip = match?.zipCode || '';
     this.zipCodeHome = zip;
     this.customerForm.patchValue({
-      homeAddress: {
-        zipcodeHome: zip
-      }
+      homeAddress: { zipcodeHome: zip }
     });
-    return zip; // ✅ เพิ่ม return
+    this.cd.detectChanges();
+    return zip;
   }
-
 
   onAumphorChangeHome(prvCode: string, ampCode: string) {
     this.metadataService.getTumbons(prvCode, ampCode).subscribe({
@@ -522,7 +484,10 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
         this.tumbonDataHome = res;
         this.cd.detectChanges();
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        this.tumbonDataHome = [];
+        this.cd.detectChanges();
+      }
     });
   }
 
@@ -565,17 +530,14 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
 
   onZipcodeChangeCurrent(prvCode: string, ampCode: string, tmbCode: string) {
     const match = this.tumbonDataCurrent.find(z =>
-      z.prvCode == prvCode &&
-      z.ampCode == ampCode &&
-      z.tmbCode == tmbCode
+      z.prvCode == prvCode && z.ampCode == ampCode && z.tmbCode == tmbCode
     );
     const zip = match?.zipCode || '';
+    this.zipCodeCurrent = zip;
     this.customerForm.patchValue({
-      currentAddress: {
-        zipcodeCurrent: zip
-      }
+      currentAddress: { zipcodeCurrent: zip }
     });
-
+    this.cd.detectChanges();
     return zip;
   }
 
@@ -586,8 +548,6 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
   onZipcodeChangeCurrentForm(prvCode: string, ampCode: string, tmbCode: string): string {
     return this.onZipcodeChangeCurrent(prvCode, ampCode, tmbCode);
   }
-
-
 
   loadInitialAddressDataObservable() {
     const tasks = [];
@@ -647,13 +607,11 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     return forkJoin(tasks.length ? tasks : [of(true)]);
   }
 
-
   onSubmit(event: Event) {
     event.preventDefault();
     const submitter = (event as SubmitEvent).submitter as HTMLButtonElement;
     if (!submitter) return;
     
-    // ตรวจสอบความถูกต้องของฟอร์ม
     if (!this.customerForm.valid) {
       console.warn("Form is not valid!");
       Swal.fire({
@@ -665,7 +623,6 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // ตรวจสอบว่าเป็น new-shareholder mode หรือไม่
     if (this.mode === 'new-shareholder') {
       this.submitNewShareholder();
     } else {
@@ -673,7 +630,6 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // ฟังก์ชันสำหรับบันทึกข้อมูลผู้ถือหุ้นใหม่
   submitNewShareholder() {
     const formData = this.customerForm.value;
     const customerData = formData.customer;
@@ -682,7 +638,6 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     const dividendData = formData.dividend;
     const detailSale = formData.detailSale;
 
-    // สร้าง payload สำหรับผู้ถือหุ้นใหม่
     const requestPayload = {
       customer: {
         cusId: customerData.cusiD,
@@ -710,14 +665,11 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
       }
     };
 
-    // แสดง loading
     this.loading = true;
 
-    // เรียก API สำหรับสร้างผู้ถือหุ้นใหม่
     this.customerService.createNewShareholder(requestPayload).subscribe({
       next: (response: any) => {
         this.loading = false;
-
         
         Swal.fire({
           icon: 'success',
@@ -726,7 +678,6 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
           confirmButtonText: 'ตกลง'
         }).then((result) => {
           if (result.isConfirmed) {
-            // กลับไปหน้า search
             this.router.navigate(['/dashboard-admin/search-edit']);
           }
         });
@@ -745,14 +696,11 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // ฟังก์ชันสำหรับบันทึกข้อมูลลูกค้าที่มีอยู่
   submitExistingCustomer() {
-    // ดึงข้อมูลจากฟอร์ม
     const dividendData = this.customerForm.get('dividend')?.value;
     const detailSale = this.customerForm.get('detailSale')?.value;
     const formattedDate = this.convertDateToBuddhistFormat(detailSale?.stkSaleByCHQdat);
 
-    // สร้าง payload ตาม API structure
     const requestPayload = {
       stkOWNiD: this.cusId,
       stkTYPE: "A",
@@ -772,18 +720,18 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
       stkSaleByCHQbnk: detailSale?.stkSaleByCHQbnk || '',
       stkSaleByCHQbrn: detailSale?.stkSaleByCHQbrn || '',
     };
+    
     requestPayload.stkValue = detailSale?.stkValue.replace(/,/g, '');
     requestPayload.stkUNiT = Number(requestPayload.stkUNiT);
     requestPayload.stkValue = Number(requestPayload.stkValue);
 
-    // แสดง loading
     this.loading = true;
 
     this.stockService.stockManage(requestPayload).subscribe({
       next: (response) => {
         this.res = response;
         this.loading = false;
-        // แสดง SweetAlert บันทึกสำเร็จ
+        
         Swal.fire({
           icon: 'success',
           title: 'สำเร็จ!',
@@ -798,14 +746,14 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
             this.activeView = 'search';
             this.cd.detectChanges();
           }
-        })
+        });
         this.activeView = 'search';
         this.cd.detectChanges();
       },
       error: (error) => {
         console.error("Update failed:", error);
         this.loading = false;
-        // แสดง SweetAlert เมื่อเกิดข้อผิดพลาด
+        
         Swal.fire({
           icon: 'error',
           title: 'เกิดข้อผิดพลาด!',
@@ -821,12 +769,10 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
             this.loading = false;
             this.cd.detectChanges();
           }
-        })
+        });
       }
     });
   }
-
-
 
   convertDateToBuddhistFormat(date: Date): string {
     if (!date) return '';
@@ -835,36 +781,41 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     const month = ('0' + (date.getMonth() + 1)).slice(-2);
     const day = ('0' + date.getDate()).slice(-2);
 
-    return `${year}${month}${day}`; // เช่น 25680707
+    return `${year}${month}${day}`;
   }
 
   onUnitInput(event: Event) {
     const input = event.target as HTMLInputElement;
-    // ดึงเฉพาะตัวเลข
     const numericString = input.value.replace(/\D/g, '');
     const numericValue = numericString ? Number(numericString) : 0;
+    
     if (!numericValue) {
       this.unitText = '';
       this.valueText = '';
       this.customerForm.patchValue({
-        detailSale: { stkValue: '' } // ให้เป็นค่าว่างเวลาไม่มีข้อมูล
+        detailSale: { stkValue: '' }
       }, { emitEvent: false });
       return;
     }
-    // ใส่ comma ในช่องจำนวนหุ้น
+    
     input.value = numericValue.toLocaleString('en-US');
-    // คำนวณมูลค่า
+    
+    // ตรวจสอบว่า pricePerUnit มีค่าหรือไม่
+    if (!this.pricePerUnit || !this.pricePerUnit.stkBv) {
+      console.warn('pricePerUnit is not available');
+      return;
+    }
+    
     const stkValue = numericValue * this.pricePerUnit.stkBv;
-    // อัปเดตฟอร์ม โดยแสดง comma ในช่องมูลค่า
+    
     this.customerForm.patchValue({
       detailSale: { stkValue: stkValue.toLocaleString('en-US') }
     }, { emitEvent: false });
-    // แปลงเป็นข้อความภาษาไทย
+    
     this.valueText = ThaiBahtText(stkValue.toString());
     this.unitText = ThaiBahtText(numericValue.toString()).replace('บาทถ้วน', 'หุ้น');
     this.cd.detectChanges();
   }
-
 
   onBack() {
     this.activeView = 'search';

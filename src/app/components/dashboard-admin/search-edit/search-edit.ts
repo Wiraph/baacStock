@@ -221,7 +221,7 @@ export class SearchEditComponent implements OnInit {
     return checkDigit === digits[12];
   }
 
-  // ฟังก์ชันสำหรับปุ่มผู้ถือหุ้นรายใหม่
+  // warning ของปุ่มผู้ถือหุ้นรายใหม่
   onNewShareholder() {
     if (!this.isValidIdCard()) {
       Swal.fire({
