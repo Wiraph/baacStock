@@ -1,16 +1,28 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
 import { Divident } from '../../../services/divident';
 import Swal from 'sweetalert2';
-import flatpickr from 'flatpickr';
 import { Thai } from 'flatpickr/dist/l10n/th.js';
 import { Thaidateadapter } from '../../thaidateadapter/thaidateadapter';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ThaiCalendarComponent } from '../../thai-calendar-component/thai-calendar-component';
+import { MatPaginatorModule, PageEvent  } from '@angular/material/paginator';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatButtonModule} from '@angular/material/button';
+
+interface DividendRequest {
+  setAct: number;
+  stkYear: string;
+  stkTime: number;
+  stkRate: number;
+  dateMeet: string;
+  datePaid: string;
+  dateApprove: string;
+}
 
 export const THAI_DATE_FORMATS = {
   parse: {
@@ -33,7 +45,10 @@ export const THAI_DATE_FORMATS = {
     MatDatepickerModule,
     CommonModule,
     FormsModule,
-    ThaiCalendarComponent
+    ThaiCalendarComponent,
+    MatPaginatorModule,
+    MatButtonModule,
+    MatTooltipModule
   ],
   templateUrl: './annualdividendcalculator.html',
   styleUrls: ['./annualdividendcalculator.css'], // แก้เป็น styleUrls
@@ -50,52 +65,54 @@ export const THAI_DATE_FORMATS = {
 })
 export class AnnualdividendcalculatorComponent implements OnInit {
   dividend: any = '';
+  dividendList: any[] = [];
   selectedDateMeet: Date | null = new Date(2568 - 543, 7, 15);
   selectedDatePaid: Date | null = new Date(2568 - 543, 7, 15);
   readonly startDate = new Date();
   loading: boolean = false;
   showCalendarMeet: boolean = false;
   showCalendarPaid: boolean = false;
+  contentform: boolean = false;
   activeView = '';
-  dataForm: any = {
+  dataForm: { year: string | null; time: number | null; dividend: number | null } = {
     year: null,
     time: null,
     dividend: null
   };
+  pageSize = 20;
+  pageIndex = 0;
+  length: number|null = null;
+  pageSizeOptions = [20,40,60, 80, 100];
+  dividendDesc: string = '';
 
   constructor(
     private readonly dividendService: Divident,
     private readonly cd: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private readonly platformId: Object,
   ) { }
+
+  get pagedDividendList() {
+    const start = this.pageIndex * this.pageSize;
+    const end = start + this.pageSize;
+    return this.dividendList.slice(start, end);
+  }
+
+
+  onPageChange(event: PageEvent) {
+    const pageIndex: number = event.pageIndex + 1;
+    this.showDetail(pageIndex, event.pageSize);
+  }
+
+  back() {
+    this.activeView = 'null';
+    this.ngOnInit();
+    this.cd.detectChanges();
+  }
 
   ngOnInit(): void {
     this.changeLoading(true);
-    this.loadDevidend();
-  }
+    this.calDividend();
 
-  loadDevidend(): void {
-    this.dividendService.getAllDividend().subscribe({
-      next: (res: any) => {
-        this.dividend = res;
-        this.selectedDateMeet = this.thaiNumberToDate(this.dividend?.dateMEET);
-        this.selectedDatePaid = this.thaiNumberToDate(this.dividend?.datePAiD);
-        console.log("dividend", this.dividend);
-        this.dataForm.year = this.dividend.stkYEARc;
-        this.dataForm.time = this.dividend.stkTIME;
-        this.dataForm.dividend = this.dividend.stkRATE;
-        this.activeView = 'data';
-        this.changeLoading(false);
-        this.cd.detectChanges();
-      },
-      error: () => {
-        Swal.fire({
-          icon: 'error',
-          title: 'เกิดข้อผิดพลาด',
-          text: 'โปรดติดต่อผู้พัฒนา'
-        })
-        this.loading = false;
-      }
-    });
   }
 
   ngAfterViewInit(): void {
@@ -105,28 +122,28 @@ export class AnnualdividendcalculatorComponent implements OnInit {
       d.setFullYear(d.getFullYear() + 543);
       return d;
     };
-
-    flatpickr("#thaiDateInput", {
-      locale: Thai,
-      dateFormat: "d F Y",
-      altInput: true,
-      altFormat: "d F Y",
-      defaultDate: new Date(),
-      onChange: function (selectedDates, dateStr, instance) {
-        if (selectedDates.length > 0) {
-          const thaiDate = toThaiYear(selectedDates[0]);
-          instance.input.value = `${thaiDate.getDate()} ${Thai.months.longhand[thaiDate.getMonth()]} ${thaiDate.getFullYear()}`;
-        }
-      },
-      formatDate: function (date, format, locale) {
-        const thaiDate = toThaiYear(date);
-        return `${thaiDate.getDate()} ${locale.months.longhand[thaiDate.getMonth()]} ${thaiDate.getFullYear()}`;
-      }
-    });
+    if (isPlatformBrowser(this.platformId)) {
+      import('flatpickr').then(flatpickr => {
+        flatpickr.default("#myDateInput", {
+          locale: Thai,
+          dateFormat: "d F Y",
+          altInput: true,
+          altFormat: "d F Y",
+          defaultDate: new Date(),
+          onChange: function (selectedDates, dateStr, instance) {
+            if (selectedDates.length > 0) {
+              const thaiDate = toThaiYear(selectedDates[0]);
+              instance.input.value = `${thaiDate.getDate()} ${Thai.months.longhand[thaiDate.getMonth()]} ${thaiDate.getFullYear()}`;
+            }
+          },
+          formatDate: function (date, format, locale) {
+            const thaiDate = toThaiYear(date);
+            return `${thaiDate.getDate()} ${locale.months.longhand[thaiDate.getMonth()]} ${thaiDate.getFullYear()}`;
+          }
+        });
+      });
+    }
   }
-
-
-
 
   onDatePickedMeet(date: Date) {
     this.selectedDateMeet = date;
@@ -138,50 +155,135 @@ export class AnnualdividendcalculatorComponent implements OnInit {
     this.showCalendarPaid = false;
   }
 
-  submit(): void {
-    this.cd.detectChanges();
+  submit(setact: number, doACT: string): void {
+    console.log("DOACT", doACT);
+    console.log("setact", setact);
     let message: string[] = [];
+    let payload: any = {};
+    let MSGs = `คำนวณหุ้นปันผลประจำปี\nปีงบประมาณ` + this.dividend.stkYEARc + ` ครั้งที่ ` + this.dividend.stkTIME;
+    switch (doACT) {
+      case 'DOCAL': break;
+      case 'RECAL': MSGs = MSGs + ' ใหม่'; break;
+      case 'APPRV': MSGs = 'อนุมัติการ' + MSGs; break;
+    }
 
-    // ตรวจ stkYEARc
-    if (
-      !this.dataForm.year ||
-      isNaN(Number(this.dataForm.year)) ||
-      String(this.dataForm.year).length !== 4
-    ) {
-      message.push('ปีบัญชีที่จ่ายเงินปันผล ต้องเป็นตัวเลข 4 หลัก (พ.ศ.)');
+    if (setact == 2 && doACT == 'DOCAL') {
+      if (
+        !this.dataForm.year ||
+        isNaN(Number(this.dataForm.year)) ||
+        String(this.dataForm.year).length !== 4
+      ) {
+        message.push('ปีบัญชีที่จ่ายเงินปันผล ต้องเป็นตัวเลข 4 หลัก (พ.ศ.)');
+      }
+      if (!this.dataForm.time || isNaN(Number(this.dataForm.time))) {
+        message.push('ครั้งที่จ่ายเงินปันผล ต้องเป็นตัวเลขเท่านั้น');
+      }
+      if (!this.dataForm.dividend || isNaN(Number(this.dataForm.dividend))) {
+        message.push('อัตราเงินปันผล ต้องเป็นตัวเลขเท่านั้น');
+      }
+
+      if (message.length > 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'ตรวจสอบข้อมูล',
+          html: message.join('<br>')
+        });
+        return
+      }
     }
-    // ตรวจ stkTIME
-    if (!this.dataForm.time || isNaN(Number(this.dataForm.time))) {
-      message.push('ครั้งที่จ่ายเงินปันผล ต้องเป็นตัวเลขเท่านั้น');
+    if (setact === 2 || setact === 3) {
+      payload = {
+        setAct: setact,
+        stkYear: this.dataForm.year ?? '',
+        stkTime: Number(this.dataForm.time ?? 0),
+        stkRate: Number(this.dataForm.dividend ?? 0),
+        dateMeet: this.formatDatetoString(this.selectedDateMeet),
+        datePaid: this.formatDatetoString(this.selectedDatePaid),
+        dateApprove: null
+      };
+      console.log("Payload", payload);
     }
-    // ตรวจ valueDividend
-    if (!this.dataForm.dividend || isNaN(Number(this.dataForm.dividend))) {
-      message.push('อัตราเงินปันผล ต้องเป็นตัวเลขเท่านั้น');
-    }
-    console.log(message);
-    // แสดง message ถ้ามี
-    if (message.length > 0) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'ตรวจสอบข้อมูล',
-        html: message.join('<br>')
-      });
-    } else {
-      Swal.fire({
-        icon: 'question',
-        text: `ท่านต้องการคำนวณเงินปันผลจ่ายหุ้นสามัญ ประจำปี ${this.dividend.stkYEARc} ครั้งที่ ${this.dividend.stkTIME} ใช่หรือไม่?`,
-        showConfirmButton: true,
-        showCancelButton: true,
-        confirmButtonText: 'ตกลง',
-        cancelButtonText: 'ยกเลิก'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          return
+
+    Swal.fire({
+      icon: 'question',
+      text: `ท่านต้องการ${MSGs} ใช่ หรือ ไม่?`,
+      showConfirmButton: true,
+      showCancelButton: true,
+      confirmButtonText: 'ตกลง',
+      cancelButtonText: 'ยกเลิก'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.loading = true;
+        if (setact == 2 || setact == 3) {
+          this.calDividend(doACT, payload);
+        } else if (setact == 0 && doACT == 'RECAL') {
+          this.dividendService.deleteDividendLST().subscribe({
+            next: (res: any) => {
+              console.log(res.message);
+            }, error: (err) => {
+              console.log("Err", err);
+            }
+          })
+          window.location.reload();
         }
-      })
+        else {
+          this.calDividend();
+        }
+        this.cd.detectChanges();
+      }
+    })
+  }
+
+  calDividend(doact: string = "", payload: any = {}) {
+    console.log("Payload", payload);
+    this.dividendService.getAllDividend(payload).subscribe({
+      next: (res: any) => {
+        this.dividend = res;
+        this.selectedDateMeet = this.thaiNumberToDate(this.dividend?.dateMEET);
+        this.selectedDatePaid = this.thaiNumberToDate(this.dividend?.datePAiD);
+        this.dataForm.year = this.dividend.stkYEARc;
+        this.dataForm.time = this.dividend.stkTIME;
+        this.dataForm.dividend = this.dividend.stkRATE;
+        if (this.dividend.dType == 1 || this.dividend.dType == 0) {
+          this.dividendDesc = 'ก่อนการอนุมัติ';
+        } else {
+          this.dividendDesc = 'หลังอนุมัติ';
+        }
+        this.activeView = 'data';
+        if (doact != '') {
+          this.ngOnInit();
+        }
+        this.changeLoading(false);
+        this.cd.detectChanges();
+      },
+      error: () => {
+        Swal.fire({
+          icon: 'error',
+          title: 'เกิดข้อผิดพลาด',
+          text: 'โปรดติดต่อผู้พัฒนา'
+        });
+      }
+    });
+  }
+
+  showDetail(pgNum: number = 1, pgSize: number = 20, year: string = ""): void {
+    this.activeView = 'tables';
+    this.loading = true;
+    const payload = {
+      year: year,
+      pgNum: pgNum,
+      pgSize: pgSize
     }
-
-
+    this.dividendService.getDividendList(payload).subscribe({
+      next: (res) => {
+        this.dividendList = res;
+        this.length = this.dividendList[0].roWs;
+        this.loading = false;
+        this.cd.detectChanges();
+      }, error: (err) => {
+        console.log("Err", err);
+      }
+    })
   }
 
 
@@ -212,7 +314,7 @@ export class AnnualdividendcalculatorComponent implements OnInit {
     this.loading = status;
   }
 
-  formatDate(date: string): string {
+  formatDate(date: string | number): string {
     if (!date) return "";
 
     const monthsThai = [
@@ -231,5 +333,39 @@ export class AnnualdividendcalculatorComponent implements OnInit {
     return `${day} ${month} ${year}`;
   }
 
+  formatDatetoString(date: Date | null): string {
+    if (!date) return "";
 
+    const d = new Date(date);
+
+    const day = d.getDate().toString().padStart(2, '0');
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const year = d.getFullYear() + 543;
+
+    return `${year}${month}${day}`;
+  }
+
+  formatDateNew(date: string | number): string {
+    if (!date) return "";
+
+    const monthsThai = [
+      "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+      "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+    ];
+
+    // แปลง YYYYMMDD → Date
+    const str = date.toString();
+    if (str.length !== 8) return "";
+
+    const year = parseInt(str.slice(0, 4)) - 543; // แปลง พ.ศ. → ค.ศ.
+    const month = parseInt(str.slice(4, 6)) - 1;  // เดือน 0-11
+    const day = parseInt(str.slice(6, 8));
+
+    const d = new Date(year, month, day);
+    if (isNaN(d.getTime())) return "";
+
+    return `${day} ${monthsThai[month]} ${parseInt(str.slice(0, 4))}`; // แสดงปี พ.ศ.
+  }
 }
+
+

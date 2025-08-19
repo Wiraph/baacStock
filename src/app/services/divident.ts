@@ -17,14 +17,28 @@ export class Divident {
 
   getDividend(requestPayload: any) {
     const encrypPayload = this.encryptionService.encrypPayload(requestPayload);
-    console.log("ข้อมูลเตรียมส่ง ", encrypPayload);
     return this.http.post<any[]>(`${this.apiUrl}/dividend`, encrypPayload, {
       headers: this.createAuthHeaders()
     });
   }
 
-  getAllDividend() {
-    return this.http.get<any[]>(`${this.apiUrl}/dividends`, {
+  getAllDividend(payload: any = {}) {
+    const encrypPayload = this.encryptionService.encrypPayload(payload);
+    return this.http.post<any[]>(`${this.apiUrl}/dividends`, encrypPayload , {
+      headers: this.createAuthHeaders()
+    })
+  }
+
+  getDividendList(payload: any) {
+    const encrypPayload = this.encryptionService.encrypPayload(payload);
+    console.log("รหัสที่จะไปดึง array ", encrypPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/dividendlist`, encrypPayload , {
+      headers: this.createAuthHeaders()
+    });
+  }
+
+  deleteDividendLST() {
+    return this.http.delete<any[]>(`${this.apiUrl}/removedividend`, {
       headers: this.createAuthHeaders()
     })
   }
