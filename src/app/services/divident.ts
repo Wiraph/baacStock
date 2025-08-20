@@ -37,6 +37,13 @@ export class Divident {
     });
   }
 
+  getDividendDetailPerPerson(payload: any) {
+    const encrypPayload = this.encryptionService.encrypPayload(payload);
+    return this.http.post<any[]>(`${this.apiUrl}/detailperperson`, encrypPayload, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
   deleteDividendLST() {
     return this.http.delete<any[]>(`${this.apiUrl}/removedividend`, {
       headers: this.createAuthHeaders()

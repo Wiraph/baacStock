@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, Inject, PLATFORM_ID, inject } from '@angular/core';
 import { Divident } from '../../../services/divident';
 import Swal from 'sweetalert2';
 import { Thai } from 'flatpickr/dist/l10n/th.js';
@@ -10,9 +10,20 @@ import { MatInputModule } from '@angular/material/input';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ThaiCalendarComponent } from '../../thai-calendar-component/thai-calendar-component';
-import { MatPaginatorModule, PageEvent  } from '@angular/material/paginator';
-import {MatTooltipModule} from '@angular/material/tooltip';
-import {MatButtonModule} from '@angular/material/button';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
+import { saveAs } from 'file-saver';
+import * as ExcelJS from 'exceljs';
+import { lastValueFrom } from 'rxjs';
 
 interface DividendRequest {
   setAct: number;
@@ -48,7 +59,7 @@ export const THAI_DATE_FORMATS = {
     ThaiCalendarComponent,
     MatPaginatorModule,
     MatButtonModule,
-    MatTooltipModule
+    MatTooltipModule,
   ],
   templateUrl: './annualdividendcalculator.html',
   styleUrls: ['./annualdividendcalculator.css'], // แก้เป็น styleUrls
@@ -64,8 +75,10 @@ export const THAI_DATE_FORMATS = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnnualdividendcalculatorComponent implements OnInit {
+  readonly dialog = inject(MatDialog);
   dividend: any = '';
   dividendList: any[] = [];
+  dividendOwner: any[] = [];
   selectedDateMeet: Date | null = new Date(2568 - 543, 7, 15);
   selectedDatePaid: Date | null = new Date(2568 - 543, 7, 15);
   readonly startDate = new Date();
@@ -81,15 +94,26 @@ export class AnnualdividendcalculatorComponent implements OnInit {
   };
   pageSize = 20;
   pageIndex = 0;
-  length: number|null = null;
-  pageSizeOptions = [20,40,60, 80, 100];
+  length: number | null = null;
+  pageSizeOptions = [20, 40, 60, 80, 100];
   dividendDesc: string = '';
+  titlePageShowDetail: string ='';
 
   constructor(
     private readonly dividendService: Divident,
     private readonly cd: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private readonly platformId: Object,
   ) { }
+
+  openDialog(enterAnimationDuration: string, exitAnimationDuration: string, item: any): void {
+    this.dialog.open(DialogAnimationsExampleDialog, {
+      width: '1100px',
+      height: '500px',
+      data: item,
+      enterAnimationDuration,
+      exitAnimationDuration,
+    });
+  }
 
   get pagedDividendList() {
     const start = this.pageIndex * this.pageSize;
@@ -268,6 +292,11 @@ export class AnnualdividendcalculatorComponent implements OnInit {
 
   showDetail(pgNum: number = 1, pgSize: number = 20, year: string = ""): void {
     this.activeView = 'tables';
+    if (this.dividend.dType == 1) {
+      this.titlePageShowDetail = '(ก่อนการประชุม)';
+    }else {
+      this.titlePageShowDetail = '(หลังการประชุม)';
+    }
     this.loading = true;
     const payload = {
       year: year,
@@ -285,6 +314,135 @@ export class AnnualdividendcalculatorComponent implements OnInit {
       }
     })
   }
+
+  showDividendPer(item: any) {
+    const payload = {
+      stkOWNiD: item.stkOWNiD
+    };
+    this.dividendService.getDividendDetailPerPerson(payload).subscribe({
+      next: (res) => {
+        this.dividendOwner = res;
+        this.openDialog('1000ms', '500ms', this.dividendOwner);
+        this.cd.detectChanges();
+      }
+    })
+  }
+
+  /**
+   * Export Excel
+   */
+
+  async exportExcel() {
+    const year = this.dividend.stkYEARc;
+    const dateMeet = this.formatDateNew(this.dividend.dateMEET);
+    const datePaid = this.formatDateNew(this.dividend.datePAiD);
+    const rate = this.dividend.stkRATE;
+    let approve: string = this.dividend.dType == 1 ? "(ยังไม่อนุมัติ)" : "(อนุมัติแล้ว)";
+
+    const payload = { year: '', pgNum: Number(null), pgSize: Number(null) };
+
+    // ✅ รอข้อมูลก่อนค่อยทำต่อ
+    let dividendAllList: any[] = [];
+    try {
+      dividendAllList = await lastValueFrom(this.dividendService.getDividendList(payload));
+    } catch (err) {
+      console.error("Error", err);
+      return;
+    }
+
+    // === Excel Workbook ===
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Dividend', {
+      pageSetup: { paperSize: 9, orientation: 'landscape' }
+    });
+
+    const headerFont = { name: 'TH SarabunPSK', size: 16, bold: true };
+    const normalFont = { name: 'TH SarabunPSK', size: 14 };
+
+    // === Title ===
+    worksheet.mergeCells('A1:J1');
+    worksheet.getCell('A1').value = `รายงานเงินปันผลประจำปี ${year} ${approve}`;
+    worksheet.getCell('A1').font = headerFont;
+    worksheet.getCell('A1').alignment = { vertical: 'middle', horizontal: 'center' };
+
+    worksheet.mergeCells('A2:J2');
+    worksheet.getCell('A2').value = `ประชุมวันที่ ${dateMeet}`;
+    worksheet.getCell('A2').font = normalFont;
+    worksheet.getCell('A2').alignment = { vertical: 'middle', horizontal: 'center' };
+
+    worksheet.mergeCells('A3:J3');
+    worksheet.getCell('A3').value = `จ่ายเงินปันผลวันที่ ${datePaid} อัตรา ${rate} บาท/หุ้น`;
+    worksheet.getCell('A3').font = normalFont;
+    worksheet.getCell('A3').alignment = { vertical: 'middle', horizontal: 'center' };
+
+    // === Header Row ===
+    const headerRow = worksheet.addRow([
+      'ลำดับ', 'รหัสผู้ถือหุ้น', 'ชื่อ-นามสกุล', 'จำนวนหุ้น', 'เงินปันผล',
+      'ฐานภาษี', 'หักภาษี ณ ที่จ่าย', 'จ่ายเงินสุทธิ', 'ธนาคาร', 'หมายเหตุ'
+    ]);
+    headerRow.font = headerFont;
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+    headerRow.eachCell(cell => {
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9E1F2' } };
+      cell.border = {
+        top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' }
+      };
+    });
+
+    // === Body Rows + คำนวณรวม ===
+    let sumUnits = 0, sumDividend = 0, sumTax = 0, sumNet = 0;
+
+    dividendAllList.forEach((row, i) => {
+      const net = row.dvNtot - row.dvNtax;
+      sumUnits += row.uNiTs;
+      sumDividend += row.dvNtot;
+      sumTax += row.dvNtax;
+      sumNet += net;
+
+      const dataRow = worksheet.addRow([
+        i + 1,
+        row.stkOWNiD,
+        row.cusNAME,
+        row.uNiTs,
+        row.dvNtot,
+        row.taXrmax,
+        row.dvNtax,
+        net,
+        row.payABBR,
+        row.remark
+      ]);
+      dataRow.font = normalFont;
+      dataRow.eachCell(cell => {
+        cell.border = {
+          top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' }
+        };
+      });
+    });
+
+    // === Summary Row (รวม) ===
+    const sumRow = worksheet.addRow([
+      'รวม', '', '', sumUnits, sumDividend, '', sumTax, sumNet, '', ''
+    ]);
+    sumRow.font = { name: 'TH SarabunPSK', size: 14, bold: true };
+    sumRow.alignment = { vertical: 'middle', horizontal: 'center' };
+    sumRow.eachCell(cell => {
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF2F2F2' } };
+      cell.border = {
+        top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' }
+      };
+    });
+
+    // === Column Width ===
+    worksheet.columns = [
+      { width: 8 }, { width: 18 }, { width: 32 }, { width: 12 }, { width: 14 },
+      { width: 14 }, { width: 14 }, { width: 14 }, { width: 14 }, { width: 20 }
+    ];
+
+    // === Export ===
+    const buffer = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([buffer]), `Dividend_${year}.xlsx`);
+  }
+
 
 
   /**
@@ -368,4 +526,46 @@ export class AnnualdividendcalculatorComponent implements OnInit {
   }
 }
 
+@Component({
+  selector: 'dialog-animations-example-dialog',
+  templateUrl: 'popup.html',
+  styleUrls: ['./annualdividendcalculator.css'],
+  imports: [MatButtonModule, MatDialogClose, MatDialogTitle, MatDialogContent, CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class DialogAnimationsExampleDialog {
+  dividendOwner: any[] = [];
+  loading = false;
+  get totalUnits() {
+    return this.dividendOwner.reduce((sum, row) => sum + row.stkUNiT, 0);
+  }
 
+  get totalDividend() {
+    return this.dividendOwner.reduce((sum, row) => sum + row.dvnTOT, 0);
+  }
+
+  get totalTax() {
+    return this.dividendOwner.reduce((sum, row) => sum + row.dvnTAX, 0);
+  }
+
+  get totalNet() {
+    return this.dividendOwner.reduce((sum, row) => sum + (row.dvnTOT - (row.dvnTOT * row.taxRATE / 100)), 0);
+  }
+  ownerDetial = { stkOWNiD: "", cusTitle: "", cusFName: "", cusLName: "'" };
+  readonly dialogRef = inject(MatDialogRef<DialogAnimationsExampleDialog>);
+
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private readonly cd: ChangeDetectorRef
+  ) {
+    this.ownerDetial.stkOWNiD = data.stkOWNiD;
+    this.ownerDetial.cusTitle = data.cusTitle;
+    this.ownerDetial.cusFName = data.cusFName;
+    this.ownerDetial.cusLName = data.cusLName;
+    this.dividendOwner = data;
+  }
+
+  onRowKeyDown(event: KeyboardEvent, row: any) {
+    console.log('Key pressed:', event.key, row);
+  }
+}

@@ -24,7 +24,9 @@
     "@angular/ssr": "^20.0.1",
     "@tailwindcss/postcss": "^4.1.8",
     "crypto-js": "^4.2.0",
+    "exceljs": "^4.4.0",
     "express": "^5.1.0",
+    "file-saver": "^2.0.5",
     "flatpickr": "^4.6.13",
     "jwt-decode": "^4.0.0",
     "ngx-pagination": "^6.0.3",
@@ -32,7 +34,8 @@
     "rxjs": "~7.8.0",
     "sweetalert2": "^11.22.2",
     "thai-baht-text": "^2.0.5",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@angular/build": "^20.0.1",
@@ -41,6 +44,7 @@
     "@tailwindcss/typography": "^0.5.16",
     "@types/crypto-js": "^4.2.2",
     "@types/express": "^5.0.1",
+    "@types/file-saver": "^2.0.7",
     "@types/flatpickr": "^3.0.2",
     "@types/jasmine": "~5.1.0",
     "@types/node": "^20.17.19",
