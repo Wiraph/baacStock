@@ -1,0 +1,50 @@
+<mat-dialog-content class="p-4 text-gray-700">
+    <div class="flex justify-between">
+        <div>
+            <h2 mat-dialog-title>รายละเอียดเงินปันผล</h2>
+        </div>
+        <div class="flex items-center justify-end"><button mat-flat-button mat-dialog-close>❌ ปิดหน้าต่างนี้</button>
+        </div>
+    </div>
+    <div class="flex justify-center scroll-auto">
+        <tbody>
+            <tr>
+                <td class="border border-black px-2 py-1 text-black text-right">เลขที่บัตรแสดงตน</td>
+                <td class="border border-black px-2 py-1 text-black" colspan="7">{{ownerDetial.stkOWNiD}}</td>
+            </tr>
+            <tr>
+                <td class="border border-black px-2 py-1 text-black text-right">ชื่อ - นามสกุล</td>
+                <td class="border border-black px-2 py-1 text-black" colspan="7">
+                    {{ownerDetial.cusTitle}}{{ownerDetial.cusFName}} {{ownerDetial.cusLName}}</td>
+            </tr>
+            <tr>
+                <td class="border border-black px-2 py-1 text-black">ลำดับที่</td>
+                <td class="border border-black px-2 py-1 text-black">หมายเลขใบหุ้น</td>
+                <td class="border border-black px-2 py-1 text-black">หมายเลขหุ้น</td>
+                <td class="border border-black px-2 py-1 text-black">จำนวนหุ้น</td>
+                <td class="border border-black px-2 py-1 text-black">เงินปันผล</td>
+                <td class="border border-black px-2 py-1 text-black">ฐานภาษี</td>
+                <td class="border border-black px-2 py-1 text-black">หักภาษี ณ ที่จ่าย</td>
+                <td class="border border-black px-2 py-1 text-black">จ่ายสุทธิ</td>
+            </tr>
+            <tr *ngFor="let row of dividendOwner; let i = index" (keydown)="onRowKeyDown($event, row)" tabindex="0">
+                <td class="border border-black px-2 py-1 text-black">{{i+1}}</td>
+                <td class="border border-black px-2 py-1 text-black">{{ row.stkNOTE}}</td>
+                <td class="border border-black px-2 py-1 text-black">{{ row.stkNOStart}} - {{ row.stkNOStop}}</td>
+                <td class="border border-black px-2 py-1 text-black text-right">{{ row.stkUNiT}}</td>
+                <td class="border border-black px-2 py-1 text-black text-right">{{ row.dvnTOT | number:'1.2-2'}}</td>
+                <td class="border border-black px-2 py-1 text-black text-right">{{ row.taxRATE | number:'1.2-2'}}%</td>
+                <td class="border border-black px-2 py-1 text-black text-right">{{ row.dvnTAX | number:'1.2-2'}}</td>
+                <td class="border border-black px-2 py-1 text-black text-right">{{ row.dvnTOT - (row.dvnTOT * row.taxRATE / 100) | number:'1.2-2' }}</td>
+            </tr>
+            <tr>
+                <td class="border border-black px-2 py-1 text-black" colspan="2">รวม</td>
+                <td class="border border-black px-2 py-1 text-black">จำนวน {{ dividendOwner.length }} ใบหุ้น</td>
+                <td class="border border-black px-2 py-1 text-black text-right">{{ totalUnits }}</td>
+                <td class="border border-black px-2 py-1 text-black text-right">{{ totalDividend | number:'1.2-2' }}</td>
+                <td class="border border-black px-2 py-1 text-black text-right" colspan="2">{{ totalTax | number:'1.2-2' }}</td>
+                <td class="border border-black px-2 py-1 text-black text-right">{{ totalNet | number:'1.2-2' }}</td>
+            </tr>
+        </tbody>
+    </div>
+</mat-dialog-content>
