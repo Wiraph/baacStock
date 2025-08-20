@@ -165,19 +165,29 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
       })
     });
     
+    console.log('🔍 customerForm created:', this.customerForm);
+    console.log('🔍 cusiD control exists:', !!this.customerForm.get('customer.cusiD'));
+    console.log('🔍 cusiD initial value:', this.customerForm.get('customer.cusiD')?.value);
+    
     // ตรวจสอบ query parameters หลังจากสร้าง form แล้ว
     this.route.queryParams.subscribe(params => {
+      
       if (params['mode'] === 'new-shareholder' && params['idCard']) {
         this.mode = 'new-shareholder';
         this.idCard = params['idCard'];
         this.activeView = 'sale';
-        
         this.customerForm.patchValue({
-          customer: { cusId: this.idCard }
+          customer: { 
+            cusId: this.idCard,
+            cusiD: this.idCard 
+          }
         });
-        
         this.initializeNewShareholderForm();
         this.cd.detectChanges();
+        
+        // ตรวจสอบอีกครั้งหลังจาก initialize
+        setTimeout(() => {
+        }, 100);
       }
     });
     
@@ -193,6 +203,21 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
         this.cd.detectChanges();
       }
     });
+
+    // Initialize form control states
+    this.updateFormControlStates();
+
+    // Subscribe to form value changes to update control states
+    this.customerForm.get('detailSale.stkPayTypeDetail')?.valueChanges.subscribe(() => {
+      this.updateFormControlStates();
+    });
+
+    this.customerForm.get('dividend.dividendStkPayType')?.valueChanges.subscribe(() => {
+      this.updateFormControlStates();
+    });
+
+    // Subscribe to form value changes to reset validation state
+    this.setupFormValidationReset();
   }
 
   loadInitialMetadata() {
@@ -218,15 +243,107 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
 
   initializeNewShareholderForm() {
     if (this.customerForm && this.idCard) {
-      this.customerForm.patchValue({
+      const formData = {
         customer: {
-          cusId: this.idCard,
-          docTYPE: '0001',
-          titleCode: '001',
           cusCODE: '001',
-          brCode: 'New' 
+          brCode: 'New',
+          unit: '0' 
+        },
+        dividend: {
+          stkACCtype: '001' 
         }
-      });
+      };
+      this.customerForm.patchValue(formData);
+      
+      // Disable fields that should not be editable for new shareholders
+      this.customerForm.get('customer.cusiD')?.disable();
+      this.customerForm.get('customer.brCode')?.disable();
+      this.customerForm.get('customer.unit')?.disable();
+      this.customerForm.get('detailSale.stkTYPE')?.disable();
+      this.customerForm.get('detailSale.stkACCtype')?.disable();
+      this.customerForm.get('dividend.stkACCtype')?.disable();
+      
+      // Initialize form control states
+      this.updateFormControlStates();
+      
+      this.cd.detectChanges();
+    }
+  }
+
+  // ฟังก์ชันสำหรับตรวจสอบวิธีการชำระเงิน
+  getPaymentMethod(): string {
+    return this.customerForm?.get('detailSale.stkPayTypeDetail')?.value || '';
+  }
+
+  // ฟังก์ชันสำหรับตรวจสอบว่าควรเป็นสีเทาหรือไม่
+  shouldBeGrayedOut(fieldType: string): boolean {
+    const paymentMethod = this.getPaymentMethod();
+    
+    if (fieldType === 'bankTransfer' && paymentMethod !== '001') {
+      return true; // ช่องโอนจากบัญชีควรเป็นสีเทาเมื่อไม่ได้เลือก
+    }
+    
+    if (fieldType === 'cheque' && paymentMethod !== '004') {
+      return true; // ช่องเช็คควรเป็นสีเทาเมื่อไม่ได้เลือก
+    }
+    
+    return false;
+  }
+
+  // ฟังก์ชันสำหรับตรวจสอบวิธีการรับเงินปันผล
+  getDividendPaymentMethod(): string {
+    return this.customerForm?.get('dividend.dividendStkPayType')?.value || '';
+  }
+
+  // ฟังก์ชันสำหรับตรวจสอบว่าควรเป็นสีเทาหรือไม่สำหรับรับเงินปันผล
+  shouldBeGrayedOutDividend(fieldType: string): boolean {
+    const dividendMethod = this.getDividendPaymentMethod();
+    
+    if (fieldType === 'bankAccount' && dividendMethod !== '001') {
+      return true; // ช่องบัญชีเงินฝากควรเป็นสีเทาเมื่อไม่ได้เลือก
+    }
+    
+    return false;
+  }
+
+  // ฟังก์ชันสำหรับจัดการ disabled state ของ form controls
+  updateFormControlStates() {
+    const paymentMethod = this.getPaymentMethod();
+    const dividendMethod = this.getDividendPaymentMethod();
+
+    // Payment method controls
+    if (paymentMethod === '001') {
+      this.customerForm.get('detailSale.stkSaleByTRACCno')?.enable();
+      this.customerForm.get('detailSale.stkSaleByTRACCname')?.enable();
+    } else {
+      this.customerForm.get('detailSale.stkSaleByTRACCno')?.disable();
+      this.customerForm.get('detailSale.stkSaleByTRACCname')?.disable();
+    }
+
+    if (paymentMethod === '004') {
+      this.customerForm.get('detailSale.stkSaleByCHQno')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQdat')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQbnk')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQbrn')?.enable();
+    } else {
+      this.customerForm.get('detailSale.stkSaleByCHQno')?.disable();
+      this.customerForm.get('detailSale.stkSaleByCHQdat')?.disable();
+      this.customerForm.get('detailSale.stkSaleByCHQbnk')?.disable();
+      this.customerForm.get('detailSale.stkSaleByCHQbrn')?.disable();
+    }
+
+    // Dividend method controls
+    if (dividendMethod === '001') {
+      this.customerForm.get('dividend.stkACCno')?.enable();
+      this.customerForm.get('dividend.stkACCname')?.enable();
+    } else {
+      this.customerForm.get('dividend.stkACCno')?.disable();
+      this.customerForm.get('dividend.stkACCname')?.disable();
+    }
+
+    // For new shareholders, always disable the account type field
+    if (this.mode === 'new-shareholder') {
+      this.customerForm.get('dividend.stkACCtype')?.disable();
     }
   }
 
@@ -312,7 +429,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
 
           this.populateCustomerForm();
           this.populateAddressForm();
-          this.cd.detectChanges();
+            this.cd.detectChanges();
 
           return this.loadInitialAddressDataObservable();
         }),
@@ -360,32 +477,11 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
         }
       });
       this.cd.detectChanges();
-    } else {
-      this.customerForm.patchValue({
-        customer: {
-          cusCODE: "TEST",
-          cusDESC: "Test Description",
-          cusCODEg: "1",
-          cusDESCgABBR: "Test ABBR",
-          docTYPE: "0001",
-          cusiD: "TEST123",
-          brCode: "0001",
-          cusTAXid: "1234567890123",
-          cusFName: "Test Name",
-          cusLName: "Test Surname",
-          unit: "5",
-          titleCode: "001"
-        }
-      });
     }
   }
 
   populateAddressForm() {
-    if (!this.homeAddress && !this.currentAddress) {
-      console.warn("No address data available to populate");
-      return;
-    }
-
+    if (!this.homeAddress && !this.currentAddress) return;
     const homeAddressData = {
       housEno: this.homeAddress?.housEno || '',
       troG_SOI: this.homeAddress?.troG_SOI || '',
@@ -449,105 +545,82 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
   onProvinceChangeHome(prvCode: string, isFormMode = false) {
     this.metadataService.getAumphor(prvCode).subscribe({
       next: (res) => {
-        this.ampDataHome = res;
-        this.tumbonDataHome = [];
+          this.ampDataHome = res;
+          this.tumbonDataHome = [];
         if (!isFormMode) {
           this.homeAddress.ampCODE = '';
           this.homeAddress.tmbCODE = '';
         }
-        this.cd.detectChanges();
+          this.cd.detectChanges();
       },
       error: (err) => console.error(err)
     });
   }
 
-  onProvinceChangeHomeForm(prvCode: string) {
-    this.onProvinceChangeHome(prvCode, true);
-  }
+  onProvinceChangeHomeForm = (prvCode: string) => this.onProvinceChangeHome(prvCode, true);
 
   onZipcodeChangeHome(prvCode: string, ampCode: string, tmbCode: string): string {
-    const match = this.tumbonDataHome.find(z =>
+    const zip = this.tumbonDataHome.find(z => 
       z.prvCode == prvCode && z.ampCode == ampCode && z.tmbCode == tmbCode
-    );
-    const zip = match?.zipCode || '';
+    )?.zipCode || '';
+    
     this.zipCodeHome = zip;
-    this.customerForm.patchValue({
-      homeAddress: { zipcodeHome: zip }
-    });
+    this.customerForm.patchValue({ homeAddress: { zipcodeHome: zip } });
     this.cd.detectChanges();
     return zip;
   }
 
   onAumphorChangeHome(prvCode: string, ampCode: string) {
     this.metadataService.getTumbons(prvCode, ampCode).subscribe({
-      next: (res) => {
-        this.tumbonDataHome = res;
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        this.tumbonDataHome = [];
-        this.cd.detectChanges();
-      }
+      next: (res) => { this.tumbonDataHome = res; this.cd.detectChanges(); },
+      error: (err) => { this.tumbonDataHome = []; this.cd.detectChanges(); }
     });
   }
 
-  onAumphorChangeHomeForm(prvCode: string, ampCode: string) {
-    this.onAumphorChangeHome(prvCode, ampCode);
-  }
+  onAumphorChangeHomeForm = (prvCode: string, ampCode: string) => this.onAumphorChangeHome(prvCode, ampCode);
 
   onProvinceChangeCurrent(prvCode: string, isFormMode = false) {
     this.metadataService.getAumphor(prvCode).subscribe({
       next: (res) => {
-        this.ampDataCurrent = res;
-        this.tumbonDataCurrent = [];
+          this.ampDataCurrent = res;
+          this.tumbonDataCurrent = [];
         if (!isFormMode) {
           this.currentAddress.ampCODE = '';
           this.currentAddress.tmbCODE = '';
         }
-        this.cd.detectChanges();
+          this.cd.detectChanges();
       },
       error: (err) => console.error(err)
     });
   }
 
-  onProvinceChangeCurrentForm(prvCode: string) {
-    this.onProvinceChangeCurrent(prvCode, true);
-  }
+  onProvinceChangeCurrentForm = (prvCode: string) => this.onProvinceChangeCurrent(prvCode, true);
 
   onAumphorChangeCurrent(prvCode: string, ampCode: string) {
     this.metadataService.getTumbons(prvCode, ampCode).subscribe({
-      next: (res) => {
-        this.tumbonDataCurrent = res;
-        this.cd.detectChanges();
-      },
-      error: (err) => console.error(err)
+      next: (res) => { this.tumbonDataCurrent = res; this.cd.detectChanges(); },
+      error: (err) => { this.tumbonDataCurrent = []; this.cd.detectChanges(); }
     });
   }
 
-  onAumphorChangeCurrentForm(prvCode: string, ampCode: string) {
-    this.onAumphorChangeCurrent(prvCode, ampCode);
-  }
+  onAumphorChangeCurrentForm = (prvCode: string, ampCode: string) => this.onAumphorChangeCurrent(prvCode, ampCode);
 
   onZipcodeChangeCurrent(prvCode: string, ampCode: string, tmbCode: string) {
-    const match = this.tumbonDataCurrent.find(z =>
+    const zip = this.tumbonDataCurrent.find(z => 
       z.prvCode == prvCode && z.ampCode == ampCode && z.tmbCode == tmbCode
-    );
-    const zip = match?.zipCode || '';
+    )?.zipCode || '';
+    
     this.zipCodeCurrent = zip;
-    this.customerForm.patchValue({
-      currentAddress: { zipcodeCurrent: zip }
-    });
+    this.customerForm.patchValue({ currentAddress: { zipcodeCurrent: zip } });
     this.cd.detectChanges();
     return zip;
   }
 
-  onZipcodeChangeHomeForm(prvCode: string, ampCode: string, tmbCode: string): string {
-    return this.onZipcodeChangeHome(prvCode, ampCode, tmbCode);
-  }
+  onZipcodeChangeHomeForm = (prvCode: string, ampCode: string, tmbCode: string): string => 
+    this.onZipcodeChangeHome(prvCode, ampCode, tmbCode);
 
-  onZipcodeChangeCurrentForm(prvCode: string, ampCode: string, tmbCode: string): string {
-    return this.onZipcodeChangeCurrent(prvCode, ampCode, tmbCode);
-  }
+  onZipcodeChangeCurrentForm = (prvCode: string, ampCode: string, tmbCode: string): string => 
+    this.onZipcodeChangeCurrent(prvCode, ampCode, tmbCode);
 
   loadInitialAddressDataObservable() {
     const tasks = [];
@@ -556,18 +629,18 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
       tasks.push(
         this.metadataService.getAumphor(this.homeAddress.prvCODE).pipe(
           switchMap((ampRes) => {
-            this.ampDataHome = ampRes;
-            this.cd.detectChanges();
+              this.ampDataHome = ampRes;
+              this.cd.detectChanges();
 
             if (this.homeAddress?.ampCODE) {
               return this.metadataService.getTumbons(this.homeAddress.prvCODE, this.homeAddress.ampCODE).pipe(
                 switchMap((tumbonRes) => {
-                  this.tumbonDataHome = tumbonRes;
-                  const zip = this.onZipcodeChangeHome(this.homeAddress.prvCODE, this.homeAddress.ampCODE, this.homeAddress.tmbCODE);
-                  if (zip) {
-                    this.customerForm.get('homeAddress.zipcodeHome')?.patchValue(zip);
-                  }
-                  this.cd.detectChanges();
+                    this.tumbonDataHome = tumbonRes;
+                    const zip = this.onZipcodeChangeHome(this.homeAddress.prvCODE, this.homeAddress.ampCODE, this.homeAddress.tmbCODE);
+                    if (zip) {
+                      this.customerForm.get('homeAddress.zipcodeHome')?.patchValue(zip);
+                    }
+                    this.cd.detectChanges();
                   return of(true);
                 })
               );
@@ -582,18 +655,18 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
       tasks.push(
         this.metadataService.getAumphor(this.currentAddress.prvCODE).pipe(
           switchMap((ampRes) => {
-            this.ampDataCurrent = ampRes;
-            this.cd.detectChanges();
+              this.ampDataCurrent = ampRes;
+              this.cd.detectChanges();
 
             if (this.currentAddress?.ampCODE) {
               return this.metadataService.getTumbons(this.currentAddress.prvCODE, this.currentAddress.ampCODE).pipe(
                 switchMap((tumbonRes) => {
-                  this.tumbonDataCurrent = tumbonRes;
-                  const zip = this.onZipcodeChangeCurrent(this.currentAddress.prvCODE, this.currentAddress.ampCODE, this.currentAddress.tmbCODE);
-                  if (zip) {
-                    this.customerForm.get('currentAddress.zipcodeCurrent')?.patchValue(zip);
-                  }
-                  this.cd.detectChanges();
+                    this.tumbonDataCurrent = tumbonRes;
+                    const zip = this.onZipcodeChangeCurrent(this.currentAddress.prvCODE, this.currentAddress.ampCODE, this.currentAddress.tmbCODE);
+                    if (zip) {
+                      this.customerForm.get('currentAddress.zipcodeCurrent')?.patchValue(zip);
+                    }
+                    this.cd.detectChanges();
                   return of(true);
                 })
               );
@@ -612,14 +685,16 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     const submitter = (event as SubmitEvent).submitter as HTMLButtonElement;
     if (!submitter) return;
     
-    if (!this.customerForm.valid) {
-      console.warn("Form is not valid!");
-      Swal.fire({
-        icon: 'warning',
-        title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
-        text: 'กรุณาตรวจสอบข้อมูลที่กรอกให้ถูกต้องและครบถ้วน',
-        confirmButtonText: 'ตกลง'
-      });
+    // ตั้งค่า formSubmitted เป็น true เพื่อแสดง red border
+    this.formSubmitted = true;
+    
+    // ตรวจสอบข้อมูลที่จำเป็น
+    const validation = this.validateRequiredFields();
+    
+    if (!validation.isValid) {
+      // แสดง alert ข้อมูลไม่ครบ
+      this.showIncompleteDataAlert(validation.emptyFields);
+      this.cd.detectChanges(); // อัปเดต UI เพื่อแสดง red border
       return;
     }
 
@@ -801,10 +876,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     input.value = numericValue.toLocaleString('en-US');
     
     // ตรวจสอบว่า pricePerUnit มีค่าหรือไม่
-    if (!this.pricePerUnit || !this.pricePerUnit.stkBv) {
-      console.warn('pricePerUnit is not available');
-      return;
-    }
+    if (!this.pricePerUnit?.stkBv) return;
     
     const stkValue = numericValue * this.pricePerUnit.stkBv;
     
@@ -821,4 +893,102 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     this.activeView = 'search';
     this.cd.detectChanges();
   }
+
+  // ฟังก์ชันสำหรับตรวจสอบว่าฟิลด์ว่างเปล่าหรือไม่
+  isFieldEmpty(fieldPath: string): boolean {
+    const value = this.customerForm.get(fieldPath)?.value;
+    return !value || value.toString().trim() === '';
+  }
+
+  // ฟังก์ชันสำหรับตรวจสอบว่าควรแสดง border สีแดงหรือไม่
+  noData(fieldPath: string): boolean {
+    return this.isFieldEmpty(fieldPath) && this.formSubmitted;
+  }
+
+  // ฟังก์ชันสำหรับตรวจสอบข้อมูลที่จำเป็น
+  validateRequiredFields(): { isValid: boolean; emptyFields: string[] } {
+    const requiredFields = this.getRequiredFields();
+    const emptyFields: string[] = [];
+
+    requiredFields.forEach(field => {
+      if (this.isFieldEmpty(field.path)) {
+        emptyFields.push(field.label);
+      }
+    });
+
+    return {
+      isValid: emptyFields.length === 0,
+      emptyFields: emptyFields
+    };
+  }
+
+  // ฟังก์ชันสำหรับกำหนดฟิลด์ที่จำเป็นตาม mode
+  getRequiredFields(): Array<{ path: string; label: string }> {
+    const baseFields = [
+      { path: 'customer.cusFName', label: 'ชื่อ' },
+      { path: 'customer.cusLName', label: 'นามสกุล' },
+      { path: 'customer.cusiD', label: 'เลขที่บัตรแสดงตน' }
+    ];
+
+    if (this.mode === 'new-shareholder') {
+      return [
+        ...baseFields,
+        { path: 'customer.docTYPE', label: 'บัตรแสดงตน' },
+        { path: 'customer.titleCode', label: 'คำนำหน้าชื่อ' },
+        { path: 'customer.cusTAXid', label: 'ผู้เสียภาษี' },
+        { path: 'homeAddress.housEno', label: 'เลขที่ (ที่อยู่ตามทะเบียนบ้าน)' },
+        { path: 'homeAddress.prvCODE', label: 'จังหวัด (ที่อยู่ตามทะเบียนบ้าน)' },
+        { path: 'homeAddress.ampCODE', label: 'เขต/อำเภอ (ที่อยู่ตามทะเบียนบ้าน)' },
+        { path: 'homeAddress.tmbCODE', label: 'แขวง/ตำบล (ที่อยู่ตามทะเบียนบ้าน)' },
+        { path: 'detailSale.stkUNiT', label: 'จำนวนหุ้น' }
+      ];
+    } else if (this.mode === 'sell-stock') {
+      return [
+        ...baseFields,
+        { path: 'detailSale.stkUNiT', label: 'จำนวนหุ้น' },
+        { path: 'detailSale.stkPayTypeDetail', label: 'วิธีการชำระเงิน' }
+      ];
+    }
+
+    return baseFields;
+  }
+
+  // ฟังก์ชันสำหรับแสดง alert ข้อมูลไม่ครบ
+  showIncompleteDataAlert(emptyFields: string[]): void {
+    const fieldList = emptyFields.map(field => `• ${field}`).join('\n');
+    
+    Swal.fire({
+      icon: 'warning',
+      title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+      html: `
+        <div class="text-left">
+          <p class="mb-3">กรุณากรอกข้อมูลในฟิลด์ต่อไปนี้:</p>
+          <div class="text-red-600 text-sm">
+            ${fieldList.replace(/\n/g, '<br>')}
+          </div>
+        </div>
+      `,
+      confirmButtonText: 'ตกลง',
+      confirmButtonColor: '#3085d6'
+    });
+  }
+
+  // เพิ่ม property สำหรับติดตามการ submit
+  formSubmitted = false;
+
+  // ฟังก์ชันสำหรับตั้งค่า form validation reset
+  setupFormValidationReset() {
+    const requiredFields = this.getRequiredFields();
+    
+    requiredFields.forEach(field => {
+      this.customerForm.get(field.path)?.valueChanges.subscribe(() => {
+        // รีเซ็ต formSubmitted เมื่อผู้ใช้เริ่มกรอกข้อมูล
+        if (this.formSubmitted) {
+          this.formSubmitted = false;
+          this.cd.detectChanges();
+        }
+      });
+    });
+  }
 }
+
