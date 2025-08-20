@@ -1,0 +1,107 @@
+<div *ngIf="activeView === 'search'">
+  <div class="max-w-4xl mx-auto p-6 bg-white rounded shadow">
+    <h2 class="text-xl font-medium mb-4 text-center">{{ branch }} : ค้นหาข้อมูลผู้ใช้งาน : {{titleSearch || "ค้นหา" }}
+    </h2>
+    <p class="mb-2">กรุณาระบุข้อมูลอย่างน้อยหนึ่งช่องรายการ</p>
+    <form #searchForm="ngForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4" (ngSubmit)="onSubmit($event)">
+      <div>
+        <label for="cusId" class="block text-sm font-medium text-gray-700">เลขที่บัตรแสดงตน</label>
+        <input id="cusId" type="text" [(ngModel)]="criteria.cusId" name="cusId"
+          class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+      </div>
+      <div>
+        <label for="stockId" class="block text-sm font-medium text-gray-700">หมายเลขแสดงใบหุ้น</label>
+        <input id="stockId" type="text" [(ngModel)]="criteria.stockId" name="stockId"
+          class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+      </div>
+      <div>
+        <label for="cusFname" class="block text-sm font-medium text-gray-700">ชื่อ</label>
+        <input id="cusFname" type="text" [(ngModel)]="criteria.fname" name="cusFname"
+          class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+      </div>
+      <div>
+        <label for="lname" class="block text-sm font-medium text-gray-700">นามสกุล</label>
+        <input id="lname" type="text" [(ngModel)]="criteria.lname" name="lname"
+          class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+      </div>
+      <div class="col-span-1 md:col-span-2 flex justify-end space-x-2 mt-2">
+        <button type="submit"
+          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700">
+          🔍 ค้นหา
+        </button>
+        <button type="button" (click)="onReset()"
+          class="text-white bg-gray-300 hover:bg-gray-600 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-500 dark:hover:bg-gray-400">
+          ♻️ รีเซ็ต
+        </button>
+        <button *ngIf="statusPage === '2'" type="button" (click)="onNewShareholder()" 
+        class="text-white bg-green-600 hover:bg-green-700 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 shadow-md transition-colors duration-200">
+          👤 ผู้ถือหุ้นรายใหม่
+        </button>
+      </div>
+    </form>
+    <div class="overflow-x-auto mt-6" *ngIf="table == true">
+      <table class="min-w-full divide-y divide-gray-200 rounded-lg shadow-md overflow-hidden">
+        <thead class="bg-green-600 text-white text-sm">
+          <tr>
+            <th class="px-4 py-3 text-center font-medium">ลำดับ</th>
+            <th class="px-4 py-3 text-center font-medium">สาขา</th>
+            <th class="px-4 py-3 text-center font-medium">เลขที่บัตรแสดงตน</th>
+            <th class="px-4 py-3 text-center font-medium">ชื่อ - นามสกุล</th>
+            <th class="px-4 py-3 text-center font-medium">สถานะ</th>
+            <th class="px-4 py-3 text-center font-medium">ใบหุ้น</th>
+            <th *ngIf="currentUser?.level === '99' || currentUser?.level === '85' || currentUser?.level === '05'" class="px-4 py-3 text-center font-medium">แก้ไข</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200 text-sm">
+          <tr *ngFor="let r of customerStocks;" class="hover:bg-gray-50 transition">
+            <td class="px-4 py-2 text-center">{{ r.roWi }}</td>
+            <td class="px-4 py-2 text-center">{{ r.brCode }}</td>
+            <td class="px-4 py-2 text-center">{{ r.cusiD }}</td>
+            <td class="px-4 py-2 text-center">{{ r.titleABBR }}{{ r.cuSfname }} {{ r.cuSlname }}</td>
+            <td class="px-4 py-2 text-center">{{ r.stDESC || '-' }}</td>
+            <td class="px-4 py-2 text-center">
+              <button (click)="onViewStock(r.cusiD)" class="text-blue-600 hover:text-blue-800" title="ดูใบหุ้น">
+                📄
+              </button>
+            </td>
+            <td *ngIf="currentUser?.level === '99' || currentUser?.level === '85' || currentUser?.level === '05'" class="px-4 py-2 text-center">
+              <button class="text-yellow-600 hover:text-yellow-800" (click)="onHandle(r.cusiD)">
+                {{ this.icon }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="customerStocks.length == 0">
+        <p class="text-center text-2xl text-red-300">ไม่มีข้อมูลลูกค้า</p>
+      </div>
+      <!-- ปุ่มเปลี่ยนหน้า -->
+      <div class="flex justify-between items-center mt-4 px-2 text-sm">
+        <button (click)="prevPage()" [disabled]="pageNumber <= 1"
+          class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+          ◀ หน้าก่อน
+        </button>
+        <span class="text-gray-700">หน้า {{ pageNumber }}</span>
+        <button (click)="nextPage()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">
+          หน้าถัดไป ▶
+        </button>
+      </div>
+    </div>
+    <div *ngIf="loading"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-40 backdrop-blur-sm"
+      style="background-color: rgba(128, 128, 128, 0.7);">
+      <div class="text-center">
+        <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+        </svg>
+        <p class="text-lg text-white font-medium">🔄 กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="activeView == 'stock'">
+  <app-stocks [cusId]="cusId" (back)="activeView = $event"></app-stocks>
+</div>

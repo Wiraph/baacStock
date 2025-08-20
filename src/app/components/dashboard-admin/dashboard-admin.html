@@ -22,9 +22,11 @@
       <ng-container *ngFor="let menu of filteredMenus">
         <div class="relative">
           <!-- Menu Header -->
-          <div (click)="openMenu(menu.key)"
-            [class]="'flex justify-between items-center px-4 py-3 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors ' + (sidebarCollapsed ? 'px-2 justify-center' : '')"
-            [attr.title]="sidebarCollapsed ? menu.label : null">
+          <button (click)="openMenu(menu.key)" (keydown.enter)="openMenu(menu.key)" (keydown.space)="openMenu(menu.key)"
+            [class]="'w-full text-left flex justify-between items-center px-4 py-3 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors ' + (sidebarCollapsed ? 'px-2 justify-center' : '')"
+            [attr.title]="sidebarCollapsed ? menu.label : null"
+            [attr.aria-expanded]="menu.open"
+            [attr.aria-label]="'Toggle ' + menu.label + ' menu'">
             <div class="flex items-center space-x-3">
               <span class="text-xl flex-shrink-0">{{ menu.icon }}</span>
               <span
@@ -34,7 +36,7 @@
             </div>
             <span *ngIf="!sidebarCollapsed" class="text-sm text-gray-400 transition-transform duration-300"
               [class.rotate-180]="menu.open">▼</span>
-          </div>
+          </button>
 
           <!-- Expanded Menu Items -->
           <div *ngIf="menu.open && !sidebarCollapsed" class="ml-10 mt-1 space-y-1">
@@ -80,23 +82,7 @@
       </div>
     </nav>
 
-    <!-- Logout -->
-    <!-- <div
-      [class]="'absolute bottom-6 transition-all duration-300 ' + (sidebarCollapsed ? 'left-2 right-2' : 'left-4 right-4')">
-      <button (click)="logout()"
-        [class]="'w-full flex items-center bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors group relative ' + (sidebarCollapsed ? 'justify-center' : 'justify-start')"
-        [attr.title]="sidebarCollapsed ? 'ออกจากระบบ' : null">
-        <span class="flex-shrink-0">🚪</span>
-        <span
-          [class]="'transition-all duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">
-          ออกจากระบบ
-        </span>
-        <div *ngIf="sidebarCollapsed"
-          class="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-          ออกจากระบบ
-        </div>
-      </button>
-    </div> -->
+
   </aside>
 
   <!-- Main Content -->

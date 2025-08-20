@@ -37,8 +37,8 @@ export class CommonStockComponent implements OnInit, OnChanges {
   loading = true;
 
   constructor(
-    private customerService: CustomerService,
-    private cdRef: ChangeDetectorRef
+    private readonly customerService: CustomerService,
+    private readonly cdRef: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
