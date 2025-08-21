@@ -233,8 +233,8 @@ export class SearchEditComponent implements OnInit {
       return;
     }
 
-    // นำทางไปยังหน้า formdetail
-    this.router.navigate(['/dashboard-admin/formdetail'], {
+    // นำทางไปยังหน้า newcus
+    this.router.navigate(['/dashboard-admin/newcus'], {
       queryParams: { 
         idCard: this.criteria.cusId,
         mode: 'new-shareholder'

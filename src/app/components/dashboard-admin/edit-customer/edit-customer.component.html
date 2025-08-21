@@ -20,7 +20,7 @@
                                             ประเภทลูกค้า :
                                         </label>
                                         <select
-                                            class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                            class="border border-gray-300 rounded-md p-2 bg-blue-100 w-full cursor-not-allowed pointer-events-none"
                                             formControlName="cusCODE" id="custype">
                                             <option *ngFor="let item of custypeList" [value]="item.cusCode">
                                                 {{item.cusCode}} : {{item.cusDesc}}
@@ -36,7 +36,6 @@
                                             customerForm.get('customer.cusDESCgABBR')?.value }}
                                         </p>
                                     </div>
-                                    <div></div>
                                 </div>
                                 <div class="grid grid-cols-3 gap-6 px-4 mt-2">
                                     <div class="flex items-center gap-2">
@@ -44,7 +43,7 @@
                                             class="whitespace-nowrap text-gray-700 font-semibold">บัตรแสดงตน
                                             :</label>
                                         <select id="idCard" formControlName="docTYPE" name="docType"
-                                            class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
+                                            class="border border-gray-300 rounded-md p-2 bg-blue-100 w-full cursor-not-allowed pointer-events-none">
                                             <option *ngFor="let title of doctypeList" [value]="title.docType">
                                                 {{title.docDesc}}
                                             </option>
@@ -54,13 +53,13 @@
                                          <label for="idNumber"
                                              class="whitespace-nowrap text-gray-700 font-semibold">เลขที่ : </label>
                                          <input id="idNumber" type="text" formControlName="cusiD" readonly
-                                             class="border border-gray-300 rounded-md p-2 bg-blue-100 font-semibold w-full cursor-not-allowed pointer-events-none" />
+                                             class="border border-gray-300 rounded-md p-2 bg-blue-100 w-full cursor-not-allowed pointer-events-none" />
                                     </div>
                                     <div class="flex items-center gap-2">
                                          <label for="ref" class="whitespace-nowrap text-gray-700 font-semibold">ref. :
                                          </label>
                                          <input id="ref" type="text" formControlName="brCode" readonly
-                                             class="border border-gray-300 rounded-md p-2 bg-blue-100 font-semibold w-full cursor-not-allowed pointer-events-none" />
+                                             class="border border-gray-300 rounded-md p-2 bg-blue-100 w-full cursor-not-allowed pointer-events-none" />
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-3 gap-6 px-4 mt-2">
@@ -68,7 +67,7 @@
                                         <label for="" class="whitespace-nowrap text-gray-700 font-semibold">คำนำหน้าชื่อ
                                             : </label>
                                         <select formControlName="titleCode" name="title"
-                                            class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
+                                            class="border border-gray-300 rounded-md p-2 bg-blue-100 w-full cursor-not-allowed pointer-events-none">
                                             <option *ngFor="let title of titleList" [value]="title?.titleCode">
                                                 {{title.titleDesc}}
                                             </option>
@@ -79,7 +78,7 @@
                                              ผู้เสียภาษี :
                                         </label>
                                         <input type="text" readonly
-                                             class="border border-gray-300 rounded-md p-2 bg-blue-100 font-semibold w-full cursor-not-allowed pointer-events-none"
+                                             class="border border-gray-300 rounded-md p-2 bg-blue-100 w-full cursor-not-allowed pointer-events-none"
                                              formControlName="cusTAXid">
                                      </div>
                                      <div class="flex items-center gap-2">
@@ -88,7 +87,7 @@
                                          </label>
                                          <div class="flex align-bottom gap-4 items-center">
                                              <input
-                                                 class="border border-gray-300 rounded-md p-2 bg-blue-100 font-semibold w-full cursor-not-allowed pointer-events-none"
+                                                 class="border border-gray-300 rounded-md p-2 bg-blue-100 w-full cursor-not-allowed pointer-events-none"
                                                  type="text" formControlName="unit" readonly> หุ้น
                                          </div>
                                      </div>
@@ -99,7 +98,7 @@
                                             ชื่อ :
                                         </label>
                                         <input
-                                            class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                            class="border border-gray-300 rounded-md p-2 bg-blue-100 w-full cursor-not-allowed pointer-events-none"
                                             type="text" formControlName="cusFName">
                                     </div>
                                     <div class="flex items-center gap-2">
@@ -107,7 +106,7 @@
                                             class="whitespace-nowrap text-gray-700 font-semibold">นามสกุล
                                             : </label>
                                         <input
-                                            class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                            class="border border-gray-300 rounded-md p-2 bg-blue-100 w-full cursor-not-allowed pointer-events-none"
                                             type="text" formControlName="cusLName">
                                     </div>
                                 </div>
@@ -126,21 +125,21 @@
                                             <label for="" class="whitespace-nowrap text-gray-700 font-semibold">เลขที่ :
                                             </label>
                                             <input type="text"
-                                                class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                                class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-lime-100"
                                                 name="" id="" formControlName="housEno">
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <label for="" class="whitespace-nowrap text-gray-700 font-semibold">ซอย :
                                             </label>
                                             <input type="text"
-                                                class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                                class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-lime-100"
                                                 formControlName="troG_SOI">
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <label for="" class="whitespace-nowrap text-gray-700 font-semibold">ถนน :
                                             </label>
                                             <input type="text"
-                                                class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                                class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-lime-100"
                                                 formControlName="road">
                                         </div>
                                     </div>
@@ -150,7 +149,7 @@
                                                 :
                                             </label>
                                             <select
-                                                class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                                class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-lime-100"
                                                 formControlName="prvCODE" name="homeAddressPrvCode"
                                                 (change)="onProvinceChangeHome(homeAddress.prvCODE)">
                                                 <option *ngFor="let prv of prvData" [value]="prv.prvCode">
@@ -163,7 +162,7 @@
                                                 class="whitespace-nowrap text-gray-700 font-semibold">เขต/อำเภอ :
                                             </label>
                                             <select
-                                                class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                                class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-lime-100"
                                                 formControlName="ampCODE" name="homeAddressAmpCode"
                                                 (change)="onAumphorChangeHome(homeAddress.prvCODE, homeAddress.ampCODE)">
                                                 <option *ngFor="let amp of ampDataHome" [value]="amp.ampCode">{{
@@ -177,7 +176,7 @@
                                                 class="whitespace-nowrap text-gray-700 font-semibold">แขวง/ตำบล :
                                             </label>
                                             <select
-                                                class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                                class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-lime-100"
                                                 name="homeAddressTmbCode" formControlName="tmbCODE">
                                                 <option *ngFor="let tmb of tumbonDataHome" [value]="tmb.tmbCode">{{
                                                     tmb.tmbName
@@ -201,7 +200,7 @@
                                                 :
                                             </label>
                                             <input type="text"
-                                                class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                                class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-lime-100"
                                                 formControlName="phone">
                                         </div>
                                     </div>
@@ -217,21 +216,21 @@
                                         <label for="" class="whitespace-nowrap text-gray-700 font-semibold">เลขที่ :
                                         </label>
                                         <input type="text"
-                                            class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                            class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-lime-100"
                                             name="" id="" formControlName="housEno">
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <label for="" class="whitespace-nowrap text-gray-700 font-semibold">ซอย :
                                         </label>
                                         <input type="text"
-                                            class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                            class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-lime-100"
                                             formControlName="troG_SOI">
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <label for="" class="whitespace-nowrap text-gray-700 font-semibold">ถนน :
                                         </label>
                                         <input type="text"
-                                            class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                            class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-lime-100"
                                             formControlName="road">
                                     </div>
                                 </div>
@@ -240,7 +239,7 @@
                                         <label for="" class="whitespace-nowrap text-gray-700 font-semibold">จังหวัด :
                                         </label>
                                         <select
-                                            class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                            class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-lime-100"
                                             formControlName="prvCODE" name="currentAddressPrvCode"
                                             (change)="onProvinceChangeCurrent(currentAddress.prvCODE)">
                                             <option *ngFor="let prv of prvData" [value]="prv.prvCode">{{prv.prvName}}
@@ -251,7 +250,7 @@
                                         <label for="" class="whitespace-nowrap text-gray-700 font-semibold">เขต/อำเภอ :
                                         </label>
                                         <select
-                                            class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                            class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-lime-100"
                                             formControlName="ampCODE" name="currentAddressAmpcode"
                                             (change)="onAumphorChangeCurrent(currentAddress.prvCODE, currentAddress.ampCODE)">
                                             <option *ngFor="let amp of ampDataCurrent" [value]="amp.ampCode">{{
@@ -264,7 +263,7 @@
                                         <label for="" class="whitespace-nowrap text-gray-700 font-semibold">แขวง/ตำบล :
                                         </label>
                                         <select
-                                            class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                            class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-lime-100"
                                             name="currentAddressTmbCode" formControlName="tmbCODE">
                                             <option *ngFor="let tmb of tumbonDataCurrent" [value]="tmb.tmbCode">{{
                                                 tmb.tmbName
@@ -287,7 +286,7 @@
                                         </label>
                                         <div class="flex gap-2 items-center w-full">
                                             <input type="text"
-                                                class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                                class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-lime-100"
                                                 formControlName="phone">
                                             <p class="whitespace-nowrap">( ตัวเลข 10 หลักเท่านั้น )</p>
                                         </div>
@@ -303,7 +302,7 @@
                                         <label class="whitespace-nowrap text-gray-700 font-semibold" for="">อีเมล :
                                         </label>
                                         <input type="text"
-                                            class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                                            class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-lime-100"
                                             [value]="customer.email || '-'">
                                     </div>
                                 </div>
@@ -318,14 +317,14 @@
                                          <label class="whitespace-nowrap text-gray-700 font-semibold" for="">ที่อยู่ 1 :
                                          </label>
                                          <input
-                                             class="border border-gray-300 rounded-md p-2 bg-blue-100 font-semibold w-full cursor-not-allowed pointer-events-none"
+                                             class="border border-gray-300 rounded-md p-2 bg-blue-100 w-full cursor-not-allowed pointer-events-none"
                                              type="text" name="" id="" formControlName="addR1" readonly>
                                      </div>
                                      <div class="flex items-center gap-2">
                                          <label class="whitespace-nowrap text-gray-700 font-semibold" for="">ที่อยู่ 2 :
                                          </label>
                                          <input
-                                             class="border border-gray-300 rounded-md p-2 bg-blue-100 font-semibold w-full cursor-not-allowed pointer-events-none"
+                                             class="border border-gray-300 rounded-md p-2 bg-blue-100 w-full cursor-not-allowed pointer-events-none"
                                              type="text" formControlName="addR2" readonly>
                                      </div>
                                  </div>
@@ -356,56 +355,57 @@
                                 รับเงินปันผลเป็น :
                             </label>
                             <div class="col-span-3">
-                                <div class="flex gap-4 items-start">
-                                    <!-- Radio -->
-                                    <input type="radio" name="stkPayType" id="bankAccount" class="mt-2" value="001"
-                                        formControlName="stkPayType">
+                                                            <div class="flex gap-4 items-start">
+                                <!-- Radio -->
+                                <input type="radio" name="dividendStkPayType" id="bankAccount" class="mt-2" value="001"
+                                    formControlName="dividendStkPayType" (change)="updateFormControlStates()">
 
-                                    <!-- Form -->
-                                    <div class="flex flex-col gap-4 w-full">
-                                        <!-- Grid 2 columns -->
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <!-- Account Type -->
-                                            <div class="flex items-center gap-2">
-                                                <label for="accountType"
-                                                    class="whitespace-nowrap font-semibold text-gray-700">บัญชีเงินฝาก
-                                                    :</label>
-                                                <select id="accountType" name="accountType"
-                                                     class="border border-gray-300 rounded-md p-2 bg-blue-100 font-semibold w-full cursor-not-allowed pointer-events-none"
-                                                     formControlName="stkACCtype" [disabled]="true">
-                                                     <option *ngFor="let act of actypeList" [value]="act.accType">
-                                                         {{act.accDesc}}</option>
-                                                </select>
-                                            </div>
-                                            <!-- Account Number -->
-                                            <div class="flex items-center gap-2">
-                                                <label for="accountNumber"
-                                                    class="whitespace-nowrap font-semibold text-gray-700">บัญชีเลขที่
-                                                    :</label>
-                                                <input type="text" id="accountNumber" name="accountNumber"
-                                                    formControlName="stkACCno"
-                                                    class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                            </div>
-                                        </div>
-                                        <!-- Account Name -->
+                                <!-- Form -->
+                                <div class="flex flex-col gap-4 w-full">
+                                    <!-- Grid 2 columns -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <!-- Account Type -->
                                         <div class="flex items-center gap-2">
-                                            <label for="accountName"
-                                                class="whitespace-nowrap font-semibold text-gray-700">ชื่อบัญชี
-                                                :</label>
-                                            <input type="text" id="accountName" name="accountName"
-                                                formControlName="stkACCname"
-                                                class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <label for="accountType"
+                                                class="whitespace-nowrap font-semibold text-gray-700">
+                                                บัญชีเงินฝาก :
+                                            </label>
+                                            <select id="accountType" name="accountType"
+                                                formControlName="stkACCtype"
+                                                class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-blue-100 pointer-events-none">
+                                                <option *ngFor="let act of actypeList" [value]="act.accType">
+                                                    {{act.accDesc}}</option>
+                                            </select>
+                                        </div>
+                                        <!-- Account Number -->
+                                        <div class="flex items-center gap-2">
+                                            <label for="accountNumber"
+                                                class="whitespace-nowrap">
+                                                บัญชีเลขที่ :
+                                            </label>
+                                            <input type="text" id="accountNumber" name="accountNumber"
+                                                formControlName="stkACCno"
+                                                [class]="'w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ' + (shouldBeGrayedOutDividend('bankAccount') ? 'bg-gray-100' : 'bg-lime-100')" />
                                         </div>
                                     </div>
+                                    <!-- Account Name -->
+                                    <div class="flex items-center gap-2">
+                                        <label for="accountName" class="whitespace-nowrap">
+                                            ชื่อบัญชี :
+                                        </label>
+                                        <input type="text" id="accountName" name="accountName" formControlName="stkACCname"
+                                            [class]="'w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ' + (shouldBeGrayedOutDividend('bankAccount') ? 'bg-gray-100' : 'bg-lime-100')" />
+                                    </div>
                                 </div>
-                                <div class="flex gap-4">
-                                    <input type="radio" name="stkPayType" value="002" formControlName="stkPayType">
-                                    <label for="">เงินสด</label>
-                                </div>
-                                <div class="flex gap-4">
-                                    <input type="radio" name="stkPayType" value="003" formControlName="stkPayType">
-                                    <label for="">บริจาคให้ ธ.ก.ส.</label>
-                                </div>
+                            </div>
+                            <div class="flex gap-4 font-semibold text-gray-700">
+                                <input type="radio" name="dividendStkPayType" value="002" formControlName="dividendStkPayType" (change)="updateFormControlStates()">
+                                <label for="">เงินสด</label>
+                            </div>
+                            <div class="flex gap-4 font-semibold text-gray-700">
+                                <input type="radio" name="dividendStkPayType" value="003" formControlName="dividendStkPayType" (change)="updateFormControlStates()">
+                                <label for="">บริจาคให้ ธ.ก.ส.</label>
+                            </div>
                             </div>
                         </div>
                         <div class="py-6 flex gap-4 justify-center">

@@ -167,7 +167,23 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
         stkSaleByCHQbnk: [''],
         stkSaleByCHQbrn: [''],
       })
-    })
+    });
+
+    // Initialize form control states
+    this.updateFormControlStates();
+
+    // Disable fields that should not be editable
+    this.customerForm.get('detailSale.stkTYPE')?.disable();
+    this.customerForm.get('dividend.stkACCtype')?.disable();
+
+    // Subscribe to form value changes to update control states
+    this.customerForm.get('detailSale.stkPayTypeDetail')?.valueChanges.subscribe(() => {
+      this.updateFormControlStates();
+    });
+
+    this.customerForm.get('dividend.dividendStkPayType')?.valueChanges.subscribe(() => {
+      this.updateFormControlStates();
+    });
   }
 
   ngAfterViewInit(): void {
@@ -327,6 +343,11 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
           stkACCtype: this.dividendData?.stkACCtype || ''
         }
       });
+
+      // Ensure disabled fields remain disabled after populating data
+      this.customerForm.get('detailSale.stkTYPE')?.disable();
+      this.customerForm.get('dividend.stkACCtype')?.disable();
+
       this.cd.detectChanges();
     } else {
       this.customerForm.patchValue({
@@ -345,6 +366,10 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
           titleCode: "001"
         }
       });
+
+      // Ensure disabled fields remain disabled after populating data
+      this.customerForm.get('detailSale.stkTYPE')?.disable();
+      this.customerForm.get('dividend.stkACCtype')?.disable();
     }
   }
 
@@ -418,145 +443,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     }
   }
 
-  loadProvince() {
-    this.metadataService.getProvince().subscribe({
-      next: (res) => {
-        this.prvData = res;
-        this.cd.detectChanges();
-      }, error: (err) => {
-        console.log("Load data fail...", err);
-      }
-    })
-  }
 
-  loadAumphor(prvCode: string) {
-    this.metadataService.getAumphor(prvCode).subscribe({
-      next: (res) => {
-        this.ampData = res;
-        this.cd.detectChanges();
-      }, error: (err) => {
-        console.log("Load data fail...", err);
-      }
-    })
-  }
-
-  loadTumbons(prvCode: string, ampCode: string) {
-    this.metadataService.getTumbons(prvCode, ampCode).subscribe({
-      next: (res) => {
-        this.tumbonData = res;
-        this.cd.detectChanges();
-      }, error: (err) => {
-        console.log("Load data fail...", err);
-      }
-    })
-  }
-
-  loadTitle() {
-    this.metadataService.getTitle().subscribe({
-      next: (res) => {
-        setTimeout(() => {
-          this.titleList = res;
-          this.cd.detectChanges();
-        }, 0);
-      }, error: (err) => {
-        console.log("Load data fail...", err);
-      }
-    })
-  }
-
-  loadCustype() {
-    this.metadataService.getCustype().subscribe({
-      next: (res) => {
-        setTimeout(() => {
-          this.custypeList = res;
-          this.cd.detectChanges();
-        })
-      }, error: (err) => {
-        console.log("Load data fail...", err);
-      }
-    })
-  }
-
-  loadDoctype() {
-    this.metadataService.getDoctype().subscribe({
-      next: (res) => {
-        setTimeout(() => {
-          this.doctypeList = res;
-          this.cd.detectChanges();
-        })
-      }, error: (err) => {
-        console.log("Load data fail...", err);
-      }
-    })
-  }
-
-  loadAcctype() {
-    this.metadataService.getAcctypes().subscribe({
-      next: (res) => {
-        setTimeout(() => {
-          this.actypeList = res;
-          this.cd.detectChanges();
-        })
-      }, error: (err) => {
-        console.log("Load AccType fail...", err);
-      }
-    })
-  }
-
-  loadStkType() {
-    this.metadataService.getStaTypes().subscribe({
-      next: (res) => {
-        setTimeout(() => {
-          this.stkTypeList = res;
-          this.cd.detectChanges();
-        })
-      }, error: (err) => {
-        console.log("Load StkType fail...", err);
-      }
-    })
-  }
-
-
-
-  loadAddress() {
-    const requestPayload = {
-      cusId: this.cusId
-    };
-
-    this.addressService.getAddress(requestPayload).subscribe({
-      next: (data: any) => {
-        const home = data.homeAddress || {};
-        const current = data.currentAddress || {};
-
-        this.customerForm.patchValue({
-          homeAddress: {
-            housEno: home.housEno || '',
-            troG_SOI: home.troG_SOI || '',
-            road: home.road || '',
-            prvCODE: home.prvCODE || '',
-            ampCODE: home.ampCODE || '',
-            tmbCODE: home.tmbCODE || '',
-            phone: home.phone || ''
-          },
-          currentAddress: {
-            housEno: current.housEno || '',
-            troG_SOI: current.troG_SOI || '',
-            road: current.road || '',
-            prvCODE: current.prvCODE || '',
-            ampCODE: current.ampCODE || '',
-            tmbCODE: current.tmbCODE || '',
-            phone: current.phone || '',
-            addR1: current.addR1 || '',
-            addR2: current.addR2 || ''
-          }
-        });
-        this.cd.detectChanges();
-      },
-      error: (err: any) => {
-        console.log("Load Address Fail...", err);
-      }
-    });
-  }
 
 
   onProvinceChangeHome(prvCode: string) {
@@ -877,6 +764,78 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     this.cd.detectChanges();
   }
 
+
+  // ฟังก์ชันสำหรับตรวจสอบวิธีการชำระเงิน
+  getPaymentMethod(): string {
+    return this.customerForm?.get('detailSale.stkPayTypeDetail')?.value || '';
+  }
+
+  // ฟังก์ชันสำหรับตรวจสอบว่าควรเป็นสีเทาหรือไม่
+  shouldBeGrayedOut(fieldType: string): boolean {
+    const paymentMethod = this.getPaymentMethod();
+    
+    if (fieldType === 'bankTransfer' && paymentMethod !== '001') {
+      return true; // ช่องโอนจากบัญชีควรเป็นสีเทาเมื่อไม่ได้เลือก
+    }
+    
+    if (fieldType === 'cheque' && paymentMethod !== '004') {
+      return true; // ช่องเช็คควรเป็นสีเทาเมื่อไม่ได้เลือก
+    }
+    
+    return false;
+  }
+
+  // ฟังก์ชันสำหรับตรวจสอบวิธีการรับเงินปันผล
+  getDividendPaymentMethod(): string {
+    return this.customerForm?.get('dividend.dividendStkPayType')?.value || '';
+  }
+
+  // ฟังก์ชันสำหรับตรวจสอบว่าควรเป็นสีเทาหรือไม่สำหรับรับเงินปันผล
+  shouldBeGrayedOutDividend(fieldType: string): boolean {
+    const dividendMethod = this.getDividendPaymentMethod();
+    
+    if (fieldType === 'bankAccount' && dividendMethod !== '001') {
+      return true; // ช่องบัญชีเงินฝากควรเป็นสีเทาเมื่อไม่ได้เลือก
+    }
+    
+    return false;
+  }
+
+  // ฟังก์ชันสำหรับจัดการ disabled state ของ form controls
+  updateFormControlStates() {
+    const paymentMethod = this.getPaymentMethod();
+    const dividendMethod = this.getDividendPaymentMethod();
+
+    // Payment method controls
+    if (paymentMethod === '001') {
+      this.customerForm.get('detailSale.stkSaleByTRACCno')?.enable();
+      this.customerForm.get('detailSale.stkSaleByTRACCname')?.enable();
+    } else {
+      this.customerForm.get('detailSale.stkSaleByTRACCno')?.disable();
+      this.customerForm.get('detailSale.stkSaleByTRACCname')?.disable();
+    }
+
+    if (paymentMethod === '004') {
+      this.customerForm.get('detailSale.stkSaleByCHQno')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQdat')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQbnk')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQbrn')?.enable();
+    } else {
+      this.customerForm.get('detailSale.stkSaleByCHQno')?.disable();
+      this.customerForm.get('detailSale.stkSaleByCHQdat')?.disable();
+      this.customerForm.get('detailSale.stkSaleByCHQbnk')?.disable();
+      this.customerForm.get('detailSale.stkSaleByCHQbrn')?.disable();
+    }
+
+    // Dividend method controls
+    if (dividendMethod === '001') {
+      this.customerForm.get('dividend.stkACCno')?.enable();
+      this.customerForm.get('dividend.stkACCname')?.enable();
+    } else {
+      this.customerForm.get('dividend.stkACCno')?.disable();
+      this.customerForm.get('dividend.stkACCname')?.disable();
+    }
+  }
 
   onBack() {
     this.activeView = 'search';

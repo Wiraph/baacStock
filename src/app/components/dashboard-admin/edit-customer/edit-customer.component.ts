@@ -104,11 +104,17 @@ export class EditCustomerComponent implements OnInit {
       }),
       dividend: this.fb.group({
         stkPayType: [''],
+        dividendStkPayType: [''],
         stkACCno: [''],
         stkACCname: [''],
         stkACCtype: ['']
       })
     })
+    
+    // Subscribe to form value changes to update control states
+    this.customerForm.get('dividend.dividendStkPayType')?.valueChanges.subscribe(() => {
+      this.updateFormControlStates();
+    });
   }
 
   handleData(event: { view: string; cusId: string }) {
@@ -263,14 +269,19 @@ export class EditCustomerComponent implements OnInit {
         customer: customerFormData,
         dividend: {
           stkPayType: this.dividendData?.stkPayType || '',
+          dividendStkPayType: this.dividendData?.stkPayType || '',
           stkACCno: this.dividendData?.stkACCno || '',
           stkACCname: this.dividendData?.stkACCname || '',
           stkACCtype: this.dividendData?.stkACCtype || ''
         }
-      });
-      console.log("Form after populate:", this.customerForm.value);
-      console.log("Form customer part:", this.customerForm.get('customer')?.value);
-      this.cd.detectChanges();
+             });
+       console.log("Form after populate:", this.customerForm.value);
+       console.log("Form customer part:", this.customerForm.get('customer')?.value);
+       
+       // อัปเดตสถานะของฟิลด์ตามค่าเริ่มต้น
+       this.updateFormControlStates();
+       
+       this.cd.detectChanges();
     } else {
       console.log("No customer data available to populate");
 
@@ -376,132 +387,7 @@ export class EditCustomerComponent implements OnInit {
     }
   }
 
-  loadProvince() {
-    this.metadataService.getProvince().subscribe({
-      next: (res) => {
-        this.prvData = res;
-        this.cd.detectChanges();
-      }, error: (err) => {
-        console.log("Load data fail...", err);
-      }
-    })
-  }
 
-  loadAumphor(prvCode: string) {
-    this.metadataService.getAumphor(prvCode).subscribe({
-      next: (res) => {
-        this.ampData = res;
-        this.cd.detectChanges();
-      }, error: (err) => {
-        console.log("Load data fail...", err);
-      }
-    })
-  }
-
-  loadTumbons(prvCode: string, ampCode: string) {
-    this.metadataService.getTumbons(prvCode, ampCode).subscribe({
-      next: (res) => {
-        this.tumbonData = res;
-        this.cd.detectChanges();
-      }, error: (err) => {
-        console.log("Load data fail...", err);
-      }
-    })
-  }
-
-  loadTitle() {
-    this.metadataService.getTitle().subscribe({
-      next: (res) => {
-        setTimeout(() => {
-          this.titleList = res;
-          this.cd.detectChanges();
-        }, 0);
-      }, error: (err) => {
-        console.log("Load data fail...", err);
-      }
-    })
-  }
-
-  loadCustype() {
-    this.metadataService.getCustype().subscribe({
-      next: (res) => {
-        setTimeout(() => {
-          this.custypeList = res;
-          this.cd.detectChanges();
-        })
-      }, error: (err) => {
-        console.log("Load data fail...", err);
-      }
-    })
-  }
-
-  loadDoctype() {
-    this.metadataService.getDoctype().subscribe({
-      next: (res) => {
-        setTimeout(() => {
-          this.doctypeList = res;
-          this.cd.detectChanges();
-        })
-      }, error: (err) => {
-        console.log("Load data fail...", err);
-      }
-    })
-  }
-
-  loadAcctype() {
-    this.metadataService.getAcctypes().subscribe({
-      next: (res) => {
-        setTimeout(() => {
-          this.actypeList = res;
-          this.cd.detectChanges();
-        })
-      }, error: (err) => {
-        console.log("Load AccType fail...", err);
-      }
-    })
-  }
-
-
-
-  loadAddress() {
-    const requestPayload = {
-      cusId: this.cusId
-    };
-
-    this.addressService.getAddress(requestPayload).subscribe({
-      next: (data: any) => {
-        const home = data.homeAddress || {};
-        const current = data.currentAddress || {};
-
-        this.customerForm.patchValue({
-          homeAddress: {
-            housEno: home.housEno || '',
-            troG_SOI: home.troG_SOI || '',
-            road: home.road || '',
-            prvCODE: home.prvCODE || '',
-            ampCODE: home.ampCODE || '',
-            tmbCODE: home.tmbCODE || '',
-            phone: home.phone || ''
-          },
-          currentAddress: {
-            housEno: current.housEno || '',
-            troG_SOI: current.troG_SOI || '',
-            road: current.road || '',
-            prvCODE: current.prvCODE || '',
-            ampCODE: current.ampCODE || '',
-            tmbCODE: current.tmbCODE || '',
-            phone: current.phone || '',
-            addR1: current.addR1 || '',
-            addR2: current.addR2 || ''
-          }
-        });
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        console.log("Load Address Fail...", err);
-      }
-    });
-  }
 
 
   onProvinceChangeHome(prvCode: string) {
@@ -847,6 +733,36 @@ export class EditCustomerComponent implements OnInit {
     };
 
     this.handleData(eventData);
+  }
+
+  // ฟังก์ชันสำหรับตรวจสอบวิธีการรับเงินปันผล
+  getDividendPaymentMethod(): string {
+    return this.customerForm?.get('dividend.dividendStkPayType')?.value || '';
+  }
+
+  // ฟังก์ชันสำหรับตรวจสอบว่าควรเป็นสีเทาหรือไม่สำหรับรับเงินปันผล
+  shouldBeGrayedOutDividend(fieldType: string): boolean {
+    const dividendMethod = this.getDividendPaymentMethod();
+    
+    if (fieldType === 'bankAccount' && dividendMethod !== '001') {
+      return true; // ช่องบัญชีเงินฝากควรเป็นสีเทาเมื่อไม่ได้เลือก
+    }
+    
+    return false;
+  }
+
+  // ฟังก์ชันสำหรับจัดการ disabled state ของ form controls
+  updateFormControlStates() {
+    const dividendMethod = this.getDividendPaymentMethod();
+
+    // Dividend method controls
+    if (dividendMethod === '001') {
+      this.customerForm.get('dividend.stkACCno')?.enable();
+      this.customerForm.get('dividend.stkACCname')?.enable();
+    } else {
+      this.customerForm.get('dividend.stkACCno')?.disable();
+      this.customerForm.get('dividend.stkACCname')?.disable();
+    }
   }
 
   onBack() {

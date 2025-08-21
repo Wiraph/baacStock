@@ -13,13 +13,15 @@
                     <div formGroupName="customer">
                         <div class="grid grid-cols-3 gap-6 px-4">
                             <div class="flex items-center gap-2">
-                                <label for="" class="whitespace-nowrap text-gray-700 font-semibold">
-                                    ประเภทลูกค้า : 
+                                <label for="custype" class="whitespace-nowrap text-gray-700 font-semibold">
+                                    ประเภทลูกค้า :
                                 </label>
-                                <select formControlName="cusCODE" name="cusCODE"
-                                    [class]="'border rounded-md p-2 bg-lime-100 focus:outline-none focus:ring-2 focus:ring-lime-500 w-full ' + (noData('customer.cusCODE') ? 'border-red-500' : 'border-gray-300')">
-                                    <option *ngFor="let custype of custypeList" [value]="custype?.cusType">
-                                        {{custype.cusDesc}}
+                                <select
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-lime-100"
+                                    formControlName="cusCODE" id="custype"
+                                    (change)="onCustypeChange($event)">
+                                    <option *ngFor="let item of custypeList" [value]="item.cusCode">
+                                        {{item.cusCode}} : {{item.cusDesc}}
                                     </option>
                                 </select>
                             </div>
@@ -55,8 +57,7 @@
                             <div class="flex items-center gap-2">
                                 <label for="ref" class="whitespace-nowrap text-gray-700 font-semibold">ref. :</label>
                                 <input id="ref" type="text" formControlName="brCode"
-                                    class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-blue-100"
-                                    autocomplete="off" />
+                                    class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-blue-100" />
                             </div>
                         </div>
                         <div class="grid grid-cols-3 gap-6 px-4 mt-2">

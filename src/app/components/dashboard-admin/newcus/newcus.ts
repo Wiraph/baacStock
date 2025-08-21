@@ -2,25 +2,25 @@ import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ChangeDetectionStr
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SearchEditComponent } from '../dashboard-admin/search-edit/search-edit';
-import { DataTransfer } from '../../services/data-transfer';
-import { CustomerService } from '../../services/customer';
+import { SearchEditComponent } from '../search-edit/search-edit';
+import { DataTransfer } from '../../../services/data-transfer';
+import { CustomerService } from '../../../services/customer';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MetadataService } from '../../services/metadata';
-import { AddressService, AddressDto } from '../../services/address';
+import { MetadataService } from '../../../services/metadata';
+import { AddressService, AddressDto } from '../../../services/address';
 import { of, forkJoin } from 'rxjs';
 import { finalize, switchMap, catchError } from 'rxjs/operators';
-import { Divident } from '../../services/divident';
+import { Divident } from '../../../services/divident';
 import Swal from 'sweetalert2';
 import flatpickr from 'flatpickr';
 import { Thai } from 'flatpickr/dist/l10n/th.js';
-import { Thaidateadapter } from '../thaidateadapter/thaidateadapter';
+import { Thaidateadapter } from '../../thaidateadapter/thaidateadapter';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import ThaiBahtText from 'thai-baht-text';
-import { StockService } from '../../services/stock';
+import { StockService } from '../../../services/stock';
 
 export const THAI_DATE_FORMATS = {
   parse: { dateInput: 'DD/MM/YYYY' },
@@ -34,18 +34,18 @@ export const THAI_DATE_FORMATS = {
 
 @Component({
   standalone: true,
-  selector: 'app-sale-stock',
+  selector: 'app-newcus',
   imports: [CommonModule, ReactiveFormsModule, SearchEditComponent, MatTabsModule, FormsModule, MatFormFieldModule, MatInputModule, MatDatepickerModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './formdetail.html',
-  styleUrl: './formdetail.css',
+  templateUrl: './newcus.html',
+  styleUrl: './newcus.css',
   providers: [
     { provide: DateAdapter, useClass: Thaidateadapter },
     { provide: MAT_DATE_FORMATS, useValue: THAI_DATE_FORMATS },
     { provide: MAT_DATE_LOCALE, useValue: 'th-TH' }
   ]
 })
-export class SaleStockComponent implements OnInit, AfterViewInit {
+export class NewCusComponent implements OnInit, AfterViewInit {
   readonly startDate = new Date();
   selectedDate?: Date;
   activeView = 'search';
@@ -243,10 +243,15 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
 
   initializeNewShareholderForm() {
     if (this.customerForm && this.idCard) {
+      // หาข้อมูลประเภทลูกค้าเริ่มต้น (001)
+      const defaultCustype = this.custypeList.find(item => item.cusCode === '001');
+      
       const formData = {
         customer: {
           cusCODE: '001',
-          brCode: 'New',
+          cusCODEg: defaultCustype?.cusCodeg || '',
+          cusDESCgABBR: defaultCustype?.cusDesc || '',
+          brCode: 'NEW',
           unit: '0' 
         },
         dividend: {
@@ -267,6 +272,27 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
       this.updateFormControlStates();
       
       this.cd.detectChanges();
+    }
+  }
+
+
+
+  // ฟังก์ชันสำหรับจัดการการเปลี่ยนแปลงประเภทลูกค้า (เฉพาะโหมด new-shareholder)
+  onCustypeChange(event: any) {
+    if (this.mode === 'new-shareholder') {
+      const selectedCusCode = event.target.value;
+      const selectedCustype = this.custypeList.find(item => item.cusCode === selectedCusCode);
+      
+      if (selectedCustype) {
+        // อัปเดตประเภทผู้ถือหุ้นตามประเภทลูกค้าที่เลือก
+        this.customerForm.patchValue({
+          customer: {
+            cusCODEg: selectedCustype.cusCodeg || '',
+            cusDESCgABBR: selectedCustype.cusDesc || ''
+          }
+        });
+        this.cd.detectChanges();
+      }
     }
   }
 
