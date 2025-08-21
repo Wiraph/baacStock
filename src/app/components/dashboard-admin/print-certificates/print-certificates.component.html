@@ -25,248 +25,102 @@
                  [class]="isStockNumberDisabled() ? 'flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500 ' : 'flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
         </div>
 
-        <!-- วันที่: เลือกหมวดก่อน (ออกเลขที่ใบหุ้น/ช่วงวันที่ขาย/วันที่สาขาอนุมัติ) -->
-        <div class="flex items-center space-x-3">
-          <input type="radio" id="date" name="searchBy" value="date" 
-                 [(ngModel)]="searchBy"
-                 (change)="onSearchByChange('date')"
-                 class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 focus:ring-green-500">
-          <!-- Dropdown เลือกหมวดวันที่ -->
-          <select [(ngModel)]="dateCategory" (change)="onDateCategoryChange(dateCategory)"
-                  [disabled]="isDateDisabled()"
-                  [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
-            <option value="issue">วันที่ออกเลขที่ใบหุ้น</option>
-            <option value="sale">ช่วงวันที่ขาย</option>
-            <option value="approve">วันที่สาขาอนุมัติ</option>
-          </select>
-          <select [(ngModel)]="dateType" (change)="onDateTypeChange(dateType)" 
-                  [disabled]="isDateDisabled()"
-                  [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
-            <option value="date">ปี</option>
-            <option value="dateRange">ช่วงวันที่</option>
-            <option value="year">วันที่</option>
-          </select>
+                 <!-- วันที่: เลือกหมวดก่อน (ออกเลขที่ใบหุ้น/ช่วงวันที่ขาย/วันที่สาขาอนุมัติ) -->
+         <div class="flex items-center space-x-3">
+           <input type="radio" id="date" name="searchBy" value="date" 
+                  [(ngModel)]="searchBy"
+                  (change)="onSearchByChange('date')"
+                  class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 focus:ring-green-500">
+           <!-- Dropdown เลือกหมวดวันที่ -->
+           <select [(ngModel)]="dateCategory" (change)="onDateCategoryChange(dateCategory)"
+                   [disabled]="isDateDisabled()"
+                   [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
+             <option value="issue">วันที่ออกเลขที่ใบหุ้น</option>
+             <option value="sale">ช่วงวันที่ขาย</option>
+             <option value="approve">วันที่สาขาอนุมัติ</option>
+           </select>
+           <select [(ngModel)]="dateType" (change)="onDateTypeChange(dateType)" 
+                   [disabled]="isDateDisabled()"
+                   [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
+             <option value="year">ปี</option>
+             <option value="dateRange">ช่วงวันที่</option>
+             <option value="date">วันที่</option>
+           </select>
+         </div>
+
+         <!-- วันที่เดียว -->
+         <div class="flex space-x-2 flex-1 ml-7" *ngIf="searchBy === 'date' && dateType === 'date'" [class]="isDateDisabled() ? 'opacity-50 pointer-events-none' : ''">
+           <select [(ngModel)]="issueDay" 
+                   [disabled]="isDateDisabled()"
+                   [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500 cursor-not-allowed' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
+             <option value="" disabled selected>วัน</option>
+             <option *ngFor="let day of dayOptions" [value]="day.value">{{ day.label }}</option>
+           </select>
+           <select [(ngModel)]="issueMonth" 
+                   [disabled]="isDateDisabled()"
+                   [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500 cursor-not-allowed' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
+             <option value="" disabled selected>เดือน</option>
+             <option *ngFor="let month of monthOptions" [value]="month.value">{{ month.label }}</option>
+           </select>
+           <select [(ngModel)]="issueYear" 
+                   [disabled]="isDateDisabled()"
+                   [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500 cursor-not-allowed' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
+             <option value="" disabled selected>ปี</option>
+             <option *ngFor="let year of yearOptions" [value]="year.value">{{ year.label }}</option>
+           </select>
+         </div>
+
+         <!-- ปี -->
+         <div class="ml-7" *ngIf="searchBy === 'date' && dateType === 'year'">
+           <select [(ngModel)]="selectedYear" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+             <option value="" disabled selected>เลือกปี</option>
+             <option *ngFor="let year of yearOptions" [value]="year.value">{{ year.label }}</option>
+           </select>
+         </div>
           
-          <!-- วันที่เดียว -->
-          <div class="flex space-x-2 flex-1" *ngIf="searchBy === 'date' && dateType === 'date'" [class]="isDateDisabled() ? 'opacity-50 pointer-events-none' : ''">
-            <select [(ngModel)]="issueDay" 
-                    [disabled]="isDateDisabled()"
-                    [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500 cursor-not-allowed' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
-              <option value="" disabled selected>วัน</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10</option>
-              <option value="11">11</option>
-              <option value="12">12</option>
-              <option value="13">13</option>
-              <option value="14">14</option>
-              <option value="15">15</option>
-              <option value="16">16</option>
-              <option value="17">17</option>
-              <option value="18">18</option>
-              <option value="19">19</option>
-              <option value="20">20</option>
-              <option value="21">21</option>
-              <option value="22">22</option>
-              <option value="23">23</option>
-              <option value="24">24</option>
-              <option value="25">25</option>
-              <option value="26">26</option>
-              <option value="27">27</option>
-              <option value="28">28</option>
-              <option value="29">29</option>
-              <option value="30">30</option>
-              <option value="31">31</option>
-            </select>
-            <select [(ngModel)]="issueMonth" 
-                    [disabled]="isDateDisabled()"
-                    [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500 cursor-not-allowed' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
-              <option value="" disabled selected>เดือน</option>
-              <option value="1">มกราคม</option>
-              <option value="2">กุมภาพันธ์</option>
-              <option value="3">มีนาคม</option>
-              <option value="4">เมษายน</option>
-              <option value="5">พฤษภาคม</option>
-              <option value="6">มิถุนายน</option>
-              <option value="7">กรกฎาคม</option>
-              <option value="8">สิงหาคม</option>
-              <option value="9">กันยายน</option>
-              <option value="10">ตุลาคม</option>
-              <option value="11">พฤศจิกายน</option>
-              <option value="12">ธันวาคม</option>
-            </select>
-            <select [(ngModel)]="issueYear" 
-                    [disabled]="isDateDisabled()"
-                    [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500 cursor-not-allowed' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
-              <option value="" disabled selected>ปี</option>
-              <option value="2568">2568</option>
-              <option value="2567">2567</option>
-              <option value="2566">2566</option>
-              <option value="2565">2565</option>
-              <option value="2564">2564</option>
-              <option value="2563">2563</option>
-            </select>
-          </div>
-          
-          <!-- ปี -->
-          <div class="flex-1" *ngIf="searchBy === 'date' && dateType === 'year'">
-            <select [(ngModel)]="selectedYear" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-              <option value="" disabled selected>เลือกปี</option>
-              <option value="2568">2568</option>
-              <option value="2567">2567</option>
-              <option value="2566">2566</option>
-              <option value="2565">2565</option>
-              <option value="2564">2564</option>
-              <option value="2563">2563</option>
-            </select>
-          </div>
-          </div>
-          
-        <!-- ช่วงวันที่ -->
-        <div *ngIf="searchBy === 'date' && dateType === 'dateRange'" class="ml-7">
-          <div class="flex items-center space-x-3 mb-2">
-            <label class="text-sm font-medium text-gray-700 min-w-[140px]">วันที่เริ่มต้น</label>
-            <div class="flex space-x-2 flex-1">
-              <select [(ngModel)]="startDay" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                <option value="" disabled selected>วัน</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-                <option value="11">11</option>
-                <option value="12">12</option>
-                <option value="13">13</option>
-                <option value="14">14</option>
-                <option value="15">15</option>
-                <option value="16">16</option>
-                <option value="17">17</option>
-                <option value="18">18</option>
-                <option value="19">19</option>
-                <option value="20">20</option>
-                <option value="21">21</option>
-                <option value="22">22</option>
-                <option value="23">23</option>
-                <option value="24">24</option>
-                <option value="25">25</option>
-                <option value="26">26</option>
-                <option value="27">27</option>
-                <option value="28">28</option>
-                <option value="29">29</option>
-                <option value="30">30</option>
-                <option value="31">31</option>
-              </select>
-              <select [(ngModel)]="startMonth" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                <option value="" disabled selected>เดือน</option>
-                <option value="1">มกราคม</option>
-                <option value="2">กุมภาพันธ์</option>
-                <option value="3">มีนาคม</option>
-                <option value="4">เมษายน</option>
-                <option value="5">พฤษภาคม</option>
-                <option value="6">มิถุนายน</option>
-                <option value="7">กรกฎาคม</option>
-                <option value="8">สิงหาคม</option>
-                <option value="9">กันยายน</option>
-                <option value="10">ตุลาคม</option>
-                <option value="11">พฤศจิกายน</option>
-                <option value="12">ธันวาคม</option>
-              </select>
-              <select [(ngModel)]="startYear" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                <option value="" disabled selected>ปี</option>
-                <option value="2568">2568</option>
-                <option value="2567">2567</option>
-                <option value="2566">2566</option>
-                <option value="2565">2565</option>
-                <option value="2564">2564</option>
-                <option value="2563">2563</option>
-              </select>
-            </div>
-          </div>
-          
-          <div class="text-center text-sm text-gray-600 mb-2">ถึง</div>
-          
-          <div class="flex items-center space-x-3">
-            <label class="text-sm font-medium text-gray-700 min-w-[140px]">วันที่สิ้นสุด</label>
-            <div class="flex space-x-2 flex-1">
-              <select [(ngModel)]="endDay" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                <option value="" disabled selected>วัน</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-                <option value="11">11</option>
-                <option value="12">12</option>
-                <option value="13">13</option>
-                <option value="14">14</option>
-                <option value="15">15</option>
-                <option value="16">16</option>
-                <option value="17">17</option>
-                <option value="18">18</option>
-                <option value="19">19</option>
-                <option value="20">20</option>
-                <option value="21">21</option>
-                <option value="22">22</option>
-                <option value="23">23</option>
-                <option value="24">24</option>
-                <option value="25">25</option>
-                <option value="26">26</option>
-                <option value="27">27</option>
-                <option value="28">28</option>
-                <option value="29">29</option>
-                <option value="30">30</option>
-                <option value="31">31</option>
-              </select>
-              <select [(ngModel)]="endMonth" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                <option value="" disabled selected>เดือน</option>
-                <option value="1">มกราคม</option>
-                <option value="2">กุมภาพันธ์</option>
-                <option value="3">มีนาคม</option>
-                <option value="4">เมษายน</option>
-                <option value="5">พฤษภาคม</option>
-                <option value="6">มิถุนายน</option>
-                <option value="7">กรกฎาคม</option>
-                <option value="8">สิงหาคม</option>
-                <option value="9">กันยายน</option>
-                <option value="10">ตุลาคม</option>
-                <option value="11">พฤศจิกายน</option>
-                <option value="12">ธันวาคม</option>
-              </select>
-              <select [(ngModel)]="endYear" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                <option value="" disabled selected>ปี</option>
-                <option value="2568">2568</option>
-                <option value="2567">2567</option>
-                <option value="2566">2566</option>
-                <option value="2565">2565</option>
-                <option value="2564">2564</option>
-                <option value="2563">2563</option>
-              </select>
-            </div>
-          </div>
+                 <!-- ช่วงวันที่ -->
+         <div *ngIf="searchBy === 'date' && dateType === 'dateRange'" class="ml-7">
+           <div class="flex items-center space-x-3 mb-2">
+             <label for="" class="text-sm font-medium text-gray-700 min-w-[85px]">ตั้งแต่วันที่</label>
+             <div class="flex space-x-2 flex-1">
+               <select [(ngModel)]="startDay" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                 <option value="" disabled selected>วัน</option>
+                 <option *ngFor="let day of dayOptions" [value]="day.value">{{ day.label }}</option>
+               </select>
+               <select [(ngModel)]="startMonth" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                 <option value="" disabled selected>เดือน</option>
+                 <option *ngFor="let month of monthOptions" [value]="month.value">{{ month.label }}</option>
+               </select>
+               <select [(ngModel)]="startYear" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                 <option value="" disabled selected>ปี</option>
+                 <option *ngFor="let year of yearOptions" [value]="year.value">{{ year.label }}</option>
+               </select>
+             </div>
+           </div>
+            <div class="flex items-center space-x-3">
+             <label for="" class="text-sm font-medium text-gray-700 min-w-[85px]">ถึงวันที่</label>
+             <div class="flex space-x-2 flex-1">
+               <select [(ngModel)]="endDay" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                 <option value="" disabled selected>วัน</option>
+                 <option *ngFor="let day of dayOptions" [value]="day.value">{{ day.label }}</option>
+               </select>
+               <select [(ngModel)]="endMonth" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                 <option value="" disabled selected>เดือน</option>
+                 <option *ngFor="let month of monthOptions" [value]="month.value">{{ month.label }}</option>
+               </select>
+               <select [(ngModel)]="endYear" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                 <option value="" disabled selected>ปี</option>
+                 <option *ngFor="let year of yearOptions" [value]="year.value">{{ year.label }}</option>
+               </select>
+             </div>
+           </div>
         </div>
       </div>
 
       <!-- ตัวอย่างผู้ลงนาม -->
       <div class="space-y-4 mb-6">
         <div class="flex items-center space-x-3">
-          <label class="text-sm font-medium text-gray-700 min-w-[140px]">ผู้ลงนาม 1</label>
+          <label for="" class="text-sm font-medium text-gray-700 min-w">ผู้ลงนาม 1</label>
           <select [(ngModel)]="signatory1" class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
             <option value="">เลือกผู้ลงนาม</option>
             <option value="นาย ก">นาย ก</option>
@@ -276,7 +130,7 @@
         </div>
         
         <div class="flex items-center space-x-3">
-          <label class="text-sm font-medium text-gray-700 min-w-[140px]">ผู้ลงนาม 2</label>
+          <label for="" class="text-sm font-medium text-gray-700 min-w">ผู้ลงนาม 2</label>
           <select [(ngModel)]="signatory2" class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
             <option value="">เลือกผู้ลงนาม</option>
             <option value="นาย ก">นาย ก</option>
