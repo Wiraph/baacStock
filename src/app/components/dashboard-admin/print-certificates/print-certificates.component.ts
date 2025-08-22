@@ -138,7 +138,7 @@ export class PrintCertificatesComponent implements OnInit {
     this.signatureService.getSignatures().subscribe({
       next: (signatures) => {
         this.apiResponse = signatures;
-        this.signatures = signatures.filter(sig => sig.isActive);
+        this.signatures = signatures.filter(sig => !sig.substituteTo);
         this.loadingSignatures = false;
       },
       error: (error) => {
