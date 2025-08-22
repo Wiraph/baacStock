@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { SignatureService, Signature, StockData } from '../../../services/signature';
 
 @Component({
   selector: 'app-print-certificates',
@@ -9,74 +10,40 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './print-certificates.component.html',
   styleUrls: ['./print-certificates.component.css']
 })
-export class PrintCertificatesComponent {
+export class PrintCertificatesComponent implements OnInit {
   
-  // ประเภทหมวดวันที่ (dropdown ใหม่ก่อนเลือกชนิดช่วงเวลา)
   dateCategory: 'issue' | 'sale' | 'approve' = 'issue';
-
-  // Properties สำหรับจัดการ radio button selection
   searchBy: 'stockNumber' | 'date' = 'stockNumber';
   dateType: 'date' | 'dateRange' | 'year' = 'date';
 
-  
-  // Properties สำหรับ input values
   stockNumber: string = '';
   
-  // Properties สำหรับวันที่
   issueDay: string = '';
   issueMonth: string = '';
-  issueYear: string = '2568';
+  issueYear: string = '';
   
-  // Properties สำหรับช่วงวันที่
   startDay: string = '';
   startMonth: string = '';
-  startYear: string = '2568';
+  startYear: string = '';
   endDay: string = '';
   endMonth: string = '';
-  endYear: string = '2568';
+  endYear: string = '';
   
-  // Properties สำหรับปี
-  selectedYear: string = '2568';
+  selectedYear: string = '';
   
-  // Properties สำหรับผู้ลงนาม
   signatory1: string = '';
   signatory2: string = '';
+  signatures: Signature[] = [];
+  loadingSignatures: boolean = false;
+  signatureError: string = '';
+  apiResponse: any = null;
 
-  // Date Options Arrays - รวมวันเดือนปีไว้ที่หลังบ้าน
-  readonly dayOptions = [
-    { value: '1', label: '1' },
-    { value: '2', label: '2' },
-    { value: '3', label: '3' },
-    { value: '4', label: '4' },
-    { value: '5', label: '5' },
-    { value: '6', label: '6' },
-    { value: '7', label: '7' },
-    { value: '8', label: '8' },
-    { value: '9', label: '9' },
-    { value: '10', label: '10' },
-    { value: '11', label: '11' },
-    { value: '12', label: '12' },
-    { value: '13', label: '13' },
-    { value: '14', label: '14' },
-    { value: '15', label: '15' },
-    { value: '16', label: '16' },
-    { value: '17', label: '17' },
-    { value: '18', label: '18' },
-    { value: '19', label: '19' },
-    { value: '20', label: '20' },
-    { value: '21', label: '21' },
-    { value: '22', label: '22' },
-    { value: '23', label: '23' },
-    { value: '24', label: '24' },
-    { value: '25', label: '25' },
-    { value: '26', label: '26' },
-    { value: '27', label: '27' },
-    { value: '28', label: '28' },
-    { value: '29', label: '29' },
-    { value: '30', label: '30' },
-    { value: '31', label: '31' }
-  ];
+  // ข้อมูลหุ้น
+  stockList: StockData[] = [];
+  loadingStocks: boolean = false;
+  stockError: string = '';
 
+  dayOptions: { value: string; label: string }[] = [];
   readonly monthOptions = [
     { value: '1', label: 'มกราคม' },
     { value: '2', label: 'กุมภาพันธ์' },
@@ -154,13 +121,184 @@ export class PrintCertificatesComponent {
     { value: '2510', label: '2510' }
   ];
   
-  constructor() { }
+  constructor(
+    private readonly signatureService: SignatureService
+  ) { }
 
-  // Method สำหรับเปลี่ยนประเภทการค้นหา (เลขที่ใบหุ้น หรือ วันที่)
+  ngOnInit() {
+    this.loadSignatures();
+    this.updateDayOptions();
+  }
+
+  loadSignatures() {
+    this.loadingSignatures = true;
+    this.signatureError = '';
+    this.apiResponse = null;
+    
+    this.signatureService.getSignatures().subscribe({
+      next: (signatures) => {
+        this.apiResponse = signatures;
+        this.signatures = signatures.filter(sig => sig.isActive);
+        this.loadingSignatures = false;
+      },
+      error: (error) => {
+        this.loadingSignatures = false;
+        this.signatureError = 'ไม่สามารถโหลดข้อมูลผู้ลงนามได้ กรุณาลองใหม่อีกครั้ง';
+        this.signatures = [];
+        this.apiResponse = null;
+      }
+    });
+  }
+
+  searchStocks() {
+    this.loadingStocks = true;
+    this.stockError = '';
+    this.stockList = [];
+
+    const payload = this.buildSearchPayload();
+    console.log('Search payload:', payload);
+    
+    this.signatureService.getStockData(payload).subscribe({
+      next: (response: StockData[]) => {
+        console.log('API Response:', response);
+        this.stockList = response || [];
+        this.loadingStocks = false;
+      },
+      error: (error: any) => {
+        console.error('Search error:', error);
+        this.loadingStocks = false;
+        this.stockError = 'ไม่สามารถค้นหาข้อมูลหุ้นได้ กรุณาลองใหม่อีกครั้ง';
+        this.stockList = [];
+      }
+    });
+  }
+
+  private buildSearchPayload(): any {
+    const payload: any = {
+      action: 'SEARCH'
+    };
+
+    if (this.searchBy === 'stockNumber') {
+      payload.stkNote = this.stockNumber;
+    } else {
+      // ค้นหาด้วยวันที่
+      if (this.dateType === 'date' && this.issueDay && this.issueMonth && this.issueYear) {
+        const date = this.formatDateForAPI(this.issueDay, this.issueMonth, this.issueYear);
+        this.setDateField(payload, date);
+      } else if (this.dateType === 'dateRange' && this.startDay && this.startMonth && this.startYear && this.endDay && this.endMonth && this.endYear) {
+        const startDate = this.formatDateForAPI(this.startDay, this.startMonth, this.startYear);
+        const endDate = this.formatDateForAPI(this.endDay, this.endMonth, this.endYear);
+        this.setDateRangeField(payload, startDate, endDate);
+      } else if (this.dateType === 'year' && this.selectedYear) {
+        this.setYearField(payload, this.selectedYear);
+      }
+    }
+
+    return payload;
+  }
+
+  private setDateField(payload: any, date: string) {
+    switch (this.dateCategory) {
+      case 'issue':
+        payload.stkDateIssue = date;
+        break;
+      case 'sale':
+        payload.stkDateEffect = date;
+        break;
+      case 'approve':
+        payload.stkDateApprove = date;
+        break;
+    }
+  }
+
+  private setDateRangeField(payload: any, startDate: string, endDate: string) {
+    switch (this.dateCategory) {
+      case 'issue':
+        payload.stkDateIssueFrom = startDate;
+        payload.stkDateIssueTo = endDate;
+        break;
+      case 'sale':
+        payload.stkDateEffectFrom = startDate;
+        payload.stkDateEffectTo = endDate;
+        break;
+      case 'approve':
+        payload.stkDateApproveFrom = startDate;
+        payload.stkDateApproveTo = endDate;
+        break;
+    }
+  }
+
+  private setYearField(payload: any, year: string) {
+    const christianYear = parseInt(year) - 543;
+    switch (this.dateCategory) {
+      case 'issue':
+        payload.stkDateIssueYear = christianYear;
+        break;
+      case 'sale':
+        payload.stkDateEffectYear = christianYear;
+        break;
+      case 'approve':
+        payload.stkDateApproveYear = christianYear;
+        break;
+    }
+  }
+
+  private formatDateForAPI(day: string, month: string, year: string): string {
+    const christianYear = parseInt(year) - 543;
+    const monthStr = month.padStart(2, '0');
+    const dayStr = day.padStart(2, '0');
+    return `${christianYear}-${monthStr}-${dayStr}`;
+  }
+
+  isLeapYear(year: number): boolean {
+    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+  }
+
+  getDaysInMonth(month: number, year: number): number {
+    const daysInMonth = [31, this.isLeapYear(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    return daysInMonth[month - 1];
+  }
+
+  updateDayOptions(month?: string, year?: string) {
+    const selectedMonth = month ? parseInt(month) : new Date().getMonth() + 1;
+    const selectedYear = year ? parseInt(year) : new Date().getFullYear() + 543;
+    
+    const christianYear = selectedYear - 543;
+    const daysInMonth = this.getDaysInMonth(selectedMonth, christianYear);
+    
+    this.dayOptions = [];
+    for (let i = 1; i <= daysInMonth; i++) {
+      this.dayOptions.push({ value: i.toString(), label: i.toString() });
+    }
+  }
+
+  onMonthChange(month: string, year: string) {
+    this.updateDayOptions(month, year);
+    
+    const christianYear = parseInt(year) - 543;
+    const daysInMonth = this.getDaysInMonth(parseInt(month), christianYear);
+    const currentDay = parseInt(this.issueDay);
+    
+    if (currentDay > daysInMonth) {
+      this.issueDay = '';
+    }
+  }
+
+  onYearChange(year: string, month: string) {
+    this.updateDayOptions(month, year);
+    
+    const christianYear = parseInt(year) - 543;
+    const daysInMonth = this.getDaysInMonth(parseInt(month), christianYear);
+    const currentDay = parseInt(this.issueDay);
+    
+    if (currentDay > daysInMonth) {
+      this.issueDay = '';
+    }
+  }
+
   onSearchByChange(type: 'stockNumber' | 'date') {
     this.searchBy = type;
     
-    // Clear values เมื่อเปลี่ยนประเภทการค้นหา
     if (type === 'stockNumber') {
       this.issueDay = '';
       this.issueMonth = '';
@@ -174,11 +312,9 @@ export class PrintCertificatesComponent {
     }
   }
 
-  // Method สำหรับเปลี่ยนประเภทวันที่
   onDateTypeChange(type: 'date' | 'dateRange' | 'year') {
     this.dateType = type;
     
-    // Clear values เมื่อเปลี่ยนประเภทวันที่
     this.issueDay = '';
     this.issueMonth = '';
     this.startDay = '';
@@ -188,12 +324,10 @@ export class PrintCertificatesComponent {
     this.selectedYear = '';
   }
 
-  // Method สำหรับเปลี่ยนหมวดวันที่ (วันที่ออก/ช่วงวันที่ขาย/วันที่สาขาอนุมัติ)
   onDateCategoryChange(type: 'issue' | 'sale' | 'approve') {
     this.dateCategory = type;
   }
 
-  // Method สำหรับตรวจสอบว่า input ควรถูก disable หรือไม่
   isStockNumberDisabled(): boolean {
     return this.searchBy === 'date';
   }
@@ -202,36 +336,8 @@ export class PrintCertificatesComponent {
     return this.searchBy === 'stockNumber';
   }
 
-  // Method สำหรับค้นหา
   onSearch() {
-    console.log('ค้นหาด้วย:', {
-      searchBy: this.searchBy,
-      stockNumber: this.stockNumber,
-      dateType: this.dateType,
-      dateCategory: this.dateCategory,
-      date: {
-        day: this.issueDay,
-        month: this.issueMonth,
-        year: this.issueYear
-      },
-      dateRange: {
-        start: {
-          day: this.startDay,
-          month: this.startMonth,
-          year: this.startYear
-        },
-        end: {
-          day: this.endDay,
-          month: this.endMonth,
-          year: this.endYear
-        }
-      },
-      year: this.selectedYear,
-      signatory1: this.signatory1,
-      signatory2: this.signatory2
-    });
-    
-    // TODO: เพิ่ม logic การค้นหาจริง
+    this.searchStocks();
   }
 
   getCurrentDate(): string {
