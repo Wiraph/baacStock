@@ -106,6 +106,7 @@ export class AnnualdividendcalculatorComponent implements OnInit {
   dividendDesc: string = '';
   titlePageShowDetail: string = '';
   hidded: boolean = true;
+  voucher: boolean = false;
 
   constructor(
     private readonly dividendService: Divident,
@@ -465,34 +466,9 @@ export class AnnualdividendcalculatorComponent implements OnInit {
   }
 
   exportPDF() {
-    const DATA: any = this.voucherDiv.nativeElement;
-
-    html2canvas(DATA, { scale: 2 }).then(canvas => {
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const contentDataURL = canvas.toDataURL('image/png');
-
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      let position = 0;
-
-      if (imgHeight < pageHeight) {
-        pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
-      } else {
-        // ถ้า content ยาวเกิน pageHeight
-        let heightLeft = imgHeight;
-        while (heightLeft > 0) {
-          pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-          if (heightLeft > 0) {
-            pdf.addPage();
-            position = -heightLeft + pageHeight;
-          }
-        }
-      }
-
-      pdf.save('voucher.pdf');
-    });
+    this.voucher = true;
+    console.log(this.voucher);
+    this.cd.detectChanges();
   }
 
   /**
@@ -615,3 +591,47 @@ export class DialogAnimationsExampleDialog {
     console.log('Key pressed:', event.key, row);
   }
 }
+
+@Component({
+  selector: 'voucher-component',
+  templateUrl: './voucher.html',
+  styleUrls: ['./annualdividendcalculator.css'],
+  imports: [],
+})
+export class VoucherComponent implements OnInit {
+  @ViewChild('voucherDiv') voucherDiv!: ElementRef;
+
+  ngOnInit(): void {
+    const DATA: any = this.voucherDiv.nativeElement;
+
+    html2canvas(DATA, { scale: 2 }).then(canvas => {
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const contentDataURL = canvas.toDataURL('image/png');
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      let position = 0;
+
+      if (imgHeight < pageHeight) {
+        pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+      } else {
+        // ถ้า content ยาวเกิน pageHeight
+        let heightLeft = imgHeight;
+        while (heightLeft > 0) {
+          pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+          if (heightLeft > 0) {
+            pdf.addPage();
+            position = -heightLeft + pageHeight;
+          }
+        }
+      }
+
+      pdf.save('voucher.pdf');
+    });
+  }
+
+
+}
+
