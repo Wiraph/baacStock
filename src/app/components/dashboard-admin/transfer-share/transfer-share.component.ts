@@ -449,7 +449,6 @@ export class TransferShareComponent implements OnInit {
       cancelButtonText: 'ยกเลิก'
     }).then((result) => {
       if (result.isConfirmed) {
-          // TODO: เรียก API บันทึกข้อมูล
           this.stocktransferService.transferRequest(payload).subscribe({
             next: (res) => {
               console.log("Success", res);
