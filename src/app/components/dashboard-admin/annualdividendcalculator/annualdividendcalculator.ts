@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, Inject, PLATFORM_ID, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, Inject, PLATFORM_ID, inject, ElementRef, ViewChild } from '@angular/core';
 import { Divident } from '../../../services/divident';
 import Swal from 'sweetalert2';
 import { Thai } from 'flatpickr/dist/l10n/th.js';
@@ -24,6 +24,10 @@ import {
 import { saveAs } from 'file-saver';
 import * as ExcelJS from 'exceljs';
 import { lastValueFrom } from 'rxjs';
+import { NgxPrintModule } from 'ngx-print';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
 
 interface DividendRequest {
   setAct: number;
@@ -60,6 +64,7 @@ export const THAI_DATE_FORMATS = {
     MatPaginatorModule,
     MatButtonModule,
     MatTooltipModule,
+    NgxPrintModule
   ],
   templateUrl: './annualdividendcalculator.html',
   styleUrls: ['./annualdividendcalculator.css'], // แก้เป็น styleUrls
@@ -75,7 +80,9 @@ export const THAI_DATE_FORMATS = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnnualdividendcalculatorComponent implements OnInit {
+  @ViewChild('voucherDiv') voucherDiv!: ElementRef;
   readonly dialog = inject(MatDialog);
+  pdfMake: any;
   dividend: any = '';
   dividendList: any[] = [];
   dividendOwner: any[] = [];
@@ -97,7 +104,8 @@ export class AnnualdividendcalculatorComponent implements OnInit {
   length: number | null = null;
   pageSizeOptions = [20, 40, 60, 80, 100];
   dividendDesc: string = '';
-  titlePageShowDetail: string ='';
+  titlePageShowDetail: string = '';
+  hidded: boolean = true;
 
   constructor(
     private readonly dividendService: Divident,
@@ -134,9 +142,8 @@ export class AnnualdividendcalculatorComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.changeLoading(true);
+    this.loading = true;
     this.calDividend();
-
   }
 
   ngAfterViewInit(): void {
@@ -179,9 +186,15 @@ export class AnnualdividendcalculatorComponent implements OnInit {
     this.showCalendarPaid = false;
   }
 
-  submit(setact: number, doACT: string): void {
-    console.log("DOACT", doACT);
-    console.log("setact", setact);
+  submit(doACT: string): void {
+    console.log(doACT);
+    let setact: number | null = null;
+    switch (doACT) {
+      case 'DOCAL': setact = 2; break;
+      case 'APPRV': setact = 3; break;
+      default: setact = 0; break;
+    }
+
     let message: string[] = [];
     let payload: any = {};
     let MSGs = `คำนวณหุ้นปันผลประจำปี\nปีงบประมาณ` + this.dividend.stkYEARc + ` ครั้งที่ ` + this.dividend.stkTIME;
@@ -191,7 +204,7 @@ export class AnnualdividendcalculatorComponent implements OnInit {
       case 'APPRV': MSGs = 'อนุมัติการ' + MSGs; break;
     }
 
-    if (setact == 2 && doACT == 'DOCAL') {
+    if (doACT == 'DOCAL') {
       if (
         !this.dataForm.year ||
         isNaN(Number(this.dataForm.year)) ||
@@ -215,17 +228,26 @@ export class AnnualdividendcalculatorComponent implements OnInit {
         return
       }
     }
-    if (setact === 2 || setact === 3) {
+    if (doACT == 'DOCAL') {
       payload = {
-        setAct: setact,
+        setAct: Number(setact),
         stkYear: this.dataForm.year ?? '',
         stkTime: Number(this.dataForm.time ?? 0),
         stkRate: Number(this.dataForm.dividend ?? 0),
         dateMeet: this.formatDatetoString(this.selectedDateMeet),
         datePaid: this.formatDatetoString(this.selectedDatePaid),
-        dateApprove: null
       };
       console.log("Payload", payload);
+    }
+    if (doACT == 'APPRV') {
+      payload = {
+        setAct: Number(setact),
+        stkYear: this.dataForm.year ?? '',
+        stkTime: Number(null),
+        stkRate: Number(null),
+        dateMeet: String(null),
+        datePaid: String(null),
+      };
     }
 
     Swal.fire({
@@ -238,46 +260,45 @@ export class AnnualdividendcalculatorComponent implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         this.loading = true;
-        if (setact == 2 || setact == 3) {
-          this.calDividend(doACT, payload);
-        } else if (setact == 0 && doACT == 'RECAL') {
+        this.cd.detectChanges();
+        if (doACT === 'RECAL') {
           this.dividendService.deleteDividendLST().subscribe({
             next: (res: any) => {
               console.log(res.message);
+              this.ngOnInit();
             }, error: (err) => {
               console.log("Err", err);
             }
           })
-          window.location.reload();
         }
         else {
-          this.calDividend();
+          this.calDividend(doACT, payload);
         }
-        this.cd.detectChanges();
       }
     })
   }
 
   calDividend(doact: string = "", payload: any = {}) {
-    console.log("Payload", payload);
+    this.loading = true;
     this.dividendService.getAllDividend(payload).subscribe({
       next: (res: any) => {
         this.dividend = res;
+        console.log("Dividend", this.dividend);
         this.selectedDateMeet = this.thaiNumberToDate(this.dividend?.dateMEET);
         this.selectedDatePaid = this.thaiNumberToDate(this.dividend?.datePAiD);
         this.dataForm.year = this.dividend.stkYEARc;
         this.dataForm.time = this.dividend.stkTIME;
         this.dataForm.dividend = this.dividend.stkRATE;
-        if (this.dividend.dType == 1 || this.dividend.dType == 0) {
-          this.dividendDesc = 'ก่อนการอนุมัติ';
+        if (this.dividend.dateAPPROVE == '') {
+          this.dividendDesc = '( ก่อนการอนุมัติ )';
         } else {
-          this.dividendDesc = 'หลังอนุมัติ';
+          this.dividendDesc = '( หลังอนุมัติ )';
         }
         this.activeView = 'data';
         if (doact != '') {
           this.ngOnInit();
         }
-        this.changeLoading(false);
+        this.loading = false;
         this.cd.detectChanges();
       },
       error: () => {
@@ -292,10 +313,10 @@ export class AnnualdividendcalculatorComponent implements OnInit {
 
   showDetail(pgNum: number = 1, pgSize: number = 20, year: string = ""): void {
     this.activeView = 'tables';
-    if (this.dividend.dType == 1) {
-      this.titlePageShowDetail = '(ก่อนการประชุม)';
-    }else {
-      this.titlePageShowDetail = '(หลังการประชุม)';
+    if (this.dividend.dateAPPROVE == '') {
+      this.titlePageShowDetail = '( ก่อนการประชุม )';
+    } else {
+      this.titlePageShowDetail = '( หลังการประชุม )';
     }
     this.loading = true;
     const payload = {
@@ -337,7 +358,7 @@ export class AnnualdividendcalculatorComponent implements OnInit {
     const dateMeet = this.formatDateNew(this.dividend.dateMEET);
     const datePaid = this.formatDateNew(this.dividend.datePAiD);
     const rate = this.dividend.stkRATE;
-    let approve: string = this.dividend.dType == 1 ? "(ยังไม่อนุมัติ)" : "(อนุมัติแล้ว)";
+    let approve: string = this.dividend.dateAPPRROVE ? "( ยังไม่อนุมัติ )" : "( อนุมัติแล้ว )";
 
     const payload = { year: '', pgNum: Number(null), pgSize: Number(null) };
 
@@ -412,7 +433,7 @@ export class AnnualdividendcalculatorComponent implements OnInit {
         row.remark
       ]);
       dataRow.font = normalFont;
-      dataRow.eachCell(cell => {
+      dataRow.eachCell((cell: any) => {
         cell.border = {
           top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' }
         };
@@ -443,7 +464,36 @@ export class AnnualdividendcalculatorComponent implements OnInit {
     saveAs(new Blob([buffer]), `Dividend_${year}.xlsx`);
   }
 
+  exportPDF() {
+    const DATA: any = this.voucherDiv.nativeElement;
 
+    html2canvas(DATA, { scale: 2 }).then(canvas => {
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const contentDataURL = canvas.toDataURL('image/png');
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      let position = 0;
+
+      if (imgHeight < pageHeight) {
+        pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+      } else {
+        // ถ้า content ยาวเกิน pageHeight
+        let heightLeft = imgHeight;
+        while (heightLeft > 0) {
+          pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+          if (heightLeft > 0) {
+            pdf.addPage();
+            position = -heightLeft + pageHeight;
+          }
+        }
+      }
+
+      pdf.save('voucher.pdf');
+    });
+  }
 
   /**
   * แปลงเลขวันที่แบบ YYYYMMDD (พ.ศ.) เป็น Date object
@@ -466,10 +516,6 @@ export class AnnualdividendcalculatorComponent implements OnInit {
     const day = parseInt(str.slice(6, 8), 10);
 
     return new Date(year, month, day);
-  }
-
-  changeLoading(status: boolean) {
-    this.loading = status;
   }
 
   formatDate(date: string | number): string {

@@ -4,7 +4,7 @@
         <div *ngIf="dividend?.dType == -1  && activeView != 'tables'">
             <p class="text-center py-4 text-orange-400 text-xl">{{ dividend?.result }}</p>
         </div>
-        <div *ngIf="dividend?.dType == 0  && activeView != 'tables'">
+        <div *ngIf="dividend?.dType == 0   && activeView != 'tables'">
             <div class="py-4 ">
                 <div class="grid grid-cols-3 gap-3 items-center">
                     <label for="" class="text-right">ปีบัญชีที่จ่ายเงินปันผล : </label>
@@ -54,7 +54,7 @@
                     <p></p>
                 </div>
                 <div class="flex justify-center mt-4">
-                    <button type="submit" (click)="submit(2, 'DOCAL')"
+                    <button type="submit" (click)="submit('DOCAL')"
                         class="bg-lime-500 text-white py-3 px-6 rounded shadow-sm cursor-pointer hover:scale-110">
                         ตกลง
                     </button>
@@ -65,7 +65,7 @@
         <div *ngIf="dividend?.dType == 1 && activeView != 'tables'" class="pb-5">
             <div class="text-center">
                 <p>เงินปันผลจ่ายประจำปีบัญชี {{dividend?.stkYEARc}}</p>
-                <p>ครั้งที่ {{dividend?.stkTIME}} ({{dividendDesc}})</p>
+                <p>ครั้งที่ {{dividend?.stkTIME}} {{dividendDesc}}</p>
                 <p>จ่ายเงินปันผล วันที่ {{ formatDateNew(dividend?.datePAiD) }} ในอัตราหุ้นละ {{dividend?.stkRATE}} บาท
                 </p>
                 <div class="items-center flex flex-col align-middle p-5">
@@ -85,13 +85,21 @@
                         <p class="text-left">บาท</p>
                     </div>
                 </div>
-                <div class="flex gap-3 justify-center">
+                <div class="flex gap-3 justify-center" *ngIf="dividend?.dateAPPROVE == ''">
                     <button (click)="showDetail()" matTooltip="แสดงรายละเอียด"
-                        class="bg-lime-500 text-white w-40 py-2 rounded hover:outline-amber-600 hover:outline-2">แสดงรายละเอียด</button>
-                    <button (click)="submit(0, 'RECAL')" matTooltip="คำนวณใหม่"
-                        class="bg-lime-500 text-white w-40 py-2 rounded hover:outline-amber-600 hover:outline-2">คำนวณใหม่</button>
-                    <button matTooltip="อนุมัติ"
-                        class="bg-lime-500 text-white w-40 py-2 rounded hover:outline-amber-600 hover:outline-2">อนุมัติ</button>
+                        class="bg-lime-500 text-white w-40 py-2 rounded hover:outline-amber-600 hover:outline-2 cursor-pointer">แสดงรายละเอียด</button>
+                    <button (click)="submit('RECAL')" matTooltip="คำนวณใหม่"
+                        class="bg-lime-500 text-white w-40 py-2 rounded hover:outline-amber-600 hover:outline-2 cursor-pointer">คำนวณใหม่</button>
+                    <button matTooltip="อนุมัติ" (click)="submit('APPRV')"
+                        class="bg-lime-500 text-white w-40 py-2 rounded hover:outline-amber-600 hover:outline-2 cursor-pointer">อนุมัติ</button>
+                </div>
+                <div class="flex gap-3 justify-center" *ngIf="dividend?.dateAPPROVE != ''">
+                    <button printSectionId="print-section" ngxPrint [useExistingCss]="true"
+                        class="bg-lime-500 text-white w-40 py-2 rounded hover:outline-amber-600 hover:outline-2 cursor-pointer">พิมพ์</button>
+                    <button (click)="exportPDF()" matTooltip="คำนวณใหม่"
+                        class="bg-lime-500 text-white w-40 py-2 rounded hover:outline-amber-600 hover:outline-2 cursor-pointer">Voucher</button>
+                    <button matTooltip="แสดงรายละเอียด" (click)="showDetail()"
+                        class="bg-lime-500 text-white w-40 py-2 rounded hover:outline-amber-600 hover:outline-2 cursor-pointer">แสดงรายละเอียด</button>
                 </div>
             </div>
         </div>
@@ -103,11 +111,9 @@
         <p class="text-lg text-center bg-lime-500 rounded-t-md py-2 text-white">รายละเอียดการจ่ายเงินปันผลประจำปีบัญชี
             {{dividend.stkYEARc}} {{titlePageShowDetail}}</p>
         <div class="flex gap-3 items-center justify-center">
-            <button (click)="back()"
-                matTooltip="กลับ"
+            <button (click)="back()" matTooltip="กลับ"
                 class="bg-lime-500 border-2 border-lime-500 text-white py-2 w-40 rounded hover:border-amber-500 hover:border-2 cursor-pointer">กลับ</button>
-            <button (click)="exportExcel()"
-                matTooltip="Export File"
+            <button (click)="exportExcel()" matTooltip="Export File"
                 class="bg-lime-500 border-2 border-lime-500 text-white py-2 w-40 rounded hover:border-amber-500 hover:border-2 cursor-pointer">Export
                 File</button>
         </div>
@@ -181,7 +187,7 @@
 </ng-template>
 
 <!-- Loading Overlay -->
-<div *ngIf="loading" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50"
+<div *ngIf="loading" class="content fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50"
     style="background-color: rgba(128, 128, 128, 0.7);">
     <div class="text-center">
         <svg class="animate-spin h-10 w-10 text-blue-300 mx-auto mb-4" viewBox="0 0 24 24">
@@ -189,5 +195,161 @@
             <path class="opacity-75" fill="white" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
         </svg>
         <p class="text-white font-semibold">กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
+    </div>
+</div>
+
+<!-- ส่วนที่ต้องพิมพ์ -->
+<div id="print-section" style="width: 100%; justify-content: center; display: none;">
+    <div class="content">
+        <table>
+            <tr>
+                <th colspan="3" style="text-align: center; font-weight: 400;">เงินปันผลจ่ายประจำปีบัญชี
+                    {{dataForm.year}}</th>
+            </tr>
+            <tr>
+                <td colspan="3" style="text-align: center;">ครั้งที่ {{dataForm.time}} {{dividendDesc}}</td>
+            </tr>
+            <tr>
+                <td colspan="3" style="text-align: center;">จ่ายเงินปันผล วันที่ {{formatDateNew(dividend.datePAiD)}}
+                    ในอัตราหุ้นละ {{dividend.stkRATE}} บาท </td>
+            </tr>
+            <br>
+            <tr>
+                <td style="text-align: right;">จำนวนผู้ถือหุ้น</td>
+                <td style="text-align: right;">{{dividend.stkCUSTs | number:'1.2-2'}}</td>
+                <td style="text-align: left; padding-left: 10px;">ราย</td>
+            </tr>
+            <tr>
+                <td style="text-align: right;">จำนวนหุ้น</td>
+                <td style="text-align: right;">{{dividend.stkUNiTs | number:'1.2-2'}}</td>
+                <td style="text-align: left; padding-left: 10px;">หุ้น</td>
+            </tr>
+            <tr>
+                <td style="text-align: right;">จำนวนเงิน</td>
+                <td style="text-align: right;">{{dividend.stkDVNs | number:'1.2-2'}}</td>
+                <td style="text-align: left; padding-left: 10px;">บาท</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+
+<div #voucherDiv class="voucher-container">
+    <div class="voucher">
+        <!-- header -->
+        <div class="header colspan-13">ใบสำคัญการบันทึกรายการ (Voucher) สำนักงานใหญ่</div>
+
+        <!-- row ข้อมูลเอกสาร -->
+        <div class="cell colspan-2">วันที่</div>
+        <div class="cell colspan-2">เขตธุรกิจ 9999</div>
+        <div class="cell colspan-2">ประเภทเอกสาร SJ</div>
+        <div class="cell colspan-3">เลขที่เอกสาร</div>
+        <div class="incell colspan-4">
+            <div class="subgrid">
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+            </div>
+        </div>
+
+        <!-- row header คอลัมน์ -->
+        <div class="cell">DR/CR</div>
+        <div class="cell">รหัสบัญชี</div>
+        <div class="cell colspan-4">ชื่อบัญชี</div>
+        <div class="cell colspan-2">ศูนย์ต้นทุน<br>ศูนย์กำไร</div>
+        <div class="cell">เซกเมนต์</div>
+        <div class="cell colspan-2">รหัสบัญชีย่อย</div>
+        <div class="cell">ประเภทบริการ/<br>องค์ประกอบ WBS</div>
+        <div class="cell">จำนวนเงิน</div>
+
+        <!-- row รายการ -->
+        <div class="cell">40</div>
+        <div class="cell">3-15-010-00</div>
+        <div class="cell colspan-4">กำไรรอจัดสรร</div>
+        <div class="cell colspan-2"></div>
+        <div class="cell">199999</div>
+        <div class="cell colspan-2"></div>
+        <div class="cell"></div>
+        <div class="cell">3,097,266,905.00</div>
+
+        <div class="cell">50</div>
+        <div class="cell">2-35-070-16</div>
+        <div class="cell colspan-4">เจ้าหนี้รอดำเนินการเงินปันผล - หุ้นสามัญ</div>
+        <div class="cell colspan-2"></div>
+        <div class="cell">199999</div>
+        <div class="cell colspan-2"></div>
+        <div class="cell"></div>
+        <div class="cell">3,097,266,905.00</div>
+
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell colspan-4"></div>
+        <div class="cell colspan-2"></div>
+        <div class="cell"></div>
+        <div class="cell colspan-2"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell colspan-4"></div>
+        <div class="cell colspan-2"></div>
+        <div class="cell"></div>
+        <div class="cell colspan-2"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell colspan-4"></div>
+        <div class="cell colspan-2"></div>
+        <div class="cell"></div>
+        <div class="cell colspan-2"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+
+        <!-- row ลายเซ็น -->
+        <div class="cell colspan-2 text-left">ผู้จัดทำ<br>วันที่</div>
+        <div class="cell colspan-2 text-left">ผู้ตรวจ<br>วันที่</div>
+        <div class="cell colspan-3 text-left">ผู้บันทึกเครื่อง<br>วันที่</div>
+        <div class="cell colspan-3 text-left">ผู้อนุมัติ<br>วันที่</div>
+        <div class="cell colspan-3 text-left">ผู้อนุมัติเข้าเครื่อง<br>วันที่</div>
+
+        <!-- เอกสารอ้างอิง -->
+        <div class="cell colspan-3">เลขที่เอกสารกลับรายการ</div>
+        <div class="incell colspan-3">
+            <div class="subgrid">
+                <div class="incell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="incell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="incell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+            </div>
+        </div>
+        <div class="cell colspan-3">เลขที่เอกสารใหม่</div>
+        <div class="incell colspan-4">
+            <div class="subgrid">
+                <div class="incell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="incell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="incell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+            </div>
+        </div>
     </div>
 </div>
