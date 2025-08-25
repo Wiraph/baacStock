@@ -2,12 +2,13 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpEvent, HttpHeaders, HttpRequest } from '@angular/common/http';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environments';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FileService {
-  private apiUrl = 'https://localhost:7089/api/File';
+  private apiUrl = `${environment.dotnetApiUrl}/api/File`;
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: object

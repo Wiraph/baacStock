@@ -3,6 +3,7 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { Observable } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { EncryptionService } from './encryption.service';
+import { environment } from '../../environments/environments';
 
 export interface PendingTransfer {
   rowNumber: number;
@@ -38,7 +39,7 @@ export interface PendingTransferResponse {
   providedIn: 'root'
 })
 export class StocktransferService {
-  private readonly apiUrl = 'https://localhost:7089/api/stocktransfer';
+  private readonly apiUrl = `${environment.dotnetApiUrl}/api/stocktransfer`;
 
   constructor(
     private readonly http: HttpClient,

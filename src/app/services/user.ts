@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { Observable } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
+import { environment } from '../../environments/environments';
 
 export interface ChangePasswordDto {
   userName: string;
@@ -13,7 +14,7 @@ export interface ChangePasswordDto {
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'https://localhost:7089/api/user';
+  private apiUrl = `${environment.dotnetApiUrl}/api/user`;
 
   constructor(private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object
