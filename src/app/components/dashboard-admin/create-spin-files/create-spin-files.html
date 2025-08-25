@@ -1,6 +1,6 @@
 <!-- การ์ด: สร้าง SPiN FILE -->
 <div class="m-6 bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
-    <div class="bg-green-500 text-white text-center py-4 text-2xl font-bold">
+    <div class="bg-green-500 text-white text-center py-4 text-lg">
         📦 สร้าง SPiN FILE เพื่อส่ง CBS
     </div>
     <div class="flex items-center justify-center py-8">
@@ -14,15 +14,18 @@
 
 <!-- การ์ด: ดาวน์โหลดไฟล์ที่สร้าง -->
 <div class="m-6 bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
-    <div class="bg-green-500 text-white text-center py-4 text-2xl font-bold">
+    <div class="bg-green-500 text-white text-center py-4 text-lg">
         📂 ดาวน์โหลด SPiN FILE (.dat)
     </div>
     <div class="p-6">
         <ul *ngIf="files.length > 0; else noFiles" class="space-y-3">
             <li *ngFor="let file of files"
                 class="flex items-center justify-between bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-md transition">
-                <span class="text-gray-800 font-medium">{{ file }}</span>
-                <button (click)="download(file)"
+                <div class="flex gap-3">
+                    <span class="text-gray-800 font-medium">{{ file.time }}</span>
+                    <span class="text-gray-800 font-medium">{{ file.name }}</span>
+                </div>
+                <button (click)="download(file.fileName)" matTooltip="{{ file.fileName }}"
                     class="text-blue-600 hover:text-blue-800 font-semibold flex items-center cursor-pointer">
                     <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -36,5 +39,19 @@
         <ng-template #noFiles>
             <div class="text-center text-gray-500 py-4 text-lg">ไม่พบไฟล์ .dat</div>
         </ng-template>
+    </div>
+</div>
+
+<!-- ✅ Loading Overlay แบบโปร่งใส + มองทะลุ + เบลอ -->
+<div *ngIf="loading"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-40 backdrop-blur-sm"
+    style="background-color: rgba(128, 128, 128, 0.7);">
+    <div class="text-center">
+        <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+        </svg>
+        <p class="text-lg text-white font-medium">🔄 กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
     </div>
 </div>
