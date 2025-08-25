@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, Inject, PLATFORM_ID, inject, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, Inject, PLATFORM_ID, inject, ElementRef, ViewChild, forwardRef, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Divident } from '../../../services/divident';
 import Swal from 'sweetalert2';
 import { Thai } from 'flatpickr/dist/l10n/th.js';
@@ -64,7 +64,8 @@ export const THAI_DATE_FORMATS = {
     MatPaginatorModule,
     MatButtonModule,
     MatTooltipModule,
-    NgxPrintModule
+    NgxPrintModule,
+    forwardRef(() => VoucherComponent)
   ],
   templateUrl: './annualdividendcalculator.html',
   styleUrls: ['./annualdividendcalculator.css'], // แก้เป็น styleUrls
@@ -465,10 +466,25 @@ export class AnnualdividendcalculatorComponent implements OnInit {
     saveAs(new Blob([buffer]), `Dividend_${year}.xlsx`);
   }
 
-  exportPDF() {
-    this.voucher = true;
-    console.log(this.voucher);
+  @ViewChild(forwardRef(() => VoucherComponent)) voucherComponent!: VoucherComponent;
+
+  exportPDF(): void {
+    this.voucher = false;
     this.cd.detectChanges();
+    
+    setTimeout(() => {
+      this.voucher = true;
+      this.cd.detectChanges();
+      
+      setTimeout(() => {
+        if (this.voucherComponent) {
+          this.voucherComponent.dataForm = this.dataForm;
+          this.voucherComponent.dividendDesc = this.dividendDesc;
+          this.voucherComponent.dividend = this.dividend;
+          this.voucherComponent.generatePDF();
+        }
+      }, 200);
+    }, 100);
   }
 
   /**
@@ -596,42 +612,89 @@ export class DialogAnimationsExampleDialog {
   selector: 'voucher-component',
   templateUrl: './voucher.html',
   styleUrls: ['./annualdividendcalculator.css'],
-  imports: [],
+  imports: [CommonModule],
 })
 export class VoucherComponent implements OnInit {
   @ViewChild('voucherDiv') voucherDiv!: ElementRef;
+  
+  @Input() dataForm: any = { year: '', time: '' };
+  @Input() dividendDesc: string = '';
+  @Input() dividend: any = {
+    datePAiD: '',
+    stkRATE: 0,
+    stkCUSTs: 0,
+    stkUNiTs: 0,
+    stkDVNs: 0
+  };
+
+  formatDateNew(date: string): string {
+    if (!date) return '';
+    const d = new Date(date);
+    return d.toLocaleDateString('th-TH');
+  }
 
   ngOnInit(): void {
-    const DATA: any = this.voucherDiv.nativeElement;
+    // Component initialized
+  }
 
-    html2canvas(DATA, { scale: 2 }).then(canvas => {
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
+  async generatePDF(): Promise<void> {
+    if (!this.voucherDiv) {
+      console.error('Voucher element not found');
+      return;
+    }
+
+    try {
+      await this.waitForFontLoad();
+
+      const canvas = await html2canvas(this.voucherDiv.nativeElement, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: this.voucherDiv.nativeElement.offsetWidth,
+        height: this.voucherDiv.nativeElement.offsetHeight
+      });
+
+      const imgWidth = 210;
+      const pageHeight = 297;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const contentDataURL = canvas.toDataURL('image/png');
+      const contentDataURL = canvas.toDataURL('image/png', 1.0);
 
       const pdf = new jsPDF('p', 'mm', 'a4');
-      let position = 0;
 
-      if (imgHeight < pageHeight) {
+      const marginTop = 20;
+      let heightLeft = imgHeight;
+      let position = marginTop;
+
+      if (imgHeight < pageHeight - marginTop) {
         pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
       } else {
-        // ถ้า content ยาวเกิน pageHeight
-        let heightLeft = imgHeight;
         while (heightLeft > 0) {
           pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
+          heightLeft -= (pageHeight - marginTop);
           if (heightLeft > 0) {
             pdf.addPage();
-            position = -heightLeft + pageHeight;
+            position = marginTop - heightLeft + (pageHeight - marginTop);
           }
         }
       }
 
-      pdf.save('voucher.pdf');
-    });
+      const timestamp = new Date().toISOString().split('T')[0];
+      pdf.save(`Voucher_${timestamp}.pdf`);
+      
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+    }
   }
 
 
+
+  private waitForFontLoad(): Promise<void> {
+    return new Promise((resolve) => {
+      // รอให้ font โหลดเสร็จ
+      setTimeout(resolve, 2000);
+    });
+  }
 }
 
