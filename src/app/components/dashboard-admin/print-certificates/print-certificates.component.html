@@ -3,9 +3,9 @@
   <!-- Header สีเขียว -->
   <div class="w-full bg-green-500 h-auto text-white text-center text-xl font-bold py-2 rounded-t-lg">
     ใบหุ้น
-      </div>
+  </div>
       
-      <!-- เนื้อหาหลัก -->
+  <!-- เนื้อหาหลัก -->
   <div class="p-8">
     <!-- ฟอร์มค้นหา -->
     <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -15,137 +15,206 @@
       <div class="space-y-4 mb-6">
         <!-- เลขที่ใบหุ้น -->
         <div class="flex items-center space-x-3">
-          <input type="radio" id="stockNumber" name="searchBy" value="stockNumber" 
-                 [(ngModel)]="searchBy"
-                 (change)="onSearchByChange('stockNumber')"
+          <input type="radio" id="search-type-stknote" name="searchTypeRadio" value="stkNOTE" 
+                 [(ngModel)]="searchTypeRadio"
+                 (change)="onSearchTypeChange('stkNOTE')"
                  class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 focus:ring-green-500">
+          <label for="search-type-stknote" class="text-sm font-medium text-gray-700">เลขที่ใบหุ้น</label>
           <input type="text" placeholder="เลขที่ใบหุ้น" 
-                 [(ngModel)]="stockNumber"
-                 [disabled]="isStockNumberDisabled()"
-                 [class]="isStockNumberDisabled() ? 'flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500 ' : 'flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
+                 [(ngModel)]="stkNOTE"
+                 [disabled]="isStkNOTEDisabled()"
+                 [class]="isStkNOTEDisabled() ? 'flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500' : 'flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
         </div>
 
-                 <!-- วันที่: เลือกหมวดก่อน (ออกเลขที่ใบหุ้น/ช่วงวันที่ขาย/วันที่สาขาอนุมัติ) -->
-         <div class="flex items-center space-x-3">
-           <input type="radio" id="date" name="searchBy" value="date" 
-                  [(ngModel)]="searchBy"
-                  (change)="onSearchByChange('date')"
-                  class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 focus:ring-green-500">
-           <!-- Dropdown เลือกหมวดวันที่ -->
-           <select [(ngModel)]="dateCategory" (change)="onDateCategoryChange(dateCategory)"
-                   [disabled]="isDateDisabled()"
-                   [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
-             <option value="issue">วันที่ออกเลขที่ใบหุ้น</option>
-             <option value="sale">ช่วงวันที่ขาย</option>
-             <option value="approve">วันที่สาขาอนุมัติ</option>
-           </select>
-           <select [(ngModel)]="dateType" (change)="onDateTypeChange(dateType)" 
-                   [disabled]="isDateDisabled()"
-                   [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
-             <option value="year">ปี</option>
-             <option value="dateRange">ช่วงวันที่</option>
-             <option value="date">วันที่</option>
-           </select>
-         </div>
-
-         <!-- วันที่เดียว -->
-         <div class="flex space-x-2 flex-1 ml-7" *ngIf="searchBy === 'date' && dateType === 'date'" [class]="isDateDisabled() ? 'opacity-50 pointer-events-none' : ''">
-           <select [(ngModel)]="issueDay" 
-                   [disabled]="isDateDisabled()"
-                   [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500 cursor-not-allowed' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
-             <option value="" disabled selected>วัน</option>
-             <option *ngFor="let day of dayOptions" [value]="day.value">{{ day.label }}</option>
-           </select>
-           <select [(ngModel)]="issueMonth" 
-                   [disabled]="isDateDisabled()"
-                   [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500 cursor-not-allowed' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
-             <option value="" disabled selected>เดือน</option>
-             <option *ngFor="let month of monthOptions" [value]="month.value">{{ month.label }}</option>
-           </select>
-           <select [(ngModel)]="issueYear" 
-                   [disabled]="isDateDisabled()"
-                   [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500 cursor-not-allowed' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
-             <option value="" disabled selected>ปี</option>
-             <option *ngFor="let year of yearOptions" [value]="year.value">{{ year.label }}</option>
-           </select>
-         </div>
-
-         <!-- ปี -->
-         <div class="ml-7" *ngIf="searchBy === 'date' && dateType === 'year'">
-           <select [(ngModel)]="selectedYear" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-             <option value="" disabled selected>เลือกปี</option>
-             <option *ngFor="let year of yearOptions" [value]="year.value">{{ year.label }}</option>
-           </select>
-         </div>
+        <!-- วันที่ -->
+        <div class="flex items-center space-x-3">
+          <input type="radio" id="search-type-date" name="searchTypeRadio" value="date" 
+                 [(ngModel)]="searchTypeRadio"
+                 (change)="onSearchTypeChange('date')"
+                 class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 focus:ring-green-500">
           
-                 <!-- ช่วงวันที่ -->
-         <div *ngIf="searchBy === 'date' && dateType === 'dateRange'" class="ml-7">
-           <div class="flex items-center space-x-3 mb-2">
-             <label for="" class="text-sm font-medium text-gray-700 min-w-[85px]">ตั้งแต่วันที่</label>
-             <div class="flex space-x-2 flex-1">
-               <select [(ngModel)]="startDay" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                 <option value="" disabled selected>วัน</option>
-                 <option *ngFor="let day of dayOptions" [value]="day.value">{{ day.label }}</option>
-               </select>
-               <select [(ngModel)]="startMonth" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                 <option value="" disabled selected>เดือน</option>
-                 <option *ngFor="let month of monthOptions" [value]="month.value">{{ month.label }}</option>
-               </select>
-               <select [(ngModel)]="startYear" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                 <option value="" disabled selected>ปี</option>
-                 <option *ngFor="let year of yearOptions" [value]="year.value">{{ year.label }}</option>
-               </select>
-             </div>
-           </div>
-            <div class="flex items-center space-x-3">
-             <label for="" class="text-sm font-medium text-gray-700 min-w-[85px]">ถึงวันที่</label>
-             <div class="flex space-x-2 flex-1">
-               <select [(ngModel)]="endDay" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                 <option value="" disabled selected>วัน</option>
-                 <option *ngFor="let day of dayOptions" [value]="day.value">{{ day.label }}</option>
-               </select>
-               <select [(ngModel)]="endMonth" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                 <option value="" disabled selected>เดือน</option>
-                 <option *ngFor="let month of monthOptions" [value]="month.value">{{ month.label }}</option>
-               </select>
-               <select [(ngModel)]="endYear" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                 <option value="" disabled selected>ปี</option>
-                 <option *ngFor="let year of yearOptions" [value]="year.value">{{ year.label }}</option>
-               </select>
-             </div>
-           </div>
+          <!-- Dropdown เลือกหมวดวันที่ -->
+          <select [(ngModel)]="dateType" (change)="onDateTypeChange(dateType)"
+                  [disabled]="isDateDisabled()"
+                  [class]="isDateDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
+            <option value="stkDateIssue">วันที่ออกเลขที่ใบหุ้น</option>
+            <option value="stkDateEffect">วันที่มีผล</option>
+            <option value="stkDateApprove">วันที่สาขาอนุมัติ</option>
+          </select>
+          
+          <select [(ngModel)]="timeType" (change)="onTimeTypeChange(timeType)" 
+                  [disabled]="isTimeTypeDisabled()"
+                  [class]="isTimeTypeDisabled() ? 'border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500' : 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'">
+            <option value="date-year">ปี</option>
+            <option value="date-range">ช่วงวันที่</option>
+            <option value="date-day">วันที่</option>
+          </select>
+        </div>
+
+        <!-- ปี -->
+        <div class="ml-7" *ngIf="searchTypeRadio === 'date' && timeType === 'date-year'">
+          <select [(ngModel)]="dateYear" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+            <option value="" disabled selected>เลือกปี</option>
+            <option *ngFor="let year of yearOptions" [value]="year.value">{{ year.label }}</option>
+          </select>
+        </div>
+          
+        <!-- ช่วงวันที่ -->
+        <div *ngIf="searchTypeRadio === 'date' && timeType === 'date-range'" class="ml-7">
+          <div class="flex items-center space-x-3 mb-2">
+            <label for="" class="text-sm font-medium text-gray-700 min-w-[85px]">ตั้งแต่วันที่</label>
+            <div class="flex space-x-2 flex-1">
+              <select [(ngModel)]="dateRangeStartD" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <option value="" disabled selected>วัน</option>
+                <option *ngFor="let day of dayOptions" [value]="day.value">{{ day.label }}</option>
+              </select>
+              <select [(ngModel)]="dateRangeStartM" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <option value="" disabled selected>เดือน</option>
+                <option *ngFor="let month of monthOptions" [value]="month.value">{{ month.label }}</option>
+              </select>
+              <select [(ngModel)]="dateRangeStartY" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <option value="" disabled selected>ปี</option>
+                <option *ngFor="let year of yearOptions" [value]="year.value">{{ year.label }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center space-x-3">
+            <label for="" class="text-sm font-medium text-gray-700 min-w-[85px]">ถึงวันที่</label>
+            <div class="flex space-x-2 flex-1">
+              <select [(ngModel)]="dateRangeStopD" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <option value="" disabled selected>วัน</option>
+                <option *ngFor="let day of dayOptions" [value]="day.value">{{ day.label }}</option>
+              </select>
+              <select [(ngModel)]="dateRangeStopM" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <option value="" disabled selected>เดือน</option>
+                <option *ngFor="let month of monthOptions" [value]="month.value">{{ month.label }}</option>
+              </select>
+              <select [(ngModel)]="dateRangeStopY" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <option value="" disabled selected>ปี</option>
+                <option *ngFor="let year of yearOptions" [value]="year.value">{{ year.label }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- วันที่เดียว -->
+        <div class="flex space-x-2 flex-1 ml-7" *ngIf="searchTypeRadio === 'date' && timeType === 'date-day'">
+          <select [(ngModel)]="dateDayD" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+            <option value="" disabled selected>วัน</option>
+            <option *ngFor="let day of dayOptions" [value]="day.value">{{ day.label }}</option>
+          </select>
+          <select [(ngModel)]="dateDayM" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+            <option value="" disabled selected>เดือน</option>
+            <option *ngFor="let month of monthOptions" [value]="month.value">{{ month.label }}</option>
+          </select>
+          <select [(ngModel)]="dateDayY" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+            <option value="" disabled selected>ปี</option>
+            <option *ngFor="let year of yearOptions" [value]="year.value">{{ year.label }}</option>
+          </select>
         </div>
       </div>
 
-      <!-- ตัวอย่างผู้ลงนาม -->
+      <!-- ผู้ลงนาม -->
       <div class="space-y-4 mb-6">
+
+        <!-- Error loading signatures -->
+        <div *ngIf="signatureError" class="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded text-sm">
+          {{ signatureError }}
+          <button (click)="loadSignatureList()" class="ml-2 text-blue-600 hover:text-blue-800 underline">
+            ลองใหม่
+          </button>
+        </div>
+
+        <!-- Signature count -->
+        <div *ngIf="!loadingSignatures && !signatureError && signatureList.length > 0" class="text-sm text-gray-600">
+          พบผู้ลงนาม {{ signatureList.length }} คน
+        </div>
+
         <div class="flex items-center space-x-3">
-          <label for="" class="text-sm font-medium text-gray-700 min-w">ผู้ลงนาม 1</label>
-          <select [(ngModel)]="signatory1" class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+          <label for="" class="text-sm font-medium text-gray-700 min-w-[80px]">ผู้ลงนาม 1</label>
+          <select [(ngModel)]="sigNature1" class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
             <option value="">เลือกผู้ลงนาม</option>
-            <option value="นาย ก">นาย ก</option>
-            <option value="นาง ข">นาง ข</option>
-            <option value="นางสาว ค">นางสาว ค</option>
+            <option *ngFor="let sig of signatureList" [value]="sig.empId">{{ sig.empName }}</option>
           </select>
         </div>
         
         <div class="flex items-center space-x-3">
-          <label for="" class="text-sm font-medium text-gray-700 min-w">ผู้ลงนาม 2</label>
-          <select [(ngModel)]="signatory2" class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+          <label for="" class="text-sm font-medium text-gray-700 min-w-[80px]">ผู้ลงนาม 2</label>
+          <select [(ngModel)]="sigNature2" class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
             <option value="">เลือกผู้ลงนาม</option>
-            <option value="นาย ก">นาย ก</option>
-            <option value="นาง ข">นาง ข</option>
-            <option value="นางสาว ค">นางสาว ค</option>
+            <option *ngFor="let sig of signatureList" [value]="sig.empId">{{ sig.empName }}</option>
           </select>
         </div>
       </div>
       
       <!-- ปุ่มค้นหา -->
       <div class="text-center">
-        <button (click)="onSearch()" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors duration-200 transform flex items-center justify-center gap-3 shadow-md mx-auto">
-          🔍 ค้นหา
+        <button (click)="onSearch()" 
+                [disabled]="loadingStocks"
+                class="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors duration-200 transform flex items-center justify-center gap-3 shadow-md mx-auto">
+          <div *ngIf="loadingStocks" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+          🔍 {{ loadingStocks ? 'กำลังค้นหา...' : 'ค้นหา' }}
         </button>
       </div>
     </div>
+
+    <!-- ผลการค้นหา -->
+    <div *ngIf="stockList.length > 0 || loadingStocks || stockError" class="mt-8 max-w-6xl mx-auto">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">ผลการค้นหา</h3>
+      
+      <!-- Loading -->
+      <div *ngIf="loadingStocks" class="text-center py-8">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+        <p class="mt-2 text-gray-600">กำลังค้นหาข้อมูล...</p>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="stockError" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        {{ stockError }}
+      </div>
+
+      <!-- ตารางผลลัพธ์ -->
+      <div *ngIf="stockList.length > 0" class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+        <table class="min-w-full text-sm text-left text-gray-800">
+          <thead class="bg-green-50 text-gray-700 text-xs uppercase tracking-wide">
+            <tr>
+              <th class="px-4 py-3 text-center">ลำดับ</th>
+              <th class="px-4 py-3">สาขา</th>
+              <th class="px-4 py-3">เลขที่ใบหุ้น</th>
+              <th class="px-4 py-3">เลขบัตรประชาชน</th>
+              <th class="px-4 py-3">ชื่อผู้ถือหุ้น</th>
+              <th class="px-4 py-3 text-center">จำนวนหุ้น</th>
+              <th class="px-4 py-3 text-center">มูลค่า</th>
+              <th class="px-4 py-3 text-center">สถานะ</th>
+              <th class="px-4 py-3 text-center">วันที่ทำรายการ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let stock of stockList; let i = index" class="hover:bg-gray-50 transition">
+              <td class="px-4 py-2 text-center">{{ i + 1 }}</td>
+              <td class="px-4 py-2">{{ stock.brName || stock.brCode }}</td>
+              <td class="px-4 py-2">{{ stock.stkNOTE }}</td>
+              <td class="px-4 py-2">{{ stock.cusiD }}</td>
+              <td class="px-4 py-2">{{ stock.fullName }}</td>
+              <td class="px-4 py-2 text-center">{{ stock.stkUNiT | number }}</td>
+              <td class="px-4 py-2 text-center">{{ stock.stkValue | number: '1.0-0' }}</td>
+              <td class="px-4 py-2 text-center">
+                <span class="px-2 py-1 text-xs rounded-full" 
+                      [class]="stock.stkSTATUS === 'S000' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
+                  {{ stock.statusDesc || stock.stkSTATUS }}
+                </span>
+              </td>
+              <td class="px-4 py-2 text-center">{{ stock.stkDateIssue | date: 'dd/MM/yyyy' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ไม่พบข้อมูล -->
+      <div *ngIf="!loadingStocks && !stockError && stockList.length === 0" class="text-center py-8 text-gray-500">
+        <p>ไม่พบข้อมูลหุ้นที่ค้นหา</p>
+      </div>
+    </div>
   </div>
-</div> 
+</div>
+

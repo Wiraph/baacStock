@@ -1,81 +1,56 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { SignatureService, Signature, StockData } from '../../../services/signature';
+import { StockService } from '../../../services/stock';
 
 @Component({
   selector: 'app-print-certificates',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './print-certificates.component.html',
   styleUrls: ['./print-certificates.component.css']
 })
-export class PrintCertificatesComponent {
+export class PrintCertificatesComponent implements OnInit {
   
-  // ประเภทหมวดวันที่ (dropdown ใหม่ก่อนเลือกชนิดช่วงเวลา)
-  dateCategory: 'issue' | 'sale' | 'approve' = 'issue';
-
-  // Properties สำหรับจัดการ radio button selection
-  searchBy: 'stockNumber' | 'date' = 'stockNumber';
-  dateType: 'date' | 'dateRange' | 'year' = 'date';
-
+  // Properties สำหรับการค้นหา (ตามโค้ดเก่า)
+  searchTypeRadio: 'stkNOTE' | 'date' = 'stkNOTE';
+  stkNOTE: string = '';
   
-  // Properties สำหรับ input values
-  stockNumber: string = '';
+  // Properties สำหรับวันที่ (ตามโค้ดเก่า)
+  dateType: 'stkDateIssue' | 'stkDateEffect' | 'stkDateApprove' = 'stkDateIssue';
+  timeType: 'date-year' | 'date-range' | 'date-day' = 'date-year';
   
   // Properties สำหรับวันที่
-  issueDay: string = '';
-  issueMonth: string = '';
-  issueYear: string = '2568';
+  dateYear: string = '';
+  dateRangeStartD: string = '';
+  dateRangeStartM: string = '';
+  dateRangeStartY: string = '';
+  dateRangeStopD: string = '';
+  dateRangeStopM: string = '';
+  dateRangeStopY: string = '';
+  dateDayD: string = '';
+  dateDayM: string = '';
+  dateDayY: string = '';
   
-  // Properties สำหรับช่วงวันที่
-  startDay: string = '';
-  startMonth: string = '';
-  startYear: string = '2568';
-  endDay: string = '';
-  endMonth: string = '';
-  endYear: string = '2568';
-  
-  // Properties สำหรับปี
-  selectedYear: string = '2568';
-  
-  // Properties สำหรับผู้ลงนาม
-  signatory1: string = '';
-  signatory2: string = '';
+  // Properties สำหรับผู้ลงนาม (ตามโค้ดเก่า)
+  sigNature1: string = '';
+  sigNature2: string = '';
+  signatureList: Signature[] = [];
+  loadingSignatures: boolean = false;
+  signatureError: string = '';
 
-  // Date Options Arrays - รวมวันเดือนปีไว้ที่หลังบ้าน
-  readonly dayOptions = [
-    { value: '1', label: '1' },
-    { value: '2', label: '2' },
-    { value: '3', label: '3' },
-    { value: '4', label: '4' },
-    { value: '5', label: '5' },
-    { value: '6', label: '6' },
-    { value: '7', label: '7' },
-    { value: '8', label: '8' },
-    { value: '9', label: '9' },
-    { value: '10', label: '10' },
-    { value: '11', label: '11' },
-    { value: '12', label: '12' },
-    { value: '13', label: '13' },
-    { value: '14', label: '14' },
-    { value: '15', label: '15' },
-    { value: '16', label: '16' },
-    { value: '17', label: '17' },
-    { value: '18', label: '18' },
-    { value: '19', label: '19' },
-    { value: '20', label: '20' },
-    { value: '21', label: '21' },
-    { value: '22', label: '22' },
-    { value: '23', label: '23' },
-    { value: '24', label: '24' },
-    { value: '25', label: '25' },
-    { value: '26', label: '26' },
-    { value: '27', label: '27' },
-    { value: '28', label: '28' },
-    { value: '29', label: '29' },
-    { value: '30', label: '30' },
-    { value: '31', label: '31' }
-  ];
+  // ข้อมูลหุ้น
+  stockList: StockData[] = [];
+  loadingStocks: boolean = false;
+  stockError: string = '';
+
+  // Date Options Arrays
+  readonly dayOptions = Array.from({length: 31}, (_, i) => ({
+    value: (i + 1).toString(),
+    label: (i + 1).toString()
+  }));
 
   readonly monthOptions = [
     { value: '1', label: 'มกราคม' },
@@ -92,146 +67,268 @@ export class PrintCertificatesComponent {
     { value: '12', label: 'ธันวาคม' }
   ];
 
-  readonly yearOptions = [
-    { value: '2568', label: '2568' },
-    { value: '2567', label: '2567' },
-    { value: '2566', label: '2566' },
-    { value: '2565', label: '2565' },
-    { value: '2564', label: '2564' },
-    { value: '2563', label: '2563' },
-    { value: '2562', label: '2562' },
-    { value: '2561', label: '2561' },
-    { value: '2560', label: '2560' },
-    { value: '2559', label: '2559' },
-    { value: '2558', label: '2558' },
-    { value: '2557', label: '2557' },
-    { value: '2556', label: '2556' },
-    { value: '2555', label: '2555' },
-    { value: '2554', label: '2554' },
-    { value: '2553', label: '2553' },
-    { value: '2552', label: '2552' },
-    { value: '2551', label: '2551' },
-    { value: '2550', label: '2550' },
-    { value: '2549', label: '2549' },
-    { value: '2548', label: '2548' },
-    { value: '2547', label: '2547' },
-    { value: '2546', label: '2546' },
-    { value: '2545', label: '2545' },
-    { value: '2544', label: '2544' },
-    { value: '2543', label: '2543' },
-    { value: '2542', label: '2542' },
-    { value: '2541', label: '2541' },
-    { value: '2540', label: '2540' },
-    { value: '2539', label: '2539' },
-    { value: '2538', label: '2538' },
-    { value: '2537', label: '2537' },
-    { value: '2536', label: '2536' },
-    { value: '2535', label: '2535' },
-    { value: '2534', label: '2534' },
-    { value: '2533', label: '2533' },
-    { value: '2532', label: '2532' },
-    { value: '2531', label: '2531' },
-    { value: '2530', label: '2530' },
-    { value: '2529', label: '2529' },
-    { value: '2528', label: '2528' },
-    { value: '2527', label: '2527' },
-    { value: '2526', label: '2526' },
-    { value: '2525', label: '2525' },
-    { value: '2524', label: '2524' },
-    { value: '2523', label: '2523' },
-    { value: '2522', label: '2522' },
-    { value: '2521', label: '2521' },
-    { value: '2520', label: '2520' },
-    { value: '2519', label: '2519' },
-    { value: '2518', label: '2518' },
-    { value: '2517', label: '2517' },
-    { value: '2516', label: '2516' },
-    { value: '2515', label: '2515' },
-    { value: '2514', label: '2514' },
-    { value: '2513', label: '2513' },
-    { value: '2512', label: '2512' },
-    { value: '2511', label: '2511' },
-    { value: '2510', label: '2510' }
-  ];
+  readonly yearOptions = Array.from({length: 50}, (_, i) => {
+    const year = 2568 - i;
+    return {
+      value: year.toString(),
+      label: year.toString()
+    };
+  });
   
-  constructor() { }
+  constructor(
+    private readonly signatureService: SignatureService,
+    private readonly http: HttpClient,
+    private readonly stockService: StockService
+  ) { }
 
-  // Method สำหรับเปลี่ยนประเภทการค้นหา (เลขที่ใบหุ้น หรือ วันที่)
-  onSearchByChange(type: 'stockNumber' | 'date') {
-    this.searchBy = type;
+  ngOnInit() {
+    this.loadSignatureList();
+    this.setDefaultYear();
+  }
+
+  // โหลดรายชื่อผู้ลงนามจาก database
+  loadSignatureList() {
+    this.loadingSignatures = true;
+    this.signatureError = '';
+    
+    this.signatureService.getSignatures().subscribe({
+      next: (signatures) => {
+        console.log(`โหลดข้อมูลผู้ลงนามสำเร็จ: ${signatures.length} คน`);
+        this.signatureList = signatures;
+        this.loadingSignatures = false;
+      },
+      error: (error) => {
+        console.error('Error loading signatures:', error);
+        this.loadingSignatures = false;
+        this.signatureError = 'ไม่สามารถโหลดข้อมูลผู้ลงนามได้ กรุณาลองใหม่อีกครั้ง';
+        this.signatureList = [];
+      }
+    });
+  }
+
+  // ตั้งค่าปีปัจจุบัน
+  setDefaultYear() {
+    const currentYear = new Date().getFullYear() + 543; // แปลงเป็นปี พ.ศ.
+    this.dateYear = currentYear.toString();
+    this.dateRangeStartY = currentYear.toString();
+    this.dateRangeStopY = currentYear.toString();
+    this.dateDayY = currentYear.toString();
+  }
+
+  // Method สำหรับเปลี่ยนประเภทการค้นหา
+  onSearchTypeChange(type: 'stkNOTE' | 'date') {
+    this.searchTypeRadio = type;
     
     // Clear values เมื่อเปลี่ยนประเภทการค้นหา
-    if (type === 'stockNumber') {
-      this.issueDay = '';
-      this.issueMonth = '';
-      this.startDay = '';
-      this.startMonth = '';
-      this.endDay = '';
-      this.endMonth = '';
-      this.selectedYear = '';
+    if (type === 'stkNOTE') {
+      this.clearDateValues();
     } else {
-      this.stockNumber = '';
+      this.stkNOTE = '';
     }
   }
 
   // Method สำหรับเปลี่ยนประเภทวันที่
-  onDateTypeChange(type: 'date' | 'dateRange' | 'year') {
-    this.dateType = type;
-    
-    // Clear values เมื่อเปลี่ยนประเภทวันที่
-    this.issueDay = '';
-    this.issueMonth = '';
-    this.startDay = '';
-    this.startMonth = '';
-    this.endDay = '';
-    this.endMonth = '';
-    this.selectedYear = '';
+  onTimeTypeChange(type: 'date-year' | 'date-range' | 'date-day') {
+    this.timeType = type;
+    this.clearDateValues();
   }
 
-  // Method สำหรับเปลี่ยนหมวดวันที่ (วันที่ออก/ช่วงวันที่ขาย/วันที่สาขาอนุมัติ)
-  onDateCategoryChange(type: 'issue' | 'sale' | 'approve') {
-    this.dateCategory = type;
+  // Method สำหรับเปลี่ยนหมวดวันที่
+  onDateTypeChange(type: 'stkDateIssue' | 'stkDateEffect' | 'stkDateApprove') {
+    this.dateType = type;
+  }
+
+  // Clear ค่าวันที่
+  clearDateValues() {
+    this.dateYear = '';
+    this.dateRangeStartD = '';
+    this.dateRangeStartM = '';
+    this.dateRangeStartY = '';
+    this.dateRangeStopD = '';
+    this.dateRangeStopM = '';
+    this.dateRangeStopY = '';
+    this.dateDayD = '';
+    this.dateDayM = '';
+    this.dateDayY = '';
   }
 
   // Method สำหรับตรวจสอบว่า input ควรถูก disable หรือไม่
-  isStockNumberDisabled(): boolean {
-    return this.searchBy === 'date';
+  isStkNOTEDisabled(): boolean {
+    return this.searchTypeRadio === 'date';
   }
 
   isDateDisabled(): boolean {
-    return this.searchBy === 'stockNumber';
+    return this.searchTypeRadio === 'stkNOTE';
+  }
+
+  isTimeTypeDisabled(): boolean {
+    return this.searchTypeRadio === 'stkNOTE';
   }
 
   // Method สำหรับค้นหา
   onSearch() {
-    console.log('ค้นหาด้วย:', {
-      searchBy: this.searchBy,
-      stockNumber: this.stockNumber,
-      dateType: this.dateType,
-      dateCategory: this.dateCategory,
-      date: {
-        day: this.issueDay,
-        month: this.issueMonth,
-        year: this.issueYear
-      },
-      dateRange: {
-        start: {
-          day: this.startDay,
-          month: this.startMonth,
-          year: this.startYear
-        },
-        end: {
-          day: this.endDay,
-          month: this.endMonth,
-          year: this.endYear
+    // ตรวจสอบ token ก่อน
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+      this.stockError = 'ไม่มีการยืนยันตัวตน กรุณา login ใหม่';
+      return;
+    }
+
+    // ตรวจสอบข้อมูลที่กรอก
+    if (this.searchTypeRadio === 'stkNOTE') {
+      if (!this.stkNOTE || this.stkNOTE.trim() === '') {
+        this.stockError = 'กรุณากรอกเลขที่ใบหุ้น';
+        return;
+      }
+    } else {
+      // ตรวจสอบข้อมูลวันที่
+      if (this.timeType === 'date-day') {
+        if (!this.dateDayD || !this.dateDayM || !this.dateDayY) {
+          this.stockError = 'กรุณาเลือกวันที่ให้ครบถ้วน';
+          return;
         }
-      },
-      year: this.selectedYear,
-      signatory1: this.signatory1,
-      signatory2: this.signatory2
-    });
+      } else if (this.timeType === 'date-range') {
+        if (!this.dateRangeStartD || !this.dateRangeStartM || !this.dateRangeStartY ||
+            !this.dateRangeStopD || !this.dateRangeStopM || !this.dateRangeStopY) {
+          this.stockError = 'กรุณาเลือกช่วงวันที่ให้ครบถ้วน';
+          return;
+        }
+      } else if (this.timeType === 'date-year') {
+        if (!this.dateYear) {
+          this.stockError = 'กรุณาเลือกปี';
+          return;
+        }
+      }
+    }
+
+    this.loadingStocks = true;
+    this.stockError = '';
+    this.stockList = [];
+
+    const searchPayload = this.buildSearchPayload();
+    console.log('Search payload:', searchPayload);
+    const payload = {
+      stkNote: searchPayload.stkNOTE,
+    }
     
-    // TODO: เพิ่ม logic การค้นหาจริง
+    this.stockService.getStockDetail(payload).subscribe({
+      next: (response: StockData[]) => {
+        console.log('API Response:', response);
+        this.stockList = response || [];
+        this.loadingStocks = false;
+      },
+      error: (error: any) => {
+        console.error('Search error:', error);
+        this.loadingStocks = false;
+        
+        // แสดงรายละเอียด error มากขึ้น
+        if (error.status === 400) {
+          // แสดง error message ที่ได้จาก API
+          const errorMsg = error.message || 'กรุณาตรวจสอบข้อมูลที่กรอก';
+          this.stockError = `ข้อมูลไม่ถูกต้อง (400): ${errorMsg}`;
+          
+          // แสดงคำแนะนำเพิ่มเติม
+          if (this.searchTypeRadio === 'stkNOTE') {
+            this.stockError += '\n\nคำแนะนำ:';
+            this.stockError += '\n• กรุณาตรวจสอบเลขที่ใบหุ้นว่าถูกต้องหรือไม่';
+            this.stockError += '\n• ลองใช้เลขที่ใบหุ้นอื่น เช่น A000035455';
+            this.stockError += '\n• ตรวจสอบว่า API endpoint ถูกต้องหรือไม่';
+            this.stockError += '\n• ลองเปลี่ยน action เป็น GET, FIND, หรือ QUERY';
+            this.stockError += '\n• ลองส่ง payload แบบง่าย เช่น { stkNOTE: "A000056131" }';
+          }
+        } else if (error.status === 401) {
+          this.stockError = 'Token หมดอายุ กรุณา login ใหม่';
+        } else if (error.status === 404) {
+          this.stockError = 'ไม่พบ API endpoint - กรุณาตรวจสอบ URL';
+        } else {
+          this.stockError = `ไม่สามารถค้นหาข้อมูลหุ้นได้: ${error.message || 'กรุณาลองใหม่อีกครั้ง'}`;
+        }
+        
+        this.stockList = [];
+      }
+    });
+  }
+
+  // สร้าง payload สำหรับค้นหา
+  private buildSearchPayload(): any {
+    const payload: any = {
+      action: ' '
+    };
+
+    if (this.searchTypeRadio === 'stkNOTE') {
+      // ใช้แค่ field เดียวเพื่อลดความสับสน
+      payload.stkNOTE = this.stkNOTE;
+    } else {
+      // ค้นหาด้วยวันที่
+      if (this.timeType === 'date-day' && this.dateDayD && this.dateDayM && this.dateDayY) {
+        const date = this.formatDateForAPI(this.dateDayD, this.dateDayM, this.dateDayY);
+        this.setDateField(payload, date);
+      } else if (this.timeType === 'date-range' && this.dateRangeStartD && this.dateRangeStartM && this.dateRangeStartY && this.dateRangeStopD && this.dateRangeStopM && this.dateRangeStopY) {
+        const startDate = this.formatDateForAPI(this.dateRangeStartD, this.dateRangeStartM, this.dateRangeStartY);
+        const endDate = this.formatDateForAPI(this.dateRangeStopD, this.dateRangeStopM, this.dateRangeStopY);
+        this.setDateRangeField(payload, startDate, endDate);
+      } else if (this.timeType === 'date-year' && this.dateYear) {
+        this.setYearField(payload, this.dateYear);
+      }
+    }
+
+    // เพิ่ม debug log เพื่อดู payload ที่ส่งไป
+    console.log('Final Search Payload:', JSON.stringify(payload, null, 2));
+
+    return payload;
+  }
+
+  private setDateField(payload: any, date: string) {
+    switch (this.dateType) {
+      case 'stkDateIssue':
+        payload.stkDateIssue = date;
+        break;
+      case 'stkDateEffect':
+        payload.stkDateEffect = date;
+        break;
+      case 'stkDateApprove':
+        payload.stkDateApprove = date;
+        break;
+    }
+  }
+
+  private setDateRangeField(payload: any, startDate: string, endDate: string) {
+    switch (this.dateType) {
+      case 'stkDateIssue':
+        payload.stkDateIssueFrom = startDate;
+        payload.stkDateIssueTo = endDate;
+        break;
+      case 'stkDateEffect':
+        payload.stkDateEffectFrom = startDate;
+        payload.stkDateEffectTo = endDate;
+        break;
+      case 'stkDateApprove':
+        payload.stkDateApproveFrom = startDate;
+        payload.stkDateApproveTo = endDate;
+        break;
+    }
+  }
+
+  private setYearField(payload: any, year: string) {
+    const christianYear = parseInt(year) - 543;
+    switch (this.dateType) {
+      case 'stkDateIssue':
+        payload.stkDateIssueYear = christianYear;
+        break;
+      case 'stkDateEffect':
+        payload.stkDateEffectYear = christianYear;
+        break;
+      case 'stkDateApprove':
+        payload.stkDateApproveYear = christianYear;
+        break;
+    }
+  }
+
+  private formatDateForAPI(day: string, month: string, year: string): string {
+    const christianYear = parseInt(year) - 543;
+    const monthStr = month.padStart(2, '0');
+    const dayStr = day.padStart(2, '0');
+    return `${christianYear}-${monthStr}-${dayStr}`;
   }
 
   getCurrentDate(): string {
