@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, Inject, PLATFORM_ID, inject, ElementRef, ViewChild, forwardRef, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, Inject, PLATFORM_ID, inject, ElementRef, ViewChild, forwardRef, Input } from '@angular/core';
 import { Divident } from '../../../services/divident';
 import Swal from 'sweetalert2';
 import { Thai } from 'flatpickr/dist/l10n/th.js';
