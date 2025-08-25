@@ -1,0 +1,270 @@
+<div #voucherDiv class="voucher-container">
+    <div class="voucher">
+        <style type="text/css">
+            @font-face {
+                font-family: 'TH Sarabun New';
+                src: url('/assets/font/THSarabunNew.ttf') format('truetype');
+                font-weight: normal;
+                font-style: normal;
+            }
+            
+            .pdf-content {
+                display: flex;
+                justify-content: center;
+            }
+
+            .voucher-table {
+                border-collapse: collapse;
+                border-spacing: 0;
+                min-width: 90%;
+                border: 1px solid #000000;
+            }
+            
+            .voucher-table td {
+                border: 1px solid #000000;
+                overflow: hidden;
+                padding: 20px 5px;
+                min-height: 80px;
+                vertical-align: middle;
+                line-height: 1.3;
+                letter-spacing: 0.3px;
+                word-wrap: break-word;
+            }
+
+            .header-title {
+                font-weight: bold;
+                font-size: 18pt;
+                text-align: center;
+                line-height: 1.8;
+                letter-spacing: 0.5px;
+            }
+
+            .header2 {
+                font-size: 18pt;
+                text-align: left !important;
+                font-weight: 500;
+                line-height: 1.4;
+                letter-spacing: 0.2px;
+            }
+
+            .header3 {
+                font-size: 18pt;
+                text-align: center;
+                font-weight: 500;
+                line-height: 1.4;
+                letter-spacing: 0.2px;
+            }
+
+            .data-cell {
+                font-size: 18pt;
+                text-align: center;
+                line-height: 1.4;
+                letter-spacing: 0.2px;
+            }
+
+
+
+            .signature {
+                font-size: 18pt;
+                text-align: left !important;
+                font-weight: 500;
+                line-height: 1.4;
+                letter-spacing: 0.2px;
+            }
+
+            .doc-number {
+                font-size: 18pt;
+                text-align: left !important;
+                font-weight: 500;
+                line-height: 1.4;
+                letter-spacing: 0.2px;
+            }
+            
+            .voucher * {
+                font-family: 'TH Sarabun New', 'Sarabun', sans-serif !important;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                text-rendering: optimizeLegibility;
+            }
+            
+        </style>
+        <div class="pdf-content">
+            <table class="voucher-table" style="table-layout: fixed; width: 90%;">
+                <thead>
+                    <tr>
+                        <th class="header-title" colspan="32">ใบสำคัญการบันทึกรายการ (Voucher) สำนักงานใหญ่</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="header2" colspan="5">วันที่</td>
+                        <td class="header2" colspan="4">เขตธุรกิจ 9999</td>
+                        <td class="header2" colspan="5">ประเภทเอกสาร SJ</td>
+                        <td class="header2" colspan="8">เลขที่เอกสาร</td>
+                        <td class="header2" colspan="1"></td>
+                        <td class="header2" colspan="1"></td>
+                        <td class="header2" colspan="1"></td>
+                        <td class="header2" colspan="1"></td>
+                        <td class="header2" colspan="1"></td>
+                        <td class="header2" colspan="1"></td>
+                        <td class="header2" colspan="1"></td>
+                        <td class="header2" colspan="1"></td>
+                        <td class="header2" colspan="1"></td>
+                        <td class="header2" colspan="1"></td>
+                    </tr>
+                    <tr>
+                        <td class="header3" colspan="2">DR/<br><br>CR</td>
+                        <td class="header3" colspan="3">รหัสบัญชี</td>
+                        <td class="header3" colspan="9">ชื่อบัญชี</td>
+                        <td class="header3" colspan="4">ศูนย์ต้นทุน<br><br>ศูนย์กำไร</td>
+                        <td class="header3" colspan="3">เซกเมนต์</td>
+                        <td class="header3" colspan="3">รหัสบัญชีย่อย</td>
+                        <td class="header3" colspan="4">ประเภทบริการ/<br><br>องค์ประกอบ WBS</td>
+                        <td class="header3" colspan="4">จำนวนเงิน</td>
+                    </tr>
+                    <tr>
+                        <td class="data-cell" colspan="2">40</td>
+                        <td class="data-cell" colspan="3">3-15-010-00</td>
+                        <td class="data-cell" colspan="9">กำไรรอจัดสรร</td>
+                        <td class="data-cell" colspan="4"></td>
+                        <td class="data-cell" colspan="3">199999</td>
+                        <td class="data-cell" colspan="3"></td>
+                        <td class="data-cell" colspan="4"></td>
+                        <td class="data-cell" colspan="4">{{dividend.stkDVNs | number:'1.2-2'}}</td>
+                    </tr>
+                    <tr>
+                        <td class="data-cell" colspan="2">50</td>
+                        <td class="data-cell" colspan="3">2-35-070-16</td>
+                        <td class="data-cell" colspan="9">เจ้าหนี้รอดำเนินการเงินปันผล - หุ้นสามัญ</td>
+                        <td class="data-cell" colspan="4"></td>
+                        <td class="data-cell" colspan="3">199999</td>
+                        <td class="data-cell" colspan="3"></td>
+                        <td class="data-cell" colspan="4"></td>
+                        <td class="data-cell" colspan="4">{{dividend.stkDVNs | number:'1.2-2'}}</td>
+                    </tr>
+                    <tr>
+                        <td class="data-cell" colspan="2">&nbsp;</td>
+                        <td class="data-cell" colspan="3"></td>
+                        <td class="data-cell" colspan="9"></td>
+                        <td class="data-cell" colspan="4"></td>
+                        <td class="data-cell" colspan="3"></td>
+                        <td class="data-cell" colspan="3"></td>
+                        <td class="data-cell" colspan="4"></td>
+                        <td class="data-cell" colspan="4"></td>
+                    </tr>
+                    <tr>
+                        <td class="data-cell" colspan="2">&nbsp;</td>
+                        <td class="data-cell" colspan="3"></td>
+                        <td class="data-cell" colspan="9"></td>
+                        <td class="data-cell" colspan="4"></td>
+                        <td class="data-cell" colspan="3"></td>
+                        <td class="data-cell" colspan="3"></td>
+                        <td class="data-cell" colspan="4"></td>
+                        <td class="data-cell" colspan="4"></td>
+                    </tr>
+                    <tr>
+                        <td class="data-cell" colspan="2">&nbsp;</td>
+                        <td class="data-cell" colspan="3"></td>
+                        <td class="data-cell" colspan="9"></td>
+                        <td class="data-cell" colspan="4"></td>
+                        <td class="data-cell" colspan="3"></td>
+                        <td class="data-cell" colspan="3"></td>
+                        <td class="data-cell" colspan="4"></td>
+                        <td class="data-cell" colspan="4"></td>
+                    </tr>
+                    <tr>
+                        <td class="data-cell" colspan="2">&nbsp;</td>
+                        <td class="data-cell" colspan="3"></td>
+                        <td class="data-cell" colspan="9"></td>
+                        <td class="data-cell" colspan="4"></td>
+                        <td class="data-cell" colspan="3"></td>
+                        <td class="data-cell" colspan="3"></td>
+                        <td class="data-cell" colspan="4"></td>
+                        <td class="data-cell" colspan="4"></td>
+                    </tr>
+                    <tr>
+                        <td class="data-cell" colspan="2">&nbsp;</td>
+                        <td class="data-cell" colspan="3"></td>
+                        <td class="data-cell" colspan="9"></td>
+                        <td class="data-cell" colspan="4"></td>
+                        <td class="data-cell" colspan="3"></td>
+                        <td class="data-cell" colspan="3"></td>
+                        <td class="data-cell" colspan="4"></td>
+                        <td class="data-cell" colspan="4"></td>
+                    </tr>
+                    <tr>
+                        <td class="signature" colspan="6">ผู้จัดทำ<br><br>วันที่</td>
+                        <td class="signature" colspan="6">ผู้ตรวจ<br><br>วันที่</td>
+                        <td class="signature" colspan="6">ผู้บันทึกเครื่อง<br><br>วันที่</td>
+                        <td class="signature" colspan="6">ผู้อนุมัติ<br><br>วันที่</td>
+                        <td class="signature" colspan="8">ผู้อนุมัติเข้าเครื่อง<br><br>วันที่</td>
+                    </tr>
+                    <tr>
+                        <td class="doc-number" colspan="7">เลขที่เอกสารกลับรายการ</td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="5">เลขที่เอกสารใหม</td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                        <td class="doc-number" colspan="1"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="content" style="margin-top: 20px;">
+            <div style="margin-left: 20px;">
+                <!-- หัวข้อ -->
+                <div style="font-size: 18pt; margin-bottom: 10px;">
+                    บันทึกเงินปันผลหุ้นสามัญปีบัญชี {{dataForm.year}} ดังนี้
+                </div>
+                
+                <div style="margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 32px;"></div>
+                        <div style="width: 120px; font-size: 18pt;">หุ้นสามัญจำนวน</div>
+                        <div style="width: 80px; text-align: right; font-size: 18pt;">{{dividend.stkUNiTs | number:'1.0-0'}}</div>
+                        <div style="width: 8px;"></div>
+                        <div style="width: 50px; font-size: 18pt;">หุ้น</div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 32px;"></div>
+                        <div style="width: 160px; font-size: 18pt;">อัตราการจ่ายเงินปันผลต่อหุ้น</div>
+                        <div style="width: 80px; text-align: right; font-size: 18pt;">{{dividend.stkRATE | number:'1.4-4'}}</div>
+                        <div style="width: 50px; font-size: 18pt;">บาท</div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 32px;"></div>
+                        <div style="width: 120px; font-size: 18pt;">รวมเงินปันผลจ่าย</div>
+                        <div style="width: 80px; text-align: right; font-size: 18pt;">{{dividend.stkDVNs | number:'1.2-2'}}</div>
+                        <div style="width: 4px;"></div>
+                        <div style="width: 50px; font-size: 18pt;">บาท</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
