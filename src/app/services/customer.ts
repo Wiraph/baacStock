@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { EncryptionService } from './encryption.service';
+import { environment } from '../../environments/environments';
 
 export interface CustomerSearchDto {
   cusId?: string;
@@ -35,7 +36,7 @@ export interface CustomerDetailDto2 {
   providedIn: 'root'
 })
 export class CustomerService {
-  private readonly apiUrl = 'https://localhost:7089/api/Customer';
+  private readonly apiUrl = `${environment.dotnetApiUrl}/api/Customer`;
 
   constructor(
     private readonly http: HttpClient,

@@ -2,12 +2,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { EncryptionService } from './encryption.service';
 import { isPlatformBrowser } from '@angular/common';
+import { environment } from '../../environments/environments';
 
 @Injectable({
   providedIn: 'root'
 })
 export class Divident {
-  private readonly apiUrl = 'https://localhost:7089/api/Dividend';
+  private readonly apiUrl = `${environment.dotnetApiUrl}/api/Dividend`;
 
   constructor(
     private readonly http: HttpClient,

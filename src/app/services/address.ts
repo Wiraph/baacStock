@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { EncryptionService } from './encryption.service';
+import { environment } from '../../environments/environments';
 
 export interface AddressDto {
   cusiD: string,
@@ -27,7 +28,7 @@ export interface AddressDto {
   providedIn: 'root'
 })
 export class AddressService {
-  private readonly apiUrl = 'https://localhost:7089/api/Address';
+  private readonly apiUrl = `${environment.dotnetApiUrl}/api/Address`;
 
   constructor(
     private readonly http: HttpClient,
