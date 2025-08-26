@@ -147,7 +147,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
         dividendStkPayType: [''],
         stkACCno: [''],
         stkACCname: [''],
-        stkACCtype: ['']
+        stkACCtype: ['001']  // ตั้งค่าเริ่มต้นเป็น '001'
       }),
       detailSale: this.fb.group({
         stkTYPE: ['A'],
@@ -277,6 +277,10 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
             stkACCname: '',
             stkACCtype: '',
           };
+          
+          // Debug: ตรวจสอบข้อมูล dividend ที่ได้จาก API
+          console.log('🔍 dividendData from API:', this.dividendData);
+          console.log('🔍 stkACCtype from API:', this.dividendData?.stkACCtype);
           this.prvData = res.provinces;
           this.titleList = res.titles;
           this.custypeList = res.custypes;
@@ -340,7 +344,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
           dividendStkPayType: this.dividendData?.stkPayType || '',
           stkACCno: this.dividendData?.stkACCno || '',
           stkACCname: this.dividendData?.stkACCname || '',
-          stkACCtype: this.dividendData?.stkACCtype || ''
+          stkACCtype: this.dividendData?.stkACCtype || '001'  // ตั้งค่า fallback เป็น '001'
         }
       });
 
@@ -630,16 +634,21 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
       return;
     }
     // ดึงข้อมูลจากฟอร์ม
-    const dividendData = this.customerForm.get('dividend')?.value;
-    const detailSale = this.customerForm.get('detailSale')?.value;
+    const dividendData = this.customerForm.get('dividend')?.getRawValue();
+    const detailSale = this.customerForm.get('detailSale')?.getRawValue();
     const formattedDate = this.convertDateToBuddhistFormat(detailSale?.stkSaleByCHQdat);
+
+    // Debug: ตรวจสอบค่าที่ได้จากฟอร์ม
+    console.log('🔍 dividendData:', dividendData);
+    console.log('🔍 detailSale:', detailSale);
+    console.log('🔍 stkACCtype:', dividendData?.stkACCtype);
 
     // สร้าง payload ตาม API structure
     const requestPayload = {
       stkOWNiD: this.cusId,
       stkTYPE: "A",
       stkPayType: detailSale?.stkPayTypeDetail || '',
-      sktACCno: dividendData?.stkACCno || '',
+      stkACCno: dividendData?.stkACCno || '',
       stkACCname: dividendData?.stkACCname || '',
       stkACCtype: dividendData?.stkACCtype || '',
       stkUNiT: detailSale?.stkUNiT || 0,
@@ -662,27 +671,44 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     this.loading = true;
 
     this.stockService.stockManage(requestPayload).subscribe({
-      next: (response) => {
+      next: (response:any) => {
         this.res = response;
         this.loading = false;
         // โหลดข้อมูลใหม่ทันที
         // this.reloadCustomerData();
         // แสดง SweetAlert บันทึกสำเร็จ
-        Swal.fire({
-          icon: 'success',
-          title: 'สำเร็จ!',
-          html: `
-          <p style="font-family: 'Prompt', sans-serif;">${this.res[1].RST} : ${this.res[1].errLine}${this.res[1].errNumber}${this.res[1].errSeverity}${this.res[1].errState} : ${this.res[1].MSG}</p>
-          <p style="font-family: 'Prompt', sans-serif;">${this.res[0].RST} : ${this.res[0].errLine}${this.res[0].errNumber}${this.res[0].errSeverity}${this.res[0].errState} : ${this.res[0].MSG}</p>
-          `,
-          confirmButtonText: 'ตกลง',
-        }).then((result) => {
-          if (result.isConfirmed) {
-            this.loading = false;
-            this.activeView = 'search';
-            this.cd.detectChanges();
-          }
-        })
+        if (this.res[0].RST === "PASS") {
+          Swal.fire({
+            icon: 'success',
+            title: 'สำเร็จ!',
+            html: `
+            <p style="font-family: 'Prompt', sans-serif;">${this.res[1].RST} : ${this.res[1].errLine}${this.res[1].errNumber}${this.res[1].errSeverity}${this.res[1].errState} : ${this.res[1].MSG}</p>
+            <p style="font-family: 'Prompt', sans-serif;">${this.res[0].RST} : ${this.res[0].errLine}${this.res[0].errNumber}${this.res[0].errSeverity}${this.res[0].errState} : ${this.res[0].MSG}</p>
+            `,
+            confirmButtonText: 'ตกลง',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              this.loading = false;
+              this.activeView = 'search';
+              this.cd.detectChanges();
+            }
+          });
+        } else {
+          Swal.fire({
+            icon: 'warning',
+            title: 'ไม่สำเร็จ!',
+            html: `
+            <p style="font-family: 'Prompt', sans-serif;">${this.res[0].RST} : ${this.res[0].errLine}${this.res[0].errNumber}${this.res[0].errSeverity}${this.res[0].errState} : ${this.res[0].MSG}</p>
+            `,
+            confirmButtonText: 'ตกลง',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              this.loading = false;
+              this.activeView = 'search';
+              this.cd.detectChanges();
+            }
+          });
+        }
         this.activeView = 'search';
         this.cd.detectChanges();
       },
