@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { AddressService } from './address';
+import { PermissionService } from './permission.service';
 
-describe('AddressService', () => {
-  let service: AddressService;
+describe('Signature', () => {
+  let service: PermissionService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(AddressService);
+    service = TestBed.inject(PermissionService);
   });
 
   it('should be created', () => {

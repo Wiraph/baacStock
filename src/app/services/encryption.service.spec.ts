@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { RemCodeService } from './rem-code';
+import { EncryptionService } from './encryption.service';
 
-describe('RemCode', () => {
-  let service: RemCodeService;
+describe('EncryptionService', () => {
+  let service: EncryptionService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(RemCodeService);
+    service = TestBed.inject(EncryptionService);
   });
 
   it('should be created', () => {

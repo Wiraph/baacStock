@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError, map } from 'rxjs';
-import { catchError, retry } from 'rxjs/operators';
-import { timeout } from 'rxjs/operators'; // Added missing import
+import { catchError, timeout } from 'rxjs/operators';
+import { environment } from '../../environments/environments';
 
 // ข้อมูลผู้ลงนาม
 export interface Signature {
@@ -15,46 +15,37 @@ export interface Signature {
 
 // ข้อมูลหุ้น
 export interface StockData {
-  // tbl_Stock
-  stkNOTE: string;           // เลขที่ใบหุ้น
-  stkOWNiD: string;          // เลขบัตรประชาชนผู้ถือหุ้น
-  stkUNiT: number;           // จำนวนหุ้น
-  stkValue: number;          // มูลค่าหุ้น
-  stkDateIssue: string;      // วันที่ออกใบหุ้น
-  stkDateEffect: string;     // วันที่มีผล
-  stkDateApprove: string;    // วันที่อนุมัติ
-  stkDatePrint: string;      // วันที่พิมพ์
-  stkNOStart: string;        // เลขหุ้นเริ่มต้น
-  stkNOStop: string;         // เลขหุ้นสิ้นสุด
-  stkPayType: string;        // ประเภทการจ่ายเงินปันผล
-  stkSTATUS: string;         // สถานะหุ้น
-  
-  // tbl_cusTOMER
-  cusiD: string;             // เลขบัตรประชาชน
-  cusFName: string;          // ชื่อ
-  cusLName: string;          // นามสกุล
-  titleCode: string;         // รหัสคำนำหน้า
-  cusCODE: string;           // รหัสประเภทลูกค้า
-  cusCODEg: string;          // รหัสกลุ่มลูกค้า
-  
-  // tbl_TiTLE
-  titleDESC: string;         // คำอธิบายคำนำหน้า
-  titleABBR: string;         // คำย่อ
-  
-  // tbl_BRN
-  brCode: string;            // รหัสสาขา
-  brName: string;            // ชื่อสาขา
-  
-  // คำนวณเพิ่มเติม
-  fullName?: string;         // ชื่อเต็ม (title + name + surname)
-  statusDesc?: string;       // คำอธิบายสถานะ
+  stkNOTE: string;          
+  stkOWNiD: string;         
+  stkUNiT: number;         
+  stkValue: number;         
+  stkDateIssue: string;     
+  stkDateEffect: string;    
+  stkDateApprove: string;  
+  stkDatePrint: string;      
+  stkNOStart: string;       
+  stkNOStop: string;       
+  stkPayType: string;       
+  stkSTATUS: string;    
+  cusiD: string;            
+  cusFName: string;     
+  cusLName: string;         
+  titleCode: string;        
+  cusCODE: string;          
+  cusCODEg: string;      
+  titleDESC: string;        
+  titleABBR: string;        
+  brCode: string;           
+  brName: string;           
+  fullName?: string;         
+  statusDesc?: string;      
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class SignatureService {
-  private readonly apiUrl = 'https://localhost:7089/api/Signature/signature';
+  private readonly apiUrl = `${environment.dotnetApiUrl}/api/Signature/signature`;
 
   constructor(private readonly http: HttpClient) { }
 
@@ -71,8 +62,6 @@ export class SignatureService {
       map((signatures: Signature[]) => {
         console.log('Raw signatures from API:', signatures);
         
-        // ลบการกรองออกเพื่อให้ได้ข้อมูลครบ
-        // return signatures.filter(sig => !sig.substituteTo);
         return signatures || [];
       }),
       catchError(this.handleError)
@@ -88,11 +77,11 @@ export class SignatureService {
 
     // ลองหลาย API endpoint
     const stockApiUrls = [
-      'https://localhost:7089/api/Stock/stkdetail',
-      'https://localhost:7089/api/Stock/search',
-      'https://localhost:7089/api/Stock/getStockData',
-      'https://localhost:7089/api/Stock/getStocks',
-      'https://localhost:7089/api/Stock/getStockByNote'
+      `${environment.dotnetApiUrl}/api/Stock/stkdetail`,
+      `${environment.dotnetApiUrl}/api/Stock/search`,
+      `${environment.dotnetApiUrl}/api/Stock/getStockData`,
+      `${environment.dotnetApiUrl}/api/Stock/getStocks`,
+      `${environment.dotnetApiUrl}/api/Stock/getStockByNote`
     ];
     
     // ลองหลาย payload format
@@ -227,93 +216,7 @@ export class SignatureService {
   }
 
   private handleError(error: HttpErrorResponse) {
-    let errorMessage = 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ';
-    
-    if (error.error instanceof ErrorEvent) {
-      errorMessage = `ข้อผิดพลาด: ${error.error.message}`;
-    } else {
-      // Log response body สำหรับ debug
-      console.error('Error Response Body:', error.error);
-      console.error('Error Status:', error.status);
-      console.error('Error Headers:', error.headers);
-      console.error('Error Message:', error.message);
-      console.error('Error Name:', error.name);
-      
-      switch (error.status) {
-        case 400:
-          // แสดงรายละเอียดจาก response body ถ้ามี
-          if (error.error && typeof error.error === 'object') {
-            if (error.error.message) {
-              errorMessage = `ข้อมูลไม่ถูกต้อง: ${error.error.message}`;
-            } else if (error.error.error) {
-              errorMessage = `ข้อมูลไม่ถูกต้อง: ${error.error.error}`;
-            } else {
-              errorMessage = `ข้อมูลไม่ถูกต้อง (400): ${JSON.stringify(error.error)}`;
-            }
-          } else if (error.error && typeof error.error === 'string') {
-            errorMessage = `ข้อมูลไม่ถูกต้อง: ${error.error}`;
-          } else {
-            // กรณีที่ response เป็น text (ไม่ใช่ JSON)
-            try {
-              // ลองดึง error message จากหลายแหล่ง
-              let textResponse = '';
-              if (error.error) {
-                textResponse = error.error.toString();
-              } else if (error.message) {
-                textResponse = error.message;
-              } else if (error.statusText) {
-                textResponse = error.statusText;
-              } else {
-                textResponse = 'Unknown error';
-              }
-              
-              // ลบส่วน "Unexpected token" ออกถ้ามี
-              if (textResponse.includes('Unexpected token')) {
-                const match = textResponse.match(/"([^"]+)"/);
-                if (match) {
-                  textResponse = match[1];
-                } else {
-                  // ถ้าไม่มี quotes ให้ดึงข้อความหลังจาก "Unexpected token"
-                  const parts = textResponse.split('Unexpected token');
-                  if (parts.length > 1) {
-                    textResponse = parts[1].trim();
-                  }
-                }
-              }
-              
-              errorMessage = `ข้อมูลไม่ถูกต้อง: ${textResponse}`;
-            } catch (e) {
-              errorMessage = 'ข้อมูลไม่ถูกต้อง - กรุณาตรวจสอบข้อมูลที่ส่งไป';
-            }
-          }
-          break;
-        case 401:
-          errorMessage = 'Token หมดอายุหรือไม่ถูกต้อง - กรุณา login ใหม่';
-          sessionStorage.removeItem('token');
-          break;
-        case 403:
-          errorMessage = 'ไม่มีสิทธิ์เข้าถึงข้อมูลนี้';
-          break;
-        case 404:
-          errorMessage = 'ไม่พบ API endpoint - กรุณาตรวจสอบ URL';
-          break;
-        case 500:
-          errorMessage = 'ข้อผิดพลาดที่ server - กรุณาติดต่อผู้ดูแลระบบ';
-          break;
-        case 0:
-          errorMessage = 'ไม่สามารถเชื่อมต่อกับ server ได้ - กรุณาตรวจสอบการเชื่อมต่อ';
-          break;
-        default:
-          // ตรวจสอบ timeout error
-          if (error.message && error.message.includes('timeout')) {
-            errorMessage = 'การเชื่อมต่อใช้เวลานานเกินไป - กรุณาลองใหม่อีกครั้ง';
-          } else {
-            errorMessage = `ข้อผิดพลาด HTTP: ${error.status} - ${error.message}`;
-          }
-      }
-    }
-    
-    console.error('SignatureService Error:', errorMessage);
-    return throwError(() => new Error(errorMessage));
+    console.error('SignatureService Error:', error);
+    return throwError(() => new Error('เกิดข้อผิดพลาดในการเชื่อมต่อ'));
   }
 }

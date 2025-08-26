@@ -18,7 +18,7 @@ export interface MenuPermission {
 export class PermissionService {
 
   // Menu permissions (เมนูหลัก)
-  private menuPermissions: { [key: string]: MenuPermission } = {
+  private readonly menuPermissions: { [key: string]: MenuPermission } = {
     'home': { 
       key: 'home',
       levels: ['99','98','90', '89', '85', '80', '50', '20', '19', '10', '09', '05', '00'],
@@ -57,7 +57,7 @@ export class PermissionService {
   };
 
   // Sub-menu permissions (เมนูย่อย)
-  private subMenuPermissions: { [key: string]: SubMenuPermission } = {
+  private readonly subMenuPermissions: { [key: string]: SubMenuPermission } = {
     'home': {
       id: 'home',
       name: 'Home',

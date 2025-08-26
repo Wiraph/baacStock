@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient, HttpEvent, HttpHeaders, HttpRequest } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpHeaders } from '@angular/common/http';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environments';
@@ -8,10 +8,10 @@ import { environment } from '../../environments/environments';
   providedIn: 'root'
 })
 export class FileService {
-  private apiUrl = `${environment.dotnetApiUrl}/api/File`;
+  private readonly apiUrl = `${environment.dotnetApiUrl}/api/File`;
   constructor(
-    private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: object
+    private readonly http: HttpClient,
+    @Inject(PLATFORM_ID) private readonly platformId: object
   ) { }
 
   uploadFile(file: File): Observable<HttpEvent<any>> {

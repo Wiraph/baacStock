@@ -14,11 +14,11 @@ export interface PayType {
   providedIn: 'root'
 })
 export class PayTypeService {
-  private apiUrl = `${environment.dotnetApiUrl}/api/PayType`;
+  private readonly apiUrl = `${environment.dotnetApiUrl}/api/PayType`;
 
   constructor(
-    private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private readonly http: HttpClient,
+    @Inject(PLATFORM_ID) private readonly platformId: Object
   ) {}
 
   getAll(): Observable<PayType[]> {

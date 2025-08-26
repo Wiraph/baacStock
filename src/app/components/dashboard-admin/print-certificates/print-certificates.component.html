@@ -117,19 +117,6 @@
       <!-- ผู้ลงนาม -->
       <div class="space-y-4 mb-6">
 
-        <!-- Error loading signatures -->
-        <div *ngIf="signatureError" class="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded text-sm">
-          {{ signatureError }}
-          <button (click)="loadSignatureList()" class="ml-2 text-blue-600 hover:text-blue-800 underline">
-            ลองใหม่
-          </button>
-        </div>
-
-        <!-- Signature count -->
-        <div *ngIf="!loadingSignatures && !signatureError && signatureList.length > 0" class="text-sm text-gray-600">
-          พบผู้ลงนาม {{ signatureList.length }} คน
-        </div>
-
         <div class="flex items-center space-x-3">
           <label for="" class="text-sm font-medium text-gray-700 min-w-[80px]">ผู้ลงนาม 1</label>
           <select [(ngModel)]="sigNature1" class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
