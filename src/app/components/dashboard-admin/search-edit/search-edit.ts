@@ -1,4 +1,4 @@
-import { Component,  ChangeDetectorRef, OnInit, Output, EventEmitter} from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -6,7 +6,9 @@ import { CustomerStockService } from '../../../services/customer-stock-service';
 import { JwtDecoder } from '../../../services/jwt-decoder';
 import { DataTransfer } from '../../../services/data-transfer';
 import { StocksComponent } from '../stocks/stocks';
+import { NewCusComponent } from '../newcus/newcus';
 import { UserService } from '../../../services/user';
+import { CustomerService } from '../../../services/customer';
 import Swal from 'sweetalert2';
 
 
@@ -16,8 +18,9 @@ import Swal from 'sweetalert2';
   imports: [
     FormsModule,
     CommonModule,
-    StocksComponent
-],
+    StocksComponent,
+    NewCusComponent
+  ],
   templateUrl: './search-edit.html',
   styleUrls: ['./search-edit.css']
 })
@@ -36,6 +39,7 @@ export class SearchEditComponent implements OnInit {
   selectedStockList: string[] = [];
   selectedStatus: string = '';
   mode: string = '';
+  idCard: string = '';
   criteria: any = {
     cusId: '',
     fname: '',
@@ -58,6 +62,7 @@ export class SearchEditComponent implements OnInit {
     private readonly dataTrasfer: DataTransfer,
     private readonly userService: UserService,
     private readonly router: Router,
+    private readonly customerService: CustomerService
   ) { }
 
   nextPage() {
@@ -91,10 +96,16 @@ export class SearchEditComponent implements OnInit {
   ngOnInit(): void {
     this.statusPage = this.dataTrasfer.getPageStatus();
     this.onloadStart();
-    const token = sessionStorage.getItem('token');
-    const decoder = this.jwtCoder.decodeToken(String(token));
-    this.branch = decoder.BrName ?? "";
     
+    // ตรวจสอบว่าอยู่ใน browser environment หรือไม่
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      const token = sessionStorage.getItem('token');
+      const decoder = this.jwtCoder.decodeToken(String(token));
+      this.branch = decoder.BrName ?? "";
+    } else {
+      this.branch = "";
+    }
+
     // โหลดข้อมูล user ปัจจุบัน
     this.currentUser = this.userService.getCurrentUser();
   }
@@ -176,15 +187,15 @@ export class SearchEditComponent implements OnInit {
       this.activeView = 'edit';
       this.statusView.emit({ view: 'edit', cusId: cusId });
     } else if (this.statusPage == '2') {
-      this.statusView.emit({ view: 'sale', cusId: cusId});
+      this.statusView.emit({ view: 'sale', cusId: cusId });
     } else if (this.statusPage == '3') {
-      this.statusView.emit({ view: 'newcertificate', cusId: cusId});
+      this.statusView.emit({ view: 'newcertificate', cusId: cusId });
     } else if (this.statusPage == '4') {
-      this.statusView.emit({view: 'transfer', cusId: cusId });
+      this.statusView.emit({ view: 'transfer', cusId: cusId });
     } else if (this.statusPage == '5') {
-      this.statusView.emit({view: 'dividend', cusId: cusId});
+      this.statusView.emit({ view: 'dividend', cusId: cusId });
     } else if (this.statusPage == '6') {
-      this.statusView.emit({view: 'block', cusId: cusId});
+      this.statusView.emit({ view: 'block', cusId: cusId });
     }
   }
 
@@ -197,12 +208,12 @@ export class SearchEditComponent implements OnInit {
   // ตรวจสอบเลขบัตร 13 หลัก
   isValidIdCard(): boolean {
     const idCard = this.criteria.cusId;
-    
+
     // ตรวจสอบความยาว 13 หลัก
     if (!idCard || idCard.length !== 13 || !/^\d{13}$/.test(idCard)) {
       return false;
     }
-    
+
     // ตรวจสอบ checksum
     return this.validateIdCardChecksum(idCard);
   }
@@ -211,19 +222,19 @@ export class SearchEditComponent implements OnInit {
   validateIdCardChecksum(idCard: string): boolean {
     const digits = idCard.split('').map(Number);
     const weights = [13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2];
-    
+
     let sum = 0;
     for (let i = 0; i < 12; i++) {
       sum += digits[i] * weights[i];
     }
-    
+
     const checkDigit = (11 - (sum % 11)) % 10;
     return checkDigit === digits[12];
   }
 
   // warning ของปุ่มผู้ถือหุ้นรายใหม่
   onNewShareholder() {
-    if (!this.isValidIdCard()) {
+    if (this.criteria.cusId.length !== 13) {
       Swal.fire({
         icon: 'warning',
         title: 'เลขบัตรแสดงตนไม่ถูกต้อง',
@@ -233,11 +244,28 @@ export class SearchEditComponent implements OnInit {
       return;
     }
 
-    // นำทางไปยังหน้า newcus
-    this.router.navigate(['/dashboard-admin/newcus'], {
-      queryParams: { 
-        idCard: this.criteria.cusId,
-        mode: 'new-shareholder'
+    // ตรวจสอบว่ามีผู้ถือหุ้นรายนี้ในระบบหรือไม่
+    const payload = {
+      cusId: this.criteria.cusId
+    };
+    this.customerService.getCustomer(payload).subscribe({
+      next: (res: any) => {
+        console.log(res);
+        if (res.message === "ไม่พบข้อมูลลูกค้า") {
+          this.mode = 'new-shareholder';
+          this.idCard = this.criteria.cusId;
+          this.activeView = 'newcus';
+          this.cd.detectChanges();
+        } else {
+          Swal.fire({
+            icon: 'warning',
+            text: 'หมายเลขบัตรแสดงตนนี้มีอยู่ในระบบนี้แล้ว',
+            confirmButtonText: 'เข้าใจแล้ว'
+          });
+        }
+      },
+      error: (err) => {
+        console.error('เกิดข้อผิดพลาด', err);
       }
     });
   }

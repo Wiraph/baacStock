@@ -44,11 +44,18 @@ export class CustomerService {
     private readonly encryped: EncryptionService
   ) { }
 
+  // Paramiter
+  // payload = {
+  //   CUSid: string;
+  // }
   getCustomerTable(requestPayload: any) {
     const encrypPayload = this.encryped.encrypPayload(requestPayload);
     return this.http.post<any[]>(`${this.apiUrl}/detailcus`, encrypPayload, { headers: this.createAuthHeaders() });
   }
 
+  // payload = {
+  //   cusId: string
+  // }
   getCustomer(requestPayload: any) {
     const encrypPayload = this.encryped.encrypPayload(requestPayload);
     console.log("log", encrypPayload);
@@ -62,6 +69,7 @@ export class CustomerService {
 
   postUpdateCustomer(requestPayload: any) {
     const encrypPayload = this.encryped.encrypPayload(requestPayload);
+    console.log("ข้อมูลที่ถูกเข้ารหัส", encrypPayload);
     return this.http.post<any[]>(`${this.apiUrl}/update`, encrypPayload, { headers: this.createAuthHeaders() });
   }
 

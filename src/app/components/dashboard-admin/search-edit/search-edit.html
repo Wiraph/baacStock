@@ -105,3 +105,7 @@
 <div *ngIf="activeView == 'stock'">
   <app-stocks [cusId]="cusId" (back)="activeView = $event"></app-stocks>
 </div>
+
+<div *ngIf="activeView === 'newcus'">
+  <app-newcus [mode]="mode" [idCard]="idCard" (back)="activeView = $event"></app-newcus>
+</div>
