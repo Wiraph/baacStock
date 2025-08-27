@@ -151,8 +151,8 @@ export class SearchEditComponent implements OnInit {
       this.icon = "🔃";
       this.titleSearch = "โอนเปลี่ยนมือ";
     } else if (this.statusPage == '5') {
-      this.icon = "📄";
-      this.titleSearch = "เงินปันผล";
+      this.icon = "💰";
+      this.titleSearch = "จ่ายเงินปันผล";
     } else if (this.statusPage == '6') {
       this.icon = "🔒";
       this.titleSearch = "บล็อคใบหุ้น";

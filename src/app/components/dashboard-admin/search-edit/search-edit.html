@@ -48,7 +48,7 @@
             <th class="px-4 py-3 text-center font-medium">เลขที่บัตรแสดงตน</th>
             <th class="px-4 py-3 text-center font-medium">ชื่อ - นามสกุล</th>
             <th class="px-4 py-3 text-center font-medium">สถานะ</th>
-            <th class="px-4 py-3 text-center font-medium">ใบหุ้น</th>
+            <th *ngIf="statusPage !== '5'" class="px-4 py-3 text-center font-medium">ใบหุ้น</th>
             <th *ngIf="currentUser?.level === '99' || currentUser?.level === '85' || currentUser?.level === '05'" class="px-4 py-3 text-center font-medium">แก้ไข</th>
           </tr>
         </thead>
@@ -59,7 +59,7 @@
             <td class="px-4 py-2 text-center">{{ r.cusiD }}</td>
             <td class="px-4 py-2 text-center">{{ r.titleABBR }}{{ r.cuSfname }} {{ r.cuSlname }}</td>
             <td class="px-4 py-2 text-center">{{ r.stDESC || '-' }}</td>
-            <td class="px-4 py-2 text-center">
+            <td *ngIf="statusPage !== '5'" class="px-4 py-2 text-center">
               <button (click)="onViewStock(r.cusiD)" class="text-blue-600 hover:text-blue-800" title="ดูใบหุ้น">
                 📄
               </button>
