@@ -1,16 +1,381 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { SignatureService, Signature, StockData } from '../../../services/signature';
+import { StockService } from '../../../services/stock';
 
 @Component({
   selector: 'app-print-certificates',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './print-certificates.component.html',
   styleUrls: ['./print-certificates.component.css']
 })
-export class PrintCertificatesComponent {
+export class PrintCertificatesComponent implements OnInit {
   
-  constructor() { }
+  // Properties สำหรับการค้นหา
+  searchTypeRadio: 'stkNOTE' | 'date' = 'stkNOTE';
+  stkNOTE: string = '';
+  
+  // Properties สำหรับวันที่ 
+  dateType: 'stkDateIssue' | 'stkDateEffect' | 'stkDateApprove' = 'stkDateIssue';
+  timeType: 'date-year' | 'date-range' | 'date-day' = 'date-year';
+  
+  // Properties สำหรับวันที่
+  dateYear: string = '';
+  dateRangeStartD: string = '';
+  dateRangeStartM: string = '';
+  dateRangeStartY: string = '';
+  dateRangeStopD: string = '';
+  dateRangeStopM: string = '';
+  dateRangeStopY: string = '';
+  dateDayD: string = '';
+  dateDayM: string = '';
+  dateDayY: string = '';
+  
+  // Properties สำหรับผู้ลงนาม 
+  sigNature1: string = '';
+  sigNature2: string = '';
+  signatureList: Signature[] = [];
+  loadingSignatures: boolean = false;
+  signatureError: string = '';
+
+  // ข้อมูลหุ้น
+  stockList: StockData[] = [];
+  loadingStocks: boolean = false;
+  stockError: string = '';
+
+  // Date Options Arrays
+  readonly dayOptions = Array.from({length: 31}, (_, i) => ({
+    value: (i + 1).toString(),
+    label: (i + 1).toString()
+  }));
+
+  readonly monthOptions = [
+    { value: '1', label: 'มกราคม' },
+    { value: '2', label: 'กุมภาพันธ์' },
+    { value: '3', label: 'มีนาคม' },
+    { value: '4', label: 'เมษายน' },
+    { value: '5', label: 'พฤษภาคม' },
+    { value: '6', label: 'มิถุนายน' },
+    { value: '7', label: 'กรกฎาคม' },
+    { value: '8', label: 'สิงหาคม' },
+    { value: '9', label: 'กันยายน' },
+    { value: '10', label: 'ตุลาคม' },
+    { value: '11', label: 'พฤศจิกายน' },
+    { value: '12', label: 'ธันวาคม' }
+  ];
+
+  readonly yearOptions = Array.from({length: 50}, (_, i) => {
+    const year = 2568 - i;
+    return {
+      value: year.toString(),
+      label: year.toString()
+    };
+  });
+  
+  constructor(
+    private readonly signatureService: SignatureService,
+    private readonly http: HttpClient,
+    private readonly stockService: StockService
+  ) { }
+
+  ngOnInit() {
+    this.loadSignatureList();
+    this.setDefaultYear();
+  }
+
+  // โหลดรายชื่อผู้ลงนามจาก database
+  loadSignatureList() {
+    this.loadingSignatures = true;
+    this.signatureError = '';
+    
+    this.signatureService.getSignatures().subscribe({
+      next: (signatures) => {
+        console.log(`โหลดข้อมูลผู้ลงนามสำเร็จ: ${signatures.length} คน`);
+        this.signatureList = signatures;
+        this.loadingSignatures = false;
+        
+        // ตั้งค่าเริ่มต้นให้กับ dropdown ผู้ลงนาม
+        this.setDefaultSignatories();
+      },
+      error: (error) => {
+        console.error('Error loading signatures:', error);
+        this.loadingSignatures = false;
+        this.signatureError = 'ไม่สามารถโหลดข้อมูลผู้ลงนามได้ กรุณาลองใหม่อีกครั้ง';
+        this.signatureList = [];
+      }
+    });
+  }
+
+  // ตั้งค่าเริ่มต้นให้กับ dropdown ผู้ลงนาม
+  private setDefaultSignatories() {
+    if (this.signatureList && this.signatureList.length > 0) {
+      // ตั้งค่าผู้ลงนามคนแรกเป็นค่าเริ่มต้น
+      this.sigNature1 = this.signatureList[0].empId.toString();
+      
+      // ตั้งค่าผู้ลงนามคนที่สองเป็นค่าเริ่มต้น (ถ้ามีมากกว่า 1 คน)
+      if (this.signatureList.length > 1) {
+        this.sigNature2 = this.signatureList[1].empId.toString();
+      }
+    }
+  }
+
+  // ตั้งค่าปีปัจจุบัน
+  setDefaultYear() {
+    const currentYear = new Date().getFullYear() + 543; // แปลงเป็นปี พ.ศ.
+    this.dateYear = currentYear.toString();
+    this.dateRangeStartY = currentYear.toString();
+    this.dateRangeStopY = currentYear.toString();
+    this.dateDayY = currentYear.toString();
+  }
+
+  // Method สำหรับเปลี่ยนประเภทการค้นหา
+  onSearchTypeChange(type: 'stkNOTE' | 'date') {
+    this.searchTypeRadio = type;
+    
+    // Clear values เมื่อเปลี่ยนประเภทการค้นหา
+    if (type === 'stkNOTE') {
+      this.clearDateValues();
+    } else {
+      this.stkNOTE = '';
+    }
+  }
+
+  // Method สำหรับเปลี่ยนประเภทวันที่
+  onTimeTypeChange(type: 'date-year' | 'date-range' | 'date-day') {
+    this.timeType = type;
+    this.clearDateValues();
+  }
+
+  // Method สำหรับเปลี่ยนหมวดวันที่
+  onDateTypeChange(type: 'stkDateIssue' | 'stkDateEffect' | 'stkDateApprove') {
+    this.dateType = type;
+  }
+
+  // Clear ค่าวันที่
+  clearDateValues() {
+    this.dateYear = '';
+    this.dateRangeStartD = '';
+    this.dateRangeStartM = '';
+    this.dateRangeStartY = '';
+    this.dateRangeStopD = '';
+    this.dateRangeStopM = '';
+    this.dateRangeStopY = '';
+    this.dateDayD = '';
+    this.dateDayM = '';
+    this.dateDayY = '';
+  }
+
+  // Method สำหรับตรวจสอบว่า input ควรถูก disable หรือไม่
+  isStkNOTEDisabled(): boolean {
+    return this.searchTypeRadio === 'date';
+  }
+
+  isDateDisabled(): boolean {
+    return this.searchTypeRadio === 'stkNOTE';
+  }
+
+  isTimeTypeDisabled(): boolean {
+    return this.searchTypeRadio === 'stkNOTE';
+  }
+
+  // Method สำหรับค้นหา
+  onSearch() {
+    if (!this.validateToken()) return;
+    if (!this.validateSearchInput()) return;
+
+    this.loadingStocks = true;
+    this.stockError = '';
+    this.stockList = [];
+
+    const searchPayload = this.buildSearchPayload();
+    console.log('Search payload:', searchPayload);
+    
+    // ใช้ searchPayload โดยตรงแทนการสร้าง payload ใหม่
+    this.stockService.getStockDetail(searchPayload).subscribe({
+      next: (response: StockData[]) => {
+        console.log('API Response:', response);
+        this.stockList = response || [];
+        this.loadingStocks = false;
+      },
+      error: (error: any) => {
+        console.error('Search error:', error);
+        this.loadingStocks = false;
+        this.handleSearchError(error);
+        this.stockList = [];
+      }
+    });
+  }
+
+  private validateToken(): boolean {
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+      this.stockError = 'ไม่มีการยืนยันตัวตน กรุณา login ใหม่';
+      return false;
+    }
+    return true;
+  }
+
+  private validateSearchInput(): boolean {
+    if (this.searchTypeRadio === 'stkNOTE') {
+      return this.validateStockNote();
+    }
+    return this.validateDateInput();
+  }
+
+  private validateStockNote(): boolean {
+    if (!this.stkNOTE || this.stkNOTE.trim() === '') {
+      this.stockError = 'กรุณากรอกเลขที่ใบหุ้น';
+      return false;
+    }
+    return true;
+  }
+
+  private validateDateInput(): boolean {
+    if (this.timeType === 'date-day') {
+      if (!this.dateDayD || !this.dateDayM || !this.dateDayY) {
+        this.stockError = 'กรุณาเลือกวันที่ให้ครบถ้วน';
+        return false;
+      }
+    } else if (this.timeType === 'date-range') {
+      if (!this.dateRangeStartD || !this.dateRangeStartM || !this.dateRangeStartY ||
+          !this.dateRangeStopD || !this.dateRangeStopM || !this.dateRangeStopY) {
+        this.stockError = 'กรุณาเลือกช่วงวันที่ให้ครบถ้วน';
+        return false;
+      }
+    } else if (this.timeType === 'date-year') {
+      if (!this.dateYear) {
+        this.stockError = 'กรุณาเลือกปี';
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private handleSearchError(error: any): void {
+    if (error.status === 400) {
+      const errorMsg = error.message || 'กรุณาตรวจสอบข้อมูลที่กรอก';
+      this.stockError = `ข้อมูลไม่ถูกต้อง (400): ${errorMsg}`;
+      
+      if (this.searchTypeRadio === 'stkNOTE') {
+        this.addStockNoteSuggestions();
+      } else {
+        this.addDateSearchSuggestions();
+      }
+    } else if (error.status === 401) {
+      this.stockError = 'Token หมดอายุ กรุณา login ใหม่';
+    } else if (error.status === 404) {
+      this.stockError = 'ไม่พบ API endpoint - กรุณาตรวจสอบ URL';
+    } else {
+      this.stockError = `ไม่สามารถค้นหาข้อมูลหุ้นได้: ${error.message || 'กรุณาลองใหม่อีกครั้ง'}`;
+    }
+  }
+
+  private addDateSearchSuggestions(): void {
+    this.stockError += '\n\nคำแนะนำสำหรับการค้นหาด้วยวันที่:';
+    this.stockError += '\n• ลองเปลี่ยนปีที่ค้นหา';
+    this.stockError += '\n• ลองเปลี่ยนประเภทวันที่ (วันที่ออก/วันที่มีผล/วันที่อนุมัติ)';
+    this.stockError += '\n• ลองใช้การค้นหาด้วยเลขที่ใบหุ้นแทน';
+    this.stockError += '\n• ตรวจสอบว่า API รองรับการค้นหาด้วยวันที่หรือไม่';
+  }
+
+  private addStockNoteSuggestions(): void {
+    this.stockError += '\n\nคำแนะนำ:';
+    this.stockError += '\n• กรุณาตรวจสอบเลขที่ใบหุ้นว่าถูกต้องหรือไม่';
+    this.stockError += '\n• ลองใช้เลขที่ใบหุ้นอื่น เช่น A000035455';
+    this.stockError += '\n• ตรวจสอบว่า API endpoint ถูกต้องหรือไม่';
+    this.stockError += '\n• ลองเปลี่ยน action เป็น GET, FIND, หรือ QUERY';
+    this.stockError += '\n• ลองส่ง payload แบบง่าย เช่น { stkNOTE: "A000056131" }';
+  }
+
+  // สร้าง payload สำหรับค้นหา
+  private buildSearchPayload(): any {
+    const payload: any = {};
+
+    if (this.searchTypeRadio === 'stkNOTE') {
+      // ใช้แค่ field เดียวเพื่อลดความสับสน
+      payload.stkNOTE = this.stkNOTE;
+    } else {
+      // ค้นหาด้วยวันที่
+      this.buildDatePayload(payload);
+    }
+
+    // เพิ่ม debug log เพื่อดู payload ที่ส่งไป
+    console.log('Final Search Payload:', JSON.stringify(payload, null, 2));
+
+    return payload;
+  }
+
+  private buildDatePayload(payload: any): void {
+    if (this.timeType === 'date-day' && this.dateDayD && this.dateDayM && this.dateDayY) {
+      const date = this.formatDateForAPI(this.dateDayD, this.dateDayM, this.dateDayY);
+      this.setDateField(payload, date);
+    } else if (this.timeType === 'date-range' && this.dateRangeStartD && this.dateRangeStartM && this.dateRangeStartY && this.dateRangeStopD && this.dateRangeStopM && this.dateRangeStopY) {
+      const startDate = this.formatDateForAPI(this.dateRangeStartD, this.dateRangeStartM, this.dateRangeStartY);
+      const endDate = this.formatDateForAPI(this.dateRangeStopD, this.dateRangeStopM, this.dateRangeStopY);
+      this.setDateRangeField(payload, startDate, endDate);
+    } else if (this.timeType === 'date-year' && this.dateYear) {
+      this.setYearField(payload, this.dateYear);
+    }
+  }
+
+  private setDateField(payload: any, date: string) {
+    switch (this.dateType) {
+      case 'stkDateIssue':
+        payload.stkDateIssue = date;
+        break;
+      case 'stkDateEffect':
+        payload.stkDateEffect = date;
+        break;
+      case 'stkDateApprove':
+        payload.stkDateApprove = date;
+        break;
+    }
+  }
+
+  private setDateRangeField(payload: any, startDate: string, endDate: string) {
+    switch (this.dateType) {
+      case 'stkDateIssue':
+        payload.stkDateIssueFrom = startDate;
+        payload.stkDateIssueTo = endDate;
+        break;
+      case 'stkDateEffect':
+        payload.stkDateEffectFrom = startDate;
+        payload.stkDateEffectTo = endDate;
+        break;
+      case 'stkDateApprove':
+        payload.stkDateApproveFrom = startDate;
+        payload.stkDateApproveTo = endDate;
+        break;
+    }
+  }
+
+  private setYearField(payload: any, year: string) {
+    const christianYear = parseInt(year) - 543;
+    switch (this.dateType) {
+      case 'stkDateIssue':
+        payload.year = christianYear;
+        payload.dateType = 'issue';
+        break;
+      case 'stkDateEffect':
+        payload.year = christianYear;
+        payload.dateType = 'effect';
+        break;
+      case 'stkDateApprove':
+        payload.year = christianYear;
+        payload.dateType = 'approve';
+        break;
+    }
+  }
+
+  private formatDateForAPI(day: string, month: string, year: string): string {
+    const christianYear = parseInt(year) - 543;
+    const monthStr = month.padStart(2, '0');
+    const dayStr = day.padStart(2, '0');
+    return `${christianYear}-${monthStr}-${dayStr}`;
+  }
 
   getCurrentDate(): string {
     const now = new Date();

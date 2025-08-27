@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { EncryptionService } from './encryption.service';
+import { environment } from '../../environments/environments';
 
 export interface CustomerSearchDto {
   cusId?: string;
@@ -35,7 +36,7 @@ export interface CustomerDetailDto2 {
   providedIn: 'root'
 })
 export class CustomerService {
-  private readonly apiUrl = 'https://localhost:7089/api/Customer';
+  private readonly apiUrl = `${environment.dotnetApiUrl}/api/Customer`;
 
   constructor(
     private readonly http: HttpClient,
@@ -43,11 +44,18 @@ export class CustomerService {
     private readonly encryped: EncryptionService
   ) { }
 
+  // Paramiter
+  // payload = {
+  //   CUSid: string;
+  // }
   getCustomerTable(requestPayload: any) {
     const encrypPayload = this.encryped.encrypPayload(requestPayload);
     return this.http.post<any[]>(`${this.apiUrl}/detailcus`, encrypPayload, { headers: this.createAuthHeaders() });
   }
 
+  // payload = {
+  //   cusId: string
+  // }
   getCustomer(requestPayload: any) {
     const encrypPayload = this.encryped.encrypPayload(requestPayload);
     console.log("log", encrypPayload);
@@ -61,6 +69,7 @@ export class CustomerService {
 
   postUpdateCustomer(requestPayload: any) {
     const encrypPayload = this.encryped.encrypPayload(requestPayload);
+    console.log("ข้อมูลที่ถูกเข้ารหัส", encrypPayload);
     return this.http.post<any[]>(`${this.apiUrl}/update`, encrypPayload, { headers: this.createAuthHeaders() });
   }
 
@@ -68,6 +77,12 @@ export class CustomerService {
     const encrypPayload = this.encryped.encrypPayload(requestPayload);
     console.log("ข้อมูลที่ถูกเข้ารหัส", encrypPayload);
     return this.http.post<any[]>(`${this.apiUrl}/search`, encrypPayload, { headers: this.createAuthHeaders() });
+  }
+
+  createNewShareholder(requestPayload: any) {
+    const encrypPayload = this.encryped.encrypPayload(requestPayload);
+    console.log("ข้อมูลผู้ถือหุ้นใหม่ที่ถูกเข้ารหัส", encrypPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/create`, encrypPayload, { headers: this.createAuthHeaders() });
   }
 
   private createAuthHeaders(): HttpHeaders {

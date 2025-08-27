@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { RemCodeService } from './rem-code';
+import { SignatureService } from './signature';
 
-describe('RemCode', () => {
-  let service: RemCodeService;
+describe('Signature', () => {
+  let service: SignatureService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(RemCodeService);
+    service = TestBed.inject(SignatureService);
   });
 
   it('should be created', () => {

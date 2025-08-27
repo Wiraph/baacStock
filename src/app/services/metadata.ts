@@ -3,12 +3,13 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { EncryptionService } from './encryption.service';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environments';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MetadataService {
-  private readonly apiUrl = 'https://localhost:7089/api/Metadata';
+  private readonly apiUrl = `${environment.dotnetApiUrl}/api/Metadata`;
 
   constructor(
     private readonly http: HttpClient,

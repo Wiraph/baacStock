@@ -2,15 +2,15 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-
+import { environment } from '../../environments/environments';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StockRequestService {
-  private apiUrl = 'https://localhost:7089/api/stockrequest';
+  private readonly apiUrl = `${environment.dotnetApiUrl}/api/stockrequest`;
 
-  constructor(private http: HttpClient,@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(private readonly http: HttpClient,@Inject(PLATFORM_ID) private readonly platformId: Object) {}
 
   submitRequest(stkNote: string ,payload: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/sale_stock/${stkNote}`, payload, {headers: this.createAuthHeaders()});

@@ -1,12 +1,8 @@
-import {
-  Component, Input, OnInit, OnChanges, SimpleChanges, ChangeDetectorRef
-} from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StockService, StockItem } from '../../../../services/stock';
-import { ChangeDetectionStrategy } from '@angular/core';
-import { RemCodeService } from '../../../../services/rem-code';
+import { MetadataService } from '../../../../services/metadata';
 
 // เพิ่ม interface เพื่อรองรับ property ใหม่
 interface StockItemWithFlags extends StockItem {
@@ -40,9 +36,9 @@ export class ViewStock implements OnChanges, OnInit {
   viewName: string = 'view-stock';
 
   constructor(
-    private stockService: StockService,
-    private remCodeService: RemCodeService,
-    private cd: ChangeDetectorRef
+    private readonly stockService: StockService,
+    private readonly metaDataService: MetadataService,
+    private readonly cd: ChangeDetectorRef
   ) { }
 
   setView(view: string): void {
@@ -63,7 +59,7 @@ export class ViewStock implements OnChanges, OnInit {
   }
 
   ngOnInit() {
-    this.remCodeService.getRemCodes().subscribe({
+    this.metaDataService.getRemCode().subscribe({
       next: (data) => {
         this.remCodeList = data;
       },

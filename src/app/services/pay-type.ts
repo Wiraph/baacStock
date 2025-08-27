@@ -2,6 +2,7 @@ import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
+import { environment } from '../../environments/environments';
 
 export interface PayType {
   payType: string;
@@ -13,11 +14,11 @@ export interface PayType {
   providedIn: 'root'
 })
 export class PayTypeService {
-  private apiUrl = 'https://localhost:7089/api/PayType';
+  private readonly apiUrl = `${environment.dotnetApiUrl}/api/PayType`;
 
   constructor(
-    private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private readonly http: HttpClient,
+    @Inject(PLATFORM_ID) private readonly platformId: Object
   ) {}
 
   getAll(): Observable<PayType[]> {

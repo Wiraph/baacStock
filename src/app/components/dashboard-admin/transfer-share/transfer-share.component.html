@@ -112,17 +112,18 @@
                                         formControlName="CUSid" disabled>
                                 </div>
 
-                                <div class="flex items-center justify-star gap-4">
-                                    <span class="font-medium text-gray-700 w-40 flex justify-end">จำนวนหุ้น :</span>
-                                    <input type="number"
-                                        class="text-gray-700 border-2 bg-lime-100 border-lime-400 rounded font-medium focus:outline-none w-60 px-3 py-2"
-                                        formControlName="CUSun">
-                                    <div class="flex gap-2">
-                                        <button type="button" class="cursor-pointer hover:shadow-xl">✅</button>
-                                        <button type="button" (click)="removeAt(i)"
-                                            class="cursor-pointer hover:shadow-xl">❌</button>
-                                    </div>
-                                </div>
+                                                                 <div class="flex items-center justify-between w-full">
+                                     <div class="flex items-center gap-4">
+                                         <span class="font-medium text-gray-700 w-40 flex justify-end">จำนวนหุ้น :</span>
+                                         <input type="number"
+                                             class="text-gray-700 border-2 bg-lime-100 border-lime-400 rounded font-medium focus:outline-none w-60 px-3 py-2"
+                                             formControlName="CUSun"
+                                             [max]="getRemainingSharesForNextPerson(i)"
+                                             [min]="1"
+                                             (input)="onShareAmountChange(i)">
+                                     </div>
+                                     <button type="button" (click)="removeAt(i)" class="cursor-pointer hover:shadow-xl">❌</button>
+                                 </div>
                             </div>
 
                             <!-- Row 2 -->
@@ -133,7 +134,6 @@
                                         class="text-gray-900 rounded font-medium focus:outline-none w-60 px-3 py-2"
                                         formControlName="Name" readonly>
                                 </div>
-                                <div></div>
                             </div>
 
                             <!-- เงินปันผล -->
@@ -168,7 +168,6 @@
                                                             {{ item.accDesc }}
                                                         </option>
                                                     </select>
-
                                                     <span>เลขที่บัญชี :</span>
                                                     <input type="text" formControlName="accNO"
                                                         class="text-gray-700 border-2 border-lime-400 bg-lime-100 rounded font-medium focus:outline-none w-60 px-3 py-2" />
@@ -183,10 +182,6 @@
                                                         class="text-gray-700 border-2 border-lime-400 bg-lime-100 rounded font-medium focus:outline-none w-60 px-3 py-2" />
                                                 </div>
                                             </div>
-                                        </div>
-
-                                        <div>
-
                                         </div>
                                     </div>
 
@@ -213,18 +208,19 @@
                             <span class="text-lg">➕</span>
                         </button>
                     </div>
-                </form>
+                                 </form>
 
 
 
-
-                <div class="flex justify-center space-x-4 mt-6">
-                    <!-- ปุ่มบันทึก - แสดงเมื่อมีรายการผู้รับโอนเท่านั้น -->
-                    <button type="button" (click)="submitAll()"
-                        class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded flex items-center">
-                        บันทึก
-                    </button>
-
+                 <div class="flex justify-center space-x-4 mt-6">
+                     <!-- ปุ่มบันทึก - แสดงเมื่อมีรายการผู้รับโอนเท่านั้น -->
+                     <button type="button" (click)="submitAll()"
+                         [disabled]="!checkTransferableShares().canTransfer || checkTransferableShares().totalRequested === 0"
+                         [class]="checkTransferableShares().canTransfer && checkTransferableShares().totalRequested > 0
+                                 ? 'bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded flex items-center'
+                                 : 'bg-gray-400 text-gray-600 px-6 py-2 rounded flex items-center cursor-not-allowed'">
+                         บันทึก
+                     </button>
                     <button type="button" (click)="cancelAll()"
                         class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded flex items-center">
                         ยกเลิก
@@ -232,21 +228,69 @@
                 </div>
             </form>
         </div>
-        
-
-
     </div>
 </div>
 
-<div *ngIf="loading"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-40 backdrop-blur-sm"
-    style="background-color: rgba(128, 128, 128, 0.7);">
-    <div class="text-center">
-        <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
-            viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-        </svg>
-        <p class="text-lg text-white font-medium">🔄 กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
+    <!-- หน้า Summary -->
+    <div *ngIf="activeView == 'summary'" class="max-w-7xl mx-auto p-4 shadow-lg rounded-lg">
+        <div class="bg-green-500 text-white text-center py-3 rounded-t-lg mb-4">
+            <h2 class="text-xl font-semibold">โอนเปลี่ยนมือ : รายละเอียด</h2>
+        </div>
+
+        <div *ngIf="summaryData" class="space-y-4">
+            <!-- ผู้โอน -->
+            <div class="bg-blue-100 p-3 mb-4 rounded border border-blue-200">
+                <h3 class="text-lg font-semibold text-blue-800 mb-3">ผู้โอน</h3>
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="text-blue-900">ชื่อ - นามสกุล : {{ summaryData.transferor.name }}</div>
+                    <div class="text-blue-900">หมายเลขใบหุ้น : {{ summaryData.transferor.shareCertificate }}</div>
+                    <div class="text-blue-900">หมายเลขหุ้น : {{ summaryData.transferor.shareNumbers }}</div>
+                </div>
+                <div class="grid grid-cols-3 gap-2 mt-1">
+                    <div class="text-blue-900">จำนวน : {{ summaryData.transferor.shareCount }} หุ้น / {{ summaryData.transferor.shareValue }} บาท</div>
+                    <div class="text-blue-900">รับเงินปันผลโดย : {{ summaryData.transferor.dividendMethod }}</div>
+                </div>
+            </div>
+
+            <div class="border-t border-blue-300 my-4"></div>
+
+            <!-- ผู้รับโอน -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold text-blue-800">ผู้รับโอน ({{ summaryData.totalRecipients }} คน)</h3>
+                <div *ngFor="let transferee of summaryData.transferees; let i = index" 
+                     class="bg-blue-200 p-4 rounded shadow border border-blue-200">
+                    <h4 class="font-medium text-blue-700 mb-2">ผู้รับโอนคนที่ {{ i + 1 }}</h4>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="text-blue-900">ชื่อ - นามสกุล : {{ transferee.name }}</div>
+                        <div class="text-blue-900">หมายเลขใบหุ้น : {{ transferee.shareCertificate }}</div>
+                        <div class="text-blue-900">หมายเลขหุ้น : {{ transferee.shareNumbers }}</div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 mt-1">
+                        <div class="text-blue-900">จำนวน : {{ transferee.shareCount }} หุ้น / {{ transferee.shareValue }} บาท</div>
+                        <div class="text-blue-900">รับเงินปันผลโดย : {{ transferee.dividendMethod }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ปุ่มกลับ -->
+            <div class="flex justify-center space-x-4 mt-6">
+                <button type="button" (click)="goBack()" 
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded flex items-center">
+                    กลับ
+                </button>
+            </div>
+        </div>
     </div>
-</div>
+
+ <div *ngIf="loading"
+     class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-40 backdrop-blur-sm"
+     style="background-color: rgba(128, 128, 128, 0.7);">
+     <div class="text-center">
+         <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+             viewBox="0 0 24 24">
+             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+         </svg>
+         <p class="text-lg text-white font-medium">🔄 กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
+     </div>
+ </div>

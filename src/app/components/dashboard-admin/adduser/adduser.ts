@@ -22,16 +22,28 @@ export class AdduserComponent implements OnInit {
   levelList: any[] = [];
   branchList: any[] = [];
   decodedToken: any;
-  token = sessionStorage.getItem('token');
+  token = '';
   selectedBranchCode: string = '';
   selectedLevelCode: string = '';
   userId: string = '';
   fullName: string = '';
 
   ngOnInit(): void {
-    if (this.token) {
-      this.decodedToken = this.jwtDecoder.decodeToken(this.token);
-      console.log('Decoded Token:', this.decodedToken);
+    // ตรวจสอบว่าอยู่ใน browser environment หรือไม่
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      this.token = sessionStorage.getItem('token') || '';
+      if (this.token) {
+        this.decodedToken = this.jwtDecoder.decodeToken(this.token);
+        console.log('Decoded Token:', this.decodedToken);
+      } else {
+        // ถ้าไม่มี token ให้ redirect ไป login
+        window.location.href = '/login';
+        return;
+      }
+    } else {
+      // SSR environment - ไม่สามารถใช้งาน sessionStorage ได้
+      console.warn('SSR environment detected - sessionStorage not available');
+      return;
     }
 
     this.userService.getUserLevels().subscribe({

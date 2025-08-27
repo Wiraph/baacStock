@@ -3,12 +3,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Observable } from 'rxjs';
 import { EncryptionService } from './encryption.service';
+import { environment } from '../../environments/environments';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApproveService {
-  private readonly apiUrl = 'https://localhost:7089/api/approve';
+  private readonly apiUrl = `${environment.dotnetApiUrl}/api/approve`;
 
   constructor(
     private readonly http: HttpClient,
