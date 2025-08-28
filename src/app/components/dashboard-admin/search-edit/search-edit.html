@@ -49,7 +49,9 @@
             <th class="px-4 py-3 text-center font-medium">ชื่อ - นามสกุล</th>
             <th class="px-4 py-3 text-center font-medium">สถานะ</th>
             <th *ngIf="statusPage !== '5'" class="px-4 py-3 text-center font-medium">ใบหุ้น</th>
-            <th *ngIf="currentUser?.level === '99' || currentUser?.level === '85' || currentUser?.level === '05'" class="px-4 py-3 text-center font-medium">แก้ไข</th>
+            <th *ngIf="currentUser?.level === '99' || currentUser?.level === '85' || currentUser?.level === '05'" class="px-4 py-3 text-center font-medium">
+              {{ statusPage === '5' ? 'จ่ายเงินปันผล' : 'แก้ไข' }}
+            </th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200 text-sm">
