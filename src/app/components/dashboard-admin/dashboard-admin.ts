@@ -93,6 +93,31 @@ export class AdminDashboardComponent implements OnInit {
       ]
     },
     {
+      key: 'sap-interface',
+      label: 'SAP Interface',
+      icon: '⚡',
+      open: false,
+      children: [
+        { key: 'sap-interface', icon: '⚡', label: 'SAP Interface', route: '/dashboard-admin/sap-interface' }
+      ]
+    },
+    {
+      key: 'pnd',
+      label: 'ภ.ง.ด.',
+      icon: '⚡',
+      open: false,
+      children: [
+        { key: 'pnd2', icon: '📄', label: 'ภ.ง.ด. 2', route: '/dashboard-admin/pnd2' },
+        { key: 'pnd2a', icon: '📋', label: 'ภ.ง.ด. 2 ก', route: '/dashboard-admin/pnd2a' },
+        { key: 'pnd53', icon: '📊', label: 'ภ.ง.ด. 53', route: '/dashboard-admin/pnd53' },
+        { key: 'pnd-old', icon: '', label: 'ภ.ง.ด. เก่า', route: '', 
+          submenu: [
+          { key: 'pnd2-old', icon: '📄', label: 'ภ.ง.ด. 2 เก่า', route: '/dashboard-admin/pnd2old' },
+          { key: 'pnd2a-old', icon: '📋', label: 'ภ.ง.ด. 2 ก เก่า', route: '/dashboard-admin/pnd2aold' },
+          { key: 'pnd53-old', icon: '📊', label: 'ภ.ง.ด. 53 เก่า', route: '/dashboard-admin/pnd53old' }
+      ]}
+    ]},
+    {
       key: 'report',
       label: 'รายงาน',
       icon: '📄',

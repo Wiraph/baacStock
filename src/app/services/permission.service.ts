@@ -39,6 +39,16 @@ export class PermissionService {
       levels: ['99', '98', '89', '85', '80'],
       description: 'SCB SPIN FILE'
     },
+    'sap-interface': { 
+      key: 'sap-interface',
+      levels: ['99'],
+      description: 'SAP Interface'
+    },
+    'pnd': { 
+      key: 'pnd',
+      levels: ['99', '89', '85', '80', '20'],
+      description: 'ภ.ง.ด.'
+    },
     'report': { 
       key: 'report',
       levels: ['99', '89', '85', '80', '09', '05', '00'],
@@ -118,6 +128,11 @@ export class PermissionService {
       name: 'เงินปันผล',
       levels: ['99', '89', '85', '80', '09', '05', '00']
     },
+    'sap-interface': {
+      id: 'sap-interface',
+      name: 'SAP Interface',
+      levels: ['99']
+    },
     'pnd': {
       id: 'pnd',
       name: 'ภ.ง.ด.',
@@ -136,6 +151,26 @@ export class PermissionService {
     'pnd53': {
       id: 'pnd53',
       name: 'ภ.ง.ด. 53',
+      levels: ['99', '89', '85', '80', '20']
+    },
+    'pnd-old': {
+      id: 'pnd-old',
+      name: 'ภ.ง.ด. เก่า',
+      levels: ['99', '89', '85', '80', '20']
+    },
+    'pnd2-old': {
+      id: 'pnd2-old',
+      name: 'ภ.ง.ด. เก่า',
+      levels: ['99', '89', '85', '80', '20']
+    },
+    'pnd2a-old': {
+      id: 'pnd2a-old',
+      name: 'ภ.ง.ด. 2 ก เก่า',
+      levels: ['99', '89', '85', '80', '20']
+    },
+    'pnd53-old': {
+      id: 'pnd53-old',
+      name: 'ภ.ง.ด. 53 เก่า',
       levels: ['99', '89', '85', '80', '20']
     },
     'create-spin-files': {
@@ -188,6 +223,7 @@ export class PermissionService {
       name: 'คู่มือการใช้งานระบบ',
       levels: ['99','98','90', '89', '85', '80', '50', '20', '19', '10', '09', '05', '00']
     },
+
     'developer': {
       id: 'developer',
       name: 'DEVELOPER',
