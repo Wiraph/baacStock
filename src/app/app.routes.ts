@@ -20,7 +20,6 @@ import { SpinFilesComponent } from './components/dashboard-admin/spin-files/spin
 import { BlockCertificatesComponent } from './components/dashboard-admin/block-certificates/block-certificates.component';
 import { DividendComponent } from './components/dashboard-admin/dividend/dividend.component';
 import { ReportsComponent } from './components/dashboard-admin/reports/reports.component';
-import { DashboardHeadOfficeComponent } from './components/dashboard-head-office/dashboard-head-office';
 import { ApproveIssue } from './components/dashboard-admin/approve-issue/approve-issue';
 import { FormsProceduresComponent } from './components/dashboard-admin/forms-procedures/forms-procedures.component';
 import { UploadComponent } from './components/dashboard-admin/upload-document/upload.component';
@@ -52,7 +51,6 @@ export const routes: Routes = [
       { path: 'search-edit', component: SearchEditComponent}, // ✅ เพิ่มเส้นทางสำหรับ SearchEditComponent
       { path: 'editcustomer', component: EditCustomerComponent},
       { path: 'salestock', component: SaleStockComponent},
-      { path: 'headoffice', component: DashboardHeadOfficeComponent},
       { path: 'transfer-share', component: TransferShareComponent }, // ✅ เพิ่มเส้นทางสำหรับ TransferShareComponent
       { path: 'approve-item', component: ApproveItemComponent},
       { path: 'approve-issue', component: ApproveIssue},
@@ -72,29 +70,6 @@ export const routes: Routes = [
       { path: 'pnd53', component: Pnd53Component },
       { path: 'AnnualDividendCalculatorComponent', component: AnnualdividendcalculatorComponent },
       { path: 'newcus', component: NewCusComponent }
-    ]
-  },
-  {
-    path: 'head-office',
-    component: DashboardHeadOfficeComponent,
-    canActivate: [AuthGuard],
-    children: [
-      { path: '', redirectTo: 'home', pathMatch: 'full' },
-      { path: 'home', component: HomeComponent },
-      // { path: 'common-shares', component: CommonSharesComponent },
-      { path: 'stocks', component: StocksComponent },
-      { path: 'users', component: UsersComponent },
-      { path: 'manage-user', component: ManageUserComponent },
-      { path: 'approve-item', component: ApproveItemComponent },
-      { path: 'search-edit', component: SearchEditComponent },
-      { path: 'contact', component: ContactComponent },
-      { path: 'change-password', component: ChangePasswordComponent },
-      { path: 'transfer-share', component: TransferShareComponent },
-      { path: 'edit-customer', component: EditCustomerComponent },
-      { path: 'print-certificates', component: PrintCertificatesComponent },
-      { path: 'block-certificates', component: BlockCertificatesComponent },
-      { path: 'dividend', component: DividendComponent },
-      { path: 'reports', component: ReportsComponent }
     ]
   },
 
