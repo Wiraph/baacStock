@@ -21,8 +21,8 @@
     <nav class="p-4 space-y-2">
       <ng-container *ngFor="let menu of filteredMenus">
         <div class="relative">
-          <!-- Menu Header -->
-          <button (click)="openMenu(menu.key)" (keydown.enter)="openMenu(menu.key)" (keydown.space)="openMenu(menu.key)"
+          <!-- Menu Header - Dropdown for menus with multiple children -->
+          <button *ngIf="menu.children.length > 1" (click)="openMenu(menu.key)" (keydown.enter)="openMenu(menu.key)" (keydown.space)="openMenu(menu.key)"
             [class]="'w-full text-left flex justify-between items-center px-4 py-3 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors ' + (sidebarCollapsed ? 'px-2 justify-center' : '')"
             [attr.title]="sidebarCollapsed ? menu.label : null"
             [attr.aria-expanded]="menu.open"
@@ -37,6 +37,21 @@
             <span *ngIf="!sidebarCollapsed" class="text-sm text-gray-400 transition-transform duration-300"
               [class.rotate-180]="menu.open">▼</span>
           </button>
+
+          <!-- Direct Link for menus with single child (like SAP Interface) -->
+          <a *ngIf="menu.children.length === 1 && !menu.children[0].submenu" 
+             [routerLink]="menu.children[0].route" 
+             routerLinkActive="bg-blue-100 text-blue-700"
+             [class]="'w-full text-left flex items-center px-4 py-3 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors ' + (sidebarCollapsed ? 'px-2 justify-center' : '')"
+             [attr.title]="sidebarCollapsed ? menu.label : null">
+            <div class="flex items-center space-x-3">
+              <span class="text-xl flex-shrink-0">{{ menu.icon }}</span>
+              <span
+                [class]="'transition-all font-medium duration-300 overflow-hidden whitespace-nowrap ' + (sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')">
+                {{ menu.label }}
+              </span>
+            </div>
+          </a>
 
           <!-- Expanded Menu Items -->
           <div *ngIf="menu.open && !sidebarCollapsed" class="ml-10 mt-1 space-y-1">
@@ -64,7 +79,7 @@
           </div>
 
           <!-- Tooltip when Collapsed -->
-          <div *ngIf="sidebarCollapsed"
+          <div *ngIf="sidebarCollapsed && menu.children.length > 1"
             class="absolute left-full top-0 ml-2 bg-gray-800 text-white text-xs p-2 rounded shadow z-50 whitespace-nowrap">
             <a *ngFor="let item of menu.children" [routerLink]="item.route"
               routerLinkActive="text-blue-400 font-semibold" class="block py-1 hover:underline">
@@ -97,7 +112,6 @@
           <p class="text-sm text-gray-500">ยินดีต้อนรับเข้าสู่ระบบจัดการ</p>
         </div>
       </div>
-
       <div class="flex items-center space-x-4">
         <button class="relative p-2 rounded-lg hover:bg-gray-100">
           <span class="text-xl">🔔</span>
