@@ -76,7 +76,6 @@ export const routes: Routes = [
       { path: 'pnd2old', component: Pnd2old },
       { path: 'pnd2aold', component: Pnd2aold },
       { path: 'pnd53old', component: Pnd53old },
-      { path: 'sap-interface', component: SapInterface },
       { path: 'AnnualDividendCalculatorComponent', component: AnnualdividendcalculatorComponent },
       { path: 'newcus', component: NewCusComponent }
     ]

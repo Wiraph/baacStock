@@ -41,7 +41,7 @@ export class PermissionService {
     },
     'sap-interface': { 
       key: 'sap-interface',
-      levels: ['99'],
+      levels: ['99', '89', '85', '80'],
       description: 'SAP Interface'
     },
     'pnd': { 
@@ -131,7 +131,7 @@ export class PermissionService {
     'sap-interface': {
       id: 'sap-interface',
       name: 'SAP Interface',
-      levels: ['99']
+      levels: ['99', '89', '85', '80']
     },
     'pnd': {
       id: 'pnd',
