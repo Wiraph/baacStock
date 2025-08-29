@@ -277,10 +277,10 @@ export class DocumentKeyDetectComponent {
   generatedPdfSafeUrl: SafeResourceUrl | null = null;
   
   constructor(
-    private documentApiService: DocumentApiService,
-    private cdr: ChangeDetectorRef,
-    private ngZone: NgZone,
-    private sanitizer: DomSanitizer
+    private readonly documentApiService: DocumentApiService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly ngZone: NgZone,
+    private readonly sanitizer: DomSanitizer
   ) {}
   
   // ใช้ฟังก์ชันจาก key-label เพื่อแปลง key เป็นชื่อที่อ่านได้
@@ -445,24 +445,7 @@ export class DocumentKeyDetectComponent {
       }
     });
   }
-  
-  /**
-   * ส่งฟอร์มเพื่อสร้างเอกสาร
-   * 
-   * ขั้นตอนการทำงาน:
-   * 1. ตรวจสอบว่ามี template_id และ keys หรือไม่
-   * 2. ตรวจสอบความถูกต้องของฟอร์ม
-   * 3. เซ็ตสถานะการสร้างเอกสาร
-   * 4. เรียก API generateDocument
-   * 5. รับ URL สำหรับดาวน์โหลดไฟล์
-   * 6. เซ็ตข้อมูลและเปลี่ยนไปขั้นตอนที่ 3
-   * 7. จัดการ error ถ้าเกิดปัญหา
-   * 
-   * ตัวอย่างการใช้งาน:
-   * <form (ngSubmit)="onSubmitForm()">
-   *   <button type="submit">สร้างเอกสาร</button>
-   * </form>
-   */
+
   onSubmitForm() {
     this.submitted = true;
     
@@ -518,31 +501,13 @@ export class DocumentKeyDetectComponent {
       }
     });
   }
-  
-  /**
-   * ดาวน์โหลดไฟล์ DOCX
-   * 
-   * เรียกใช้ downloadFile จาก DocumentApiService
-   * เพื่อดาวน์โหลดไฟล์ DOCX ที่สร้างขึ้น
-   * 
-   * ตัวอย่างการใช้งาน:
-   * <button (click)="downloadDocx()">ดาวน์โหลด DOCX</button>
-   */
+ 
   downloadDocx() {
     if (this.generatedDocxUrl) {
       this.documentApiService.downloadFile(this.generatedDocxUrl, 'generated_document.docx');
     }
   }
-  
-  /**
-   * ดาวน์โหลดไฟล์ PDF
-   * 
-   * เปิดไฟล์ PDF ในแท็บใหม่
-   * ตรวจสอบว่ามี URL และเป็น string หรือไม่
-   * 
-   * ตัวอย่างการใช้งาน:
-   * <button (click)="downloadPdf()">ดาวน์โหลด PDF</button>
-   */
+
   downloadPdf() {
     if (this.generatedPdfUrl && typeof this.generatedPdfUrl === 'string') {
       // เปิดในแท็บใหม่

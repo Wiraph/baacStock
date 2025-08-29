@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 /**
@@ -43,7 +43,7 @@ export class DocumentApiService {
   // URL ของ backend API
   private readonly baseUrl = 'http://localhost:8000';
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   /**
    * อัปโหลดเอกสาร และรับ key ที่ตรวจพบ
@@ -53,14 +53,9 @@ export class DocumentApiService {
    * 2. ส่ง POST request ไปยัง /upload-template
    * 3. รับ template_id และ key ที่พบ
    * 
-   * @param file - ไฟล์ template (.docx) ที่จะอัปโหลด
-   * @returns Observable ที่จะส่งคืนข้อมูล template และ key
-   * 
-   * ตัวอย่างการใช้งาน:
-   * this.documentApi.uploadTemplate(file).subscribe(response => {
-   *   console.log('Template ID:', response.template_id);
-   *   console.log('Key found:', response.key);
-   * });
+    @param file - ไฟล์ template (.docx) ที่จะอัปโหลด
+    @returns 
+ 
    */
   uploadTemplate(file: File): Observable<UploadTemplateResponse> {
     // สร้าง FormData สำหรับส่งไฟล์
