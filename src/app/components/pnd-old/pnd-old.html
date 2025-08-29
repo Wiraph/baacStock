@@ -1,0 +1,68 @@
+<div class="min-h-screen bg-gray-50 p-6 font-sans">
+  <!-- หัวเรื่องหลัก -->
+  <div class="bg-green-500 text-white text-center py-4 rounded-t-lg mb-0 shadow-md">
+    <h1 class="text-2xl font-bold">{{ title }}</h1>
+  </div>
+
+  <!-- เนื้อหาหลัก -->
+  <div class="bg-white border border-gray-300 rounded-b-lg shadow-md overflow-hidden">
+
+    <!-- ตารางข้อมูล -->
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-100 border-b">
+            <th class="border border-gray-300 px-4 py-3 text-left font-medium text-gray-700" style="width: 30%">
+              ปี-เดือน
+            </th>
+            <th class="border border-gray-300 px-4 py-3 text-left font-medium text-gray-700" style="width: 70%">
+              ดาวน์โหลด
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- แต่ละแถวข้อมูล -->
+          <tr *ngFor="let item of pndData;" class="hover:bg-gray-50 transition-colors duration-200">
+            <!-- คอลัมน์ปี-เดือน -->
+            <td class="border border-gray-300 px-4 py-4 align-top flex justify-between items-center">
+              
+            </td>
+
+            <!-- คอลัมน์ดาวน์โหลด -->
+            <td class="border border-gray-300 px-4 py-4">
+              <button>TEXT FILE</button>
+              <button>รายละเอียด ( ใบแนบ )</button>
+            </td>
+          </tr>
+
+          <!-- แสดงเมื่อไม่มีข้อมูล -->
+          <tr *ngIf="pndData.length == 0">
+            <td colspan="2" class="border border-gray-300 px-4 py-8 text-center text-gray-500">
+              <div class="flex flex-col items-center space-y-2">
+                <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                  </path>
+                </svg>
+                <p class="text-lg font-medium">ไม่มีข้อมูล ภ.ง.ด. 2</p>
+                <p class="text-sm">กรุณาตรวจสอบข้อมูลการจ่ายเงินปันผล</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- แสดง Loading เมื่อกำลังโหลดข้อมูล -->
+<div *ngIf="isLoading"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-40 backdrop-blur-sm"
+  style="background-color: rgba(128, 128, 128, 0.7);">
+  <div class="text-center">
+    <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+      viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+    </svg>
+    <p class="text-lg text-white font-medium">🔄 กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
+  </div>
+</div>
