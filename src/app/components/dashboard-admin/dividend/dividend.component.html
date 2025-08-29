@@ -4,7 +4,7 @@
 
 <div *ngIf="activeView === 'dividend'" class="p-4">
   <!-- ข้อมูลลูกค้า -->
-  <div *ngIf="customerData" class="w-full bg-white rounded-xl shadow-md">
+  <div class="w-full bg-white rounded-xl shadow-md">
     <div class="flex justify-start px-4 py-2">
       <button (click)="goBack()" 
           class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition-colors">
@@ -31,16 +31,16 @@
         </div>
         
         <!-- แถวที่ 2 -->
-        <div class="flex justify-between items-center">
-          <div class="flex items-center gap-2">
-            <span class="font-medium text-gray-700">ผู้เสียภาษีเลขที่ :</span>
-            <span class="text-gray-900 font-semibold">{{ customerData?.cusId || '-' }}</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="font-medium text-gray-700">อัตราภาษี (%) :</span>
-            <span class="text-gray-900 font-semibold">{{ customerData?.taxRate || '10.00' }}</span>
-          </div>
-        </div>
+         <div class="flex justify-between items-center">
+           <div class="flex items-center gap-2">
+             <span class="font-medium text-gray-700">ผู้เสียภาษีเลขที่ :</span>
+             <span class="text-gray-900 font-semibold">{{ customerData?.taxId || '-' }}</span>
+           </div>
+           <div class="flex items-center gap-2">
+             <span class="font-medium text-gray-700">อัตราภาษี (%) :</span>
+             <span class="text-gray-900 font-semibold">{{ customerData?.taxRate || '-' }}</span>
+           </div>
+         </div>
         
         <!-- แถวที่ 3 -->
         <div class="flex justify-between items-center">
@@ -74,27 +74,27 @@
               <!-- เงินปันผลยกมา -->
               <tr>
                 <td class="border px-4 py-2">เงินปันผลยกมา</td>
-                <td class="border px-4 py-2 text-right">-</td>
-                <td class="border px-4 py-2 text-right">-</td>
-                <td class="border px-4 py-2 text-right">-</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary.totalGrand.bef.dvn) }}</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary.totalGrand.bef.tax) }}</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary.totalGrand.bef.net) }}</td>
               </tr>
               <tr>
                 <td class="border px-4 py-2">หัก รายการใบหุ้นที่ติด บล็อค</td>
-                <td class="border px-4 py-2 text-right">-</td>
-                <td class="border px-4 py-2 text-right">-</td>
-                <td class="border px-4 py-2 text-right">-</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary.block.bef.dvn) }}</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary.block.bef.tax) }}</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary.block.bef.net) }}</td>
               </tr>
               <tr>
                 <td class="border px-4 py-2">หัก รายการใบหุ้นชำรุด/สูญหาย รออนุมัติ</td>
-                <td class="border px-4 py-2 text-right">-</td>
-                <td class="border px-4 py-2 text-right">-</td>
-                <td class="border px-4 py-2 text-right">-</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary._002.bef.dvn) }}</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary._002.bef.tax) }}</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary._002.bef.net) }}</td>
               </tr>
               <tr class="bg-blue-50">
                 <td class="border px-4 py-2 font-medium">รวม เงินปันผลยกมา</td>
-                <td class="border px-4 py-2 text-right font-medium">-</td>
-                <td class="border px-4 py-2 text-right font-medium">-</td>
-                <td class="border px-4 py-2 text-right font-medium">-</td>
+                <td class="border px-4 py-2 text-right font-medium">{{ formatNumber(dividendSummary.totalSub.bef.dvn) }}</td>
+                <td class="border px-4 py-2 text-right font-medium">{{ formatNumber(dividendSummary.totalSub.bef.tax) }}</td>
+                <td class="border px-4 py-2 text-right font-medium">{{ formatNumber(dividendSummary.totalSub.bef.net) }}</td>
               </tr>
               
               <!-- เงินปันผลปีปัจจุบัน -->
@@ -103,41 +103,41 @@
               </tr>
               <tr>
                 <td class="border px-4 py-2">เงินปันผลปีปัจจุบัน</td>
-                <td class="border px-4 py-2 text-right">-</td>
-                <td class="border px-4 py-2 text-right">-</td>
-                <td class="border px-4 py-2 text-right">-</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary.totalGrand.cur.dvn) }}</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary.totalGrand.cur.tax) }}</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary.totalGrand.cur.net) }}</td>
               </tr>
               <tr>
                 <td class="border px-4 py-2">หัก รายการใบหุ้นที่ติด บล็อค</td>
-                <td class="border px-4 py-2 text-right">-</td>
-                <td class="border px-4 py-2 text-right">-</td>
-                <td class="border px-4 py-2 text-right">-</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary.block.cur.dvn) }}</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary.block.cur.tax) }}</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary.block.cur.net) }}</td>
               </tr>
               <tr>
                 <td class="border px-4 py-2">หัก รายการใบหุ้นชำรุด/สูญหาย รออนุมัติ</td>
-                <td class="border px-4 py-2 text-right">-</td>
-                <td class="border px-4 py-2 text-right">-</td>
-                <td class="border px-4 py-2 text-right">-</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary._002.cur.dvn) }}</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary._002.cur.tax) }}</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary._002.cur.net) }}</td>
               </tr>
               <tr>
                 <td class="border px-4 py-2">หัก รายการใบหุ้นรอผลการโอนผ่านบัญชี</td>
-                <td class="border px-4 py-2 text-right">-</td>
-                <td class="border px-4 py-2 text-right">-</td>
-                <td class="border px-4 py-2 text-right">-</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary.spin0tr.cur.dvn) }}</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary.spin0tr.cur.tax) }}</td>
+                <td class="border px-4 py-2 text-right">{{ formatNumber(dividendSummary.spin0tr.cur.net) }}</td>
               </tr>
               <tr class="bg-blue-50">
                 <td class="border px-4 py-2 font-medium">รวม เงินปันผลปีปัจจุบัน</td>
-                <td class="border px-4 py-2 text-right font-medium">-</td>
-                <td class="border px-4 py-2 text-right font-medium">-</td>
-                <td class="border px-4 py-2 text-right font-medium">-</td>
+                <td class="border px-4 py-2 text-right font-medium">{{ formatNumber(dividendSummary.totalSub.cur.dvn) }}</td>
+                <td class="border px-4 py-2 text-right font-medium">{{ formatNumber(dividendSummary.totalSub.cur.tax) }}</td>
+                <td class="border px-4 py-2 text-right font-medium">{{ formatNumber(dividendSummary.totalSub.cur.net) }}</td>
               </tr>
               
               <!-- รวมสุทธิ -->
               <tr class="bg-green-100">
                 <td class="border px-4 py-2 font-bold">รวมสุทธิ</td>
-                <td class="border px-4 py-2 text-right font-bold">-</td>
-                <td class="border px-4 py-2 text-right font-bold">-</td>
-                <td class="border px-4 py-2 text-right font-bold">-</td>
+                <td class="border px-4 py-2 text-right font-bold">{{ formatNumber(dividendSummary.totalSub.bef.dvn + dividendSummary.totalSub.cur.dvn) }}</td>
+                <td class="border px-4 py-2 text-right font-bold">{{ formatNumber(dividendSummary.totalSub.bef.tax + dividendSummary.totalSub.cur.tax) }}</td>
+                <td class="border px-4 py-2 text-right font-bold">{{ formatNumber(dividendSummary.totalSub.bef.net + dividendSummary.totalSub.cur.net) }}</td>
               </tr>
             </tbody>
           </table>
@@ -149,22 +149,22 @@
     <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded">
       <div class="flex justify-between items-center">
         <span class="font-semibold text-green-800">จำนวนเงินสุทธิที่สามารถจ่ายได้:</span>
-        <span class="font-bold text-green-800 text-xl">-</span>
+        <span class="font-bold text-green-800 text-xl">{{ formatNumber(paymentData.dividend) }} บาท</span>
       </div>
     </div>
   </div>
 
   <!-- จำนวนเงินที่จ่ายได้/รายละเอียด/รายการบล็อค -->
   <div class="mt-8 flex flex-col lg:flex-row gap-8">
-    <!-- จำนวนเงินที่จ่ายได้ (ด้านซ้าย) - ยาวลงมาถึงรายการบล็อค -->
+    <!-- จำนวนเงินที่จ่ายได้  -->
     <div class="lg:w-1/4">
       <div class="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-xl p-6 shadow-lg h-full flex flex-col justify-center">
         <div class="text-center">
           <div class="mb-4">
             <div class="text-green-700 font-bold text-xl mb-2">💰 จำนวนเงินที่จ่ายได้</div>
-            <div class="text-green-800 font-bold text-4xl mb-2">00.00 บาท</div>
+            <div class="text-green-800 font-bold text-4xl mb-2">{{ formatNumber(paymentData.dividend) }} บาท</div>
             <div class="text-green-600 text-sm bg-white bg-opacity-50 rounded-lg px-3 py-1 inline-block">
-              (เก้าสิบเอ็ดบาทหกสิบสามสตางค์)
+              ({{ numberToThaiText(paymentData.dividend) }}บาท)
             </div>
           </div>
           <div class="mt-4 pt-4 border-t border-green-200">
@@ -174,87 +174,94 @@
       </div>
     </div>
 
-         <!-- ตารางด้านขวา -->
-     <div class="lg:w-3/4 space-y-6">
-       <!-- ตารางรายละเอียด -->
-       <div class="bg-white border border-gray-300 rounded-lg p-6 shadow-md hover:shadow-lg ">
-         <div class="overflow-x-auto">
-          <div class="flex items-center justify-center">
-            <h3 class="text-xl font-bold text-blue-600">📊 รายละเอียด</h3>
+      <!-- ตารางด้านขวา -->
+      <div class="lg:w-3/4 space-y-6">
+        <!-- ตารางรายละเอียด -->
+        <div class="bg-white border border-gray-300 rounded-lg p-6 shadow-md hover:shadow-lg ">
+          <div class="overflow-x-auto">
+            <div class="flex items-center justify-center">
+              <h3 class="text-xl font-bold text-blue-600">📊 รายละเอียด</h3>
+            </div>
+            <table class="min-w-full border border-gray-400 text-sm">
+              <thead class="bg-blue-100 text-blue-900">
+                <tr>
+                  <th scope="col" class="border border-gray-500 px-3 py-3 text-center font-semibold" rowspan="2">ลำดับที่</th>
+                  <th scope="col" class="border border-gray-500 px-3 py-3 text-center font-semibold" rowspan="2">หมายเลขใบหุ้น</th>
+                  <th scope="col" class="border border-gray-500 px-3 py-3 text-center font-semibold" colspan="3">เงินปันผลยกมา</th>
+                  <th scope="col" class="border border-gray-500 px-3 py-3 text-center font-semibold" colspan="3">เงินปันผลปัจจุบัน</th>
+                  <th scope="col" class="border border-gray-500 px-3 py-3 text-center font-semibold" rowspan="2">รวมสุทธิ</th>
+                </tr>
+                <tr>
+                  <th scope="col" class="border border-gray-500 px-2 py-2 text-center text-sm">เงินปันผล</th>
+                  <th scope="col" class="border border-gray-500 px-2 py-2 text-center text-sm">ภาษี</th>
+                  <th scope="col" class="border border-gray-500 px-2 py-2 text-center text-sm">สุทธิ</th>
+                  <th scope="col" class="border border-gray-500 px-2 py-2 text-center text-sm">เงินปันผล</th>
+                  <th scope="col" class="border border-gray-500 px-2 py-2 text-center text-sm">ภาษี</th>
+                  <th scope="col" class="border border-gray-500 px-2 py-2 text-center text-sm">สุทธิ</th>
+                </tr>
+              </thead>
+                             <tbody class="bg-white">
+                 <tr *ngFor="let item of dividendData; let i = index" class="duration-200 border-b border-gray-300">
+                   <td class="border border-gray-400 px-3 py-3 text-center font-medium text-gray-700">{{ item.ROWi || i + 1 }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">{{ item.stkNOTE || '-' }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">{{ formatNumber(item.payBEFdvn || 0) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">{{ formatNumber(item.payBEFtax || 0) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">{{ formatNumber(item.payBEFnet || 0) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">{{ formatNumber(item.payCURdvn || 0) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">{{ formatNumber(item.payCURtax || 0) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">{{ formatNumber(item.payCURnet || 0) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">{{ formatNumber(item.payDVNnet || 0) }}</td>
+                 </tr>
+                 <tr *ngIf="dividendData.length === 0" class="duration-200 border-b border-gray-300">
+                   <td class="border border-gray-400 px-3 py-3 text-center text-gray-600" colspan="9">ไม่พบรายการเงินปันผล</td>
+                 </tr>
+                 <tr class="bg-blue-100 border-b border-gray-300">
+                   <td class="border border-gray-400 px-3 py-3 text-center font-bold text-blue-900" colspan="2">รวม</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(dividendSummary.totalSub.bef.dvn) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(dividendSummary.totalSub.bef.tax) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(dividendSummary.totalSub.bef.net) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(dividendSummary.totalSub.cur.dvn) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(dividendSummary.totalSub.cur.tax) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(dividendSummary.totalSub.cur.net) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(paymentData.dividend) }}</td>
+                 </tr>
+              </tbody>
+            </table>
           </div>
-           <table class="min-w-full border border-gray-400 text-sm">
-             <thead class="bg-blue-100 text-blue-900">
-               <tr>
-                 <th scope="col" class="border border-gray-500 px-3 py-3 text-center font-semibold" rowspan="2">ลำดับที่</th>
-                 <th scope="col" class="border border-gray-500 px-3 py-3 text-center font-semibold" rowspan="2">หมายเลขใบหุ้น</th>
-                 <th scope="col" class="border border-gray-500 px-3 py-3 text-center font-semibold" colspan="3">เงินปันผลยกมา</th>
-                 <th scope="col" class="border border-gray-500 px-3 py-3 text-center font-semibold" colspan="3">เงินปันผลปัจจุบัน</th>
-                 <th scope="col" class="border border-gray-500 px-3 py-3 text-center font-semibold" rowspan="2">รวมสุทธิ</th>
-               </tr>
-               <tr>
-                 <th scope="col" class="border border-gray-500 px-2 py-2 text-center text-sm">เงินปันผล</th>
-                 <th scope="col" class="border border-gray-500 px-2 py-2 text-center text-sm">ภาษี</th>
-                 <th scope="col" class="border border-gray-500 px-2 py-2 text-center text-sm">สุทธิ</th>
-                 <th scope="col" class="border border-gray-500 px-2 py-2 text-center text-sm">เงินปันผล</th>
-                 <th scope="col" class="border border-gray-500 px-2 py-2 text-center text-sm">ภาษี</th>
-                 <th scope="col" class="border border-gray-500 px-2 py-2 text-center text-sm">สุทธิ</th>
-               </tr>
-             </thead>
-             <tbody class="bg-white">
-               <tr class="duration-200 border-b border-gray-300">
-                 <td class="border border-gray-400 px-3 py-3 text-center font-medium text-gray-700">-</td>
-                 <td class="border border-gray-400 px-3 py-3 text-center text-gray-600"></td>
-                 <td class="border border-gray-400 px-3 py-3 text-center text-gray-600"></td>
-                 <td class="border border-gray-400 px-3 py-3 text-center text-gray-600"></td>
-                 <td class="border border-gray-400 px-3 py-3 text-center text-gray-600"></td>
-                 <td class="border border-gray-400 px-3 py-3 text-center text-gray-600"></td>
-                 <td class="border border-gray-400 px-3 py-3 text-center text-gray-600"></td>
-                 <td class="border border-gray-400 px-3 py-3 text-center text-gray-600"></td>
-                 <td class="border border-gray-400 px-3 py-3 text-center text-gray-600"></td>
-               </tr>
-               <tr class="bg-blue-100 border-b border-gray-300">
-                 <td class="border border-gray-400 px-3 py-3 text-center font-bold text-blue-900" colspan="2">รวม</td>
-                 <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600"></td>
-                 <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600"></td>
-                 <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600"></td>
-                 <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600"></td>
-                 <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600"></td>
-                 <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600"></td>
-                 <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600"></td>
-               </tr>
-             </tbody>
-           </table>
-         </div>
-       </div>
+        </div>
 
-       <!-- ตารางรายการบล็อค -->
-       <div class="bg-white border border-gray-300 rounded-lg p-6 shadow-md hover:shadow-lg duration-300">
-         <div class="overflow-x-auto">
+        <!-- ตารางรายการบล็อค -->
+        <div class="bg-white border border-gray-300 rounded-lg p-6 shadow-md hover:shadow-lg duration-300">
+          <div class="overflow-x-auto">
           <div class="flex items-center justify-center">
             <h3 class="text-xl font-bold text-red-600">🚫 รายการบล็อค</h3>
           </div>
-           <table class="min-w-full border border-gray-400 text-sm">
-             <thead class="bg-red-100 text-red-900">
-               <tr>
-                 <th class="border border-gray-500 px-3 py-3 text-center font-semibold" scope="col">ลำดับที่</th>
-                 <th class="border border-gray-500 px-3 py-3 text-center font-semibold" scope="col">หมายเลขใบหุ้น</th>
-                 <th class="border border-gray-500 px-3 py-3 text-center font-semibold" scope="col">เหตุผล</th>
-                 <th class="border border-gray-500 px-3 py-3 text-center font-semibold" scope="col">วันที่บล็อค</th>
-                 <th class="border border-gray-500 px-3 py-3 text-center font-semibold" scope="col">สถานะ</th>
-               </tr>
-             </thead>
-             <tbody class="bg-white">
-               <tr class="duration-200 border-b border-gray-300">
-                 <td class="border border-gray-400 px-3 py-3 text-center font-medium text-gray-700">1.</td>
-                 <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">-</td>
-                 <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">-</td>
-                 <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">-</td>
-                 <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">-</td>
-               </tr>
-             </tbody>
-           </table>
-         </div>
-       </div>
-     </div>
+            <table class="min-w-full border border-gray-400 text-sm">
+              <thead class="bg-red-100 text-red-900">
+                <tr>
+                  <th class="border border-gray-500 px-3 py-3 text-center font-semibold" scope="col">ลำดับที่</th>
+                  <th class="border border-gray-500 px-3 py-3 text-center font-semibold" scope="col">หมายเลขใบหุ้น</th>
+                  <th class="border border-gray-500 px-3 py-3 text-center font-semibold" scope="col">เหตุผล</th>
+                  <th class="border border-gray-500 px-3 py-3 text-center font-semibold" scope="col">วันที่บล็อค</th>
+                  <th class="border border-gray-500 px-3 py-3 text-center font-semibold" scope="col">สถานะ</th>
+                </tr>
+              </thead>
+                             <tbody class="bg-white">
+                 <tr *ngFor="let item of blockedStocks; let i = index" class="duration-200 border-b border-gray-300">
+                   <td class="border border-gray-400 px-3 py-3 text-center font-medium text-gray-700">{{ i + 1 }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">{{ item.stkNOTE || '-' }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">ใบหุ้นถูกบล็อค</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">{{ item.stkDateApprove || '-' }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">{{ item.stCODE || '-' }}</td>
+                 </tr>
+                 <tr *ngIf="!hasBlockedStocks" class="duration-200 border-b border-gray-300">
+                   <td class="border border-gray-400 px-3 py-3 text-center text-gray-600" colspan="5">ไม่พบรายการบล็อค</td>
+                 </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+      </div>
+    </div>
   </div>
-</div>

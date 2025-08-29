@@ -52,6 +52,16 @@ export class Divident {
     })
   }
 
+  getDividend2Pay(stkOwnId: string) {
+    const payload = { stkOwnId: stkOwnId };
+    const encrypPayload = this.encryptionService.encrypPayload(payload);
+    console.log('💰 Calling getDividend2Pay with payload:', payload);
+    console.log('💰 API URL:', `${this.apiUrl}/2pay`);
+    return this.http.post<any[]>(`${this.apiUrl}/2pay`, encrypPayload, {
+      headers: this.createAuthHeaders()
+    });
+  }
+
   private createAuthHeaders(): HttpHeaders {
     let token = '';
     if (isPlatformBrowser(this.platformId)) {

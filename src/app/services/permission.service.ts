@@ -153,11 +153,6 @@ export class PermissionService {
       name: 'ภ.ง.ด. 53',
       levels: ['99', '89', '85', '80', '20']
     },
-    'pnd-old': {
-      id: 'pnd-old',
-      name: 'ภ.ง.ด. เก่า',
-      levels: ['99', '89', '85', '80', '20']
-    },
     'pnd2-old': {
       id: 'pnd2-old',
       name: 'ภ.ง.ด. เก่า',
