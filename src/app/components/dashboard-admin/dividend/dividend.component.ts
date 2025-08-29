@@ -40,6 +40,16 @@ export class DividendComponent implements OnInit {
     denominator: 100 // ราคาหุ้นต่อหน่วย
   };
 
+  // ข้อมูลสถานะระบบ
+  systemStatus: any = {
+    hasDividendData: false,
+    hasValidTaxId: true,
+    hasBlockedStocks: false,
+    isAllStocksBlocked: false,
+    errorMessage: '',
+    warningMessage: ''
+  };
+
   constructor(
     private readonly dataTransfer: DataTransfer,
     private readonly cd: ChangeDetectorRef,
@@ -114,17 +124,19 @@ export class DividendComponent implements OnInit {
 
   // Load customer data from API like other systems
   loadCustomerDataFromAPI(cusId: string) {
-    console.log('💰 Loading customer data from API for cusId:', cusId);
     
     // เรียก API GetDividend2Pay เพื่อดึงข้อมูลเงินปันผล
     this.dividendService.getDividend2Pay(cusId).subscribe({
       next: (response) => {
-        console.log('💰 Dividend2Pay API Response:', response);
         
         if (response && response.length > 0) {
+
+          //กรณีที่ 1: มีข้อมูลเงินปันผล
+          this.systemStatus.hasDividendData = true;
+          
           const dividendData = response[0];
           
-                     // ตั้งค่าข้อมูลลูกค้า
+          // ตั้งค่าข้อมูลลูกค้า
            this.customerData = {
              cusId: dividendData.cusiDuse || cusId,
              fullName: dividendData.cusName || '-',
@@ -134,39 +146,51 @@ export class DividendComponent implements OnInit {
              taxRate: dividendData.cusTAX ? dividendData.cusTAX.toString() : '0.00',
              taxId: dividendData.cusTAXidUSE || '-'
            };
+
+          //กรณีที่ 2: ตรวจสอบเลขผู้เสียภาษี
+          if(dividendData.cusTAX && dividendData.cusTAX > 0) {
+            this.systemStatus.hasValidTaxId = false;
+            this.systemStatus.warningMessage = 'หมายเลขผู้เสียภาษีไม่ถูกต้อง';
+            this.showWarningAlert('เลขผู้เสียภาษีไม่ถูกต้อง ไม่สามารถทำรายการจ่ายได้!!!\nกรุณาทำการแก้ไขข้อมูลให้ถูกต้องก่อนทำรายการจ่าย!');
+          }
           
           // ตั้งค่าข้อมูลเงินปันผล
           this.dividendData = response;
+
+          //กรณีที่ 3: หุ้นบล็อค
+          this.checkBlockedStocks();
           
           // คำนวณข้อมูลสรุปเงินปันผล
           this.calculateDividendSummary();
-          
-          console.log('💰 Customer data loaded from API:', this.customerData);
-          console.log('💰 Dividend data loaded from API:', this.dividendData);
-          console.log('💰 Dividend summary calculated:', this.dividendSummary);
-          console.log('💰 Payment data calculated:', this.paymentData);
           this.cd.detectChanges();
+
         } else {
-          // ถ้าไม่มีข้อมูล ให้ตั้งค่าข้อมูลลูกค้าเป็นค่าเริ่มต้น
-           this.customerData = {
-             cusId: cusId,
-             fullName: '-',
-             statusDesc: '-',
-             brCode: '',
-             brName: '',
-             taxRate: '0.00'
-           };
+          this.systemStatus.hasDividendData = false;
+          this.systemStatus.errorMessage = 'ไม่พบรายการเงินปันผลรอจ่าย';
+          this.showErrorAlert('ไม่พบรายการเงินปันผลรอจ่าย');
+
+          // ตั้งค่าข้อมูลลูกค้าเป็นค่าเริ่มต้น
+          this.customerData = {
+            cusId: cusId,
+            fullName: '-',
+            statusDesc: '-',
+            brCode: '',
+            brName: '',
+            taxRate: '0.00',
+            taxId: '-'
+          };
+          this.cd.detectChanges();
         }
       },
-             error: (error) => {
-         console.error('💰 Error loading dividend data:', error);
-         
-         Swal.fire({
-           icon: 'error',
-           title: 'เกิดข้อผิดพลาด',
-           text: 'ไม่สามารถโหลดข้อมูลเงินปันผลได้ กรุณาลองใหม่'
-         });
-       }
+      error: (error: any) => {
+        console.error('💰 Error loading dividend data:', error);
+        
+        Swal.fire({
+          icon: 'error',
+          title: 'เกิดข้อผิดพลาด',
+          text: 'ไม่สามารถโหลดข้อมูลเงินปันผลได้ กรุณาลองใหม่'
+        });
+      }
     });
   }
 
@@ -210,6 +234,7 @@ export class DividendComponent implements OnInit {
           this.dividendSummary.block.cur.dvn += (item.payCURdvn || 0);
           this.dividendSummary.block.cur.tax += (item.payCURtax || 0);
           this.dividendSummary.block.cur.net += (item.payCURnet || 0);
+
         } else if (item.stCODE && item.stCODE.endsWith('002')) {
           // รายการชำรุด/สูญหาย
           this.dividendSummary._002.bef.dvn += (item.payBEFdvn || 0);
@@ -218,6 +243,7 @@ export class DividendComponent implements OnInit {
           this.dividendSummary._002.cur.dvn += (item.payCURdvn || 0);
           this.dividendSummary._002.cur.tax += (item.payCURtax || 0);
           this.dividendSummary._002.cur.net += (item.payCURnet || 0);
+
         } else if (item.stkPayStat && item.stkPayStat.endsWith('0TR')) {
           // รายการรอผลการโอนผ่านบัญชี
           this.dividendSummary.spin0tr.bef.dvn += (item.payBEFdvn || 0);
@@ -227,12 +253,8 @@ export class DividendComponent implements OnInit {
           this.dividendSummary.spin0tr.cur.tax += (item.payCURtax || 0);
           this.dividendSummary.spin0tr.cur.net += (item.payCURnet || 0);
 
-          // รวมใน totalSub
-          this.dividendSummary.totalSub.bef.dvn += (item.payBEFdvn || 0);
-          this.dividendSummary.totalSub.bef.tax += (item.payBEFtax || 0);
-          this.dividendSummary.totalSub.bef.net += (item.payBEFnet || 0);
         } else {
-          // รายการปกติ
+          // รายการปกติ - รวมใน totalSub
           this.dividendSummary.totalSub.bef.dvn += (item.payBEFdvn || 0);
           this.dividendSummary.totalSub.bef.tax += (item.payBEFtax || 0);
           this.dividendSummary.totalSub.bef.net += (item.payBEFnet || 0);
@@ -299,5 +321,84 @@ export class DividendComponent implements OnInit {
     return this.blockedStocks.length > 0;
   }
 
+  // ตรวจสอบหุ้นบล็อก (กรณีที่ 3)
+  checkBlockedStocks(): void {
+    if (!this.dividendData || this.dividendData.length === 0) {
+      return;
+    }
+    
+    const blockedStocks = this.dividendData.filter(d => 
+      d.stCODE && d.stCODE.endsWith('S008')
+    );
+    
+    this.systemStatus.hasBlockedStocks = blockedStocks.length > 0;
+    this.systemStatus.isAllStocksBlocked = blockedStocks.length === this.dividendData.length;
+    
+    if (this.systemStatus.isAllStocksBlocked) {
+      this.systemStatus.warningMessage = 'ใบหุ้นถูกบล็อก ไม่สามารถจ่ายเงินปันผลได้';
+      this.showWarningAlert('ใบหุ้นถูกบล็อก ไม่สามารถจ่ายเงินปันผลได้');
+    } else if (this.systemStatus.hasBlockedStocks) {
+      this.systemStatus.warningMessage = `มีหุ้น ${blockedStocks.length} รายการที่ถูกบล็อก`;
+      this.showWarningAlert(`มีหุ้น ${blockedStocks.length} รายการที่ถูกบล็อก`);
+    }
+  }
+
+  // แสดง Warning Alert
+  showWarningAlert(message: string): void {
+    Swal.fire({
+      icon: 'warning',
+      title: 'คำเตือน',
+      text: message,
+      confirmButtonText: 'ตกลง',
+      confirmButtonColor: '#3085d6',
+      allowOutsideClick: false
+    });
+  }
+
+  // แสดง Error Alert
+  showErrorAlert(message: string): void {
+    Swal.fire({
+      icon: 'error',
+      title: 'ข้อผิดพลาด',
+      text: message,
+      confirmButtonText: 'ตกลง',
+      confirmButtonColor: '#d33',
+      allowOutsideClick: false
+    });
+  }
+
+  // กำหนดสถานะการจ่ายเงิน
+  get paymentStatus(): { text: string; color: string; bgColor: string } {
+    // ตรวจสอบเงื่อนไขที่ไม่สามารถจ่ายได้
+    if (!this.systemStatus.hasDividendData || 
+        !this.systemStatus.hasValidTaxId || 
+        this.systemStatus.isAllStocksBlocked || 
+        this.paymentData.dividend <= 0) {
+      return {
+        text: 'ไม่สามารถจ่ายเงินปันผลได้',
+        color: 'text-red-600',
+        bgColor: 'bg-red-100'
+      };
+    }
+    
+    // กรณีที่สามารถจ่ายได้
+    return {
+      text: 'สามารถจ่ายเงินปันผลได้',
+      color: 'text-green-700',
+      bgColor: 'bg-green-100'
+    };
+  }
+
+  // รีเซ็ตสถานะระบบ
+  resetSystemStatus(): void {
+    this.systemStatus = {
+      hasDividendData: false,
+      hasValidTaxId: true,
+      hasBlockedStocks: false,
+      isAllStocksBlocked: false,
+      errorMessage: '',
+      warningMessage: ''
+    };
+  }
 
 }
