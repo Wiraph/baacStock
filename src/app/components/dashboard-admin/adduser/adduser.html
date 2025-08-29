@@ -11,7 +11,7 @@
 
         <!-- รหัสสาขา -->
         <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
-            <label class="w-40 font-medium">รหัสสาขา:</label>
+            <label for class="w-40 font-medium">รหัสสาขา:</label>
             <select class="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
                 [(ngModel)]="selectedBranchCode" name="branchCode" required #branchCode="ngModel">
                 <option value="" disabled selected>-- กรุณาเลือกสาขา --</option>
@@ -23,7 +23,7 @@
 
         <!-- รหัสผู้ใช้งาน -->
         <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
-            <label class="w-40 font-medium">รหัสผู้ใช้งาน:</label>
+            <label for class="w-40 font-medium">รหัสผู้ใช้งาน:</label>
             <input type="text"
                 class="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
                 [(ngModel)]="userId" name="userId" required #userIdField="ngModel"
@@ -32,7 +32,7 @@
 
         <!-- ชื่อ - นามสกุล -->
         <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
-            <label class="w-40 font-medium">ชื่อ - นามสกุล:</label>
+            <label for class="w-40 font-medium">ชื่อ - นามสกุล:</label>
             <input type="text"
                 class="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
                 [(ngModel)]="fullName" name="fullName" required #fullNameField="ngModel"
@@ -41,7 +41,7 @@
 
         <!-- ระดับการใช้งาน -->
         <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
-            <label class="w-40 font-medium">ระดับการใช้งาน:</label>
+            <label for class="w-40 font-medium">ระดับการใช้งาน:</label>
             <select class="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
                 [(ngModel)]="selectedLevelCode" name="levelCode" required #levelCode="ngModel">
                 <option value="" disabled selected>-- กรุณาเลือกระดับ --</option>

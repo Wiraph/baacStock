@@ -1,1 +1,45 @@
-<p>sap-interface works!</p>
+<div class="p-4 flex w-full justify-center">
+    <button
+        (click)="createTextFile()" 
+        class="bg-blue-500 text-white py-2 px-4 rounded cursor-pointer hover:bg-blue-400">คลิกสร้าง TextFile</button>
+</div>
+<div class="bg-white rounded-md shadow-md">
+    <p class="bg-lime-500 py-2 text-white text-center rounded-t-md text-xl">SAP Interface</p>
+    <div class="p-4 flex justify-center">
+        <table>
+            <thead>
+                <th class="border-2 border-black p-2">ชื่อไฟล์</th>
+                <th class="border-2 border-black p-2">ขนาด</th>
+                <th class="border-2 border-black p-2">ดาวน์โหลด</th>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of textfile">
+                    <td class="border-2 border-black p-2">{{ item.fileName }}</td>
+                    <td class="border-2 border-black p-2">{{ item.fileSize }} bytes</td>
+                    <td class="border-2 border-black p-2">
+                        <button 
+                            (click)="dowloadTextFile(item.fileName)"
+                            class="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-400 cursor-pointer">SAP TEXT</button>
+                        <button
+                            (click)="downloadStockMovement(item.fileName)" 
+                            class="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-400 ml-2 cursor-pointer">EXCEL</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div *ngIf="isLoading"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-40 backdrop-blur-sm"
+  style="background-color: rgba(128, 128, 128, 0.7);">
+  <div class="text-center">
+    <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+      viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+    </svg>
+    <p class="text-lg text-white font-medium">🔄 กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
+  </div>
+</div>
