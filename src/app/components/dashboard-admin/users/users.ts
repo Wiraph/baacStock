@@ -18,7 +18,7 @@ export class UsersComponent implements OnInit {
   page = 1;
   itemsPerPage = 10;
   searchTerm = '';
-  private platformId = inject(PLATFORM_ID);
+  private readonly platformId = inject(PLATFORM_ID);
   loading = false;
   activeView = 'users'; // ✅ สถานะการแสดงผลปัจจุบัน
 
@@ -27,7 +27,7 @@ export class UsersComponent implements OnInit {
     this.cdr.detectChanges(); // ✅ แจ้งให้ Angular ทราบว่าต้องตรวจสอบการเปลี่ยนแปลง
   }
 
-  constructor(private userService: UserService, private cdr: ChangeDetectorRef, private router: Router) { }
+  constructor(private readonly userService: UserService, private readonly cdr: ChangeDetectorRef, private readonly router: Router) { }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
@@ -69,8 +69,36 @@ export class UsersComponent implements OnInit {
     })
   }
 
-  deleteUser() {
+  resetUserAndPassword(usrId: string): void {
+    const confirmed = confirm(`คุณต้องการรีเซ็ตผู้ใช้และรหัสผ่านของ ${usrId} ใช่หรือไม่`);
+    if (!confirmed) return;
 
+    this.userService.resetUserAndPassword(usrId).subscribe({
+      next: (res) => {
+        alert('✅ รีเซ็ตผู้ใช้และรหัสผ่านสำเร็จ');
+        this.loadUsers(); // โหลดข้อมูลใหม่
+      },
+      error: (err) => {
+        console.error(err);
+        alert('❌ เกิดข้อผิดพลาดในการรีเซ็ตผู้ใช้และรหัสผ่าน');
+      }
+    });
+  }
+
+  deleteUser(usrId: string): void {
+    const confirmed = confirm(`คุณต้องการลบผู้ใช้ ${usrId} ใช่หรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้`);
+    if (!confirmed) return;
+
+    this.userService.deleteUser(usrId).subscribe({
+      next: (res) => {
+        alert('✅ ลบผู้ใช้สำเร็จ');
+        this.loadUsers(); // โหลดข้อมูลใหม่
+      },
+      error: (err) => {
+        console.error(err);
+        alert('❌ เกิดข้อผิดพลาดในการลบผู้ใช้');
+      }
+    });
   }
 
   adduser() {

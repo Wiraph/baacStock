@@ -14,10 +14,10 @@ export interface ChangePasswordDto {
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = `${environment.dotnetApiUrl}/api/user`;
+  private readonly apiUrl = `${environment.dotnetApiUrl}/api/user`;
 
-  constructor(private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
+  constructor(private readonly http: HttpClient,
+    @Inject(PLATFORM_ID) private readonly platformId: Object
   ) { }
 
   getAllUsers(): Observable<any[]> {
@@ -37,6 +37,11 @@ export class UserService {
   // รีเซ็ตรหัสผ่าน
   resetPassword(userId: string): Observable<any> {
     return this.http.put(`${this.apiUrl}/${userId}/reset-password`, {});
+  }
+
+  // รีเซ็ตผู้ใช้และรหัสผ่าน
+  resetUserAndPassword(userId: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${userId}/reset-user-password`, {});
   }
 
   getUserLevels(): Observable<any[]> {
