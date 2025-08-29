@@ -3,8 +3,12 @@
 </div>
 
 <div *ngIf="activeView === 'dividend'" class="p-4">
-  <!-- ข้อมูลลูกค้า -->
-  <div class="w-full bg-white rounded-xl shadow-md">
+
+
+  <!-- แสดงข้อมูลเฉพาะเมื่อมีข้อมูล -->
+  <div *ngIf="systemStatus.hasDividendData">
+    <!-- ข้อมูลลูกค้า -->
+    <div class="w-full bg-white rounded-xl shadow-md">
     <div class="flex justify-start px-4 py-2">
       <button (click)="goBack()" 
           class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition-colors">
@@ -54,6 +58,8 @@
 
     <!-- ตารางสรุปจำนวนเงินปันผลรอจ่ายและรายการบล็อค -->
     <div class="p-4">
+
+
       <div class="w-full">
         <div class="overflow-x-auto">
           <table class="w-full border border-gray-400 text-sm">
@@ -168,7 +174,9 @@
             </div>
           </div>
           <div class="mt-4 pt-4 border-t border-green-200">
-            <div class="text-green-700 text-sm font-medium">สถานะ: พร้อมจ่าย</div>
+            <div class="text-sm font-medium" [ngClass]="paymentStatus.color">
+              สถานะ: {{ paymentStatus.text }}
+            </div>
           </div>
         </div>
       </div>
@@ -264,4 +272,5 @@
         
       </div>
     </div>
+  </div>
   </div>
