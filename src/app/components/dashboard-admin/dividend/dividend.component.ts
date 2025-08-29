@@ -215,55 +215,55 @@ export class DividendComponent implements OnInit {
       spin0tr: { bef: { dvn: 0, tax: 0, net: 0 }, cur: { dvn: 0, tax: 0, net: 0 } }
     };
 
-    this.dividendData.forEach((item: any) => {
-      if (item.stkNOTE) {
-        // รวมข้อมูลทั้งหมด
-        this.dividendSummary.totalGrand.bef.dvn += (item.payBEFdvn || 0);
-        this.dividendSummary.totalGrand.bef.tax += (item.payBEFtax || 0);
-        this.dividendSummary.totalGrand.bef.net += (item.payBEFnet || 0);
-        this.dividendSummary.totalGrand.cur.dvn += (item.payCURdvn || 0);
-        this.dividendSummary.totalGrand.cur.tax += (item.payCURtax || 0);
-        this.dividendSummary.totalGrand.cur.net += (item.payCURnet || 0);
+         this.dividendData.forEach((item: any) => {
+       if (item?.stkNOTE) {
+         // รวมข้อมูลทั้งหมด
+         this.dividendSummary.totalGrand.bef.dvn += (item.payBEFdvn || 0);
+         this.dividendSummary.totalGrand.bef.tax += (item.payBEFtax || 0);
+         this.dividendSummary.totalGrand.bef.net += (item.payBEFnet || 0);
+         this.dividendSummary.totalGrand.cur.dvn += (item.payCURdvn || 0);
+         this.dividendSummary.totalGrand.cur.tax += (item.payCURtax || 0);
+         this.dividendSummary.totalGrand.cur.net += (item.payCURnet || 0);
 
-        // ตรวจสอบสถานะใบหุ้น
-        if (item.stCODE && item.stCODE.endsWith('S008')) {
-          // รายการบล็อค
-          this.dividendSummary.block.bef.dvn += (item.payBEFdvn || 0);
-          this.dividendSummary.block.bef.tax += (item.payBEFtax || 0);
-          this.dividendSummary.block.bef.net += (item.payBEFnet || 0);
-          this.dividendSummary.block.cur.dvn += (item.payCURdvn || 0);
-          this.dividendSummary.block.cur.tax += (item.payCURtax || 0);
-          this.dividendSummary.block.cur.net += (item.payCURnet || 0);
+         // ตรวจสอบสถานะใบหุ้น
+         if (item.stCODE?.endsWith('S008')) {
+           // รายการบล็อค
+           this.dividendSummary.block.bef.dvn += (item.payBEFdvn || 0);
+           this.dividendSummary.block.bef.tax += (item.payBEFtax || 0);
+           this.dividendSummary.block.bef.net += (item.payBEFnet || 0);
+           this.dividendSummary.block.cur.dvn += (item.payCURdvn || 0);
+           this.dividendSummary.block.cur.tax += (item.payCURtax || 0);
+           this.dividendSummary.block.cur.net += (item.payCURnet || 0);
 
-        } else if (item.stCODE && item.stCODE.endsWith('002')) {
-          // รายการชำรุด/สูญหาย
-          this.dividendSummary._002.bef.dvn += (item.payBEFdvn || 0);
-          this.dividendSummary._002.bef.tax += (item.payBEFtax || 0);
-          this.dividendSummary._002.bef.net += (item.payBEFnet || 0);
-          this.dividendSummary._002.cur.dvn += (item.payCURdvn || 0);
-          this.dividendSummary._002.cur.tax += (item.payCURtax || 0);
-          this.dividendSummary._002.cur.net += (item.payCURnet || 0);
+         } else if (item.stCODE?.endsWith('002')) {
+           // รายการชำรุด/สูญหาย
+           this.dividendSummary._002.bef.dvn += (item.payBEFdvn || 0);
+           this.dividendSummary._002.bef.tax += (item.payBEFtax || 0);
+           this.dividendSummary._002.bef.net += (item.payBEFnet || 0);
+           this.dividendSummary._002.cur.dvn += (item.payCURdvn || 0);
+           this.dividendSummary._002.cur.tax += (item.payCURtax || 0);
+           this.dividendSummary._002.cur.net += (item.payCURnet || 0);
 
-        } else if (item.stkPayStat && item.stkPayStat.endsWith('0TR')) {
-          // รายการรอผลการโอนผ่านบัญชี
-          this.dividendSummary.spin0tr.bef.dvn += (item.payBEFdvn || 0);
-          this.dividendSummary.spin0tr.bef.tax += (item.payBEFtax || 0);
-          this.dividendSummary.spin0tr.bef.net += (item.payBEFnet || 0);
-          this.dividendSummary.spin0tr.cur.dvn += (item.payCURdvn || 0);
-          this.dividendSummary.spin0tr.cur.tax += (item.payCURtax || 0);
-          this.dividendSummary.spin0tr.cur.net += (item.payCURnet || 0);
+         } else if (item.stkPayStat?.endsWith('0TR')) {
+           // รายการรอผลการโอนผ่านบัญชี
+           this.dividendSummary.spin0tr.bef.dvn += (item.payBEFdvn || 0);
+           this.dividendSummary.spin0tr.bef.tax += (item.payBEFtax || 0);
+           this.dividendSummary.spin0tr.bef.net += (item.payBEFnet || 0);
+           this.dividendSummary.spin0tr.cur.dvn += (item.payCURdvn || 0);
+           this.dividendSummary.spin0tr.cur.tax += (item.payCURtax || 0);
+           this.dividendSummary.spin0tr.cur.net += (item.payCURnet || 0);
 
-        } else {
-          // รายการปกติ - รวมใน totalSub
-          this.dividendSummary.totalSub.bef.dvn += (item.payBEFdvn || 0);
-          this.dividendSummary.totalSub.bef.tax += (item.payBEFtax || 0);
-          this.dividendSummary.totalSub.bef.net += (item.payBEFnet || 0);
-          this.dividendSummary.totalSub.cur.dvn += (item.payCURdvn || 0);
-          this.dividendSummary.totalSub.cur.tax += (item.payCURtax || 0);
-          this.dividendSummary.totalSub.cur.net += (item.payCURnet || 0);
-        }
-      }
-    });
+         } else {
+           // รายการปกติ - รวมใน totalSub
+           this.dividendSummary.totalSub.bef.dvn += (item.payBEFdvn || 0);
+           this.dividendSummary.totalSub.bef.tax += (item.payBEFtax || 0);
+           this.dividendSummary.totalSub.bef.net += (item.payBEFnet || 0);
+           this.dividendSummary.totalSub.cur.dvn += (item.payCURdvn || 0);
+           this.dividendSummary.totalSub.cur.tax += (item.payCURtax || 0);
+           this.dividendSummary.totalSub.cur.net += (item.payCURnet || 0);
+         }
+       }
+     });
 
     // คำนวณจำนวนเงินที่จ่ายได้
     const totalNet = this.dividendSummary.totalSub.bef.net + this.dividendSummary.totalSub.cur.net;
@@ -313,7 +313,7 @@ export class DividendComponent implements OnInit {
 
   // Get blocked stocks
   get blockedStocks(): any[] {
-    return this.dividendData.filter(d => d.stCODE && d.stCODE.endsWith('S008'));
+    return this.dividendData.filter(d => d.stCODE?.endsWith('S008'));
   }
 
   // Check if has blocked stocks
@@ -328,7 +328,7 @@ export class DividendComponent implements OnInit {
     }
     
     const blockedStocks = this.dividendData.filter(d => 
-      d.stCODE && d.stCODE.endsWith('S008')
+      d.stCODE?.endsWith('S008')
     );
     
     this.systemStatus.hasBlockedStocks = blockedStocks.length > 0;
