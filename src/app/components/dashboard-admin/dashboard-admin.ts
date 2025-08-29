@@ -103,12 +103,12 @@ export class AdminDashboardComponent implements OnInit {
       children: [
         { key: 'pnd2', icon: '📄', label: 'ภ.ง.ด. 2', route: '/dashboard-admin/pnd2' },
         { key: 'pnd2a', icon: '📋', label: 'ภ.ง.ด. 2 ก', route: '/dashboard-admin/pnd2a' },
-        { key: 'pnd53', icon: '📊', label: 'ภ.ง.ด. 53', route: '/dashboard-admin/pnd53', 
-          submenu: [
-          { key: 'pnd2-old', icon: '📄', label: 'ภ.ง.ด. 2 เก่า', route: '/dashboard-admin/pnd2old' },
-          { key: 'pnd2a-old', icon: '📋', label: 'ภ.ง.ด. 2 ก เก่า', route: '/dashboard-admin/pnd2aold' },
-          { key: 'pnd53-old', icon: '📊', label: 'ภ.ง.ด. 53 เก่า', route: '/dashboard-admin/pnd53old' }
-      ]}
+        { key: 'pnd53', icon: '📊', label: 'ภ.ง.ด. 53', route: '/dashboard-admin/pnd53' }, 
+        { key: '*เก่า*', icon: '', label: '*เก่า*', route: '' }, 
+        { key: 'pnd2-old', icon: '📄', label: 'ภ.ง.ด. 2 เก่า', route: '/dashboard-admin/pnd2old' },
+        { key: 'pnd2a-old', icon: '📋', label: 'ภ.ง.ด. 2 ก เก่า', route: '/dashboard-admin/pnd2aold' },
+        { key: 'pnd53-old', icon: '📊', label: 'ภ.ง.ด. 53 เก่า', route: '/dashboard-admin/pnd53old' }
+      
     ]},
     {
       key: 'report',
