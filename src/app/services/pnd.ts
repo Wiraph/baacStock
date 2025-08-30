@@ -16,6 +16,8 @@ export class Pnd {
     private readonly encryptionService: EncryptionService
   ) { }
 
+  // ดึง ภ.ง.ด. เป็นรายการ
+  // payload = { pndType: string }
   getPndReport(payload: any): Observable<any[]> {
     const encryptionPayload = this.encryptionService.encrypPayload(payload);
     console.log("en", encryptionPayload);

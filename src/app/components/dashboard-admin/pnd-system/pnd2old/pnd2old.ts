@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { PndComponent } from '../../../pnd/pnd';
+import { PndOld } from '../../../pnd-old/pnd-old';
 
 @Component({
   selector: 'app-pnd2old',
   standalone: true,
-  imports: [PndComponent],
+  imports: [PndOld],
   templateUrl: './pnd2old.html',
   styleUrls: ['./pnd2old.css']
 })
@@ -15,7 +15,7 @@ export class Pnd2old implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    this.pndType = "PND2OLD";
-    this.title = "ภ.ง.ด. 2 เก่า";
+    this.pndType = "PND2";
+    this.title = "ภ.ง.ด. 2";
   }
 }
