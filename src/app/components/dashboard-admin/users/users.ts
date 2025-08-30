@@ -1,7 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { ChangeDetectorRef, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // 👈 ต้องใช้สำหรับ [(ngModel)]
+import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { UserService } from '../../../services/user';
 import { Router } from '@angular/router';
