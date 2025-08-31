@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
-import {
-  trigger, transition, style, animate
-} from '@angular/animations';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { UserService } from '../../services/user';
 import { PermissionService } from '../../services/permission.service';
 
@@ -17,9 +15,9 @@ interface MenuItem {
 
 @Component({
   standalone: true,
-  selector: 'app-admin-dashboard',
-  templateUrl: './dashboard-admin.html',
-  styleUrls: ['./dashboard-admin.css'],
+  selector: 'app-dashbord-system',
+  templateUrl: './dashbord-system.html',
+  styleUrls: ['./dashbord-system.css'],
   imports: [CommonModule, RouterOutlet, RouterModule],
   animations: [
     trigger('slideInOut', [
@@ -48,8 +46,8 @@ export class AdminDashboardComponent implements OnInit {
         { key: 'home', icon: '🏠', label: 'Home', route: '/dashboard-admin/' },
         { key: 'contact', icon: '📞', label: 'ติดต่อ', route: '/dashboard-admin/contact' },
         { key: 'search-edit', icon: '🔎', label: 'ค้นหา/แก้ไข', route: '/dashboard-admin/editcustomer' }
-      ]
-    },
+      
+      ]},
     {
       key: 'sales',
       label: 'การขายและใบหุ้น',
@@ -64,8 +62,8 @@ export class AdminDashboardComponent implements OnInit {
         { key: 'approve-issue', icon: '📝', label: 'อนุมัติออกใบหุ้น', route: '/dashboard-admin/approve-issue' },
         { key: 'print-certificates', icon: '🖨️', label: 'พิมพ์ใบหุ้น', route: '/dashboard-admin/print-certificates' },
         { key: 'block-certificates', icon: '🔒', label: 'บล็อค/ยกเลิกบล็อค ใบหุ้น', route: '/dashboard-admin/block-certificates' }
-      ]
-    },
+      
+      ]},
     {
       key: 'financial',
       label: 'การเงิน',
@@ -73,9 +71,9 @@ export class AdminDashboardComponent implements OnInit {
       open: false,
       children: [
         { key: 'dividend', icon: '💰', label: 'เงินปันผล', route: '/dashboard-admin/dividend' },
-        { key: 'annualdividendcalculator', icon: '😵‍💫', label: 'คำนวณเงินปันผลประจำปี', route: '/dashboard-admin/AnnualDividendCalculatorComponent' },
-      ]
-    },
+        { key: 'dividend', icon: '😵‍💫', label: 'คำนวณเงินปันผลประจำปี', route: '/dashboard-admin/AnnualDividendCalculatorComponent' },
+      
+      ]},
     {
       key: 'spin-file',
       label: 'SCB SPIN FILE',
@@ -84,8 +82,8 @@ export class AdminDashboardComponent implements OnInit {
       children: [
         { key: 'create-spin-files', icon: '⚡', label: 'สร้าง SPIN FILE ส่ง SCB', route: '/dashboard-admin/create-spin-files' },
         { key: 'spin-files', icon: '🔌', label: 'รับผล SPIN FILE จาก SCB', route: '/dashboard-admin/spin-files' }
-      ]
-    },
+
+      ]},
     {
       key: 'sap-interface',
       label: 'SAP Interface',
@@ -93,8 +91,8 @@ export class AdminDashboardComponent implements OnInit {
       open: false,
       children: [
         { key: 'sap-interface', icon: '🔗', label: 'SAP Interface', route: '/dashboard-admin/sap-interface' }
-      ]
-    },
+
+      ]},
     {
       key: 'pnd',
       label: 'ภ.ง.ด.',
@@ -109,7 +107,7 @@ export class AdminDashboardComponent implements OnInit {
         { key: 'pnd2a-old', icon: '📋', label: 'ภ.ง.ด. 2 ก เก่า', route: '/dashboard-admin/pnd2aold' },
         { key: 'pnd53-old', icon: '📊', label: 'ภ.ง.ด. 53 เก่า', route: '/dashboard-admin/pnd53old' }
       
-    ]},
+      ]},
     {
       key: 'report',
       label: 'รายงาน',
@@ -117,8 +115,8 @@ export class AdminDashboardComponent implements OnInit {
       open: false,
       children: [
         { key: 'reports', icon: '📄', label: 'รายงาน', route: '/dashboard-admin/reports' }
-      ]
-    },
+
+      ]},
     {
       key: 'user',
       label: 'ผู้ใช้งาน',
@@ -127,8 +125,8 @@ export class AdminDashboardComponent implements OnInit {
       children: [
         { key: 'users', icon: '👤', label: 'รายชื่อผู้ใช้งาน', route: '/dashboard-admin/users' },
         { key: 'change-password', icon: '🔑', label: 'เปลี่ยนรหัสผ่าน', route: '/dashboard-admin/change-password' }
-      ]
-    },
+      
+      ]},
     {
       key: 'system',
       label: 'ระบบ',
@@ -140,8 +138,8 @@ export class AdminDashboardComponent implements OnInit {
         { key: 'documents-forms-procedures', icon: '📋', label: 'แบบพิมพ์/วิธีปฏิบัติงานหุ้น', route: '/dashboard-admin/documents/forms-procedures' },
         { key: 'documents-user-manual', icon: '📖', label: 'คู่มือการใช้งานระบบ', route: '/dashboard-admin/documents/user-manual' },
         { key: 'developer', icon: '💻', label: 'DEVELOPER', route: '/dashboard-admin/developer' }
-      ]
-    }
+        
+      ]}
   ];
 
   constructor(

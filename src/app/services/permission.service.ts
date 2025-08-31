@@ -26,7 +26,7 @@ export class PermissionService {
     },
     'sales': { 
       key: 'sales',
-      levels: ['99', '89', '85', '80', '19', '10', '09', '05', '00'],
+      levels: ['99', '89', '85', '80', '10', '09', '05', '00'],
       description: 'การขายและใบหุ้น'
     },
     'financial': { 
@@ -81,27 +81,27 @@ export class PermissionService {
     'search-edit': {
       id: 'search-edit',
       name: 'ค้นหา/แก้ไข',
-      levels: ['99', '98', '90', '89', '85', '80', '50', '20', '19', '10', '09', '05', '00']
+      levels: ['99', '98', '90', '89', '85', '80', '50', '19', '10', '09', '05', '00']
     },
     'print-share-purchase-request': {
       id: 'print-share-purchase-request',
       name: 'พิมพ์คำขอซื้อหุ้น',
-      levels: ['99', '89', '85', '80', '19', '10', '09', '05', '00']
+      levels: ['99', '89', '85', '80', '10', '09', '05', '00']
     },
     'common-shares': {
       id: 'common-shares',
       name: 'ขายหุ้นสามัญ',
-      levels: ['99', '89', '85', '80', '19', '10', '00']
+      levels: ['99', '89', '85', '80', '10', '00']
     },
     'cratenewsharecertificate': {
       id: 'cratenewsharecertificate',
       name: 'การออกใบหุ้นใหม่ แทนใบหุ้นที่ชำรุด/สูญหาย',
-      levels: ['99', '89', '85', '80', '19', '10', '00']
+      levels: ['99', '89', '85', '80', '10', '00']
     },
     'transfer-share': {
       id: 'transfer-share',
       name: 'โอนเปลี่ยนมือ',
-      levels: ['99', '89', '85', '80', '19', '10', '00']
+      levels: ['99', '89', '85', '80', '10', '00']
     },
     'approve-item': {
       id: 'approve-item',
@@ -127,6 +127,11 @@ export class PermissionService {
       id: 'dividend',
       name: 'เงินปันผล',
       levels: ['99', '89', '85', '80', '09', '05', '00']
+    },
+    'annualdividendcalculator': {
+      id: 'annualdividendcalculator',
+      name: 'คำนวณเงินปันผลประจำปี',
+      levels: ['99', '89', '85', '80']
     },
     'sap-interface': {
       id: 'sap-interface',
@@ -271,15 +276,15 @@ export class PermissionService {
     return filteredMenus;
   }
 
-  // ตรวจสอบสิทธิ์การแก้ไขข้อมูล (เฉพาะ level 99, 85, 05)
+  // ตรวจสอบสิทธิ์การแก้ไขข้อมูล (เฉพาะ level 99, 85, 09, 05)
   canEditData(userLevel: string): boolean {
-    const allowedLevels = ['99', '85', '05'];
+    const allowedLevels = ['99', '85', '09', '05'];
     return allowedLevels.includes(userLevel);
   }
 
-  // ตรวจสอบสิทธิ์การแก้ไขข้อมูล (เฉพาะ level 99, 85, 05)
+  // ตรวจสอบสิทธิ์การแก้ไขข้อมูล (เฉพาะ level 99, 85, 09, 05)
   hasEditPermission(userLevel: string): boolean {
-    const allowedLevels = ['99', '85', '05'];
+    const allowedLevels = ['99', '85', '09', '05'];
     return allowedLevels.includes(userLevel);
   }
 } 
