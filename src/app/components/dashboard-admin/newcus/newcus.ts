@@ -20,6 +20,10 @@ import { MatInputModule } from '@angular/material/input';
 import ThaiBahtText from 'thai-baht-text';
 import { StockService } from '../../../services/stock';
 import { JwtDecoder } from '../../../services/jwt-decoder';
+import { SystemMetadata } from '../../../services/Metadata/system-metadata';
+import { AddressMetadata } from '../../../services/Metadata/address-metadata';
+import { StockMetadata } from '../../../services/Metadata/stock-metadata';
+import { CustomerMetadata } from '../../../services/Metadata/customer-metadata';
 
 export const THAI_DATE_FORMATS = {
   parse: { dateInput: 'DD/MM/YYYY' },
@@ -87,7 +91,11 @@ export class NewCusComponent implements OnInit, AfterViewInit {
     private readonly dividend: Divident,
     private readonly fb: FormBuilder,
     private readonly stockService: StockService,
-    private readonly jwtDecoder: JwtDecoder
+    private readonly jwtDecoder: JwtDecoder,
+    private readonly addressMetadataService: AddressMetadata,
+    private readonly systemMetadataService: SystemMetadata,
+    private readonly stockMetadataService: StockMetadata,
+    private readonly customerMetadataServcie: CustomerMetadata
   ) { }
 
   ngOnInit(): void {
@@ -187,7 +195,7 @@ export class NewCusComponent implements OnInit, AfterViewInit {
       this.loadInitialMetadata();
     }
 
-    this.metadataService.getSyscfg().subscribe({
+    this.systemMetadataService.sysCfg().subscribe({
       next: (res: any) => {
         this.pricePerUnit = res || { stkBv: 0 };
         this.cd.detectChanges();
@@ -216,12 +224,12 @@ export class NewCusComponent implements OnInit, AfterViewInit {
 
   loadInitialMetadata() {
     const metadataCalls = [
-      { service: this.metadataService.getProvince(), setter: (res: any) => this.prvData = res },
-      { service: this.metadataService.getTitle(), setter: (res: any) => this.titleList = res },
-      { service: this.metadataService.getCustype(), setter: (res: any) => this.custypeList = res },
-      { service: this.metadataService.getDoctype(), setter: (res: any) => this.doctypeList = res },
-      { service: this.metadataService.getAcctypes(), setter: (res: any) => this.actypeList = res },
-      { service: this.metadataService.getStaTypes(), setter: (res: any) => this.stkTypeList = res }
+      { service: this.addressMetadataService.getProvince(), setter: (res: any) => this.prvData = res },
+      { service: this.customerMetadataServcie.titles(), setter: (res: any) => this.titleList = res },
+      { service: this.customerMetadataServcie.cusTypes(), setter: (res: any) => this.custypeList = res },
+      { service: this.customerMetadataServcie.docTypes(), setter: (res: any) => this.doctypeList = res },
+      { service: this.stockMetadataService.accTypes(), setter: (res: any) => this.actypeList = res },
+      { service: this.stockMetadataService.stkTyps(), setter: (res: any) => this.stkTypeList = res }
     ];
 
     // ใช้ forkJoin เพื่อรอให้ metadata ทั้งหมดโหลดเสร็จ
@@ -445,12 +453,12 @@ export class NewCusComponent implements OnInit, AfterViewInit {
         })
       ),
       dividend: this.dividend.getDividend(requestPayload),
-      provinces: this.metadataService.getProvince(),
-      titles: this.metadataService.getTitle(),
-      custypes: this.metadataService.getCustype(),
-      doctypes: this.metadataService.getDoctype(),
-      acctypes: this.metadataService.getAcctypes(),
-      stktypes: this.metadataService.getStaTypes(),
+      provinces: this.addressMetadataService.getProvince(),
+      titles: this.customerMetadataServcie.titles(),
+      custypes: this.customerMetadataServcie.cusTypes(),
+      doctypes: this.customerMetadataServcie.docTypes(),
+      acctypes: this.stockMetadataService.accTypes(),
+      stktypes: this.stockMetadataService.stkTyps(),
     })
       .pipe(
         switchMap((res) => {
@@ -589,7 +597,7 @@ export class NewCusComponent implements OnInit, AfterViewInit {
   }
 
   onProvinceChangeHome(prvCode: string, isFormMode = false) {
-    this.metadataService.getAumphor(prvCode).subscribe({
+    this.addressMetadataService.getAumphor(prvCode).subscribe({
       next: (res) => {
         this.ampDataHome = res;
         this.tumbonDataHome = [];
@@ -617,7 +625,7 @@ export class NewCusComponent implements OnInit, AfterViewInit {
   }
 
   onAumphorChangeHome(prvCode: string, ampCode: string) {
-    this.metadataService.getTumbons(prvCode, ampCode).subscribe({
+    this.addressMetadataService.getTumbon(prvCode, ampCode).subscribe({
       next: (res) => { this.tumbonDataHome = res; this.cd.detectChanges(); },
       error: (err) => { this.tumbonDataHome = []; this.cd.detectChanges(); }
     });
@@ -626,7 +634,7 @@ export class NewCusComponent implements OnInit, AfterViewInit {
   onAumphorChangeHomeForm = (prvCode: string, ampCode: string) => this.onAumphorChangeHome(prvCode, ampCode);
 
   onProvinceChangeCurrent(prvCode: string, isFormMode = false) {
-    this.metadataService.getAumphor(prvCode).subscribe({
+    this.addressMetadataService.getAumphor(prvCode).subscribe({
       next: (res) => {
         this.ampDataCurrent = res;
         this.tumbonDataCurrent = [];
@@ -643,7 +651,7 @@ export class NewCusComponent implements OnInit, AfterViewInit {
   onProvinceChangeCurrentForm = (prvCode: string) => this.onProvinceChangeCurrent(prvCode, true);
 
   onAumphorChangeCurrent(prvCode: string, ampCode: string) {
-    this.metadataService.getTumbons(prvCode, ampCode).subscribe({
+    this.addressMetadataService.getTumbon(prvCode, ampCode).subscribe({
       next: (res) => { this.tumbonDataCurrent = res; this.cd.detectChanges(); },
       error: (err) => { this.tumbonDataCurrent = []; this.cd.detectChanges(); }
     });
@@ -673,13 +681,13 @@ export class NewCusComponent implements OnInit, AfterViewInit {
 
     if (this.homeAddress?.prvCODE) {
       tasks.push(
-        this.metadataService.getAumphor(this.homeAddress.prvCODE).pipe(
+        this.addressMetadataService.getAumphor(this.homeAddress.prvCODE).pipe(
           switchMap((ampRes) => {
             this.ampDataHome = ampRes;
             this.cd.detectChanges();
 
             if (this.homeAddress?.ampCODE) {
-              return this.metadataService.getTumbons(this.homeAddress.prvCODE, this.homeAddress.ampCODE).pipe(
+              return this.addressMetadataService.getTumbon(this.homeAddress.prvCODE, this.homeAddress.ampCODE).pipe(
                 switchMap((tumbonRes) => {
                   this.tumbonDataHome = tumbonRes;
                   const zip = this.onZipcodeChangeHome(this.homeAddress.prvCODE, this.homeAddress.ampCODE, this.homeAddress.tmbCODE);
@@ -699,13 +707,13 @@ export class NewCusComponent implements OnInit, AfterViewInit {
 
     if (this.currentAddress?.prvCODE) {
       tasks.push(
-        this.metadataService.getAumphor(this.currentAddress.prvCODE).pipe(
+        this.addressMetadataService.getAumphor(this.currentAddress.prvCODE).pipe(
           switchMap((ampRes) => {
             this.ampDataCurrent = ampRes;
             this.cd.detectChanges();
 
             if (this.currentAddress?.ampCODE) {
-              return this.metadataService.getTumbons(this.currentAddress.prvCODE, this.currentAddress.ampCODE).pipe(
+              return this.addressMetadataService.getTumbon(this.currentAddress.prvCODE, this.currentAddress.ampCODE).pipe(
                 switchMap((tumbonRes) => {
                   this.tumbonDataCurrent = tumbonRes;
                   const zip = this.onZipcodeChangeCurrent(this.currentAddress.prvCODE, this.currentAddress.ampCODE, this.currentAddress.tmbCODE);

@@ -11,6 +11,10 @@ import { of, forkJoin } from 'rxjs';
 import { finalize, switchMap, map, catchError } from 'rxjs/operators';
 import { Divident } from '../../../services/divident';
 import Swal from 'sweetalert2';
+import { SystemMetadata } from '../../../services/Metadata/system-metadata';
+import { AddressMetadata } from '../../../services/Metadata/address-metadata';
+import { StockMetadata } from '../../../services/Metadata/stock-metadata';
+import { CustomerMetadata } from '../../../services/Metadata/customer-metadata';
 
 
 @Component({
@@ -57,7 +61,11 @@ export class EditCustomerComponent implements OnInit {
     private readonly cd: ChangeDetectorRef,
     private readonly addressService: AddressService,
     private readonly dividend: Divident,
-    private readonly fb: FormBuilder
+    private readonly fb: FormBuilder,
+    private readonly addressMetadataService: AddressMetadata,
+    private readonly systemMetadataService: SystemMetadata,
+    private readonly stockMetadataService: StockMetadata,
+    private readonly customerMetadataServcie: CustomerMetadata
   ) { }
 
   ngOnInit(): void {
@@ -110,7 +118,7 @@ export class EditCustomerComponent implements OnInit {
         stkACCtype: ['']
       })
     })
-    
+
     // Subscribe to form value changes to update control states
     this.customerForm.get('dividend.dividendStkPayType')?.valueChanges.subscribe(() => {
       this.updateFormControlStates();
@@ -155,11 +163,11 @@ export class EditCustomerComponent implements OnInit {
         })
       ),
       dividend: this.dividend.getDividend(requestPayload),
-      provinces: this.metadataService.getProvince(),
-      titles: this.metadataService.getTitle(),
-      custypes: this.metadataService.getCustype(),
-      doctypes: this.metadataService.getDoctype(),
-      acctypes: this.metadataService.getAcctypes(),
+      provinces: this.addressMetadataService.getProvince(),
+      titles: this.customerMetadataServcie.titles(),
+      custypes: this.customerMetadataServcie.cusTypes(),
+      doctypes: this.customerMetadataServcie.docTypes(),
+      acctypes: this.stockMetadataService.accTypes(),
     })
       .pipe(
         switchMap((res) => {
@@ -274,14 +282,14 @@ export class EditCustomerComponent implements OnInit {
           stkACCname: this.dividendData?.stkACCname || '',
           stkACCtype: this.dividendData?.stkACCtype || ''
         }
-             });
-       console.log("Form after populate:", this.customerForm.value);
-       console.log("Form customer part:", this.customerForm.get('customer')?.value);
-       
-       // อัปเดตสถานะของฟิลด์ตามค่าเริ่มต้น
-       this.updateFormControlStates();
-       
-       this.cd.detectChanges();
+      });
+      console.log("Form after populate:", this.customerForm.value);
+      console.log("Form customer part:", this.customerForm.get('customer')?.value);
+
+      // อัปเดตสถานะของฟิลด์ตามค่าเริ่มต้น
+      this.updateFormControlStates();
+
+      this.cd.detectChanges();
     } else {
       console.log("No customer data available to populate");
 
@@ -391,7 +399,7 @@ export class EditCustomerComponent implements OnInit {
 
 
   onProvinceChangeHome(prvCode: string) {
-    this.metadataService.getAumphor(prvCode).subscribe({
+    this.addressMetadataService.getAumphor(prvCode).subscribe({
       next: (res) => {
         setTimeout(() => {
           this.ampDataHome = res;
@@ -423,7 +431,7 @@ export class EditCustomerComponent implements OnInit {
 
 
   onAumphorChangeHome(prvCode: string, ampCode: string) {
-    this.metadataService.getTumbons(prvCode, ampCode).subscribe({
+    this.addressMetadataService.getTumbon(prvCode, ampCode).subscribe({
       next: (res) => {
         setTimeout(() => {
           this.tumbonDataHome = res;
@@ -435,7 +443,7 @@ export class EditCustomerComponent implements OnInit {
   }
 
   onProvinceChangeCurrent(prvCode: string) {
-    this.metadataService.getAumphor(prvCode).subscribe({
+    this.addressMetadataService.getAumphor(prvCode).subscribe({
       next: (res) => {
         setTimeout(() => {
           this.ampDataCurrent = res;
@@ -450,7 +458,7 @@ export class EditCustomerComponent implements OnInit {
   }
 
   onAumphorChangeCurrent(prvCode: string, ampCode: string) {
-    this.metadataService.getTumbons(prvCode, ampCode).subscribe({
+    this.addressMetadataService.getTumbon(prvCode, ampCode).subscribe({
       next: (res) => {
         setTimeout(() => {
           this.tumbonDataCurrent = res;
@@ -485,7 +493,7 @@ export class EditCustomerComponent implements OnInit {
     // สำหรับที่อยู่บ้าน
     if (this.homeAddress?.prvCODE) {
       tasks.push(
-        this.metadataService.getAumphor(this.homeAddress.prvCODE).pipe(
+        this.addressMetadataService.getAumphor(this.homeAddress.prvCODE).pipe(
           switchMap((ampRes) => {
             // ใช้ setTimeout เพื่อหลีกเลี่ยง change detection error
             setTimeout(() => {
@@ -494,7 +502,7 @@ export class EditCustomerComponent implements OnInit {
             }, 0);
 
             if (this.homeAddress?.ampCODE) {
-              return this.metadataService.getTumbons(this.homeAddress.prvCODE, this.homeAddress.ampCODE).pipe(
+              return this.addressMetadataService.getTumbon(this.homeAddress.prvCODE, this.homeAddress.ampCODE).pipe(
                 switchMap((tumbonRes) => {
                   setTimeout(() => {
                     this.tumbonDataHome = tumbonRes;
@@ -524,7 +532,7 @@ export class EditCustomerComponent implements OnInit {
     // สำหรับที่อยู่ปัจจุบัน
     if (this.currentAddress?.prvCODE) {
       tasks.push(
-        this.metadataService.getAumphor(this.currentAddress.prvCODE).pipe(
+        this.addressMetadataService.getAumphor(this.currentAddress.prvCODE).pipe(
           switchMap((ampRes) => {
             // ใช้ setTimeout เพื่อหลีกเลี่ยง change detection error
             setTimeout(() => {
@@ -533,7 +541,7 @@ export class EditCustomerComponent implements OnInit {
             }, 0);
 
             if (this.currentAddress?.ampCODE) {
-              return this.metadataService.getTumbons(this.currentAddress.prvCODE, this.currentAddress.ampCODE).pipe(
+              return this.addressMetadataService.getTumbon(this.currentAddress.prvCODE, this.currentAddress.ampCODE).pipe(
                 switchMap((tumbonRes) => {
                   setTimeout(() => {
                     this.tumbonDataCurrent = tumbonRes;
@@ -743,11 +751,11 @@ export class EditCustomerComponent implements OnInit {
   // ฟังก์ชันสำหรับตรวจสอบว่าควรเป็นสีเทาหรือไม่สำหรับรับเงินปันผล
   shouldBeGrayedOutDividend(fieldType: string): boolean {
     const dividendMethod = this.getDividendPaymentMethod();
-    
+
     if (fieldType === 'bankAccount' && dividendMethod !== '001') {
       return true; // ช่องบัญชีเงินฝากควรเป็นสีเทาเมื่อไม่ได้เลือก
     }
-    
+
     return false;
   }
 

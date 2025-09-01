@@ -15,8 +15,8 @@
             <select class="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
                 [(ngModel)]="selectedBranchCode" name="branchCode" required #branchCode="ngModel">
                 <option value="" disabled selected>-- กรุณาเลือกสาขา --</option>
-                <option *ngFor="let branch of branchList" [value]="branch.brProBrn">
-                    {{ branch.brProBrn }} - {{ branch.brName }}
+                <option *ngFor="let branch of branchList" [value]="branch.brProBRN">
+                    {{ branch.brProBRN }} - {{ branch.brNAME }}
                 </option>
             </select>
         </div>
@@ -45,8 +45,8 @@
             <select class="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
                 [(ngModel)]="selectedLevelCode" name="levelCode" required #levelCode="ngModel">
                 <option value="" disabled selected>-- กรุณาเลือกระดับ --</option>
-                <option *ngFor="let level of levelList" [value]="level.lvlCode">
-                    {{ level.lvlCode }} - {{ level.lvlDesc }}
+                <option *ngFor="let level of levelList" [value]="level.lvL_CODE">
+                    {{ level.lvL_CODE }} - {{ level.lvL_DESC }}
                 </option>
             </select>
         </div>
@@ -64,7 +64,7 @@
             </button>
 
             <button class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 focus:outline-none"
-                type="button" (click)="resetForm()">
+                type="button" (click)="onBackClick()">
                 ยกเลิก
             </button>
         </div>

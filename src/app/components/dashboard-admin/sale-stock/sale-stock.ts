@@ -20,6 +20,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import ThaiBahtText from 'thai-baht-text';
 import { StockService } from '../../../services/stock';
+import { SystemMetadata } from '../../../services/Metadata/system-metadata';
+import { AddressMetadata } from '../../../services/Metadata/address-metadata';
+import { StockMetadata } from '../../../services/Metadata/stock-metadata';
+import { CustomerMetadata } from '../../../services/Metadata/customer-metadata';
 
 export const THAI_DATE_FORMATS = {
   parse: {
@@ -90,12 +94,16 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     private readonly addressService: AddressService,
     private readonly dividend: Divident,
     private readonly fb: FormBuilder,
-    private readonly stockService: StockService
+    private readonly stockService: StockService,
+    private readonly addressMetadataService: AddressMetadata,
+    private readonly systemMetadataService: SystemMetadata,
+    private readonly stockMetadataService: StockMetadata,
+    private readonly customerMetadataServcie: CustomerMetadata
   ) { }
 
   ngOnInit(): void {
     this.dataTransfer.setPageStatus('2');
-    this.metadataService.getSyscfg().subscribe({
+    this.systemMetadataService.sysCfg().subscribe({
       next: (res: any) => {
         this.pricePerUnit = res;
         this.cd.detectChanges();
@@ -247,12 +255,12 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
         })
       ),
       dividend: this.dividend.getDividend(requestPayload),
-      provinces: this.metadataService.getProvince(),
-      titles: this.metadataService.getTitle(),
-      custypes: this.metadataService.getCustype(),
-      doctypes: this.metadataService.getDoctype(),
-      acctypes: this.metadataService.getAcctypes(),
-      stktypes: this.metadataService.getStaTypes(),
+      provinces: this.addressMetadataService.getProvince(),
+      titles: this.customerMetadataServcie.titles(),
+      custypes: this.customerMetadataServcie.cusTypes(),
+      doctypes: this.customerMetadataServcie.docTypes(),
+      acctypes: this.stockMetadataService.accTypes(),
+      stktypes: this.stockMetadataService.stkTyps(),
     })
       .pipe(
         switchMap((res) => {
@@ -451,7 +459,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
 
 
   onProvinceChangeHome(prvCode: string) {
-    this.metadataService.getAumphor(prvCode).subscribe({
+    this.addressMetadataService.getAumphor(prvCode).subscribe({
       next: (res) => {
         setTimeout(() => {
           this.ampDataHome = res;
@@ -483,7 +491,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
 
 
   onAumphorChangeHome(prvCode: string, ampCode: string) {
-    this.metadataService.getTumbons(prvCode, ampCode).subscribe({
+    this.addressMetadataService.getTumbon(prvCode, ampCode).subscribe({
       next: (res) => {
         setTimeout(() => {
           this.tumbonDataHome = res;
@@ -495,7 +503,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
   }
 
   onProvinceChangeCurrent(prvCode: string) {
-    this.metadataService.getAumphor(prvCode).subscribe({
+    this.addressMetadataService.getAumphor(prvCode).subscribe({
       next: (res) => {
         setTimeout(() => {
           this.ampDataCurrent = res;
@@ -510,7 +518,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
   }
 
   onAumphorChangeCurrent(prvCode: string, ampCode: string) {
-    this.metadataService.getTumbons(prvCode, ampCode).subscribe({
+    this.addressMetadataService.getTumbon(prvCode, ampCode).subscribe({
       next: (res) => {
         setTimeout(() => {
           this.tumbonDataCurrent = res;
@@ -545,7 +553,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     // สำหรับที่อยู่บ้าน
     if (this.homeAddress?.prvCODE) {
       tasks.push(
-        this.metadataService.getAumphor(this.homeAddress.prvCODE).pipe(
+        this.addressMetadataService.getAumphor(this.homeAddress.prvCODE).pipe(
           switchMap((ampRes) => {
             // ใช้ setTimeout เพื่อหลีกเลี่ยง change detection error
             setTimeout(() => {
@@ -554,7 +562,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
             }, 0);
 
             if (this.homeAddress?.ampCODE) {
-              return this.metadataService.getTumbons(this.homeAddress.prvCODE, this.homeAddress.ampCODE).pipe(
+              return this.addressMetadataService.getTumbon(this.homeAddress.prvCODE, this.homeAddress.ampCODE).pipe(
                 switchMap((tumbonRes) => {
                   setTimeout(() => {
                     this.tumbonDataHome = tumbonRes;
@@ -584,7 +592,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     // สำหรับที่อยู่ปัจจุบัน
     if (this.currentAddress?.prvCODE) {
       tasks.push(
-        this.metadataService.getAumphor(this.currentAddress.prvCODE).pipe(
+        this.addressMetadataService.getAumphor(this.currentAddress.prvCODE).pipe(
           switchMap((ampRes) => {
             // ใช้ setTimeout เพื่อหลีกเลี่ยง change detection error
             setTimeout(() => {
@@ -593,7 +601,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
             }, 0);
 
             if (this.currentAddress?.ampCODE) {
-              return this.metadataService.getTumbons(this.currentAddress.prvCODE, this.currentAddress.ampCODE).pipe(
+              return this.addressMetadataService.getTumbon(this.currentAddress.prvCODE, this.currentAddress.ampCODE).pipe(
                 switchMap((tumbonRes) => {
                   setTimeout(() => {
                     this.tumbonDataCurrent = tumbonRes;

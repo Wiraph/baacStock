@@ -11,6 +11,8 @@ import { StockService } from '../../../services/stock';
 import { Divident } from '../../../services/divident';
 import { forkJoin } from 'rxjs';
 import { StocktransferService } from '../../../services/stocktransfer';
+import { StockMetadata } from '../../../services/Metadata/stock-metadata';
+import { SystemMetadata } from '../../../services/Metadata/system-metadata';
 
 interface TransferItem {
   CUSid: string;
@@ -63,6 +65,8 @@ export class TransferShareComponent implements OnInit {
     private readonly stockService: StockService,
     private readonly dividendService: Divident,
     private readonly stocktransferService: StocktransferService,
+    private readonly stockMetadataService: StockMetadata,
+    private readonly systemMetadataService: SystemMetadata
   ) {
     this.transferForm = this.fb.group({
       transfers: this.fb.array([])
@@ -503,7 +507,7 @@ export class TransferShareComponent implements OnInit {
   }
 
   loadMetaData() {
-    this.metadataService.getRemCode().subscribe({
+    this.systemMetadataService.remCode().subscribe({
       next: (res) => {
         this.remcodeList = res.filter((item: any) => item.remCode.startsWith("003"));
         this.cdRef.detectChanges();
@@ -513,7 +517,7 @@ export class TransferShareComponent implements OnInit {
       }
     })
 
-    this.metadataService.getAcctypes().subscribe({
+    this.stockMetadataService.accTypes().subscribe({
       next: (res) => {
         this.accList = res;
         this.cdRef.detectChanges();

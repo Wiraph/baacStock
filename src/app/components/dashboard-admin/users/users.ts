@@ -5,12 +5,14 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { UserService } from '../../../services/user';
 import { Router } from '@angular/router';
 import { AdduserComponent } from '../adduser/adduser';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import Swal from 'sweetalert2';
 
 @Component({
   standalone: true,
   selector: 'app-admin-dashboard',
   templateUrl: './users.html',
-  imports: [CommonModule, FormsModule, NgxPaginationModule, AdduserComponent],
+  imports: [CommonModule, FormsModule, NgxPaginationModule, AdduserComponent, MatTooltipModule],
 })
 export class UsersComponent implements OnInit {
   users: any[] = [];
@@ -53,51 +55,54 @@ export class UsersComponent implements OnInit {
     );
   }
 
-  resetPassword(usrId: string): void {
-    const confirmed = confirm(`คุณต้องการรีเซ็ตรหัสผ่านของผู้ใช้ ${usrId} ใช่หรือไม่`);
-    if (!confirmed) return;
-
-    this.userService.resetPassword(usrId).subscribe({
-      next: (res) => {
-        alert('✅ รีเซ็ตรหัสผ่านสำเร็จ')
-      },
-      error: (err) => {
-        console.error(err);
-        alert('❌ เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน')
+  manageUser(user: any, act: string) {
+    let msg = "";
+    let msgs = "";
+    switch (act) {
+      case "RESET_PASSWORD":
+        msg = " Reset รหัสผ่าน";
+        break;
+      case "RESET_USER":
+        msg = " Reset ผู้ใช้งาน";
+        break;
+      case "DELETE_USER":
+        msg = "ลบผู้ใช้งาน";
+        msgs = "ออกจากระบบ";
+        break;
+      default:
+        break;
+    }
+    const payload = {
+      UserId: user.usrId,
+      brc: user.usrBrc,
+      Act: act
+    };
+    console.log(payload);
+    Swal.fire({
+      icon: 'question',
+      text: `ท่านต้องการ${msg} ${user.usrId} (${user.usrDesc}) ของ ${user.brDesc} (${user.usrBrc}) ${msgs} ใช่หรือไม่`,
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+      cancelButtonText: "No",
+      cancelButtonColor: "#d33",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.loading = true;
+        this.userService.manageUser(payload).subscribe({
+          next: () => {
+            this.loading = false;
+            Swal.fire(`${msg} สำเร็จ`);
+            this.loadUsers();
+            this.cdr.detectChanges();
+          }, error: (err) => {
+            this.loading = false;
+            Swal.fire(`${msg} ไม่สำเร็จ`);
+            console.log("Error", err);
+            this.cdr.detectChanges();
+          }
+        })
       }
     })
-  }
-
-  resetUserAndPassword(usrId: string): void {
-    const confirmed = confirm(`คุณต้องการรีเซ็ตผู้ใช้และรหัสผ่านของ ${usrId} ใช่หรือไม่`);
-    if (!confirmed) return;
-
-    this.userService.resetUserAndPassword(usrId).subscribe({
-      next: (res) => {
-        alert('✅ รีเซ็ตผู้ใช้และรหัสผ่านสำเร็จ');
-        this.loadUsers(); // โหลดข้อมูลใหม่
-      },
-      error: (err) => {
-        console.error(err);
-        alert('❌ เกิดข้อผิดพลาดในการรีเซ็ตผู้ใช้และรหัสผ่าน');
-      }
-    });
-  }
-
-  deleteUser(usrId: string): void {
-    const confirmed = confirm(`คุณต้องการลบผู้ใช้ ${usrId} ใช่หรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้`);
-    if (!confirmed) return;
-
-    this.userService.deleteUser(usrId).subscribe({
-      next: (res) => {
-        alert('✅ ลบผู้ใช้สำเร็จ');
-        this.loadUsers(); // โหลดข้อมูลใหม่
-      },
-      error: (err) => {
-        console.error(err);
-        alert('❌ เกิดข้อผิดพลาดในการลบผู้ใช้');
-      }
-    });
   }
 
   adduser() {
@@ -105,8 +110,8 @@ export class UsersComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  logout() {
-    sessionStorage.removeItem('token'); // ✅ ลบ JWT ออกจาก storage
-    this.router.navigate(['']); // ✅ กลับไปหน้า login
+  onBackFromAddUser() {
+    this.setView('users');
+    this.cdr.detectChanges();
   }
 }
