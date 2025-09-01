@@ -6,6 +6,7 @@ import {
 } from '@angular/animations';
 import { UserService } from '../../services/user';
 import { PermissionService } from '../../services/permission.service';
+import { Login } from '../../services/login';
 
 interface MenuItem {
   key: string;
@@ -103,13 +104,14 @@ export class AdminDashboardComponent implements OnInit {
       children: [
         { key: 'pnd2', icon: '📄', label: 'ภ.ง.ด. 2', route: '/dashboard-admin/pnd2' },
         { key: 'pnd2a', icon: '📋', label: 'ภ.ง.ด. 2 ก', route: '/dashboard-admin/pnd2a' },
-        { key: 'pnd53', icon: '📊', label: 'ภ.ง.ด. 53', route: '/dashboard-admin/pnd53' }, 
-        { key: '*เก่า*', icon: '', label: '*เก่า*', route: '' }, 
+        { key: 'pnd53', icon: '📊', label: 'ภ.ง.ด. 53', route: '/dashboard-admin/pnd53' },
+        { key: '*เก่า*', icon: '', label: '*เก่า*', route: '' },
         { key: 'pnd2-old', icon: '📄', label: 'ภ.ง.ด. 2 เก่า', route: '/dashboard-admin/pnd2old' },
         { key: 'pnd2a-old', icon: '📋', label: 'ภ.ง.ด. 2 ก เก่า', route: '/dashboard-admin/pnd2aold' },
         { key: 'pnd53-old', icon: '📊', label: 'ภ.ง.ด. 53 เก่า', route: '/dashboard-admin/pnd53old' }
-      
-    ]},
+
+      ]
+    },
     {
       key: 'report',
       label: 'รายงาน',
@@ -147,7 +149,8 @@ export class AdminDashboardComponent implements OnInit {
   constructor(
     private readonly router: Router,
     private readonly userService: UserService,
-    private readonly permissionService: PermissionService
+    private readonly permissionService: PermissionService,
+    private readonly loginService: Login
   ) { }
 
   toggleSidebar() {
@@ -163,10 +166,10 @@ export class AdminDashboardComponent implements OnInit {
         open: isTarget ? !menu.open : false
       };
     });
-    
+
     // อัพเดท filteredMenus ด้วย
     this.filteredMenus = this.permissionService.filterMenusByPermission(
-      this.menus, 
+      this.menus,
       this.currentUser.level
     );
   }
@@ -189,10 +192,16 @@ export class AdminDashboardComponent implements OnInit {
 
   // Filter menus ตามสิทธิ์
   private filterMenusByPermission(): void {
+    console.log('Filtering menus for user level:', this.currentUser.level);
+    console.log('Total menus before filtering:', this.menus.length);
+
     this.filteredMenus = this.permissionService.filterMenusByPermission(
-      this.menus, 
+      this.menus,
       this.currentUser.level
     );
+
+    console.log('Filtered menus count:', this.filteredMenus.length);
+    console.log('Filtered menus:', this.filteredMenus);
   }
 
   // ตรวจสอบสิทธิ์ใน component
@@ -201,15 +210,14 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (typeof window !== 'undefined') {
-      const token = sessionStorage.getItem('token');
-      if (!token) {
-        this.router.navigate(['/login']);
-      } else {
-        this.currentUser = this.userService.getCurrentUser();
-        
-        this.filterMenusByPermission();
-      }
+    // ใช้ UserService เพื่อดึงข้อมูลจาก sessionStorage
+    this.currentUser = this.userService.getCurrentUser();
+
+    if (this.currentUser?.level) {
+      this.filterMenusByPermission();
+    } else {
+      console.log('No user data or level found, redirecting to login');
+      this.router.navigate(['/login']);
     }
   }
 }

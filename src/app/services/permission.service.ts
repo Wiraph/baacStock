@@ -247,6 +247,7 @@ export class PermissionService {
 
   // Filter menus ตามสิทธิ์
   filterMenusByPermission(menus: any[], userLevel: string): any[] {
+    
     if (!userLevel || userLevel === '') {
       return menus;
     }
@@ -260,11 +261,12 @@ export class PermissionService {
       }
 
       // ตรวจสอบ sub-menus
+      const originalChildrenCount = menu.children.length;
       menu.children = menu.children.filter((child: any) => {
         const hasViewPermission = this.hasActionPermission(child.key, userLevel);
         return hasViewPermission;
       });
-
+      
       return menu.children.length > 0;
     });
     

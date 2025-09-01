@@ -61,8 +61,8 @@ export class ChangePasswordComponent {
 
   onClear(): void {
     this.oldPassword = '',
-      this.newPassword = '',
-      this.confirmPassword = ''
+    this.newPassword = '',
+    this.confirmPassword = ''
     this.cd.detectChanges();
   }
 
@@ -96,7 +96,7 @@ export class ChangePasswordComponent {
         }).then((result) => {
           if (result.isConfirmed) {
             this.loginService.login(this.userId, this.newPassword).subscribe({
-              next: (res:any) => {
+              next: (res: any) => {
                 sessionStorage.setItem('token', res.token);
               }, error: (err) => {
                 console.log('Error', err);
