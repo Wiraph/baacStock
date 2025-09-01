@@ -43,102 +43,37 @@ export class AdminDashboardComponent implements OnInit {
       icon: '📑',
       open: false,
       children: [
-        { key: 'home', icon: '🏠', label: 'Home', route: '/dashboard-admin/' },
-        { key: 'contact', icon: '📞', label: 'ติดต่อ', route: '/dashboard-admin/contact' },
-        { key: 'search-edit', icon: '🔎', label: 'ค้นหา/แก้ไข', route: '/dashboard-admin/editcustomer' }
+        { key: 'home', icon: '🏠', label: 'Home', route: '/dashboard-system/' },
+        { key: 'contact', icon: '📞', label: 'ติดต่อ', route: '/dashboard-system/contact' },
       
       ]},
     {
-      key: 'sales',
-      label: 'การขายและใบหุ้น',
+      key: 'system-conditions',
+      label: 'กำหนดเงื่อนไขระบบงาน',
       icon: '📊',
       open: false,
       children: [
-        { key: 'print-share-purchase-request', icon: '🛒', label: 'พิมพ์คำขอซื้อหุ้น', route: '/dashboard-admin/print-share-purchase-request' },
-        { key: 'common-shares', icon: '😶‍🌫️', label: 'ขายหุ้นสามัญ', route: '/dashboard-admin/salestock' },
-        { key: 'cratenewsharecertificate', icon: '📄', label: 'การออกใบหุ้นใหม่ แทนใบหุ้นที่ชำรุด/สูญหาย', route: '/dashboard-admin/cratenewsharecertificate' },
-        { key: 'transfer-share', icon: '♾️', label: 'โอนเปลี่ยนมือ', route: '/dashboard-admin/transfer-share' },
-        { key: 'approve-item', icon: '✅', label: 'อนุมัติรายการ', route: '/dashboard-admin/approve-item' },
-        { key: 'approve-issue', icon: '📝', label: 'อนุมัติออกใบหุ้น', route: '/dashboard-admin/approve-issue' },
-        { key: 'print-certificates', icon: '🖨️', label: 'พิมพ์ใบหุ้น', route: '/dashboard-admin/print-certificates' },
-        { key: 'block-certificates', icon: '🔒', label: 'บล็อค/ยกเลิกบล็อค ใบหุ้น', route: '/dashboard-admin/block-certificates' }
+        { key: 'print-share-purchase-request', icon: '🛒', label: 'กำหนดเงื่อนไขระบบงาน ', route: '/dashboard-admin/print-share-purchase-request' }
       
       ]},
+      {
+        key: 'reference-file',
+        label: 'แฟ้มอ้างอิง',
+        icon: '📊',
+        open: false,
+        children: [
+          { key: 'print-share-purchase-request', icon: '🛒', label: 'พิมพ์คำขอซื้อหุ้น', route: '/dashboard-admin/print-share-purchase-request' }
+        
+        ]},
     {
-      key: 'financial',
-      label: 'การเงิน',
+      key: 'back-to-main',
+      label: 'กลับเมนูหลัก',
       icon: '💰',
       open: false,
       children: [
         { key: 'dividend', icon: '💰', label: 'เงินปันผล', route: '/dashboard-admin/dividend' },
         { key: 'dividend', icon: '😵‍💫', label: 'คำนวณเงินปันผลประจำปี', route: '/dashboard-admin/AnnualDividendCalculatorComponent' },
       
-      ]},
-    {
-      key: 'spin-file',
-      label: 'SCB SPIN FILE',
-      icon: '⚡',
-      open: false,
-      children: [
-        { key: 'create-spin-files', icon: '⚡', label: 'สร้าง SPIN FILE ส่ง SCB', route: '/dashboard-admin/create-spin-files' },
-        { key: 'spin-files', icon: '🔌', label: 'รับผล SPIN FILE จาก SCB', route: '/dashboard-admin/spin-files' }
-
-      ]},
-    {
-      key: 'sap-interface',
-      label: 'SAP Interface',
-      icon: '🔗',
-      open: false,
-      children: [
-        { key: 'sap-interface', icon: '🔗', label: 'SAP Interface', route: '/dashboard-admin/sap-interface' }
-
-      ]},
-    {
-      key: 'pnd',
-      label: 'ภ.ง.ด.',
-      icon: '📋',
-      open: false,
-      children: [
-        { key: 'pnd2', icon: '📄', label: 'ภ.ง.ด. 2', route: '/dashboard-admin/pnd2' },
-        { key: 'pnd2a', icon: '📋', label: 'ภ.ง.ด. 2 ก', route: '/dashboard-admin/pnd2a' },
-        { key: 'pnd53', icon: '📊', label: 'ภ.ง.ด. 53', route: '/dashboard-admin/pnd53' }, 
-        { key: '*เก่า*', icon: '', label: '*เก่า*', route: '' }, 
-        { key: 'pnd2-old', icon: '📄', label: 'ภ.ง.ด. 2 เก่า', route: '/dashboard-admin/pnd2old' },
-        { key: 'pnd2a-old', icon: '📋', label: 'ภ.ง.ด. 2 ก เก่า', route: '/dashboard-admin/pnd2aold' },
-        { key: 'pnd53-old', icon: '📊', label: 'ภ.ง.ด. 53 เก่า', route: '/dashboard-admin/pnd53old' }
-      
-      ]},
-    {
-      key: 'report',
-      label: 'รายงาน',
-      icon: '📄',
-      open: false,
-      children: [
-        { key: 'reports', icon: '📄', label: 'รายงาน', route: '/dashboard-admin/reports' }
-
-      ]},
-    {
-      key: 'user',
-      label: 'ผู้ใช้งาน',
-      icon: '👪',
-      open: false,
-      children: [
-        { key: 'users', icon: '👤', label: 'รายชื่อผู้ใช้งาน', route: '/dashboard-admin/users' },
-        { key: 'change-password', icon: '🔑', label: 'เปลี่ยนรหัสผ่าน', route: '/dashboard-admin/change-password' }
-      
-      ]},
-    {
-      key: 'system',
-      label: 'ระบบ',
-      icon: '🛠️',
-      open: false,
-      children: [
-        { key: 'system', icon: '🛠️', label: 'ควบคุมระบบ', route: '/dashboard-admin/system' },
-        { key: 'documents-upload', icon: '📁', label: 'Upload เอกสาร', route: '/dashboard-admin/documents/upload' },
-        { key: 'documents-forms-procedures', icon: '📋', label: 'แบบพิมพ์/วิธีปฏิบัติงานหุ้น', route: '/dashboard-admin/documents/forms-procedures' },
-        { key: 'documents-user-manual', icon: '📖', label: 'คู่มือการใช้งานระบบ', route: '/dashboard-admin/documents/user-manual' },
-        { key: 'developer', icon: '💻', label: 'DEVELOPER', route: '/dashboard-admin/developer' }
-        
       ]}
   ];
 

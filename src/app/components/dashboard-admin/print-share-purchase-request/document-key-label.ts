@@ -1,13 +1,4 @@
-/**
- * ค่า mapping ระหว่าง keys และ labels สำหรับฟอร์มขอซื้อหุ้น
- * 
- * ใช้สำหรับแปลง key ที่พบในเอกสาร Word เป็นชื่อที่อ่านได้
- * รองรับทั้งภาษาไทยและภาษาอังกฤษ
- * 
- * ตัวอย่างการใช้งาน:
- * getLabelForKey('branch') → 'สาขา'
- * getLabelForKey('ชื่อ-นามสกุล') → 'ชื่อ-นามสกุล'
- */
+// ค่า mapping ระหว่าง keys และ labels สำหรับฟอร์มขอซื้อหุ้น
 export const KEY_LABEL_MAP: { [key: string]: string } = {
   // สาขา
   'branch': 'สาขา',
@@ -169,17 +160,7 @@ export const KEY_LABEL_MAP: { [key: string]: string } = {
   'Comments': 'หมายเหตุ',
 };
 
-/**
- * คำสำคัญที่เกี่ยวข้องกับวันที่
- * 
- * ใช้สำหรับตรวจสอบว่า key ใดเกี่ยวข้องกับวันที่
- * รองรับทั้งภาษาไทยและภาษาอังกฤษ
- * 
- * ตัวอย่าง:
- * isDateKey('birth_date') → true
- * isDateKey('วันที่เกิด') → true
- * isDateKey('name') → false
- */
+// คำสำคัญที่เกี่ยวข้องกับวันที่
 export const DATE_KEYWORDS = [
   'date', 'วันที่', 'วัน', 'time', 'เวลา', 'period', 'ช่วงเวลา',
   'start', 'เริ่ม', 'end', 'สิ้นสุด', 'expire', 'หมดอายุ',
@@ -190,113 +171,38 @@ export const DATE_KEYWORDS = [
   'approval_date', 'วันที่อนุมัติ', 'effective_date', 'วันที่มีผล'
 ];
 
-/**
- * คำสำคัญที่เกี่ยวข้องกับหุ้น
- * 
- * ใช้สำหรับตรวจสอบว่า key ใดเกี่ยวข้องกับหุ้น
- * รองรับทั้งภาษาไทยและภาษาอังกฤษ
- * 
- * ตัวอย่าง:
- * isStockKey('shares') → true
- * isStockKey('จำนวนหุ้น') → true
- * isStockKey('name') → false
- */
+// คำสำคัญที่เกี่ยวข้องกับหุ้น
 export const STOCK_KEYWORDS = [
   'stock', 'หุ้น', 'share', 'หุ้นสามัญ', 'common stock', 'หุ้นบุริมสิทธิ',
   'preferred stock', 'จำนวนหุ้น', 'shares', 'quantity', 'จำนวน',
   'ราคาหุ้น', 'price', 'มูลค่า', 'value', 'amount', 'จำนวนเงิน'
 ];
 
-/**
- * คำสำคัญที่เกี่ยวข้องกับการชำระเงิน
- * 
- * ใช้สำหรับตรวจสอบว่า key ใดเกี่ยวข้องกับการชำระเงิน
- * รองรับทั้งภาษาไทยและภาษาอังกฤษ
- * 
- * ตัวอย่าง:
- * isPaymentKey('payment') → true
- * isPaymentKey('การชำระเงิน') → true
- * isPaymentKey('name') → false
- */
+// คำสำคัญที่เกี่ยวข้องกับการชำระเงิน
 export const PAYMENT_KEYWORDS = [
   'payment', 'การชำระเงิน', 'ชำระ', 'pay', 'transfer', 'โอน',
   'bank', 'ธนาคาร', 'account', 'บัญชี', 'cash', 'เงินสด',
   'check', 'เช็ค', 'credit', 'เครดิต', 'debit', 'เดบิต'
 ];
 
-/**
- * ฟังก์ชันสำหรับหา label จาก key
- * 
- * ใช้สำหรับแปลง key ที่พบในเอกสาร Word เป็นชื่อที่อ่านได้
- * ถ้าไม่พบ key ใน KEY_LABEL_MAP จะส่งคืน key เดิม
- * 
- * @param key - key ที่พบในเอกสาร Word
- * @returns label ที่อ่านได้ หรือ key เดิมถ้าไม่พบ
- * 
- * ตัวอย่างการใช้งาน:
- * getLabelForKey('branch') → 'สาขา'
- * getLabelForKey('ชื่อ-นามสกุล') → 'ชื่อ-นามสกุล'
- * getLabelForKey('unknown_key') → 'unknown_key'
- */
+// ฟังก์ชันสำหรับหา label จาก key
 export function getLabelForKey(key: string): string {
   return KEY_LABEL_MAP[key] || key;
 }
 
-/**
- * ฟังก์ชันสำหรับตรวจสอบว่าเป็น key ที่เกี่ยวข้องกับวันที่หรือไม่
- * 
- * ตรวจสอบโดยดูว่า key มีคำสำคัญที่เกี่ยวข้องกับวันที่หรือไม่
- * ใช้การเปรียบเทียบแบบ case-insensitive
- * 
- * @param key - key ที่ต้องการตรวจสอบ
- * @returns true ถ้าเกี่ยวข้องกับวันที่, false ถ้าไม่เกี่ยวข้อง
- * 
- * ตัวอย่างการใช้งาน:
- * isDateKey('birth_date') → true
- * isDateKey('วันที่เกิด') → true
- * isDateKey('name') → false
- * isDateKey('BIRTH_DATE') → true (case-insensitive)
- */
+// ฟังก์ชันสำหรับตรวจสอบว่าเป็น key ที่เกี่ยวข้องกับวันที่หรือไม่
 export function isDateKey(key: string): boolean {
   const lowerKey = key.toLowerCase();
   return DATE_KEYWORDS.some(keyword => lowerKey.includes(keyword.toLowerCase()));
 }
 
-/**
- * ฟังก์ชันสำหรับตรวจสอบว่าเป็น key ที่เกี่ยวข้องกับหุ้นหรือไม่
- * 
- * ตรวจสอบโดยดูว่า key มีคำสำคัญที่เกี่ยวข้องกับหุ้นหรือไม่
- * ใช้การเปรียบเทียบแบบ case-insensitive
- * 
- * @param key - key ที่ต้องการตรวจสอบ
- * @returns true ถ้าเกี่ยวข้องกับหุ้น, false ถ้าไม่เกี่ยวข้อง
- * 
- * ตัวอย่างการใช้งาน:
- * isStockKey('shares') → true
- * isStockKey('จำนวนหุ้น') → true
- * isStockKey('name') → false
- * isStockKey('SHARES') → true (case-insensitive)
- */
+// ฟังก์ชันสำหรับตรวจสอบว่าเป็น key ที่เกี่ยวข้องกับหุ้นหรือไม่
 export function isStockKey(key: string): boolean {
   const lowerKey = key.toLowerCase();
   return STOCK_KEYWORDS.some(keyword => lowerKey.includes(keyword.toLowerCase()));
 }
 
-/**
- * ฟังก์ชันสำหรับตรวจสอบว่าเป็น key ที่เกี่ยวข้องกับการชำระเงินหรือไม่
- * 
- * ตรวจสอบโดยดูว่า key มีคำสำคัญที่เกี่ยวข้องกับการชำระเงินหรือไม่
- * ใช้การเปรียบเทียบแบบ case-insensitive
- * 
- * @param key - key ที่ต้องการตรวจสอบ
- * @returns true ถ้าเกี่ยวข้องกับการชำระเงิน, false ถ้าไม่เกี่ยวข้อง
- * 
- * ตัวอย่างการใช้งาน:
- * isPaymentKey('payment') → true
- * isPaymentKey('การชำระเงิน') → true
- * isPaymentKey('name') → false
- * isPaymentKey('PAYMENT') → true (case-insensitive)
- */
+// ฟังก์ชันสำหรับตรวจสอบว่าเป็น key ที่เกี่ยวข้องกับการชำระเงินหรือไม่
 export function isPaymentKey(key: string): boolean {
   const lowerKey = key.toLowerCase();
   return PAYMENT_KEYWORDS.some(keyword => lowerKey.includes(keyword.toLowerCase()));

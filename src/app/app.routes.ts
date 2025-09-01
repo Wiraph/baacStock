@@ -34,6 +34,7 @@ import { Pnd53old } from './components/dashboard-admin/pnd-system/pnd53old/pnd53
 import { SaleStockComponent } from './components/dashboard-admin/sale-stock/sale-stock';
 import { AnnualdividendcalculatorComponent } from './components/dashboard-admin/annualdividendcalculator/annualdividendcalculator';
 import { NewCusComponent } from './components/dashboard-admin/newcus/newcus';
+import { AdminDashboardComponent as SystemDashboardComponent } from './components/dashbord-system/dashbord-system';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -56,6 +57,49 @@ export const routes: Routes = [
       { path: 'editcustomer', component: EditCustomerComponent},
       { path: 'salestock', component: SaleStockComponent},
       { path: 'transfer-share', component: TransferShareComponent }, // ✅ เพิ่มเส้นทางสำหรับ TransferShareComponent
+      { path: 'approve-item', component: ApproveItemComponent},
+      { path: 'approve-issue', component: ApproveIssue},
+      { path: 'block-certificates', component: BlockCertificatesComponent},
+      { path: 'print-certificates', component: PrintCertificatesComponent},
+      { path: 'create-spin-files', component: CreateSpinFilesComponent },
+      { path: 'spin-files', component: SpinFilesComponent },
+      { path: 'dividend', component: DividendComponent },
+      { path: 'reports', component: ReportsComponent },
+      { path: 'cratenewsharecertificate', component: CratenewsharecertificateComponent },
+      { path: 'print-share-purchase-request', component: PrintSharePurchaseRequestComponent },
+      { path: 'documents/upload', component: UploadComponent }, 
+      { path: 'documents/forms-procedures', component: FormsProceduresComponent },
+      { path: 'documents/user-manual', component: UserManualComponent },
+      { path: 'sap-interface', component: SapInterface },
+      { path: 'pnd2', component: Pnd2Component },
+      { path: 'pnd2a', component: Pnd2aComponent },
+      { path: 'pnd53', component: Pnd53Component },
+      { path: 'pnd2old', component: Pnd2old },
+      { path: 'pnd2aold', component: Pnd2aold },
+      { path: 'pnd53old', component: Pnd53old },
+      { path: 'AnnualDividendCalculatorComponent', component: AnnualdividendcalculatorComponent },
+      { path: 'newcus', component: NewCusComponent },
+      { path: 'system', component: SystemDashboardComponent } // ✅ เพิ่มเส้นทางสำหรับ System Dashboard
+    ]
+  },
+
+  // Dashboard System Routes
+  {
+    path: 'dashboard-system',
+    component: SystemDashboardComponent,
+    canActivate: [AuthGuard], // ✅ ใช้ AuthGuard เพื่อป้องกันการเข้าถึง
+    children: [
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      { path: 'home', component: HomeComponent },
+      { path: 'users', component: UsersComponent },
+      { path: 'stocks', component: StocksComponent },
+      { path: 'manage-user', component: ManageUserComponent },
+      { path: 'contact', component: ContactComponent },
+      { path: 'change-password', component: ChangePasswordComponent },
+      { path: 'search-edit', component: SearchEditComponent},
+      { path: 'editcustomer', component: EditCustomerComponent},
+      { path: 'salestock', component: SaleStockComponent},
+      { path: 'transfer-share', component: TransferShareComponent },
       { path: 'approve-item', component: ApproveItemComponent},
       { path: 'approve-issue', component: ApproveIssue},
       { path: 'block-certificates', component: BlockCertificatesComponent},
