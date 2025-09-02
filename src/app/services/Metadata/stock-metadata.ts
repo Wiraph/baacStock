@@ -1,7 +1,6 @@
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { environment } from '../../../environments/environments';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { isPlatformBrowser } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -16,23 +15,13 @@ export class StockMetadata {
 
   stkTyps(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/stktypes`, {
-      headers: this.createAuthHeaders()
+      withCredentials: true
     });
   }
 
   accTypes(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.accTypes}/acctypes`, {
-      headers: this.createAuthHeaders()
-    });
-  }
-
-  private createAuthHeaders(): HttpHeaders {
-    let token = '';
-    if (isPlatformBrowser(this.plateformId)) {
-      token = sessionStorage.getItem('token') || ''
-    }
-    return new HttpHeaders({
-      Authorization: `Bearer ${token}`
+    return this.http.get<any[]>(`${this.apiUrl}/acctypes`, {
+      withCredentials: true
     });
   }
 }

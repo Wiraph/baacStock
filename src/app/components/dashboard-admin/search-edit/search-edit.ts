@@ -1,9 +1,7 @@
-import { Component, ChangeDetectorRef, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, Output, EventEmitter, Inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { CustomerStockService } from '../../../services/customer-stock-service';
-import { JwtDecoder } from '../../../services/jwt-decoder';
 import { DataTransfer } from '../../../services/data-transfer';
 import { StocksComponent } from '../stocks/stocks';
 import { NewCusComponent } from '../newcus/newcus';
@@ -30,7 +28,7 @@ export class SearchEditComponent implements OnInit {
 
   cusId: string = '';
   titleSearch: string = '';
-  branch = '';
+  branch: string | null = '';
   activeView = 'search';
   table = false;
   selectedStockNotes: string[] = [];
@@ -57,12 +55,11 @@ export class SearchEditComponent implements OnInit {
 
   constructor(
     private readonly cd: ChangeDetectorRef,
-    private readonly cusstomerStockService: CustomerStockService,
-    private readonly jwtCoder: JwtDecoder,
+    private readonly customerStockService: CustomerStockService,
     private readonly dataTrasfer: DataTransfer,
     private readonly userService: UserService,
-    private readonly router: Router,
-    private readonly customerService: CustomerService
+    private readonly customerService: CustomerService,
+    @Inject(PLATFORM_ID) private readonly platformId: Object
   ) { }
 
   nextPage() {
@@ -96,18 +93,24 @@ export class SearchEditComponent implements OnInit {
   ngOnInit(): void {
     this.statusPage = this.dataTrasfer.getPageStatus();
     this.onloadStart();
-    
+
     // ตรวจสอบว่าอยู่ใน browser environment หรือไม่
-    if (typeof window !== 'undefined' && window.sessionStorage) {
-      const token = sessionStorage.getItem('token');
-      const decoder = this.jwtCoder.decodeToken(String(token));
-      this.branch = decoder.BrName ?? "";
-    } else {
-      this.branch = "";
+    if (isPlatformBrowser(this.platformId)) {
+      console.log("All cookies:", document.cookie);
+      const rawBrName = this.getCookie('BrName');
+      this.branch = rawBrName ? decodeURIComponent(rawBrName) : null;
+      console.log("BrName", this.branch);
     }
 
     // โหลดข้อมูล user ปัจจุบัน
     this.currentUser = this.userService.getCurrentUser();
+  }
+
+  getCookie(name: string): string | null {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()!.split(';').shift()!;
+    return null;
   }
 
   onSubmit(event: Event) {
@@ -129,12 +132,10 @@ export class SearchEditComponent implements OnInit {
       PGNum: pgNum,
       PGSize: PGSize
     }
-    console.log(requestPayload);
     this.cd.detectChanges();
-    this.cusstomerStockService.searchCustomerStock(requestPayload)
+    this.customerService.searchCustomerStk(requestPayload)
       .subscribe({
         next: data => {
-          console.log(data);
           this.customerStocks = data;
           this.loading = false;
           this.cd.detectChanges();

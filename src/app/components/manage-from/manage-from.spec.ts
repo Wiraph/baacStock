@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ResultCommonStock } from './result-common-stock';
+import { ManageFrom } from './manage-from';
 
-describe('ResultCommonStock', () => {
-  let component: ResultCommonStock;
-  let fixture: ComponentFixture<ResultCommonStock>;
+describe('ManageFrom', () => {
+  let component: ManageFrom;
+  let fixture: ComponentFixture<ManageFrom>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ResultCommonStock]
+      imports: [ManageFrom]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ResultCommonStock);
+    fixture = TestBed.createComponent(ManageFrom);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
