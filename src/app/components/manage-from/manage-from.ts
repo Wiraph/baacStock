@@ -930,7 +930,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
       this.customerForm.get('currentAddress.phone')?.enable();
       this.customerForm.get('currentAddress.prvCODE')?.enable();
       this.customerForm.get('currentAddress.ampCODE')?.enable();
-      this.customerForm.get('currentAddress.tmbCODE')?.disable();
+      this.customerForm.get('currentAddress.tmbCODE')?.enable();
 
       // ฟิลด์ขายหุ้นที่แก้ไขได้
       this.customerForm.get('detailSale.stkReqNo')?.enable();
