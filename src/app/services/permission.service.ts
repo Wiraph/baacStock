@@ -274,12 +274,6 @@ export class PermissionService {
   }
 
   // ตรวจสอบสิทธิ์การแก้ไขข้อมูล (เฉพาะ level 99, 85, 05)
-  canEditData(userLevel: string): boolean {
-    const allowedLevels = ['99', '85', '05'];
-    return allowedLevels.includes(userLevel);
-  }
-
-  // ตรวจสอบสิทธิ์การแก้ไขข้อมูล (เฉพาะ level 99, 85, 05)
   hasEditPermission(userLevel: string): boolean {
     const allowedLevels = ['99', '85', '05'];
     return allowedLevels.includes(userLevel);
