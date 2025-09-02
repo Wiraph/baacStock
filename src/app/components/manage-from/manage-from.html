@@ -4,7 +4,7 @@
             <p class="text-center text-xl text-white font-semibold">{{branch}} : {{titleView}}</p>
 
         </div>
-        <div class="p-4" *ngIf="mode === 'stksale'">
+        <div class="p-4" *ngIf="mode === 'stksale' || mode === 'newcus'">
             <form (ngSubmit)="onSubmit()" [formGroup]="customerForm">
                 <div class="p-2">
                     <!-- ข้อมูลลูกค้า -->

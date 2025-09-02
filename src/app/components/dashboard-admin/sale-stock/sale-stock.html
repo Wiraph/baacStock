@@ -1,8 +1,8 @@
 <div *ngIf="activeView == 'search'">
     <app-search-edit (statusView)="handleData($event)"></app-search-edit>
 </div>
-<div *ngIf="activeView == 'stksale'">
-    <app-manage-from [cusId]="cusId" [mode]="'stksale'" (back)="onBack()" (payload)="submit($event)"></app-manage-from>
+<div *ngIf="activeView == 'stksale' || activeView == 'newcus'">
+    <app-manage-from [cusId]="cusId" [mode]="activeView" [docType]="docType" [titleCode]="titleCode" (back)="onBack()" (payload)="submit($event)"></app-manage-from>
 </div>
 
 <!-- Loading Overlay -->

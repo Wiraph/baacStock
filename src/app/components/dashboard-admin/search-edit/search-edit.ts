@@ -206,19 +206,6 @@ export class SearchEditComponent implements OnInit {
     this.cd.detectChanges();
   }
 
-  // ตรวจสอบเลขบัตร 13 หลัก
-  isValidIdCard(): boolean {
-    const idCard = this.criteria.cusId;
-
-    // ตรวจสอบความยาว 13 หลัก
-    if (!idCard || idCard.length !== 13 || !/^\d{13}$/.test(idCard)) {
-      return false;
-    }
-
-    // ตรวจสอบ checksum
-    return this.validateIdCardChecksum(idCard);
-  }
-
   // ตรวจสอบ checksum ของเลขบัตร
   validateIdCardChecksum(idCard: string): boolean {
     const digits = idCard.split('').map(Number);
@@ -235,40 +222,63 @@ export class SearchEditComponent implements OnInit {
 
   // warning ของปุ่มผู้ถือหุ้นรายใหม่
   onNewShareholder() {
-    if (this.criteria.cusId.length !== 13) {
+    if (this.criteria.cusId.length === 0) {
       Swal.fire({
         icon: 'warning',
-        title: 'เลขบัตรแสดงตนไม่ถูกต้อง',
-        text: 'กรุณาใส่เลขบัตรแสดงตน 13 หลัก ที่ถูกต้องในช่อง "เลขที่บัตรแสดงตน" ก่อน',
-        confirmButtonText: 'เข้าใจแล้ว'
-      });
-      return;
-    }
-
-    // ตรวจสอบว่ามีผู้ถือหุ้นรายนี้ในระบบหรือไม่
-    const payload = {
-      cusId: this.criteria.cusId
-    };
-    this.customerService.getCustomer(payload).subscribe({
-      next: (res: any) => {
-        console.log(res);
-        if (res.message === "ไม่พบข้อมูลลูกค้า") {
-          this.mode = 'new-shareholder';
-          this.idCard = this.criteria.cusId;
-          this.activeView = 'newcus';
-          this.cd.detectChanges();
+        text: 'กรุณาบันทึกเลขที่บัตรแสดงตน'
+      })
+    } else {
+      Swal.fire({
+        icon: 'question',
+        html: `<p>เลขที่บัตรแสดงตนของผู้ถือหุ้น เป็นเลขนิติบุคคล ใช่หรือไม่?</p>
+        <div style="display: flex; justify-content: center;">
+        <p style="width: 50px; text-align: start;">Yes</p><p style="width: 50px; text-align: start;">=></p><p>เลขทะเบียนนิติบุคคล</p>
+        </div>
+        <div style="display: flex; justify-content: center;">
+        <p style="width: 50px; text-align: start; margin-left: 15px">No</p><p style="width: 50px; text-align: start;">=></p><p>เลขประจำตัวประชาชน</p>
+        </div>
+        `,
+        confirmButtonText: "Yes",
+        cancelButtonText: "No",
+        showCancelButton: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.statusView.emit({ view: 'newcus', cusId: this.criteria.cusId })
         } else {
-          Swal.fire({
-            icon: 'warning',
-            text: 'หมายเลขบัตรแสดงตนนี้มีอยู่ในระบบนี้แล้ว',
-            confirmButtonText: 'เข้าใจแล้ว'
-          });
+          const cusId = this.criteria.cusId;
+          let msg: string = '';
+          if (cusId.length < 13) {
+            msg = "*** กรุณาบันทึกเลขที่บัตรประชาชน 13 หลัก ***";
+            this.alert(msg);
+            return
+          }
+          if (isNaN(Number(cusId))) {
+            const msg = "*** กรุณาบันทึกเป็นตัวเลขเท่านั้น จำนวน 13 หลัก ***";
+            this.alert(msg);
+            return;
+          }
+          if (cusId.length > 13) {
+            msg = "*** กรุณาบันทึกเลขที่บัตรประชาชนไม่เกิน 13 หลัก ***";
+            this.alert(msg);
+            return
+          }
+          if (cusId.length == 13) {
+            this.statusView.emit({ view: 'newcus', cusId: cusId })
+          } else {
+            msg = "*** กรุณาบันทึกเลขที่บัตรประชาชน 13 หลัก ***";
+            this.alert(msg);
+            return
+          }
         }
-      },
-      error: (err) => {
-        console.error('เกิดข้อผิดพลาด', err);
-      }
-    });
+      })
+    }
+  }
+
+  alert(msg: string) {
+    Swal.fire({
+      icon: 'warning',
+      text: `${msg}`
+    })
   }
 }
 

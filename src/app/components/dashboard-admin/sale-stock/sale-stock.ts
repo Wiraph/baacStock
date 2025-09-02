@@ -20,6 +20,8 @@ export class SaleStockComponent implements OnInit {
   activeView = 'search';
   loading = false;
   cusId = '';
+  docType: string|null = null;
+  titleCode: string|null = null;
   customerForm!: FormGroup;
 
   constructor(
@@ -33,7 +35,14 @@ export class SaleStockComponent implements OnInit {
 
   handleData(event: { view: string; cusId: string }) {
     this.cusId = event.cusId;
-    this.activeView = 'stksale';
+    if (isNaN(Number(this.cusId)) || this.cusId.length != 13) {
+      this.docType = '1000';
+      this.titleCode = 'JUR';
+    } else {
+      this.docType = '0001';
+      this.titleCode = '003';
+    }
+    this.activeView = event.view;
     this.cd.detectChanges();
   }
 

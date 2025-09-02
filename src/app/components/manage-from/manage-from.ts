@@ -15,7 +15,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import ThaiBahtText from 'thai-baht-text';
-import { StockService } from '../../services/stock';
 import { SystemMetadata } from '../../services/Metadata/system-metadata';
 import { AddressMetadata } from '../../services/Metadata/address-metadata';
 import { StockMetadata } from '../../services/Metadata/stock-metadata';
@@ -48,6 +47,8 @@ export const THAI_DATE_FORMATS = {
 export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() cusId!: string;
   @Input() mode!: string;
+  @Input() docType!: string;
+  @Input() titleCode!: string;
   @Output() back = new EventEmitter<string>();
   @Output() payload = new EventEmitter<FormGroup<any>>();
   readonly startDate = new Date();
@@ -91,7 +92,6 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
     private readonly addressService: AddressService,
     private readonly dividend: Divident,
     private readonly fb: FormBuilder,
-    private readonly stockService: StockService,
     private readonly addressMetadataService: AddressMetadata,
     private readonly systemMetadataService: SystemMetadata,
     private readonly stockMetadataService: StockMetadata,
@@ -108,6 +108,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
 
   ngOnInit(): void {
     this.loading = true;
+    console.log("Mode", this.mode);
     // ตรวจสอบว่าอยู่ใน browser environment หรือไม่
     if (isPlatformBrowser(this.platformId)) {
       console.log("All cookies:", document.cookie);
@@ -333,6 +334,9 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
           this.actypeList = res.acctypes;
           this.stkTypeList = res.stktypes;
 
+          console.log("custypeList", this.custypeList);
+          console.log("doctypeList", this.doctypeList);
+
           // Populate ข้อมูลลูกค้าและที่อยู่ลงใน form
           this.populateCustomerForm();
           this.populateAddressForm();
@@ -370,18 +374,23 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
         cusDESC: this.customer.cusDESCg || '', // ใช้ cusDESCg จาก API
         cusCODEg: this.customer.cusCODEg || '',
         cusDESCgABBR: this.customer.cusDESCgABBR || '',
-        docTYPE: this.customer.docTYPE || '',
+        docTYPE: this.customer.docTYPE || this.docType,
         cusiD: this.customer.cusiD || '',
-        cusiDnew: this.customer.cusiD || '',
-        brCode: this.customer.brCode || '',
+        cusiDnew: this.customer.cusiD || this.cusId,
+        brCode: this.customer.brCode || 'NEW',
         cusTAXid: this.customer.cusTAXid || '',
         cusFName: this.customer.cusFName || '',
         cusLName: this.customer.cusLName || '',
         unit: this.customer.unit || '0',  // ใช้ unit จาก customer object โดยตรง
-        titleCode: this.customer.titleCode || '',
+        titleCode: this.customer.titleCode || this.titleCode,
         email: this.customer.email || '',
         phonE_MOBILE: this.customer.phonE_MOBILE || ''
       };
+
+      // เงื่อนไขพิเศษ หาก mode เป็น newcus แต่เจอข้อมูลจะเปลี่ยนเป็น stksale ทันที
+      if (customerFormData.cusiD != '' && this.mode != 'editcus') {
+        this.mode = 'stksale';
+      }
 
       console.log('🔍 customerFormData:', customerFormData);
 
@@ -951,6 +960,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
       console.log('✅ All fields enabled for editcus mode');
 
     } else if (this.mode === 'stksale') {
+      this.titleView = 'ขายหุ้น';
       // ฟิลด์ที่แก้ไขได้ - enable
       this.customerForm.get('customer.cusFName')?.disable();
       this.customerForm.get('customer.cusLName')?.disable();
@@ -994,7 +1004,54 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
       this.customerForm.get('dividend.dividendStkPayType')?.enable();
       this.customerForm.get('dividend.stkACCno')?.enable();
       this.customerForm.get('dividend.stkACCname')?.enable();
-    } else {
+    } else if (this.mode === 'newcus')  {
+      this.titleView = 'ขายหุ้น';
+      // ฟิลด์ที่แก้ไขได้ - enable
+      this.customerForm.get('customer.cusFName')?.enable();
+      this.customerForm.get('customer.cusLName')?.enable();
+      this.customerForm.get('customer.cusTAXid')?.enable();
+      this.customerForm.get('customer.phonE_MOBILE')?.enable();
+      this.customerForm.get('customer.email')?.enable();
+      this.customerForm.get('customer.titleCode')?.enable();
+      this.customerForm.get('customer.docTYPE')?.enable();
+      this.customerForm.get('customer.cusCODE')?.enable();
+      this.customerForm.get('customer.cusiDnew')?.disable();
+
+      // ที่อยู่ที่แก้ไขได้
+      this.customerForm.get('homeAddress.housEno')?.enable();
+      this.customerForm.get('homeAddress.troG_SOI')?.enable();
+      this.customerForm.get('homeAddress.road')?.enable();
+      this.customerForm.get('homeAddress.phone')?.enable();
+      this.customerForm.get('homeAddress.prvCODE')?.enable();
+      this.customerForm.get('homeAddress.ampCODE')?.enable();
+      this.customerForm.get('homeAddress.tmbCODE')?.enable();
+
+      this.customerForm.get('currentAddress.housEno')?.enable();
+      this.customerForm.get('currentAddress.troG_SOI')?.enable();
+      this.customerForm.get('currentAddress.road')?.enable();
+      this.customerForm.get('currentAddress.phone')?.enable();
+      this.customerForm.get('currentAddress.prvCODE')?.enable();
+      this.customerForm.get('currentAddress.ampCODE')?.enable();
+      this.customerForm.get('currentAddress.tmbCODE')?.enable();
+
+      // ฟิลด์ขายหุ้นที่แก้ไขได้
+      this.customerForm.get('detailSale.stkReqNo')?.enable();
+      this.customerForm.get('detailSale.stkUNiT')?.enable();
+      this.customerForm.get('detailSale.stkValue')?.disable();
+      this.customerForm.get('detailSale.stkPayTypeDetail')?.enable();
+      this.customerForm.get('detailSale.stkSaleByTRACCno')?.enable();
+      this.customerForm.get('detailSale.stkSaleByTRACCname')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQno')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQdat')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQbnk')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQbrn')?.enable();
+
+      // ฟิลด์เงินปันผลที่แก้ไขได้
+      this.customerForm.get('dividend.dividendStkPayType')?.enable();
+      this.customerForm.get('dividend.stkACCno')?.enable();
+      this.customerForm.get('dividend.stkACCname')?.enable();
+    }
+    else {
       // ฟิลด์ที่แก้ไขไม่ได้ - disable
       this.customerForm.get('customer.cusFName')?.disable();
       this.customerForm.get('customer.cusLName')?.disable();
