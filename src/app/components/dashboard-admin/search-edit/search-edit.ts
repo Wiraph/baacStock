@@ -186,9 +186,9 @@ export class SearchEditComponent implements OnInit {
   onHandle(cusId: string) {
     if (this.statusPage == '1') {
       this.activeView = 'edit';
-      this.statusView.emit({ view: 'edit', cusId: cusId });
+      this.statusView.emit({ view: 'editcus', cusId: cusId });
     } else if (this.statusPage == '2') {
-      this.statusView.emit({ view: 'sale', cusId: cusId });
+      this.statusView.emit({ view: 'stksale', cusId: cusId });
     } else if (this.statusPage == '3') {
       this.statusView.emit({ view: 'newcertificate', cusId: cusId });
     } else if (this.statusPage == '4') {

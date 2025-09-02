@@ -19,7 +19,7 @@ export class UserService {
   // ดึงผู้งานทั้งหมด
   getAllUsers(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/getallusers`, {
-      headers: this.createAuthHeaders()
+      withCredentials: true
     });
   }
 

@@ -1,13 +1,12 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy, Input, EventEmitter, Output } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit, OnChanges, SimpleChanges, ChangeDetectionStrategy, Input, EventEmitter, Output, Inject, PLATFORM_ID } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { CustomerService } from '../../services/customer';
 import { MatTabsModule } from '@angular/material/tabs';
 import { AddressService, AddressDto } from '../../services/address';
 import { of, forkJoin } from 'rxjs';
 import { finalize, switchMap, map, catchError } from 'rxjs/operators';
 import { Divident } from '../../services/divident';
-import Swal from 'sweetalert2';
 import flatpickr from 'flatpickr';
 import { Thai } from 'flatpickr/dist/l10n/th.js';
 import { Thaidateadapter } from '../thaidateadapter/thaidateadapter';
@@ -46,16 +45,17 @@ export const THAI_DATE_FORMATS = {
     { provide: MAT_DATE_LOCALE, useValue: 'th-TH' }
   ]
 })
-export class SaleStockComponent implements OnInit, AfterViewInit {
+export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() cusId!: string;
   @Input() mode!: string;
   @Output() back = new EventEmitter<string>();
+  @Output() payload = new EventEmitter<FormGroup<any>>();
   readonly startDate = new Date();
   selectedDate?: Date;
   loading = false;
   customer: any = {};
-  homeAddress!: AddressDto;
-  currentAddress!: AddressDto;
+  homeAddress: AddressDto | null = null;
+  currentAddress: AddressDto | null = null;
   zipCodeHome: any = {};
   zipCodeCurrent: any = {};
   dividendData: any = {
@@ -81,7 +81,8 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
   stkTypeList: any[] = [];
   res: any[] = [];
   activeView = '';
-
+  titleView: string | null = null;
+  branch: string | null = null;
   customerForm!: FormGroup;
 
   constructor(
@@ -94,18 +95,27 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     private readonly addressMetadataService: AddressMetadata,
     private readonly systemMetadataService: SystemMetadata,
     private readonly stockMetadataService: StockMetadata,
-    private readonly customerMetadataServcie: CustomerMetadata
+    private readonly customerMetadataServcie: CustomerMetadata,
+    @Inject(PLATFORM_ID) private readonly platformId: Object,
   ) { }
 
+  getCookie(name: string): string | null {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()!.split(';').shift()!;
+    return null;
+  }
+
   ngOnInit(): void {
-    this.systemMetadataService.sysCfg().subscribe({
-      next: (res: any) => {
-        this.pricePerUnit = res;
-        this.cd.detectChanges();
-      }, error: (err) => {
-        console.log("Loading fail...", err);
-      }
-    })
+    this.loading = true;
+    // ตรวจสอบว่าอยู่ใน browser environment หรือไม่
+    if (isPlatformBrowser(this.platformId)) {
+      console.log("All cookies:", document.cookie);
+      const rawBrName = this.getCookie('BrName');
+      this.branch = rawBrName ? decodeURIComponent(rawBrName) : null;
+    }
+
+    // ✅ สร้างฟอร์มก่อน
     this.customerForm = this.fb.group({
       customer: this.fb.group({
         cusCODE: [''],
@@ -114,6 +124,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
         cusDESCgABBR: [''],
         docTYPE: [''],
         cusiD: [''],
+        cusiDnew: [''],
         brCode: [''],
         cusTAXid: [''],
         cusFName: [''],
@@ -187,6 +198,44 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     this.customerForm.get('dividend.dividendStkPayType')?.valueChanges.subscribe(() => {
       this.updateFormControlStates();
     });
+
+    // ✅ โหลด system config
+    this.systemMetadataService.sysCfg().subscribe({
+      next: (res: any) => {
+        console.log('🔍 System config response:', res);
+        this.pricePerUnit = res;  // เก็บ response ทั้งหมด
+        console.log('🔍 pricePerUnit assigned:', this.pricePerUnit);
+        this.cd.detectChanges();
+      }, error: (err) => {
+        console.log("Loading fail...", err);
+      }
+    });
+
+    // ✅ ตรวจสอบ cusId ตั้งแต่เริ่มต้น (fallback)
+    setTimeout(() => {
+      console.log('🔍 Initial cusId check:', this.cusId);
+      if (this.cusId && this.customerForm) {
+        console.log('🔍 Loading data with initial cusId');
+        this.handleData({ view: 'stksale', cusId: this.cusId });
+      }
+    }, 200);
+
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // ✅ เรียก updateFieldEditability เมื่อ mode เปลี่ยนแปลง
+    if (changes['mode'] && this.customerForm) {
+      console.log('🔍 mode changed to:', changes['mode'].currentValue);
+      this.updateFieldEditability();
+      this.cd.detectChanges();
+    }
+
+    // ✅ เรียก handleData เมื่อ cusId เปลี่ยนแปลง
+    if (changes['cusId'].currentValue && this.customerForm) {
+      setTimeout(() => {
+        this.handleData({ view: 'stksale', cusId: changes['cusId'].currentValue });
+      }, 100);
+    }
   }
 
   ngAfterViewInit(): void {
@@ -257,10 +306,8 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     })
       .pipe(
         switchMap((res) => {
-          // เก็บข้อมูลตามโครงสร้าง API response (nested structure)
-          this.customer = (res.customer as any)?.customer || {};  // ข้อมูลลูกค้าจาก nested customer object
-          this.customer.unit = (res.customer as any)?.unit || 0;           // เก็บ unit จาก res.customer.unit
-
+          // เก็บข้อมูลตามโครงสร้าง API response - ข้อมูลอยู่ใน res.customer โดยตรง
+          this.customer = res.customer || {};  // ข้อมูลลูกค้าจาก res.customer โดยตรง
 
           // Check if address data exists and has proper structure
           if (res.address && (res.address.homeAddress || res.address.currentAddress)) {
@@ -278,7 +325,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
             stkACCname: '',
             stkACCtype: '',
           };
-          
+
           this.prvData = res.provinces;
           this.titleList = res.titles;
           this.custypeList = res.custypes;
@@ -306,6 +353,8 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: () => {
           console.log("ข้อมูลทั้งหมดโหลดเรียบร้อย");
+          this.loading = false;
+          this.cd.detectChanges();
         },
         error: (err) => {
           console.error("โหลดข้อมูลผิดพลาด", err);
@@ -315,7 +364,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
   }
 
   populateCustomerForm() {
-    if (this.customer) {
+    if (this.customer && Object.keys(this.customer).length > 0) {
       const customerFormData = {
         cusCODE: this.customer.cusCODE || '',
         cusDESC: this.customer.cusDESCg || '', // ใช้ cusDESCg จาก API
@@ -323,15 +372,18 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
         cusDESCgABBR: this.customer.cusDESCgABBR || '',
         docTYPE: this.customer.docTYPE || '',
         cusiD: this.customer.cusiD || '',
+        cusiDnew: this.customer.cusiD || '',
         brCode: this.customer.brCode || '',
         cusTAXid: this.customer.cusTAXid || '',
         cusFName: this.customer.cusFName || '',
         cusLName: this.customer.cusLName || '',
-        unit: this.customer.unit || '0',  // ใช้ this.unit ที่เก็บแยกไว้
+        unit: this.customer.unit || '0',  // ใช้ unit จาก customer object โดยตรง
         titleCode: this.customer.titleCode || '',
         email: this.customer.email || '',
         phonE_MOBILE: this.customer.phonE_MOBILE || ''
       };
+
+      console.log('🔍 customerFormData:', customerFormData);
 
       this.customerForm.patchValue({
         customer: customerFormData,
@@ -344,29 +396,18 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
         }
       });
 
+      console.log('🔍 Form values after patch:', this.customerForm.value);
+
+      // ✅ เรียกใช้: จัดการ editable state ตาม mode
+      setTimeout(() => {
+        this.updateFieldEditability();
+        this.cd.detectChanges();
+      }, 0);
+
       // Ensure disabled fields remain disabled after populating data
       this.customerForm.get('detailSale.stkTYPE')?.disable();
       this.customerForm.get('dividend.stkACCtype')?.disable();
-
-      this.cd.detectChanges();
     } else {
-      this.customerForm.patchValue({
-        customer: {
-          cusCODE: "TEST",
-          cusDESC: "Test Description",
-          cusCODEg: "1",
-          cusDESCgABBR: "Test ABBR",
-          docTYPE: "0001",
-          cusiD: "TEST123",
-          brCode: "0001",
-          cusTAXid: "1234567890123",
-          cusFName: "Test Name",
-          cusLName: "Test Surname",
-          unit: "5",
-          titleCode: "001"
-        }
-      });
-
       // Ensure disabled fields remain disabled after populating data
       this.customerForm.get('detailSale.stkTYPE')?.disable();
       this.customerForm.get('dividend.stkACCtype')?.disable();
@@ -443,21 +484,29 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     }
   }
 
-
-
-
   onProvinceChangeHome(prvCode: string) {
+    console.log('🔍 Province changed (Home):', prvCode);
+    if (!prvCode) return;
+
     this.addressMetadataService.getAumphor(prvCode).subscribe({
       next: (res) => {
+        console.log('🔍 Amphur data loaded (Home):', res);
         setTimeout(() => {
           this.ampDataHome = res;
           this.tumbonDataHome = [];
-          this.homeAddress.ampCODE = '';
-          this.homeAddress.tmbCODE = '';
+          // Reset form values
+          this.customerForm.patchValue({
+            homeAddress: {
+              ampCODE: '',
+              tmbCODE: '',
+              zipcodeHome: ''
+            }
+          });
+          this.zipCodeHome = '';
           this.cd.detectChanges();
         }, 0);
       },
-      error: (err) => console.error(err)
+      error: (err) => console.error('Error loading amphur (Home):', err)
     });
   }
 
@@ -479,41 +528,76 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
 
 
   onAumphorChangeHome(prvCode: string, ampCode: string) {
+    console.log('🔍 Amphur changed (Home):', prvCode, ampCode);
+    if (!prvCode || !ampCode) return;
+
     this.addressMetadataService.getTumbon(prvCode, ampCode).subscribe({
       next: (res) => {
+        console.log('🔍 Tumbon data loaded (Home):', res);
         setTimeout(() => {
           this.tumbonDataHome = res;
+          // Reset form values
+          this.customerForm.patchValue({
+            homeAddress: {
+              tmbCODE: '',
+              zipcodeHome: ''
+            }
+          });
+          this.zipCodeHome = '';
           this.cd.detectChanges();
         }, 0);
       },
-      error: (err) => console.error(err)
+      error: (err) => console.error('Error loading tumbon (Home):', err)
     });
   }
 
   onProvinceChangeCurrent(prvCode: string) {
+    console.log('🔍 Province changed (Current):', prvCode);
+    if (!prvCode) return;
+
     this.addressMetadataService.getAumphor(prvCode).subscribe({
       next: (res) => {
+        console.log('🔍 Amphur data loaded (Current):', res);
         setTimeout(() => {
           this.ampDataCurrent = res;
           this.tumbonDataCurrent = [];
-          this.currentAddress.ampCODE = '';
-          this.currentAddress.tmbCODE = '';
+          // Reset form values
+          this.customerForm.patchValue({
+            currentAddress: {
+              ampCODE: '',
+              tmbCODE: '',
+              zipcodeCurrent: ''
+            }
+          });
+          this.zipCodeCurrent = '';
           this.cd.detectChanges();
         }, 0);
       },
-      error: (err) => console.error(err)
+      error: (err) => console.error('Error loading amphur (Current):', err)
     });
   }
 
   onAumphorChangeCurrent(prvCode: string, ampCode: string) {
+    console.log('🔍 Amphur changed (Current):', prvCode, ampCode);
+    if (!prvCode || !ampCode) return;
+
     this.addressMetadataService.getTumbon(prvCode, ampCode).subscribe({
       next: (res) => {
+        console.log('🔍 Tumbon data loaded (Current):', res);
         setTimeout(() => {
           this.tumbonDataCurrent = res;
+          // Reset form values
+          this.customerForm.patchValue({
+            currentAddress: {
+              tmbCODE: '',
+              zipcodeCurrent: ''
+            }
+          });
+          this.zipCodeCurrent = '';
           this.cd.detectChanges();
         }, 0);
       },
-      error: (err) => console.error(err)
+      error: (err) => console.error('Error loading tumbon (Current):', err)
     });
   }
 
@@ -531,6 +615,32 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     });
 
     return zip;
+  }
+
+  onTumbonChangeHome(tmbCode: string) {
+    console.log('🔍 Tumbon changed (Home):', tmbCode);
+    if (!tmbCode) return;
+
+    const prvCode = this.customerForm.get('homeAddress.prvCODE')?.value;
+    const ampCode = this.customerForm.get('homeAddress.ampCODE')?.value;
+
+    if (prvCode && ampCode) {
+      const zip = this.onZipcodeChangeHome(prvCode, ampCode, tmbCode);
+      console.log('🔍 Zipcode calculated (Home):', zip);
+    }
+  }
+
+  onTumbonChangeCurrent(tmbCode: string) {
+    console.log('🔍 Tumbon changed (Current):', tmbCode);
+    if (!tmbCode) return;
+
+    const prvCode = this.customerForm.get('currentAddress.prvCODE')?.value;
+    const ampCode = this.customerForm.get('currentAddress.ampCODE')?.value;
+
+    if (prvCode && ampCode) {
+      const zip = this.onZipcodeChangeCurrent(prvCode, ampCode, tmbCode);
+      console.log('🔍 Zipcode calculated (Current):', zip);
+    }
   }
 
 
@@ -556,7 +666,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
                     this.tumbonDataHome = tumbonRes;
 
                     // 🔽 อัปเดต ZipCode จากฟังก์ชัน
-                    const zip = this.onZipcodeChangeHome(this.homeAddress.prvCODE, this.homeAddress.ampCODE, this.homeAddress.tmbCODE);
+                    const zip = this.homeAddress ? this.onZipcodeChangeHome(this.homeAddress.prvCODE, this.homeAddress.ampCODE, this.homeAddress.tmbCODE) : '';
 
                     // 🔽 ใส่ zip เข้า form
                     if (zip) {
@@ -595,7 +705,7 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
                     this.tumbonDataCurrent = tumbonRes;
 
                     // 🔽 อัปเดต ZipCode จากฟังก์ชัน
-                    const zip = this.onZipcodeChangeCurrent(this.currentAddress.prvCODE, this.currentAddress.ampCODE, this.currentAddress.tmbCODE);
+                    const zip = this.currentAddress ? this.onZipcodeChangeCurrent(this.currentAddress.prvCODE, this.currentAddress.ampCODE, this.currentAddress.tmbCODE) : '';
 
                     // 🔽 ใส่ zip เข้า form
                     if (zip) {
@@ -619,113 +729,6 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
     return forkJoin(tasks.length ? tasks : [of(true)]);
   }
 
-
-  onSubmit(event: Event) {
-    event.preventDefault();
-    const submitter = (event as SubmitEvent).submitter as HTMLButtonElement;
-    if (!submitter) return;
-    // ตรวจสอบความถูกต้องของฟอร์ม
-    if (!this.customerForm.valid) {
-      console.warn("Form is not valid!");
-      return;
-    }
-    // ดึงข้อมูลจากฟอร์ม
-    const dividendData = this.customerForm.get('dividend')?.getRawValue();
-    const detailSale = this.customerForm.get('detailSale')?.getRawValue();
-    const formattedDate = this.convertDateToBuddhistFormat(detailSale?.stkSaleByCHQdat);
-
-    // สร้าง payload ตาม API structure
-    const requestPayload = {
-      stkOWNiD: this.cusId,
-      stkTYPE: "A",
-      stkPayType: detailSale?.stkPayTypeDetail || '',
-      stkACCno: dividendData?.stkACCno || '',
-      stkACCname: dividendData?.stkACCname || '',
-      stkACCtype: dividendData?.stkACCtype || '',
-      stkUNiT: detailSale?.stkUNiT || 0,
-      stkValue: detailSale?.stkValue || 0,
-      stkTRCode: "CSD",
-      stkTRType: "STK",
-      stkReqNo: detailSale?.stkReqNo || '',
-      stkSaleByTRACCno: detailSale?.stkSaleByTRACCno || '',
-      stkSaleByTRACCname: detailSale?.stkSaleByTRACCname || '',
-      stkSaleByCHQno: detailSale?.stkSaleByCHQno || '',
-      stkSaleByCHQdat: formattedDate || '',
-      stkSaleByCHQbnk: detailSale?.stkSaleByCHQbnk || '',
-      stkSaleByCHQbrn: detailSale?.stkSaleByCHQbrn || '',
-    };
-    requestPayload.stkValue = detailSale?.stkValue.replace(/,/g, '');
-    requestPayload.stkUNiT = Number(requestPayload.stkUNiT);
-    requestPayload.stkValue = Number(requestPayload.stkValue);
-
-    // แสดง loading
-    this.loading = true;
-
-    this.stockService.stockManage(requestPayload).subscribe({
-      next: (response:any) => {
-        this.res = response;
-        this.loading = false;
-        // โหลดข้อมูลใหม่ทันที
-        // this.reloadCustomerData();
-        // แสดง SweetAlert บันทึกสำเร็จ
-        if (this.res[0].RST === "PASS") {
-          Swal.fire({
-            icon: 'success',
-            title: 'สำเร็จ!',
-            html: `
-            <p style="font-family: 'Prompt', sans-serif;">${this.res[1].RST} : ${this.res[1].errLine}${this.res[1].errNumber}${this.res[1].errSeverity}${this.res[1].errState} : ${this.res[1].MSG}</p>
-            <p style="font-family: 'Prompt', sans-serif;">${this.res[0].RST} : ${this.res[0].errLine}${this.res[0].errNumber}${this.res[0].errSeverity}${this.res[0].errState} : ${this.res[0].MSG}</p>
-            `,
-            confirmButtonText: 'ตกลง',
-          }).then((result) => {
-            if (result.isConfirmed) {
-              this.loading = false;
-              this.activeView = 'search';
-              this.cd.detectChanges();
-            }
-          });
-        } else {
-          Swal.fire({
-            icon: 'warning',
-            title: 'ไม่สำเร็จ!',
-            html: `
-            <p style="font-family: 'Prompt', sans-serif;">${this.res[0].RST} : ${this.res[0].errLine}${this.res[0].errNumber}${this.res[0].errSeverity}${this.res[0].errState} : ${this.res[0].MSG}</p>
-            `,
-            confirmButtonText: 'ตกลง',
-          }).then((result) => {
-            if (result.isConfirmed) {
-              this.loading = false;
-              this.activeView = 'search';
-              this.cd.detectChanges();
-            }
-          });
-        }
-        this.activeView = 'search';
-        this.cd.detectChanges();
-      },
-      error: (error) => {
-        console.error("Update failed:", error);
-        this.loading = false;
-        // แสดง SweetAlert เมื่อเกิดข้อผิดพลาด
-        Swal.fire({
-          icon: 'error',
-          title: 'เกิดข้อผิดพลาด!',
-          html: `
-          <p style="font-family: 'Prompt', sans-serif;">${this.res[1].RST} : ${this.res[1].errLine}${this.res[1].errNumber}${this.res[1].errSeverity}${this.res[1].errState} : ${this.res[1].MSG}</p>
-          <p style="font-family: 'Prompt', sans-serif;">${this.res[0].RST} : ${this.res[0].errLine}${this.res[0].errNumber}${this.res[0].errSeverity}${this.res[0].errState} : ${this.res[0].MSG}</p>
-          `,
-          confirmButtonText: 'ตกลง',
-          confirmButtonColor: '#dc3545',
-          allowOutsideClick: false
-        }).then((result) => {
-          if (result.isConfirmed) {
-            this.loading = false;
-            this.cd.detectChanges();
-          }
-        })
-      }
-    });
-  }
 
   reloadCustomerData() {
     console.log("=== Reloading customer data ===");
@@ -756,9 +759,12 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
 
   onUnitInput(event: Event) {
     const input = event.target as HTMLInputElement;
+    console.log('🔍 onUnitInput called, pricePerUnit:', this.pricePerUnit);
+
     // ดึงเฉพาะตัวเลข
     const numericString = input.value.replace(/\D/g, '');
     const numericValue = numericString ? Number(numericString) : 0;
+
     if (!numericValue) {
       this.unitText = '';
       this.valueText = '';
@@ -767,17 +773,37 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
       }, { emitEvent: false });
       return;
     }
+
     // ใส่ comma ในช่องจำนวนหุ้น
     input.value = numericValue.toLocaleString('en-US');
+
+    // ตรวจสอบว่า pricePerUnit มีค่าหรือไม่
+    const pricePerShare = this.pricePerUnit?.stkBv || this.pricePerUnit || 0;
+    console.log('🔍 pricePerShare:', pricePerShare);
+
+    if (!pricePerShare) {
+      console.warn('⚠️ pricePerShare is 0 or undefined');
+      this.unitText = '';
+      this.valueText = '';
+      return;
+    }
+
     // คำนวณมูลค่า
-    const stkValue = numericValue * this.pricePerUnit.stkBv;
+    const stkValue = numericValue * pricePerShare;
+    console.log('🔍 Calculation:', numericValue, '*', pricePerShare, '=', stkValue);
+
     // อัปเดตฟอร์ม โดยแสดง comma ในช่องมูลค่า
     this.customerForm.patchValue({
       detailSale: { stkValue: stkValue.toLocaleString('en-US') }
     }, { emitEvent: false });
+
     // แปลงเป็นข้อความภาษาไทย
     this.valueText = ThaiBahtText(stkValue.toString());
     this.unitText = ThaiBahtText(numericValue.toString()).replace('บาทถ้วน', 'หุ้น');
+
+    console.log('🔍 unitText:', this.unitText);
+    console.log('🔍 valueText:', this.valueText);
+
     this.cd.detectChanges();
   }
 
@@ -790,15 +816,15 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
   // ฟังก์ชันสำหรับตรวจสอบว่าควรเป็นสีเทาหรือไม่
   shouldBeGrayedOut(fieldType: string): boolean {
     const paymentMethod = this.getPaymentMethod();
-    
+
     if (fieldType === 'bankTransfer' && paymentMethod !== '001') {
       return true; // ช่องโอนจากบัญชีควรเป็นสีเทาเมื่อไม่ได้เลือก
     }
-    
+
     if (fieldType === 'cheque' && paymentMethod !== '004') {
       return true; // ช่องเช็คควรเป็นสีเทาเมื่อไม่ได้เลือก
     }
-    
+
     return false;
   }
 
@@ -810,11 +836,11 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
   // ฟังก์ชันสำหรับตรวจสอบว่าควรเป็นสีเทาหรือไม่สำหรับรับเงินปันผล
   shouldBeGrayedOutDividend(fieldType: string): boolean {
     const dividendMethod = this.getDividendPaymentMethod();
-    
+
     if (fieldType === 'bankAccount' && dividendMethod !== '001') {
       return true; // ช่องบัญชีเงินฝากควรเป็นสีเทาเมื่อไม่ได้เลือก
     }
-    
+
     return false;
   }
 
@@ -852,9 +878,175 @@ export class SaleStockComponent implements OnInit, AfterViewInit {
       this.customerForm.get('dividend.stkACCno')?.disable();
       this.customerForm.get('dividend.stkACCname')?.disable();
     }
+
+    if (this.mode === 'editcus') {
+      this.titleView = 'แก้ไขข้อมูล ';
+      this.customerForm.get('customer.cusFName')?.enable();
+      this.cd.detectChanges();
+    }
   }
 
   onBack() {
     this.back.emit();
+  }
+
+  // ✅ Helper method สำหรับ template
+  getObjectKeys(obj: any): string[] {
+    return Object.keys(obj || {});
+  }
+
+  onSubmit() {
+    this.payload.emit(this.customerForm);
+  }
+
+  // ✅ เพิ่ม: จัดการ editable state ของฟิลด์ต่างๆ
+  private updateFieldEditability() {
+    console.log('🔍 updateFieldEditability called, mode:', this.mode);
+
+    if (this.mode === 'editcus') {
+      // ฟิลด์ที่แก้ไขได้ - enable
+      this.customerForm.get('customer.cusFName')?.enable();
+      this.customerForm.get('customer.cusLName')?.enable();
+      this.customerForm.get('customer.cusTAXid')?.enable();
+      this.customerForm.get('customer.phonE_MOBILE')?.enable();
+      this.customerForm.get('customer.email')?.enable();
+      this.customerForm.get('customer.titleCode')?.enable();
+      this.customerForm.get('customer.docTYPE')?.enable();
+      this.customerForm.get('customer.cusCODE')?.enable();
+      this.customerForm.get('customer.cusiDnew')?.enable();
+
+      // ที่อยู่ที่แก้ไขได้
+      this.customerForm.get('homeAddress.housEno')?.enable();
+      this.customerForm.get('homeAddress.troG_SOI')?.enable();
+      this.customerForm.get('homeAddress.road')?.enable();
+      this.customerForm.get('homeAddress.phone')?.enable();
+      this.customerForm.get('homeAddress.prvCODE')?.enable();
+      this.customerForm.get('homeAddress.ampCODE')?.enable();
+      this.customerForm.get('homeAddress.tmbCODE')?.enable();
+
+      this.customerForm.get('currentAddress.housEno')?.enable();
+      this.customerForm.get('currentAddress.troG_SOI')?.enable();
+      this.customerForm.get('currentAddress.road')?.enable();
+      this.customerForm.get('currentAddress.phone')?.enable();
+      this.customerForm.get('currentAddress.prvCODE')?.enable();
+      this.customerForm.get('currentAddress.ampCODE')?.enable();
+      this.customerForm.get('currentAddress.tmbCODE')?.disable();
+
+      // ฟิลด์ขายหุ้นที่แก้ไขได้
+      this.customerForm.get('detailSale.stkReqNo')?.enable();
+      this.customerForm.get('detailSale.stkUNiT')?.enable();
+      this.customerForm.get('detailSale.stkPayTypeDetail')?.enable();
+      this.customerForm.get('detailSale.stkSaleByTRACCno')?.enable();
+      this.customerForm.get('detailSale.stkSaleByTRACCname')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQno')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQdat')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQbnk')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQbrn')?.enable();
+
+      // ฟิลด์เงินปันผลที่แก้ไขได้
+      this.customerForm.get('dividend.dividendStkPayType')?.enable();
+      this.customerForm.get('dividend.stkACCno')?.enable();
+      this.customerForm.get('dividend.stkACCname')?.enable();
+
+      console.log('✅ All fields enabled for editcus mode');
+
+    } else if (this.mode === 'stksale') {
+      // ฟิลด์ที่แก้ไขได้ - enable
+      this.customerForm.get('customer.cusFName')?.disable();
+      this.customerForm.get('customer.cusLName')?.disable();
+      this.customerForm.get('customer.cusTAXid')?.disable();
+      this.customerForm.get('customer.phonE_MOBILE')?.disable();
+      this.customerForm.get('customer.email')?.disable();
+      this.customerForm.get('customer.titleCode')?.disable();
+      this.customerForm.get('customer.docTYPE')?.disable();
+      this.customerForm.get('customer.cusCODE')?.disable();
+      this.customerForm.get('customer.cusiDnew')?.disable();
+
+      // ที่อยู่ที่แก้ไขได้
+      this.customerForm.get('homeAddress.housEno')?.disable();
+      this.customerForm.get('homeAddress.troG_SOI')?.disable();
+      this.customerForm.get('homeAddress.road')?.disable();
+      this.customerForm.get('homeAddress.phone')?.disable();
+      this.customerForm.get('homeAddress.prvCODE')?.disable();
+      this.customerForm.get('homeAddress.ampCODE')?.disable();
+      this.customerForm.get('homeAddress.tmbCODE')?.disable();
+
+      this.customerForm.get('currentAddress.housEno')?.disable();
+      this.customerForm.get('currentAddress.troG_SOI')?.disable();
+      this.customerForm.get('currentAddress.road')?.disable();
+      this.customerForm.get('currentAddress.phone')?.disable();
+      this.customerForm.get('currentAddress.prvCODE')?.disable();
+      this.customerForm.get('currentAddress.ampCODE')?.disable();
+      this.customerForm.get('currentAddress.tmbCODE')?.disable();
+
+      // ฟิลด์ขายหุ้นที่แก้ไขได้
+      this.customerForm.get('detailSale.stkReqNo')?.enable();
+      this.customerForm.get('detailSale.stkUNiT')?.enable();
+      this.customerForm.get('detailSale.stkPayTypeDetail')?.enable();
+      this.customerForm.get('detailSale.stkSaleByTRACCno')?.enable();
+      this.customerForm.get('detailSale.stkSaleByTRACCname')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQno')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQdat')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQbnk')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQbrn')?.enable();
+
+      // ฟิลด์เงินปันผลที่แก้ไขได้
+      this.customerForm.get('dividend.dividendStkPayType')?.enable();
+      this.customerForm.get('dividend.stkACCno')?.enable();
+      this.customerForm.get('dividend.stkACCname')?.enable();
+    } else {
+      // ฟิลด์ที่แก้ไขไม่ได้ - disable
+      this.customerForm.get('customer.cusFName')?.disable();
+      this.customerForm.get('customer.cusLName')?.disable();
+      this.customerForm.get('customer.cusTAXid')?.disable();
+      this.customerForm.get('customer.phonE_MOBILE')?.disable();
+      this.customerForm.get('customer.email')?.disable();
+      this.customerForm.get('customer.titleCode')?.disable();
+      this.customerForm.get('customer.docTYPE')?.disable();
+      this.customerForm.get('customer.cusCODE')?.disable();
+      this.customerForm.get('customer.cusiDnew')?.enable();
+
+      // ที่อยู่ที่แก้ไขไม่ได้
+      this.customerForm.get('homeAddress.housEno')?.disable();
+      this.customerForm.get('homeAddress.troG_SOI')?.disable();
+      this.customerForm.get('homeAddress.road')?.disable();
+      this.customerForm.get('homeAddress.phone')?.disable();
+      this.customerForm.get('homeAddress.prvCODE')?.disable();
+      this.customerForm.get('homeAddress.ampCODE')?.disable();
+      this.customerForm.get('homeAddress.tmbCODE')?.disable();
+
+      this.customerForm.get('currentAddress.housEno')?.disable();
+      this.customerForm.get('currentAddress.troG_SOI')?.disable();
+      this.customerForm.get('currentAddress.road')?.disable();
+      this.customerForm.get('currentAddress.phone')?.disable();
+      this.customerForm.get('currentAddress.prvCODE')?.disable();
+      this.customerForm.get('currentAddress.ampCODE')?.disable();
+      this.customerForm.get('currentAddress.tmbCODE')?.disable();
+
+      // ฟิลด์ขายหุ้นที่แก้ไขไม่ได้
+      this.customerForm.get('detailSale.stkReqNo')?.disable();
+      this.customerForm.get('detailSale.stkUNiT')?.disable();
+      this.customerForm.get('detailSale.stkPayTypeDetail')?.disable();
+      this.customerForm.get('detailSale.stkSaleByTRACCno')?.disable();
+      this.customerForm.get('detailSale.stkSaleByTRACCname')?.disable();
+      this.customerForm.get('detailSale.stkSaleByCHQno')?.disable();
+      this.customerForm.get('detailSale.stkSaleByCHQdat')?.disable();
+      this.customerForm.get('detailSale.stkSaleByCHQbnk')?.disable();
+      this.customerForm.get('detailSale.stkSaleByCHQbrn')?.disable();
+
+      // ฟิลด์เงินปันผลที่แก้ไขไม่ได้
+      this.customerForm.get('dividend.dividendStkPayType')?.disable();
+      this.customerForm.get('dividend.stkACCno')?.disable();
+      this.customerForm.get('dividend.stkACCname')?.disable();
+
+      console.log('✅ All fields disabled for non-editcus mode');
+    }
+
+    // ฟิลด์ที่ห้ามแก้ไขเสมอ
+    this.customerForm.get('customer.unit')?.disable();
+    this.customerForm.get('customer.brCode')?.disable();
+    this.customerForm.get('customer.cusiD')?.disable();
+    this.customerForm.get('currentAddress.addR1')?.disable();
+    this.customerForm.get('currentAddress.addR2')?.disable();
   }
 }

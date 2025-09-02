@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ManageFrom } from './manage-from';
+import { ManageFormComponent } from './manage-from';
 
 describe('ManageFrom', () => {
-  let component: ManageFrom;
-  let fixture: ComponentFixture<ManageFrom>;
+  let component: ManageFormComponent;
+  let fixture: ComponentFixture<ManageFormComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ManageFrom]
+      imports: [ManageFormComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ManageFrom);
+    fixture = TestBed.createComponent(ManageFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
