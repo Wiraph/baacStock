@@ -1,32 +1,58 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy, Input, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { SearchEditComponent } from '../search-edit/search-edit';
-import { DataTransfer } from '../../../services/data-transfer';
-import { CustomerService } from '../../../services/customer';
+import { CustomerService } from '../../services/customer';
 import { MatTabsModule } from '@angular/material/tabs';
-import { AddressService, AddressDto } from '../../../services/address';
+import { AddressService, AddressDto } from '../../services/address';
 import { of, forkJoin } from 'rxjs';
 import { finalize, switchMap, map, catchError } from 'rxjs/operators';
-import { Divident } from '../../../services/divident';
+import { Divident } from '../../services/divident';
 import Swal from 'sweetalert2';
-import { SystemMetadata } from '../../../services/Metadata/system-metadata';
-import { AddressMetadata } from '../../../services/Metadata/address-metadata';
-import { StockMetadata } from '../../../services/Metadata/stock-metadata';
-import { CustomerMetadata } from '../../../services/Metadata/customer-metadata';
+import flatpickr from 'flatpickr';
+import { Thai } from 'flatpickr/dist/l10n/th.js';
+import { Thaidateadapter } from '../thaidateadapter/thaidateadapter';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import ThaiBahtText from 'thai-baht-text';
+import { StockService } from '../../services/stock';
+import { SystemMetadata } from '../../services/Metadata/system-metadata';
+import { AddressMetadata } from '../../services/Metadata/address-metadata';
+import { StockMetadata } from '../../services/Metadata/stock-metadata';
+import { CustomerMetadata } from '../../services/Metadata/customer-metadata';
 
-
+export const THAI_DATE_FORMATS = {
+  parse: {
+    dateInput: 'DD/MM/YYYY',
+  },
+  display: {
+    dateInput: 'd MMMM yyyy',
+    monthYearLabel: 'MMMM yyyy',
+    dateA11yLabel: 'd MMMM yyyy',
+    monthYearA11yLabel: 'MMMM yyyy',
+  },
+};
 @Component({
   standalone: true,
-  selector: 'app-edit-customer',
-  imports: [CommonModule, ReactiveFormsModule, SearchEditComponent, MatTabsModule, FormsModule],
-  templateUrl: './edit-customer.component.html',
-  styleUrl: './edit-customer.component.css',
+  selector: 'app-manage-from',
+  imports: [CommonModule, ReactiveFormsModule, MatTabsModule, FormsModule, MatFormFieldModule, MatInputModule, MatDatepickerModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './manage-from.html',
+  styleUrl: './manage-from.css',
+  providers: [
+    { provide: DateAdapter, useClass: Thaidateadapter },
+    { provide: MAT_DATE_FORMATS, useValue: THAI_DATE_FORMATS },
+    { provide: MAT_DATE_LOCALE, useValue: 'th-TH' }
+  ]
 })
-export class EditCustomerComponent implements OnInit {
-  activeView = 'search';
+export class SaleStockComponent implements OnInit, AfterViewInit {
+  @Input() cusId!: string;
+  @Input() mode!: string;
+  @Output() back = new EventEmitter<string>();
+  readonly startDate = new Date();
+  selectedDate?: Date;
   loading = false;
-  cusId = '';
   customer: any = {};
   homeAddress!: AddressDto;
   currentAddress!: AddressDto;
@@ -38,6 +64,9 @@ export class EditCustomerComponent implements OnInit {
     stkACCno: '',
     stkACCname: ''
   };
+  pricePerUnit: any;
+  unitText: string = "";
+  valueText: string = "";
   prvData: any[] = [];
   ampData: any[] = [];
   tumbonData: any[] = [];
@@ -49,16 +78,19 @@ export class EditCustomerComponent implements OnInit {
   tumbonDataHome: any[] = [];
   tumbonDataCurrent: any[] = [];
   actypeList: any[] = [];
+  stkTypeList: any[] = [];
+  res: any[] = [];
+  activeView = '';
 
   customerForm!: FormGroup;
 
   constructor(
-    private readonly dataTransfer: DataTransfer,
     private readonly customerService: CustomerService,
     private readonly cd: ChangeDetectorRef,
     private readonly addressService: AddressService,
     private readonly dividend: Divident,
     private readonly fb: FormBuilder,
+    private readonly stockService: StockService,
     private readonly addressMetadataService: AddressMetadata,
     private readonly systemMetadataService: SystemMetadata,
     private readonly stockMetadataService: StockMetadata,
@@ -66,8 +98,14 @@ export class EditCustomerComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.dataTransfer.setPageStatus('1');
-    console.log(this.dataTransfer.getPageStatus());
+    this.systemMetadataService.sysCfg().subscribe({
+      next: (res: any) => {
+        this.pricePerUnit = res;
+        this.cd.detectChanges();
+      }, error: (err) => {
+        console.log("Loading fail...", err);
+      }
+    })
     this.customerForm = this.fb.group({
       customer: this.fb.group({
         cusCODE: [''],
@@ -83,7 +121,7 @@ export class EditCustomerComponent implements OnInit {
         unit: [''],
         titleCode: [''],
         phonE_MOBILE: [''],
-        email: [''],
+        email: ['']
       }),
       homeAddress: this.fb.group({
         housEno: [''],
@@ -112,13 +150,68 @@ export class EditCustomerComponent implements OnInit {
         dividendStkPayType: [''],
         stkACCno: [''],
         stkACCname: [''],
-        stkACCtype: ['']
+        stkACCtype: ['001']  // ตั้งค่าเริ่มต้นเป็น '001'
+      }),
+      detailSale: this.fb.group({
+        stkTYPE: ['A'],
+        stkPayTypeDetail: [''],
+        sktACCno: [''],
+        stkACCname: [''],
+        stkACCtype: ['001'],
+        stkUNiT: [''],
+        stkValue: [''],
+        stkTRCode: [''],
+        stkTRType: [''],
+        stkReqNo: [''],
+        stkSaleByTRACCno: [''],
+        stkSaleByTRACCname: [''],
+        stkSaleByCHQno: [''],
+        stkSaleByCHQdat: [''],
+        stkSaleByCHQbnk: [''],
+        stkSaleByCHQbrn: [''],
       })
-    })
+    });
+
+    // Initialize form control states
+    this.updateFormControlStates();
+
+    // Disable fields that should not be editable
+    this.customerForm.get('detailSale.stkTYPE')?.disable();
+    this.customerForm.get('dividend.stkACCtype')?.disable();
 
     // Subscribe to form value changes to update control states
+    this.customerForm.get('detailSale.stkPayTypeDetail')?.valueChanges.subscribe(() => {
+      this.updateFormControlStates();
+    });
+
     this.customerForm.get('dividend.dividendStkPayType')?.valueChanges.subscribe(() => {
       this.updateFormControlStates();
+    });
+  }
+
+  ngAfterViewInit(): void {
+    // ฟังก์ชันแปลงปี ค.ศ. เป็น พ.ศ.
+    function toThaiYear(date: Date): Date {
+      const d = new Date(date);
+      d.setFullYear(d.getFullYear() + 543);
+      return d;
+    }
+
+    flatpickr("#thaiDateInput", {
+      locale: Thai,
+      dateFormat: "d F Y",
+      altInput: true,
+      altFormat: "d F Y",
+      onChange: function (selectedDates, dateStr, instance) {
+        if (selectedDates.length > 0) {
+          const thaiDate = toThaiYear(selectedDates[0]);
+          instance.input.value = thaiDate.getDate() + " " + Thai.months.longhand[thaiDate.getMonth()] + " " + thaiDate.getFullYear();
+        }
+      },
+      formatDate: function (date, format, locale) {
+        const thaiYearDate = toThaiYear(date);
+        return `${thaiYearDate.getDate()} ${locale.months.longhand[thaiYearDate.getMonth()]} ${thaiYearDate.getFullYear()}`;
+      }
     });
   }
 
@@ -127,32 +220,21 @@ export class EditCustomerComponent implements OnInit {
     this.currentAddress = this.addressService.getDefaultAddress();
     this.zipCodeHome = '';
     this.zipCodeCurrent = '';
-    this.activeView = event.view;
     this.loading = true;
-    this.cusId = event.cusId;
 
     if (!this.cusId) return;
 
     const requestPayload = { cusId: this.cusId };
 
     // โหลดข้อมูลหลักทั้งหมด
-    console.log("=== Starting forkJoin with requestPayload ===", requestPayload);
-    console.log("API Endpoint: /api/Customer/customer");
-    console.log("Request payload:", requestPayload);
-
     forkJoin({
       customer: this.customerService.getCustomer(requestPayload).pipe(
         map(customerData => {
+          console.log("Raw customer service response:", customerData);
           return customerData;
         }),
         catchError(err => {
           console.error("Customer service error:", err);
-          console.error("Error details:", {
-            status: err.status,
-            statusText: err.statusText,
-            message: err.message,
-            error: err.error
-          });
           return of(null);
         })
       ),
@@ -162,105 +244,22 @@ export class EditCustomerComponent implements OnInit {
         }),
         catchError(err => {
           console.error("Address service error:", err);
-          console.error("Error details:", {
-            status: err.status,
-            statusText: err.statusText,
-            message: err.message,
-            error: err.error
-          });
           return of({ homeAddress: null, currentAddress: null });
         })
       ),
-      dividend: this.dividend.getDividend(requestPayload).pipe(
-        map(dividendData => {
-          console.log("Dividend service response:", dividendData);
-          return dividendData;
-        }),
-        catchError(err => {
-          console.error("Dividend service error:", err);
-          console.error("Error details:", {
-            status: err.status,
-            statusText: err.statusText,
-            message: err.message,
-            error: err.error
-          });
-          return of({
-            payDESC: '',
-            stkPayType: '',
-            stkACCno: '',
-            stkACCname: '',
-            stkACCtype: ''
-          });
-        })
-      ),
-      provinces: this.addressMetadataService.getProvince().pipe(
-        catchError(err => {
-          console.error("Provinces service error:", err);
-          return of([]);
-        })
-      ),
-      titles: this.customerMetadataServcie.titles().pipe(
-        catchError(err => {
-          console.error("Titles service error:", err);
-          return of([]);
-        })
-      ),
-      custypes: this.customerMetadataServcie.cusTypes().pipe(
-        catchError(err => {
-          console.error("Customer types service error:", err);
-          return of([]);
-        })
-      ),
-      doctypes: this.customerMetadataServcie.docTypes().pipe(
-        catchError(err => {
-          console.error("Document types service error:", err);
-          return of([]);
-        })
-      ),
-      acctypes: this.stockMetadataService.accTypes().pipe(
-        catchError(err => {
-          console.error("Account types service error:", err);
-          return of([]);
-        })
-      ),
+      dividend: this.dividend.getDividend(requestPayload),
+      provinces: this.addressMetadataService.getProvince(),
+      titles: this.customerMetadataServcie.titles(),
+      custypes: this.customerMetadataServcie.cusTypes(),
+      doctypes: this.customerMetadataServcie.docTypes(),
+      acctypes: this.stockMetadataService.accTypes(),
+      stktypes: this.stockMetadataService.stkTyps(),
     })
       .pipe(
         switchMap((res) => {
-          // เก็บข้อมูล
-          console.log("API Response received - customer:", !!res.customer, "address:", !!res.address);
-          console.log("Full API Response:", res);
-          console.log("Load customer ", res.customer);
-
-          // ตรวจสอบ response type และ structure
-          if (!res || typeof res !== 'object') {
-            console.error("Invalid response structure:", res);
-            throw new Error("Invalid API response structure");
-          }
-
-          // จัดการข้อมูลลูกค้า - เก็บข้อมูลจาก API response
-
-          // ตรวจสอบว่า customer data มีโครงสร้างที่ถูกต้อง
-          if (res.customer && typeof res.customer === 'object') {
-            // ตรวจสอบว่าเป็น array หรือ object
-            if (Array.isArray(res.customer) && res.customer.length > 0) {
-              // ถ้าเป็น array ให้ใช้ข้อมูลตัวแรก
-              this.customer = res.customer[0] || {};
-              this.customer.unit = res.customer[0]?.unit || 0;
-                          } else if ((res.customer as any).customer) {
-                // ถ้าเป็น nested structure
-                this.customer = (res.customer as any).customer || {};
-                this.customer.unit = (res.customer as any).unit || 0;
-              } else {
-                // ถ้าเป็น flat object
-                this.customer = res.customer;
-                this.customer.unit = (res.customer as any).unit || 0;
-              }
-          } else {
-            console.warn("Customer data is not in expected format:", res.customer);
-            this.customer = {};
-            this.customer.unit = 0;
-          }
-
+          // เก็บข้อมูลตามโครงสร้าง API response (nested structure)
+          this.customer = (res.customer as any)?.customer || {};  // ข้อมูลลูกค้าจาก nested customer object
+          this.customer.unit = (res.customer as any)?.unit || 0;           // เก็บ unit จาก res.customer.unit
 
 
           // Check if address data exists and has proper structure
@@ -271,6 +270,7 @@ export class EditCustomerComponent implements OnInit {
             this.homeAddress = this.addressService.getDefaultAddress();
             this.currentAddress = this.addressService.getDefaultAddress();
           }
+
           this.dividendData = res.dividend || {
             payDESC: '',
             stkPayType: '',
@@ -278,11 +278,13 @@ export class EditCustomerComponent implements OnInit {
             stkACCname: '',
             stkACCtype: '',
           };
+          
           this.prvData = res.provinces;
           this.titleList = res.titles;
           this.custypeList = res.custypes;
           this.doctypeList = res.doctypes;
           this.actypeList = res.acctypes;
+          this.stkTypeList = res.stktypes;
 
           // Populate ข้อมูลลูกค้าและที่อยู่ลงใน form
           this.populateCustomerForm();
@@ -307,50 +309,16 @@ export class EditCustomerComponent implements OnInit {
         },
         error: (err) => {
           console.error("โหลดข้อมูลผิดพลาด", err);
-          console.error("Error details:", {
-            status: err.status,
-            statusText: err.statusText,
-            message: err.message,
-            error: err.error,
-            url: err.url
-          });
-          
           this.loading = false;
-          
-          // แสดง error message ที่เป็นมิตรกับผู้ใช้
-          let errorMessage = 'ไม่สามารถโหลดข้อมูลได้';
-          
-          if (err.status === 0) {
-            errorMessage = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
-          } else if (err.status === 401) {
-            errorMessage = 'ไม่มีสิทธิ์ในการเข้าถึง กรุณาเข้าสู่ระบบใหม่';
-          } else if (err.status === 403) {
-            errorMessage = 'ไม่มีสิทธิ์ในการดูข้อมูลนี้';
-          } else if (err.status >= 500) {
-            errorMessage = 'เกิดข้อผิดพลาดจากเซิร์ฟเวอร์ กรุณาลองใหม่ในภายหลัง';
-          } else if (err.message && err.message.includes('parsing')) {
-            errorMessage = 'ข้อมูลที่ได้รับจากเซิร์ฟเวอร์ไม่ถูกต้อง กรุณาลองใหม่';
-          }
-          
-          // แสดง SweetAlert เมื่อเกิดข้อผิดพลาด
-          Swal.fire({
-            icon: 'error',
-            title: 'เกิดข้อผิดพลาด!',
-            text: errorMessage,
-            confirmButtonText: 'ตกลง',
-            confirmButtonColor: '#dc3545',
-            allowOutsideClick: false
-          });
         }
       });
   }
 
   populateCustomerForm() {
     if (this.customer) {
-
       const customerFormData = {
         cusCODE: this.customer.cusCODE || '',
-        cusDESC: this.customer.cusDESCg || this.customer.cusDESC || '', // ใช้ cusDESCg หรือ cusDESC จาก API
+        cusDESC: this.customer.cusDESCg || '', // ใช้ cusDESCg จาก API
         cusCODEg: this.customer.cusCODEg || '',
         cusDESCgABBR: this.customer.cusDESCgABBR || '',
         docTYPE: this.customer.docTYPE || '',
@@ -359,7 +327,7 @@ export class EditCustomerComponent implements OnInit {
         cusTAXid: this.customer.cusTAXid || '',
         cusFName: this.customer.cusFName || '',
         cusLName: this.customer.cusLName || '',
-        unit: this.customer.unit || this.customer.unit || '0',  // ใช้ this.unit หรือ UNT000 จาก API
+        unit: this.customer.unit || '0',  // ใช้ this.unit ที่เก็บแยกไว้
         titleCode: this.customer.titleCode || '',
         email: this.customer.email || '',
         phonE_MOBILE: this.customer.phonE_MOBILE || ''
@@ -372,19 +340,42 @@ export class EditCustomerComponent implements OnInit {
           dividendStkPayType: this.dividendData?.stkPayType || '',
           stkACCno: this.dividendData?.stkACCno || '',
           stkACCname: this.dividendData?.stkACCname || '',
-          stkACCtype: this.dividendData?.stkACCtype || ''
+          stkACCtype: this.dividendData?.stkACCtype || '001'  // ตั้งค่า fallback เป็น '001'
         }
       });
 
-      // อัปเดตสถานะของฟิลด์ตามค่าเริ่มต้น
-      this.updateFormControlStates();
+      // Ensure disabled fields remain disabled after populating data
+      this.customerForm.get('detailSale.stkTYPE')?.disable();
+      this.customerForm.get('dividend.stkACCtype')?.disable();
 
       this.cd.detectChanges();
+    } else {
+      this.customerForm.patchValue({
+        customer: {
+          cusCODE: "TEST",
+          cusDESC: "Test Description",
+          cusCODEg: "1",
+          cusDESCgABBR: "Test ABBR",
+          docTYPE: "0001",
+          cusiD: "TEST123",
+          brCode: "0001",
+          cusTAXid: "1234567890123",
+          cusFName: "Test Name",
+          cusLName: "Test Surname",
+          unit: "5",
+          titleCode: "001"
+        }
+      });
+
+      // Ensure disabled fields remain disabled after populating data
+      this.customerForm.get('detailSale.stkTYPE')?.disable();
+      this.customerForm.get('dividend.stkACCtype')?.disable();
     }
   }
 
   populateAddressForm() {
     if (!this.homeAddress && !this.currentAddress) {
+      console.warn("No address data available to populate");
       return;
     }
 
@@ -633,142 +624,105 @@ export class EditCustomerComponent implements OnInit {
     event.preventDefault();
     const submitter = (event as SubmitEvent).submitter as HTMLButtonElement;
     if (!submitter) return;
-    const action = submitter.value;
-
     // ตรวจสอบความถูกต้องของฟอร์ม
     if (!this.customerForm.valid) {
       console.warn("Form is not valid!");
       return;
     }
-
     // ดึงข้อมูลจากฟอร์ม
-    const customerData = this.customerForm.get('customer')?.value;
-    const homeAddressData = this.customerForm.get('homeAddress')?.value;
-    const currentAddressData = this.customerForm.get('currentAddress')?.value;
-    const dividendData = this.customerForm.get('dividend')?.value;
-    const phone = currentAddressData?.phone?.trim();
-
-    if (phone && phone !== "" && phone !== "-") {
-      const isValidLength = phone.length === 10;
-      const isNumeric = /^\d+$/.test(phone);
-
-      if (!isValidLength) {
-        Swal.fire({
-          icon: 'error',
-          title: 'ผิดพลาด',
-          text: 'เบอร์มือถือจะต้องมีความยาว 10 ตัวอักษรเท่านั้น',
-        });
-        return
-      } else if (!isNumeric) {
-        Swal.fire({
-          icon: 'error',
-          title: 'ผิดพลาด',
-          text: 'เบอร์มือถือจะต้องเป็นตัวเลขเท่านั้น',
-        });
-        return
-      }
-    }
+    const dividendData = this.customerForm.get('dividend')?.getRawValue();
+    const detailSale = this.customerForm.get('detailSale')?.getRawValue();
+    const formattedDate = this.convertDateToBuddhistFormat(detailSale?.stkSaleByCHQdat);
 
     // สร้าง payload ตาม API structure
     const requestPayload = {
-      CUSidO: this.cusId || '', // รหัสลูกค้าเดิม (สำหรับการ update)
-      CUSid: customerData?.cusiD || '', // รหัสลูกค้าใหม่
-      CUStax: customerData?.cusTAXid || '', // เลขประจำตัวผู้เสียภาษี
-      CUSTt: customerData?.titleCode || '', // คำนำหน้า
-      CUSfn: customerData?.cusFName || '', // ชื่อ
-      CUSln: customerData?.cusLName || '', // นามสกุล
-      CUSTy: customerData?.cusCODE || '', // ประเภทลูกค้า (Customer Type)
-      CUSTg: customerData?.cusCODEg || '', // กลุ่มลูกค้า
-      docTY: customerData?.docTYPE || '', // ประเภทเอกสาร
-      STC: '', // Stock Code (ถ้ามี)
-      BRC: customerData?.brCode || '', // รหัสสาขา
-      CUSphone: customerData?.phonE_MOBILE || '', // เบอร์โทร
-      CUSemail: customerData?.email || '', // อีเมล (ถ้ามีในฟอร์ม)
-
-      // ที่อยู่ปัจจุบัน (Current Address - CA)
-      AddCA0: currentAddressData?.housEno || '', // บ้านเลขที่
-      AddCA1: currentAddressData?.troG_SOI || '', // ซอย 
-      AddCA2: currentAddressData?.road || '', // ถนน
-      AddCA3: currentAddressData?.zipcodeCurrent || '', // รหัสไปรษณีย์
-      AddCA4: currentAddressData?.phone || '', // เบอร์โทรศัพท์
-      AddCA00: currentAddressData?.prvCODE || '', // รหัสจังหวัด
-      AddCA01: currentAddressData?.ampCODE || '', // รหัสอำเภอ
-      AddCA02: currentAddressData?.tmbCODE || '', // รหัสตำบล
-
-      // ที่อยู่ตามทะเบียนบ้าน (Home Address - HA)
-      AddHA0: homeAddressData?.housEno || '', // บ้านเลขที่
-      AddHA1: homeAddressData?.troG_SOI || '', // ซอย
-      AddHA2: homeAddressData?.road || '', // ถนน
-      AddHA3: homeAddressData?.zipcodeHome || '', // รหัสไปรษณีย์
-      AddHA4: homeAddressData?.phone || '', // เบอร์โทรศัพท์
-      AddHA00: homeAddressData?.prvCODE || '', // รหัสจังหวัด
-      AddHA01: homeAddressData?.ampCODE || '', // รหัสอำเภอ
-      AddHA02: homeAddressData?.tmbCODE || '', // รหัสตำบล
-
-      // ข้อมูลเงินปันผล
-      stkPayType: dividendData?.stkPayType || '', // ประเภทการจ่ายเงินปันผล
-      stkACCno: dividendData?.stkACCno || '', // เลขบัญชี
-      stkACCname: dividendData?.stkACCname || '', // ชื่อบัญชี
-      stkACCtype: dividendData?.stkACCtype || '', // ประเภทบัญชี (ถ้ามีในฟอร์ม)
-
-      // ข้อมูลหุ้น
-      unit: this.customer.unit || customerData?.unit || 0, // จำนวนหุ้น
-
-      // ข้อมูลระบบ
-      USR: '', // User ID (ต้องใส่จาก session/auth)
-      IP: '', // IP Address (ต้องใส่จาก browser/server)
-      HOST: '', // Host name (ต้องใส่จาก browser/server)
-      ACT: action // Action type
+      stkOWNiD: this.cusId,
+      stkTYPE: "A",
+      stkPayType: detailSale?.stkPayTypeDetail || '',
+      stkACCno: dividendData?.stkACCno || '',
+      stkACCname: dividendData?.stkACCname || '',
+      stkACCtype: dividendData?.stkACCtype || '',
+      stkUNiT: detailSale?.stkUNiT || 0,
+      stkValue: detailSale?.stkValue || 0,
+      stkTRCode: "CSD",
+      stkTRType: "STK",
+      stkReqNo: detailSale?.stkReqNo || '',
+      stkSaleByTRACCno: detailSale?.stkSaleByTRACCno || '',
+      stkSaleByTRACCname: detailSale?.stkSaleByTRACCname || '',
+      stkSaleByCHQno: detailSale?.stkSaleByCHQno || '',
+      stkSaleByCHQdat: formattedDate || '',
+      stkSaleByCHQbnk: detailSale?.stkSaleByCHQbnk || '',
+      stkSaleByCHQbrn: detailSale?.stkSaleByCHQbrn || '',
     };
-
-    console.log("=== Final Payload ===");
-    console.log("Payload:", requestPayload);
+    requestPayload.stkValue = detailSale?.stkValue.replace(/,/g, '');
+    requestPayload.stkUNiT = Number(requestPayload.stkUNiT);
+    requestPayload.stkValue = Number(requestPayload.stkValue);
 
     // แสดง loading
     this.loading = true;
 
-    this.customerService.postUpdateCustomer(requestPayload).subscribe({
-      next: (response) => {
-        console.log("Update successful:", response);
+    this.stockService.stockManage(requestPayload).subscribe({
+      next: (response:any) => {
+        this.res = response;
         this.loading = false;
-
         // โหลดข้อมูลใหม่ทันที
-        this.reloadCustomerData();
-
+        // this.reloadCustomerData();
         // แสดง SweetAlert บันทึกสำเร็จ
-        Swal.fire({
-          icon: 'success',
-          title: 'สำเร็จ!',
-          text: 'บันทึกข้อมูลลูกค้าเรียบร้อยแล้ว',
-          timer: 2000,
-          timerProgressBar: true,
-          showConfirmButton: false,
-          allowOutsideClick: false
-        });
+        if (this.res[0].RST === "PASS") {
+          Swal.fire({
+            icon: 'success',
+            title: 'สำเร็จ!',
+            html: `
+            <p style="font-family: 'Prompt', sans-serif;">${this.res[1].RST} : ${this.res[1].errLine}${this.res[1].errNumber}${this.res[1].errSeverity}${this.res[1].errState} : ${this.res[1].MSG}</p>
+            <p style="font-family: 'Prompt', sans-serif;">${this.res[0].RST} : ${this.res[0].errLine}${this.res[0].errNumber}${this.res[0].errSeverity}${this.res[0].errState} : ${this.res[0].MSG}</p>
+            `,
+            confirmButtonText: 'ตกลง',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              this.loading = false;
+              this.activeView = 'search';
+              this.cd.detectChanges();
+            }
+          });
+        } else {
+          Swal.fire({
+            icon: 'warning',
+            title: 'ไม่สำเร็จ!',
+            html: `
+            <p style="font-family: 'Prompt', sans-serif;">${this.res[0].RST} : ${this.res[0].errLine}${this.res[0].errNumber}${this.res[0].errSeverity}${this.res[0].errState} : ${this.res[0].MSG}</p>
+            `,
+            confirmButtonText: 'ตกลง',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              this.loading = false;
+              this.activeView = 'search';
+              this.cd.detectChanges();
+            }
+          });
+        }
+        this.activeView = 'search';
+        this.cd.detectChanges();
       },
       error: (error) => {
         console.error("Update failed:", error);
         this.loading = false;
-
-        // กำหนดข้อความ error ตามประเภทของ error
-        const errorMessage =
-          error?.error?.message ??
-          error?.message ??
-          (error.status === 0 && 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต') ??
-          (error.status >= 500 && 'เกิดข้อผิดพลาดจากเซิร์ฟเวอร์ กรุณาลองใหม่ในภายหลัง') ??
-          (error.status === 401 && 'ไม่มีสิทธิ์ในการเข้าถึง กรุณาเข้าสู่ระบบใหม่') ??
-          (error.status === 403 && 'ไม่มีสิทธิ์ในการแก้ไขข้อมูลนี้') ??
-          'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง';
-
         // แสดง SweetAlert เมื่อเกิดข้อผิดพลาด
         Swal.fire({
           icon: 'error',
           title: 'เกิดข้อผิดพลาด!',
-          text: errorMessage,
+          html: `
+          <p style="font-family: 'Prompt', sans-serif;">${this.res[1].RST} : ${this.res[1].errLine}${this.res[1].errNumber}${this.res[1].errSeverity}${this.res[1].errState} : ${this.res[1].MSG}</p>
+          <p style="font-family: 'Prompt', sans-serif;">${this.res[0].RST} : ${this.res[0].errLine}${this.res[0].errNumber}${this.res[0].errSeverity}${this.res[0].errState} : ${this.res[0].MSG}</p>
+          `,
           confirmButtonText: 'ตกลง',
           confirmButtonColor: '#dc3545',
           allowOutsideClick: false
-        });
+        }).then((result) => {
+          if (result.isConfirmed) {
+            this.loading = false;
+            this.cd.detectChanges();
+          }
+        })
       }
     });
   }
@@ -790,6 +744,64 @@ export class EditCustomerComponent implements OnInit {
     this.handleData(eventData);
   }
 
+  convertDateToBuddhistFormat(date: Date): string {
+    if (!date) return '';
+
+    const year = date.getFullYear() + 543;
+    const month = ('0' + (date.getMonth() + 1)).slice(-2);
+    const day = ('0' + date.getDate()).slice(-2);
+
+    return `${year}${month}${day}`; // เช่น 25680707
+  }
+
+  onUnitInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    // ดึงเฉพาะตัวเลข
+    const numericString = input.value.replace(/\D/g, '');
+    const numericValue = numericString ? Number(numericString) : 0;
+    if (!numericValue) {
+      this.unitText = '';
+      this.valueText = '';
+      this.customerForm.patchValue({
+        detailSale: { stkValue: '' } // ให้เป็นค่าว่างเวลาไม่มีข้อมูล
+      }, { emitEvent: false });
+      return;
+    }
+    // ใส่ comma ในช่องจำนวนหุ้น
+    input.value = numericValue.toLocaleString('en-US');
+    // คำนวณมูลค่า
+    const stkValue = numericValue * this.pricePerUnit.stkBv;
+    // อัปเดตฟอร์ม โดยแสดง comma ในช่องมูลค่า
+    this.customerForm.patchValue({
+      detailSale: { stkValue: stkValue.toLocaleString('en-US') }
+    }, { emitEvent: false });
+    // แปลงเป็นข้อความภาษาไทย
+    this.valueText = ThaiBahtText(stkValue.toString());
+    this.unitText = ThaiBahtText(numericValue.toString()).replace('บาทถ้วน', 'หุ้น');
+    this.cd.detectChanges();
+  }
+
+
+  // ฟังก์ชันสำหรับตรวจสอบวิธีการชำระเงิน
+  getPaymentMethod(): string {
+    return this.customerForm?.get('detailSale.stkPayTypeDetail')?.value || '';
+  }
+
+  // ฟังก์ชันสำหรับตรวจสอบว่าควรเป็นสีเทาหรือไม่
+  shouldBeGrayedOut(fieldType: string): boolean {
+    const paymentMethod = this.getPaymentMethod();
+    
+    if (fieldType === 'bankTransfer' && paymentMethod !== '001') {
+      return true; // ช่องโอนจากบัญชีควรเป็นสีเทาเมื่อไม่ได้เลือก
+    }
+    
+    if (fieldType === 'cheque' && paymentMethod !== '004') {
+      return true; // ช่องเช็คควรเป็นสีเทาเมื่อไม่ได้เลือก
+    }
+    
+    return false;
+  }
+
   // ฟังก์ชันสำหรับตรวจสอบวิธีการรับเงินปันผล
   getDividendPaymentMethod(): string {
     return this.customerForm?.get('dividend.dividendStkPayType')?.value || '';
@@ -798,17 +810,39 @@ export class EditCustomerComponent implements OnInit {
   // ฟังก์ชันสำหรับตรวจสอบว่าควรเป็นสีเทาหรือไม่สำหรับรับเงินปันผล
   shouldBeGrayedOutDividend(fieldType: string): boolean {
     const dividendMethod = this.getDividendPaymentMethod();
-
+    
     if (fieldType === 'bankAccount' && dividendMethod !== '001') {
       return true; // ช่องบัญชีเงินฝากควรเป็นสีเทาเมื่อไม่ได้เลือก
     }
-
+    
     return false;
   }
 
   // ฟังก์ชันสำหรับจัดการ disabled state ของ form controls
   updateFormControlStates() {
+    const paymentMethod = this.getPaymentMethod();
     const dividendMethod = this.getDividendPaymentMethod();
+
+    // Payment method controls
+    if (paymentMethod === '001') {
+      this.customerForm.get('detailSale.stkSaleByTRACCno')?.enable();
+      this.customerForm.get('detailSale.stkSaleByTRACCname')?.enable();
+    } else {
+      this.customerForm.get('detailSale.stkSaleByTRACCno')?.disable();
+      this.customerForm.get('detailSale.stkSaleByTRACCname')?.disable();
+    }
+
+    if (paymentMethod === '004') {
+      this.customerForm.get('detailSale.stkSaleByCHQno')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQdat')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQbnk')?.enable();
+      this.customerForm.get('detailSale.stkSaleByCHQbrn')?.enable();
+    } else {
+      this.customerForm.get('detailSale.stkSaleByCHQno')?.disable();
+      this.customerForm.get('detailSale.stkSaleByCHQdat')?.disable();
+      this.customerForm.get('detailSale.stkSaleByCHQbnk')?.disable();
+      this.customerForm.get('detailSale.stkSaleByCHQbrn')?.disable();
+    }
 
     // Dividend method controls
     if (dividendMethod === '001') {
@@ -821,7 +855,6 @@ export class EditCustomerComponent implements OnInit {
   }
 
   onBack() {
-    this.activeView = 'search';
-    this.cd.detectChanges();
+    this.back.emit();
   }
 }

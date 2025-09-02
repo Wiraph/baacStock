@@ -187,6 +187,9 @@ export class AdminDashboardComponent implements OnInit {
 
   // ดึงตัวอักษรแรกของชื่อ
   getUserInitials(fullname: string): string {
+    if (!fullname || fullname.trim() === '') {
+      return 'U'; // Default initial
+    }
     return this.userService.getInitials(fullname);
   }
 
@@ -217,6 +220,7 @@ export class AdminDashboardComponent implements OnInit {
       this.filterMenusByPermission();
     } else {
       console.log('No user data or level found, redirecting to login');
+      console.log('Current user data:', this.currentUser);
       this.router.navigate(['/login']);
     }
   }
