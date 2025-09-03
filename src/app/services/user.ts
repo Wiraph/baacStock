@@ -53,7 +53,6 @@ export class UserService {
     });
   }
 
-
   addUser(payload: any): Observable<string> {
     const encrypPayload = this.encryptionService.encrypPayload(payload);
     return this.http.post(`${this.apiUrl}/adduser`, encrypPayload, {
@@ -64,6 +63,30 @@ export class UserService {
 
   getCurrentUser(): any {
     if (isPlatformBrowser(this.platformId)) {
+      // ดึงข้อมูลจาก userData ก่อน
+      const userData = sessionStorage.getItem('userData');
+      if (userData) {
+        try {
+          const parsedUserData = JSON.parse(userData);
+          return {
+            username: parsedUserData.username || sessionStorage.getItem('username') || '',
+            fullname: parsedUserData.fullname || sessionStorage.getItem('fullname') || '',
+            brCode: parsedUserData.brCode || sessionStorage.getItem('brCode') || '',
+            brName: parsedUserData.brName || sessionStorage.getItem('brName') || '',
+            level: parsedUserData.level || sessionStorage.getItem('level') || '',
+            lvlDesc: parsedUserData.lvlDesc || sessionStorage.getItem('lvlDesc') || '',
+            // เพิ่มข้อมูลสำหรับตรวจสอบ password status
+            datetimeup: parsedUserData.datetimeup,
+            pwdExp: parsedUserData.pwdExp,
+            usrPWD: parsedUserData.usrPWD,
+            currentPassword: parsedUserData.currentPassword
+          };
+        } catch (error) {
+          console.error('Error parsing userData:', error);
+        }
+      }
+      
+      // Fallback ไปใช้ข้อมูลเดิม
       return {
         username: sessionStorage.getItem('username') || '',
         fullname: sessionStorage.getItem('fullname') || '',

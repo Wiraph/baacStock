@@ -7,6 +7,7 @@ import {
 import { UserService } from '../../services/user';
 import { PermissionService } from '../../services/permission.service';
 import { Login } from '../../services/login';
+import { PasswordStatusService, PasswordStatus } from '../../services/password-status.service';
 
 interface MenuItem {
   key: string;
@@ -38,6 +39,14 @@ export class AdminDashboardComponent implements OnInit {
   sidebarCollapsed = false;
   currentUser: any = {};
   filteredMenus: MenuItem[] = [];
+  
+  // เพิ่ม properties สำหรับตรวจสอบ password status
+  isFirstTimeUser = false;
+  isPasswordExpired = false;
+  passwordExpiryDays = 0;
+  passwordExpiryDate: string | null = null;
+  isPasswordChangeRequired = false;
+  isDefaultPassword = false; // เพิ่มการตรวจสอบรหัสผ่านเริ่มต้น
 
   menus: MenuItem[] = [
     {
@@ -150,7 +159,8 @@ export class AdminDashboardComponent implements OnInit {
     private readonly router: Router,
     private readonly userService: UserService,
     private readonly permissionService: PermissionService,
-    private readonly loginService: Login
+    private readonly loginService: Login,
+    private readonly passwordStatusService: PasswordStatusService
   ) { }
 
   toggleSidebar() {
@@ -212,12 +222,82 @@ export class AdminDashboardComponent implements OnInit {
     return this.permissionService.hasActionPermission(menuId, this.currentUser.level);
   }
 
+  // ตรวจสอบสถานะรหัสผ่าน
+  private checkPasswordStatus() {
+    console.log('Checking password status with currentUser:', this.currentUser);
+    
+    // ใช้ PasswordStatusService แทนการเขียน logic ซ้ำ
+    const passwordStatus: PasswordStatus = this.passwordStatusService.checkPasswordStatus(this.currentUser);
+    
+    // อัปเดต properties จาก service
+    this.isFirstTimeUser = passwordStatus.isFirstTimeUser;
+    this.isPasswordExpired = passwordStatus.isPasswordExpired;
+    this.passwordExpiryDays = passwordStatus.passwordExpiryDays;
+    this.passwordExpiryDate = passwordStatus.passwordExpiryDate;
+    this.isDefaultPassword = passwordStatus.isDefaultPassword;
+    this.isPasswordChangeRequired = passwordStatus.isPasswordChangeRequired;
+    
+    console.log('Password Status in Dashboard:', passwordStatus);
+  }
+
+  // แสดงเฉพาะเมนูที่จำเป็นเมื่อต้องเปลี่ยนรหัสผ่าน
+  private showLimitedMenus() {
+    this.filteredMenus = [
+      {
+        key: 'home',
+        label: 'Home',
+        icon: '🔑',
+        open: false,
+        children: [
+          { key: 'change-password', icon: '🔑', label: 'Home', route: '/dashboard-admin/change-password' }
+        ]
+      },
+      {
+        key: 'contact',
+        label: 'ติดต่อ',
+        icon: '📞',
+        open: false,
+        children: [
+          { key: 'contact', icon: '📞', label: 'ติดต่อ', route: '/dashboard-admin/contact' }
+        ]
+      },
+      {
+        key: 'user-manual',
+        label: 'คู่มือการใช้งานระบบ',
+        icon: '📖',
+        open: false,
+        children: [
+          { key: 'user-manual', icon: '📖', label: 'คู่มือการใช้งานระบบ', route: '/dashboard-admin/documents/user-manual' }
+        ]
+      }
+    ];
+    
+    // ถ้าต้องเปลี่ยนรหัสผ่าน ให้ redirect ไปหน้า change-password
+    if (this.isPasswordChangeRequired) {
+      this.router.navigate(['/dashboard-admin/change-password']);
+    }
+  }
+
   ngOnInit(): void {
     // ใช้ UserService เพื่อดึงข้อมูลจาก sessionStorage
     this.currentUser = this.userService.getCurrentUser();
+    
+    console.log('Current user in ngOnInit:', this.currentUser);
 
     if (this.currentUser?.level) {
-      this.filterMenusByPermission();
+      // ตรวจสอบ password status
+      this.checkPasswordStatus();
+      
+      console.log('After checkPasswordStatus - isPasswordChangeRequired:', this.isPasswordChangeRequired);
+      
+      // ถ้าต้องเปลี่ยนรหัสผ่าน ให้แสดงเฉพาะเมนูที่กำหนด
+      if (this.isPasswordChangeRequired) {
+        console.log('Password change required, showing limited menus');
+        this.showLimitedMenus();
+      } else {
+        console.log('No password change required, filtering menus normally');
+        this.filterMenusByPermission();
+      }
     } else {
       console.log('No user data or level found, redirecting to login');
       console.log('Current user data:', this.currentUser);
