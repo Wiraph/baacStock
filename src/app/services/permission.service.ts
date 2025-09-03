@@ -252,6 +252,7 @@ export class PermissionService {
 
   // Filter menus ตามสิทธิ์
   filterMenusByPermission(menus: any[], userLevel: string): any[] {
+    
     if (!userLevel || userLevel === '') {
       return menus;
     }
@@ -265,17 +266,19 @@ export class PermissionService {
       }
 
       // ตรวจสอบ sub-menus
+      const originalChildrenCount = menu.children.length;
       menu.children = menu.children.filter((child: any) => {
         const hasViewPermission = this.hasActionPermission(child.key, userLevel);
         return hasViewPermission;
       });
-
+      
       return menu.children.length > 0;
     });
     
     return filteredMenus;
   }
 
+<<<<<<< HEAD
   // ตรวจสอบสิทธิ์การแก้ไขข้อมูล (เฉพาะ level 99, 85, 09, 05)
   canEditData(userLevel: string): boolean {
     const allowedLevels = ['99', '85', '09', '05'];
@@ -283,6 +286,9 @@ export class PermissionService {
   }
 
   // ตรวจสอบสิทธิ์การแก้ไขข้อมูล (เฉพาะ level 99, 85, 09, 05)
+=======
+  // ตรวจสอบสิทธิ์การแก้ไขข้อมูล (เฉพาะ level 99, 85, 05)
+>>>>>>> develop
   hasEditPermission(userLevel: string): boolean {
     const allowedLevels = ['99', '85', '09', '05'];
     return allowedLevels.includes(userLevel);

@@ -38,25 +38,28 @@
                         <div class="flex justify-center space-x-6">
                             <!-- Reset Password -->
                             <button 
-                                (click)="resetPassword(user.usrId)" 
-                                class="p-2 text-yellow-600 hover:bg-yellow-100 rounded-md transition-colors duration-200"
-                                title="Reset Password">
+                                (click)="manageUser(user, 'RESET_PASSWORD')" 
+                                class="p-2 text-yellow-600 hover:bg-yellow-100 rounded-md transition-colors duration-200 cursor-pointer"
+                                matTooltip="Reset รหัสผ่านเป็น baac"
+                                [matTooltipShowDelay]="400">
                                 🔑
                             </button>
                             
                             <!-- Reset User and Password -->
                             <button 
-                                (click)="resetUserAndPassword(user.usrId)" 
-                                class="p-2 text-orange-600 hover:bg-orange-100 rounded-md transition-colors duration-200"
-                                title="Reset User and Password">
+                                (click)="manageUser(user, 'RESET_USER')" 
+                                class="p-2 text-orange-600 hover:bg-orange-100 rounded-md transition-colors duration-200 cursor-pointer"
+                                matTooltip="Reset ผู้ใช้งานและรหัสผ่าน"
+                                [matTooltipShowDelay]="400">
                                 🔄
                             </button>
                             
                             <!-- Delete User -->
                             <button 
-                                (click)="deleteUser(user.usrId)" 
-                                class="p-2 text-red-600 hover:bg-red-100 rounded-md transition-colors duration-200"
-                                title="Delete User">
+                                (click)="manageUser(user, 'DELETE_USER')" 
+                                class="p-2 text-red-600 hover:bg-red-100 rounded-md transition-colors duration-200 cursor-pointer"
+                                matTooltip="ลบผู้ใช้งานออกจากระบบ"
+                                [matTooltipShowDelay]="400">
                                 🗑️
                             </button>
                         </div>
@@ -70,7 +73,7 @@
             </tbody>
         </table>
 
-        <pagination-controls *ngIf="filteredUsers.length > itemsPerPage" (pageChange)="page = $event"
+        <pagination-controls *ngIf="users.length > itemsPerPage" (pageChange)="page = $event"
             class="mt-4 flex justify-end"></pagination-controls>
     </div>
 
@@ -78,7 +81,7 @@
 </div>
 
 <div *ngIf="activeView === 'adduser'">
-    <app-adduser></app-adduser>
+    <app-adduser (back)="onBackFromAddUser()"></app-adduser>
 </div>
 
 

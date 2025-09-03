@@ -1,7 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { EncryptionService } from './encryption.service';
-import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../environments/environments';
 
 @Injectable({
@@ -12,14 +11,20 @@ export class Divident {
 
   constructor(
     private readonly http: HttpClient,
-    @Inject(PLATFORM_ID) private readonly platformId: object,
     private readonly encryptionService: EncryptionService
   ) { }
 
   getDividend(requestPayload: any) {
     const encrypPayload = this.encryptionService.encrypPayload(requestPayload);
     return this.http.post<any[]>(`${this.apiUrl}/dividend`, encrypPayload, {
+      withCredentials: true,
       headers: this.createAuthHeaders()
+    });
+  }
+
+  private createAuthHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      'Content-Type': 'application/json'
     });
   }
 
@@ -27,7 +32,7 @@ export class Divident {
     const encrypPayload = this.encryptionService.encrypPayload(payload);
     console.log("EncrypPayload", encrypPayload);
     return this.http.post<any[]>(`${this.apiUrl}/dividends`, encrypPayload , {
-      headers: this.createAuthHeaders()
+      withCredentials: true
     })
   }
 
@@ -35,20 +40,20 @@ export class Divident {
     const encrypPayload = this.encryptionService.encrypPayload(payload);
     console.log("รหัสที่จะไปดึง array ", encrypPayload);
     return this.http.post<any[]>(`${this.apiUrl}/dividendlist`, encrypPayload , {
-      headers: this.createAuthHeaders()
+      withCredentials: true
     });
   }
 
   getDividendDetailPerPerson(payload: any) {
     const encrypPayload = this.encryptionService.encrypPayload(payload);
     return this.http.post<any[]>(`${this.apiUrl}/detailperperson`, encrypPayload, {
-      headers: this.createAuthHeaders()
+      withCredentials: true
     });
   }
 
   deleteDividendLST() {
     return this.http.delete<any[]>(`${this.apiUrl}/removedividend`, {
-      headers: this.createAuthHeaders()
+      withCredentials: true
     })
   }
 
@@ -58,17 +63,7 @@ export class Divident {
     console.log('💰 Calling getDividend2Pay with payload:', payload);
     console.log('💰 API URL:', `${this.apiUrl}/2pay`);
     return this.http.post<any[]>(`${this.apiUrl}/2pay`, encrypPayload, {
-      headers: this.createAuthHeaders()
-    });
-  }
-
-  private createAuthHeaders(): HttpHeaders {
-    let token = '';
-    if (isPlatformBrowser(this.platformId)) {
-      token = sessionStorage.getItem('token') || '';
-    }
-    return new HttpHeaders({
-      Authorization: `Bearer ${token}`
+      withCredentials: true
     });
   }
 }

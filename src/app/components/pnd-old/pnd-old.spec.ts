@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ResultCommonStock } from './result-common-stock';
+import { PndOld } from './pnd-old';
 
-describe('ResultCommonStock', () => {
-  let component: ResultCommonStock;
-  let fixture: ComponentFixture<ResultCommonStock>;
+describe('PndOld', () => {
+  let component: PndOld;
+  let fixture: ComponentFixture<PndOld>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ResultCommonStock]
+      imports: [PndOld]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ResultCommonStock);
+    fixture = TestBed.createComponent(PndOld);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,9 +1,7 @@
-import { Component, ChangeDetectorRef, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, Output, EventEmitter, Inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { CustomerStockService } from '../../../services/customer-stock-service';
-import { JwtDecoder } from '../../../services/jwt-decoder';
 import { DataTransfer } from '../../../services/data-transfer';
 import { StocksComponent } from '../stocks/stocks';
 import { NewCusComponent } from '../newcus/newcus';
@@ -30,7 +28,7 @@ export class SearchEditComponent implements OnInit {
 
   cusId: string = '';
   titleSearch: string = '';
-  branch = '';
+  branch: string | null = '';
   activeView = 'search';
   table = false;
   selectedStockNotes: string[] = [];
@@ -57,12 +55,11 @@ export class SearchEditComponent implements OnInit {
 
   constructor(
     private readonly cd: ChangeDetectorRef,
-    private readonly cusstomerStockService: CustomerStockService,
-    private readonly jwtCoder: JwtDecoder,
+    private readonly customerStockService: CustomerStockService,
     private readonly dataTrasfer: DataTransfer,
     private readonly userService: UserService,
-    private readonly router: Router,
-    private readonly customerService: CustomerService
+    private readonly customerService: CustomerService,
+    @Inject(PLATFORM_ID) private readonly platformId: Object
   ) { }
 
   nextPage() {
@@ -96,18 +93,24 @@ export class SearchEditComponent implements OnInit {
   ngOnInit(): void {
     this.statusPage = this.dataTrasfer.getPageStatus();
     this.onloadStart();
-    
+
     // ตรวจสอบว่าอยู่ใน browser environment หรือไม่
-    if (typeof window !== 'undefined' && window.sessionStorage) {
-      const token = sessionStorage.getItem('token');
-      const decoder = this.jwtCoder.decodeToken(String(token));
-      this.branch = decoder.BrName ?? "";
-    } else {
-      this.branch = "";
+    if (isPlatformBrowser(this.platformId)) {
+      console.log("All cookies:", document.cookie);
+      const rawBrName = this.getCookie('BrName');
+      this.branch = rawBrName ? decodeURIComponent(rawBrName) : null;
+      console.log("BrName", this.branch);
     }
 
     // โหลดข้อมูล user ปัจจุบัน
     this.currentUser = this.userService.getCurrentUser();
+  }
+
+  getCookie(name: string): string | null {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()!.split(';').shift()!;
+    return null;
   }
 
   onSubmit(event: Event) {
@@ -129,12 +132,10 @@ export class SearchEditComponent implements OnInit {
       PGNum: pgNum,
       PGSize: PGSize
     }
-    console.log(requestPayload);
     this.cd.detectChanges();
-    this.cusstomerStockService.searchCustomerStock(requestPayload)
+    this.customerService.searchCustomerStk(requestPayload)
       .subscribe({
         next: data => {
-          console.log(data);
           this.customerStocks = data;
           this.loading = false;
           this.cd.detectChanges();
@@ -185,9 +186,9 @@ export class SearchEditComponent implements OnInit {
   onHandle(cusId: string) {
     if (this.statusPage == '1') {
       this.activeView = 'edit';
-      this.statusView.emit({ view: 'edit', cusId: cusId });
+      this.statusView.emit({ view: 'editcus', cusId: cusId });
     } else if (this.statusPage == '2') {
-      this.statusView.emit({ view: 'sale', cusId: cusId });
+      this.statusView.emit({ view: 'stksale', cusId: cusId });
     } else if (this.statusPage == '3') {
       this.statusView.emit({ view: 'newcertificate', cusId: cusId });
     } else if (this.statusPage == '4') {
@@ -203,19 +204,6 @@ export class SearchEditComponent implements OnInit {
     this.cusId = cusId;
     this.activeView = 'stock';
     this.cd.detectChanges();
-  }
-
-  // ตรวจสอบเลขบัตร 13 หลัก
-  isValidIdCard(): boolean {
-    const idCard = this.criteria.cusId;
-
-    // ตรวจสอบความยาว 13 หลัก
-    if (!idCard || idCard.length !== 13 || !/^\d{13}$/.test(idCard)) {
-      return false;
-    }
-
-    // ตรวจสอบ checksum
-    return this.validateIdCardChecksum(idCard);
   }
 
   // ตรวจสอบ checksum ของเลขบัตร
@@ -234,40 +222,63 @@ export class SearchEditComponent implements OnInit {
 
   // warning ของปุ่มผู้ถือหุ้นรายใหม่
   onNewShareholder() {
-    if (this.criteria.cusId.length !== 13) {
+    if (this.criteria.cusId.length === 0) {
       Swal.fire({
         icon: 'warning',
-        title: 'เลขบัตรแสดงตนไม่ถูกต้อง',
-        text: 'กรุณาใส่เลขบัตรแสดงตน 13 หลัก ที่ถูกต้องในช่อง "เลขที่บัตรแสดงตน" ก่อน',
-        confirmButtonText: 'เข้าใจแล้ว'
-      });
-      return;
-    }
-
-    // ตรวจสอบว่ามีผู้ถือหุ้นรายนี้ในระบบหรือไม่
-    const payload = {
-      cusId: this.criteria.cusId
-    };
-    this.customerService.getCustomer(payload).subscribe({
-      next: (res: any) => {
-        console.log(res);
-        if (res.message === "ไม่พบข้อมูลลูกค้า") {
-          this.mode = 'new-shareholder';
-          this.idCard = this.criteria.cusId;
-          this.activeView = 'newcus';
-          this.cd.detectChanges();
+        text: 'กรุณาบันทึกเลขที่บัตรแสดงตน'
+      })
+    } else {
+      Swal.fire({
+        icon: 'question',
+        html: `<p>เลขที่บัตรแสดงตนของผู้ถือหุ้น เป็นเลขนิติบุคคล ใช่หรือไม่?</p>
+        <div style="display: flex; justify-content: center;">
+        <p style="width: 50px; text-align: start;">Yes</p><p style="width: 50px; text-align: start;">=></p><p>เลขทะเบียนนิติบุคคล</p>
+        </div>
+        <div style="display: flex; justify-content: center;">
+        <p style="width: 50px; text-align: start; margin-left: 15px">No</p><p style="width: 50px; text-align: start;">=></p><p>เลขประจำตัวประชาชน</p>
+        </div>
+        `,
+        confirmButtonText: "Yes",
+        cancelButtonText: "No",
+        showCancelButton: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.statusView.emit({ view: 'newcus', cusId: this.criteria.cusId })
         } else {
-          Swal.fire({
-            icon: 'warning',
-            text: 'หมายเลขบัตรแสดงตนนี้มีอยู่ในระบบนี้แล้ว',
-            confirmButtonText: 'เข้าใจแล้ว'
-          });
+          const cusId = this.criteria.cusId;
+          let msg: string = '';
+          if (cusId.length < 13) {
+            msg = "*** กรุณาบันทึกเลขที่บัตรประชาชน 13 หลัก ***";
+            this.alert(msg);
+            return
+          }
+          if (isNaN(Number(cusId))) {
+            const msg = "*** กรุณาบันทึกเป็นตัวเลขเท่านั้น จำนวน 13 หลัก ***";
+            this.alert(msg);
+            return;
+          }
+          if (cusId.length > 13) {
+            msg = "*** กรุณาบันทึกเลขที่บัตรประชาชนไม่เกิน 13 หลัก ***";
+            this.alert(msg);
+            return
+          }
+          if (cusId.length == 13) {
+            this.statusView.emit({ view: 'newcus', cusId: cusId })
+          } else {
+            msg = "*** กรุณาบันทึกเลขที่บัตรประชาชน 13 หลัก ***";
+            this.alert(msg);
+            return
+          }
         }
-      },
-      error: (err) => {
-        console.error('เกิดข้อผิดพลาด', err);
-      }
-    });
+      })
+    }
+  }
+
+  alert(msg: string) {
+    Swal.fire({
+      icon: 'warning',
+      text: `${msg}`
+    })
   }
 }
 

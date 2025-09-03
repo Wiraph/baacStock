@@ -1,10 +1,10 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { UserService } from '../../../services/user';
 import { JwtDecoder } from '../../../services/jwt-decoder';
-import { filter } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
+import { MetadataService } from '../../../services/metadata';
 
 @Component({
   selector: 'app-adduser',
@@ -13,10 +13,12 @@ import Swal from 'sweetalert2';
   styleUrl: './adduser.css'
 })
 export class AdduserComponent implements OnInit {
+  @Output() back = new EventEmitter<void>();
   constructor(
-    private userService: UserService,
-    private jwtDecoder: JwtDecoder,
-    private cd: ChangeDetectorRef
+    private readonly userService: UserService,
+    private readonly jwtDecoder: JwtDecoder,
+    private readonly cd: ChangeDetectorRef,
+    private readonly metadataService: MetadataService
   ) { }
 
   levelList: any[] = [];
@@ -34,7 +36,6 @@ export class AdduserComponent implements OnInit {
       this.token = sessionStorage.getItem('token') || '';
       if (this.token) {
         this.decodedToken = this.jwtDecoder.decodeToken(this.token);
-        console.log('Decoded Token:', this.decodedToken);
       } else {
         // ถ้าไม่มี token ให้ redirect ไป login
         window.location.href = '/login';
@@ -46,32 +47,20 @@ export class AdduserComponent implements OnInit {
       return;
     }
 
-    this.userService.getUserLevels().subscribe({
+    this.metadataService.getLevel().subscribe({
       next: (data) => {
-        if (this.decodedToken.Role == 99) {
-          this.levelList = data;
-          this.cd.detectChanges();
-        } else {
-          this.levelList = data.filter((user: any) => user.lvlCode < this.decodedToken.Role);
-          this.cd.detectChanges();
-        }
+        this.levelList = data;
+        this.cd.detectChanges();
       },
       error: (error) => {
         console.log('Error fetching users:', error);
       }
     });
 
-    this.userService.getBranchList().subscribe({
+    this.metadataService.getBranch().subscribe({
       next: (data) => {
-        console.log('Branch List:', data);
-        if (this.decodedToken.Role == 99 || this.decodedToken.Role == 89) {
-          this.branchList = data;
-          this.cd.detectChanges();
-        } else {
-          this.branchList = data.filter((branch: any) => branch.brProBrn == this.decodedToken.BrCode);
-          this.selectedBranchCode = this.branchList[0]?.brProBrn || '';
-          this.cd.detectChanges();
-        }
+        this.branchList = data;
+        this.cd.detectChanges();
       },
       error: (error) => {
         console.log('Error fetching branch list:', error);
@@ -106,36 +95,37 @@ export class AdduserComponent implements OnInit {
 
   addUser() {
     const payload = {
-      usrBRC: this.selectedBranchCode,
+      usrBrc: this.selectedBranchCode,
       usrID: this.userId,
       usrDESC: this.fullName,
       usrLVL: this.selectedLevelCode
     };
-    console.log('Payload:', payload);
     this.userService.addUser(payload).subscribe({
-      next: (res) => {
+      next: (msg: string) => {
         Swal.fire({
-          title: 'สำเร็จ',
-          text: 'เพิ่มผู้ใช้ใหม่เรียบร้อยแล้ว',
           icon: 'success',
-          confirmButtonText: 'ตกลง'
-        }).then(() => {
-          this.resetForm();
-        })
-      }, error: (err) => {
-        console.error('Error adding user:', err);
-        Swal.fire({
-          title: 'เกิดข้อผิดพลาด',
-          text: 'ไม่สามารถเพิ่มผู้ใช้ใหม่ได้',
-          icon: 'error',
-          confirmButtonText: 'ตกลง'
+          text: `${msg}`,
+          confirmButtonText: 'Yes',
+          confirmButtonColor: "#50C878"
+        }).then((result) => {
+          if(result.isConfirmed) {
+            this.onBackClick();
+          }
         });
+        this.cd.detectChanges();
+      }, error: (err: any) => {
+        if (err.status === 409) {
+          Swal.fire({
+            icon: 'warning',
+            text: `${err.error}`,
+            confirmButtonText: 'Yes',
+            confirmButtonColor: "#50C878"
+          });
+        } else {
+          console.log("Error", err);
+        }
       }
     })
-  }
-
-  resetForm() {
-    window.location.reload();
   }
 
   clearForm() {
@@ -145,4 +135,7 @@ export class AdduserComponent implements OnInit {
     this.fullName = '';
   }
 
+  onBackClick() {
+    this.back.emit();
+  }
 }

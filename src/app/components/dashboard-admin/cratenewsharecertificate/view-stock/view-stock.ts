@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StockService, StockItem } from '../../../../services/stock';
 import { MetadataService } from '../../../../services/metadata';
+import { SystemMetadata } from '../../../../services/Metadata/system-metadata';
 
 // เพิ่ม interface เพื่อรองรับ property ใหม่
 interface StockItemWithFlags extends StockItem {
@@ -38,7 +39,8 @@ export class ViewStock implements OnChanges, OnInit {
   constructor(
     private readonly stockService: StockService,
     private readonly metaDataService: MetadataService,
-    private readonly cd: ChangeDetectorRef
+    private readonly cd: ChangeDetectorRef,
+    private readonly systemMetadataService: SystemMetadata
   ) { }
 
   setView(view: string): void {
@@ -59,7 +61,7 @@ export class ViewStock implements OnChanges, OnInit {
   }
 
   ngOnInit() {
-    this.metaDataService.getRemCode().subscribe({
+    this.systemMetadataService.remCode().subscribe({
       next: (data) => {
         this.remCodeList = data;
       },

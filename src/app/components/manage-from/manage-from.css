@@ -1,0 +1,23 @@
+input:enabled {
+  background-color: #d9f99d; /* เขียวอ่อน */
+  border: 1px solid #28a745;
+}
+
+input:disabled {
+  background-color: #cce5ff; /* น้ำเงินอ่อน */
+  border: 1px solid #004085;
+  color: #000; /* ป้องกันตัวอักษรจาง */
+  opacity: 1;  /* ป้องกัน browser ทำให้ซีด */
+}
+
+select:enabled {
+  background-color: #d9f99d; /* เขียวอ่อน */
+  border: 1px solid #28a745;
+}
+
+select:disabled {
+  background-color: #cce5ff; /* น้ำเงินอ่อน */
+  border: 1px solid #004085;
+  color: #000; /* ป้องกันตัวอักษรจาง */
+  opacity: 1;  /* ป้องกัน browser ทำให้ซีด */
+}

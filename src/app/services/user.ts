@@ -3,12 +3,7 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { Observable } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../environments/environments';
-
-export interface ChangePasswordDto {
-  userName: string;
-  oldPassword: string;
-  newPassword: string;
-}
+import { EncryptionService } from './encryption.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,47 +12,81 @@ export class UserService {
   private readonly apiUrl = `${environment.dotnetApiUrl}/api/user`;
 
   constructor(private readonly http: HttpClient,
-    @Inject(PLATFORM_ID) private readonly platformId: Object
+    @Inject(PLATFORM_ID) private readonly platformId: Object,
+    private readonly encryptionService: EncryptionService
   ) { }
 
+  // ดึงผู้งานทั้งหมด
   getAllUsers(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+    return this.http.get<any[]>(`${this.apiUrl}/getallusers`, {
+      withCredentials: true
+    });
   }
 
-  deleteUser(userId: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${userId}`);
+  getUserById(userId: string): Observable<any> {
+    const payload = {
+      UserId: userId
+    };
+    const encrypPayload = this.encryptionService.encrypPayload(payload);
+    return this.http.post(`${this.apiUrl}/getuserbyid`, encrypPayload ,{
+      headers: this.createAuthHeaders()
+    });
+  }
+
+  /*
+    ใช้ควบคุมการทำงาน เช่น resetpwd, resetuser, delete
+    payload = {UserId: string, brc: string, Act: string}
+  */
+  manageUser(payload: any): Observable<any[]> {
+    const encryptionPayload = this.encryptionService.encrypPayload(payload);
+    return this.http.post<any[]>(`${this.apiUrl}/controlleraction`, encryptionPayload , {
+      headers: this.createAuthHeaders()
+    });
   }
 
   // เปลี่ยนรหัสผ่าน
-  changePassword(data: ChangePasswordDto): Observable<any> {
-    console.log(data);
-    return this.http.post(`${this.apiUrl}/change-password`, data);
+  changePassword(payload: any): Observable<string> {
+    const encrypPayload = this.encryptionService.encrypPayload(payload);
+    return this.http.post(`${this.apiUrl}/changepassword`, encrypPayload, {
+      headers: this.createAuthHeaders(),
+      responseType: 'text'
+    });
   }
 
-  // รีเซ็ตรหัสผ่าน
-  resetPassword(userId: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${userId}/reset-password`, {});
-  }
-
-  // รีเซ็ตผู้ใช้และรหัสผ่าน
-  resetUserAndPassword(userId: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${userId}/reset-user-password`, {});
-  }
-
-  getUserLevels(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/lvl`, {headers: this.createAuthHeaders()});
-  }
-
-  getBranchList(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/branch`, {headers: this.createAuthHeaders()});
-  }
-
-  addUser(payload: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}`, payload, {headers: this.createAuthHeaders()});
+  addUser(payload: any): Observable<string> {
+    const encrypPayload = this.encryptionService.encrypPayload(payload);
+    return this.http.post(`${this.apiUrl}/adduser`, encrypPayload, {
+      headers: this.createAuthHeaders(),
+      responseType: 'text'
+    });
   }
 
   getCurrentUser(): any {
     if (isPlatformBrowser(this.platformId)) {
+      // ดึงข้อมูลจาก userData ก่อน
+      const userData = sessionStorage.getItem('userData');
+      if (userData) {
+        try {
+          const parsedUserData = JSON.parse(userData);
+          return {
+            username: parsedUserData.username || sessionStorage.getItem('username') || '',
+            fullname: parsedUserData.fullname || sessionStorage.getItem('fullname') || '',
+            brCode: parsedUserData.brCode || sessionStorage.getItem('brCode') || '',
+            brName: parsedUserData.brName || sessionStorage.getItem('brName') || '',
+            level: parsedUserData.level || sessionStorage.getItem('level') || '',
+            lvlDesc: parsedUserData.lvlDesc || sessionStorage.getItem('lvlDesc') || '',
+            // เพิ่มข้อมูลสำหรับตรวจสอบ password status
+            datetimeup: parsedUserData.datetimeup,
+            pwdExp: parsedUserData.pwdExp,
+            usrPWD: parsedUserData.usrPWD,
+            currentPassword: parsedUserData.currentPassword
+          };
+        } catch (error) {
+          console.error('Error parsing userData:', error);
+        }
+      }
+      
+      // Fallback ไปใช้ข้อมูลเดิม
       return {
         username: sessionStorage.getItem('username') || '',
         fullname: sessionStorage.getItem('fullname') || '',

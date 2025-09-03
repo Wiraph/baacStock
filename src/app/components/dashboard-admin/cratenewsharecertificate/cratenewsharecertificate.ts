@@ -10,6 +10,7 @@ import { CustomerStockService } from '../../../services/customer-stock-service';
 import { StockService } from '../../../services/stock';
 import Swal from 'sweetalert2';
 import { MetadataService } from '../../../services/metadata';
+import { SystemMetadata } from '../../../services/Metadata/system-metadata';
 
 @Component({
   standalone: true,
@@ -49,7 +50,8 @@ export class CratenewsharecertificateComponent implements OnInit {
     private readonly customerService: CustomerService,
     private readonly customerStockService: CustomerStockService,
     private readonly stockService: StockService,
-    private readonly metaDataService: MetadataService
+    private readonly metaDataService: MetadataService,
+    private readonly systemMedataaService : SystemMetadata
   ) { }
 
   ngOnInit(): void {
@@ -124,7 +126,7 @@ export class CratenewsharecertificateComponent implements OnInit {
         console.log("Error", err);
       }
     })
-    this.metaDataService.getRemCode().subscribe({
+    this.systemMedataaService.remCode().subscribe({
       next: (res) => {
         const allowCode = ["0020", "0021"];
         this.remCodes = res.filter((item: any) => allowCode.includes(item.remCode));
