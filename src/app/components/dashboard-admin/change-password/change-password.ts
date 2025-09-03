@@ -2,9 +2,9 @@ import { ChangeDetectorRef, Component, Inject, PLATFORM_ID, OnInit } from '@angu
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../services/user';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { JwtDecoder } from '../../../services/jwt-decoder';
 import Swal from 'sweetalert2';
 import { Login } from '../../../services/login';
+import { PasswordStatusService, PasswordStatus } from '../../../services/password-status.service';
 
 @Component({
   selector: 'app-change-password',
@@ -23,7 +23,6 @@ export class ChangePasswordComponent implements OnInit {
   loading = false;
   errorMessage = '';
   successMessage = '';
-  token = '';
   dataUser: any;
   
   // เพิ่ม properties สำหรับตรวจสอบ password status
@@ -36,103 +35,139 @@ export class ChangePasswordComponent implements OnInit {
   constructor(
     private readonly userService: UserService,
     @Inject(PLATFORM_ID) private readonly platformId: Object,
-    private readonly jwdDecodeService: JwtDecoder,
     private readonly cd: ChangeDetectorRef,
-    private readonly loginService: Login
+    private readonly loginService: Login,
+    private readonly passwordStatusService: PasswordStatusService
   ) { }
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      this.token = sessionStorage.getItem('token') || "";
-    }
-
-    if (!this.token) {
-      console.error("Token not found in sessionStorage");
-      return;
-    }
-
-    const decodedToken = this.jwdDecodeService.decodeToken(String(this.token));
-    this.userId = decodedToken.UserId;
-    this.loadUser();
-    
-    // ตรวจสอบว่าต้องเปลี่ยนรหัสผ่านหรือไม่
-    this.checkIfPasswordChangeRequired();
-  }
-
-  // ตรวจสอบว่าต้องเปลี่ยนรหัสผ่านหรือไม่
-  private checkIfPasswordChangeRequired() {
-    // ตรวจสอบหลังจาก loadUser เสร็จแล้ว
-    setTimeout(() => {
-      if (this.isFirstTimeUser || this.isPasswordExpired || this.isDefaultPassword) {
-        console.log('Password change required:', {
+      // ใช้ UserService เพื่อดึงข้อมูลผู้ใช้ปัจจุบันแทนการ decode token
+      const currentUser = this.userService.getCurrentUser();
+      
+      if (currentUser.username) {
+        this.userId = currentUser.username;
+        this.userName = currentUser.username;
+        this.fullName = currentUser.fullname;
+        
+        console.log('Change Password Component - Current User:', currentUser);
+        
+        // ตรวจสอบ password status จากข้อมูลใน sessionStorage
+        this.checkPasswordStatusFromSession();
+        
+        console.log('ngOnInit - After checkPasswordStatusFromSession - Properties:', {
           isFirstTimeUser: this.isFirstTimeUser,
           isPasswordExpired: this.isPasswordExpired,
           isDefaultPassword: this.isDefaultPassword
         });
         
-        // แสดงข้อความแจ้งเตือน
-        if (this.isFirstTimeUser) {
-          this.msgAlert("กรุณากำหนดรหัสผ่านใหม่ สำหรับการใช้งานระบบครั้งแรก");
-        } else if (this.isPasswordExpired) {
-          this.msgAlert(`รหัสผ่านหมดอายุ (${this.passwordExpiryDays} วัน) กรุณากำหนดรหัสผ่านใหม่`);
-        } else if (this.isDefaultPassword) {
-          this.msgAlert("คุณกำลังใช้รหัสผ่านเริ่มต้น (baac) กรุณากำหนดรหัสผ่านใหม่เพื่อความปลอดภัย");
-        }
+        // โหลดข้อมูลผู้ใช้จาก API
+        this.loadUser();
+      } else {
+        console.error("User data not found in sessionStorage");
+        return;
       }
-    }, 1000); // รอให้ loadUser เสร็จก่อน
+    }
   }
 
+    // ตรวจสอบ password status
+  private checkPasswordStatusFromSession() {
+    const currentUser = this.userService.getCurrentUser();
+    
+    if (currentUser) {
+      console.log('checkPasswordStatusFromSession - Current User:', currentUser);
+      
+      // ใช้ PasswordStatusService แทนการเขียน logic ซ้ำ
+      const passwordStatus: PasswordStatus = this.passwordStatusService.checkPasswordStatus(currentUser);
+      
+      console.log('checkPasswordStatusFromSession - Password Status:', passwordStatus);
+      
+      // อัปเดต properties จาก service
+      this.isFirstTimeUser = passwordStatus.isFirstTimeUser;
+      this.isPasswordExpired = passwordStatus.isPasswordExpired;
+      this.passwordExpiryDays = passwordStatus.passwordExpiryDays;
+      this.passwordExpiryDate = passwordStatus.passwordExpiryDate;
+      this.isDefaultPassword = passwordStatus.isDefaultPassword;
+      
+      console.log('checkPasswordStatusFromSession - Properties Updated:', {
+        isFirstTimeUser: this.isFirstTimeUser,
+        isPasswordExpired: this.isPasswordExpired,
+        isDefaultPassword: this.isDefaultPassword
+      });
+      
+      // Force change detection
+      this.cd.detectChanges();
+      
+      // ตรวจสอบ template condition
+      const shouldShowWarning = this.isFirstTimeUser || this.isPasswordExpired || this.isDefaultPassword;
+      console.log('Template condition check:', {
+        condition: 'isFirstTimeUser || isPasswordExpired || isDefaultPassword',
+        result: shouldShowWarning,
+        values: {
+          isFirstTimeUser: this.isFirstTimeUser,
+          isPasswordExpired: this.isPasswordExpired,
+          isDefaultPassword: this.isDefaultPassword
+        }
+      });
+    }
+  }
+
+
+
   loadUser() {
+    console.log('loadUser - Starting with userId:', this.userId);
+    
     this.userService.getUserById(this.userId).subscribe({
       next: (res: any) => {
         this.dataUser = res;
-        console.log(this.dataUser);
+        console.log('loadUser - API Response:', this.dataUser);
         
         // ตรวจสอบ password status
         this.checkPasswordStatus();
         
+        console.log('loadUser - After checkPasswordStatus - Properties:', {
+          isFirstTimeUser: this.isFirstTimeUser,
+          isPasswordExpired: this.isPasswordExpired,
+          isDefaultPassword: this.isDefaultPassword
+        });
+        
         this.cd.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('loadUser - API Error:', err);
       }
     })
   }
 
-  // ตรวจสอบสถานะรหัสผ่าน
+  // ตรวจสอบสถานะรหัสผ่านจากข้อมูล API
   private checkPasswordStatus() {
     if (!this.dataUser) return;
 
-    // ตรวจสอบการใช้งานระบบครั้งแรก (DATETIMEUP เป็น null)
-    this.isFirstTimeUser = !this.dataUser.datetimeup || this.dataUser.datetimeup === null;
-    
-    // ตรวจสอบรหัสผ่านหมดอายุ
-    if (this.dataUser.pwdExp && this.dataUser.datetimeup) {
-      const lastPasswordChange = new Date(this.dataUser.datetimeup);
-      const currentDate = new Date();
-      const daysDiff = Math.floor((currentDate.getTime() - lastPasswordChange.getTime()) / (1000 * 60 * 60 * 24));
-      
-      this.passwordExpiryDays = this.dataUser.pwdExp;
-      this.isPasswordExpired = daysDiff > this.passwordExpiryDays;
+    // อัปเดตข้อมูลจาก API ถ้ามีข้อมูลใหม่
+    if (this.dataUser.datetimeup) {
+      this.isFirstTimeUser = false;
       this.passwordExpiryDate = this.dataUser.datetimeup;
     }
     
-    // ถ้าไม่มี pwdExp ให้ใช้ค่า default 30 วัน
-    if (!this.dataUser.pwdExp) {
-      this.passwordExpiryDays = 30;
-    }
+    // ใช้ PasswordStatusService แทนการเขียน logic ซ้ำ
+    const passwordStatus: PasswordStatus = this.passwordStatusService.checkPasswordStatus(this.dataUser);
     
-    // ตรวจสอบรหัสผ่านเริ่มต้น (baac) - ตรวจสอบจาก oldPassword ที่ user กรอก
-    // หรือตรวจสอบจากข้อมูลในระบบ
-    this.isDefaultPassword = this.oldPassword === 'baac' || 
-                           this.dataUser.currentPassword === 'baac' || 
-                           this.dataUser.usrPWD === 'baac';
+    // อัปเดต properties จาก service
+    this.isFirstTimeUser = passwordStatus.isFirstTimeUser;
+    this.isPasswordExpired = passwordStatus.isPasswordExpired;
+    this.passwordExpiryDays = passwordStatus.passwordExpiryDays;
+    this.passwordExpiryDate = passwordStatus.passwordExpiryDate;
+    this.isDefaultPassword = passwordStatus.isDefaultPassword;
     
-    console.log('Password Status:', {
+    console.log('Password Status from API:', passwordStatus);
+    console.log('Change Password Component Properties After API Update:', {
       isFirstTimeUser: this.isFirstTimeUser,
       isPasswordExpired: this.isPasswordExpired,
-      passwordExpiryDays: this.passwordExpiryDays,
-      passwordExpiryDate: this.passwordExpiryDate,
-      isDefaultPassword: this.isDefaultPassword,
-      dataUser: this.dataUser
+      isDefaultPassword: this.isDefaultPassword
     });
+    
+    // Force change detection
+    this.cd.detectChanges();
   }
 
   onClear(): void {
@@ -148,35 +183,50 @@ export class ChangePasswordComponent implements OnInit {
     // ตรวจสอบข้อมูลที่จำเป็น
     if (this.oldPassword == '' || this.newPassword == '' || this.confirmPassword == '') {
       this.loading = false;
-      this.msgAlert("กรุณากรอกข้อมูลให้ครบถ้วน");
+      Swal.fire({
+        icon: 'error',
+        text: "กรุณากรอกข้อมูลให้ครบถ้วน",
+      });
       return;
     }
     
     // ตรวจสอบรหัสผ่านใหม่ตรงกัน
     if (this.newPassword !== this.confirmPassword) {
       this.loading = false;
-      this.msgAlert("รหัสผ่านใหม่ไม่ตรงกัน");
+      Swal.fire({
+        icon: 'error',
+        text: "รหัสผ่านใหม่ไม่ตรงกัน",
+      });
       return;
     }
     
     // ตรวจสอบรหัสผ่านใหม่ไม่ซ้ำกับรหัสผ่านเดิม
     if (this.oldPassword === this.newPassword) {
       this.loading = false;
-      this.msgAlert("รหัสผ่านใหม่ต้องไม่ซ้ำกับรหัสผ่านเดิม กรุณาบันทึกใหม่");
+      Swal.fire({
+        icon: 'error',
+        text: "รหัสผ่านใหม่ต้องไม่ซ้ำกับรหัสผ่านเดิม กรุณาบันทึกใหม่",
+      });
       return;
     }
     
     // ตรวจสอบความยาวรหัสผ่านใหม่ (ขั้นต่ำ 8 ตัวอักษร)
     if (this.newPassword.length < 8) {
       this.loading = false;
-      this.msgAlert("รหัสผ่านใหม่ต้องมีอย่างน้อย 8 ตัวอักษร");
+      Swal.fire({
+        icon: 'error',
+        text: "รหัสผ่านใหม่ต้องมีอย่างน้อย 8 ตัวอักษร",
+      });
       return;
     }
     
     // ตรวจสอบรหัสผ่านใหม่ไม่ใช่รหัสผ่านเริ่มต้น (baac)
     if (this.newPassword === 'baac') {
       this.loading = false;
-      this.msgAlert("รหัสผ่านใหม่ต้องไม่ใช่รหัสผ่านเริ่มต้น 'baac' กรุณาบันทึกใหม่");
+      Swal.fire({
+        icon: 'error',
+        text: "รหัสผ่านใหม่ต้องไม่ใช่รหัสผ่านเริ่มต้น 'baac' กรุณาบันทึกใหม่",
+      });
       return;
     }
 
@@ -244,13 +294,5 @@ export class ChangePasswordComponent implements OnInit {
       }
     })
 
-  }
-
-  msgAlert(msg: string) {
-    Swal.fire({
-      icon: 'error',
-      text: `${msg}`,
-    })
-    this.cd.detectChanges();
   }
 }

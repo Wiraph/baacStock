@@ -7,6 +7,7 @@ import {
 import { UserService } from '../../services/user';
 import { PermissionService } from '../../services/permission.service';
 import { Login } from '../../services/login';
+import { PasswordStatusService, PasswordStatus } from '../../services/password-status.service';
 
 interface MenuItem {
   key: string;
@@ -158,7 +159,8 @@ export class AdminDashboardComponent implements OnInit {
     private readonly router: Router,
     private readonly userService: UserService,
     private readonly permissionService: PermissionService,
-    private readonly loginService: Login
+    private readonly loginService: Login,
+    private readonly passwordStatusService: PasswordStatusService
   ) { }
 
   toggleSidebar() {
@@ -224,41 +226,18 @@ export class AdminDashboardComponent implements OnInit {
   private checkPasswordStatus() {
     console.log('Checking password status with currentUser:', this.currentUser);
     
-    // ตรวจสอบการใช้งานระบบครั้งแรก (DATETIMEUP เป็น null)
-    this.isFirstTimeUser = !this.currentUser?.datetimeup || this.currentUser?.datetimeup === null;
+    // ใช้ PasswordStatusService แทนการเขียน logic ซ้ำ
+    const passwordStatus: PasswordStatus = this.passwordStatusService.checkPasswordStatus(this.currentUser);
     
-    // ตรวจสอบรหัสผ่านหมดอายุ
-    if (this.currentUser?.pwdExp && this.currentUser?.datetimeup) {
-      const lastPasswordChange = new Date(this.currentUser.datetimeup);
-      const currentDate = new Date();
-      const daysDiff = Math.floor((currentDate.getTime() - lastPasswordChange.getTime()) / (1000 * 60 * 60 * 24));
-      
-      this.passwordExpiryDays = this.currentUser.pwdExp;
-      this.isPasswordExpired = daysDiff > this.passwordExpiryDays;
-      this.passwordExpiryDate = this.currentUser.datetimeup;
-    }
+    // อัปเดต properties จาก service
+    this.isFirstTimeUser = passwordStatus.isFirstTimeUser;
+    this.isPasswordExpired = passwordStatus.isPasswordExpired;
+    this.passwordExpiryDays = passwordStatus.passwordExpiryDays;
+    this.passwordExpiryDate = passwordStatus.passwordExpiryDate;
+    this.isDefaultPassword = passwordStatus.isDefaultPassword;
+    this.isPasswordChangeRequired = passwordStatus.isPasswordChangeRequired;
     
-    // ถ้าไม่มี pwdExp ให้ใช้ค่า default 30 วัน
-    if (!this.currentUser?.pwdExp) {
-      this.passwordExpiryDays = 30;
-    }
-    
-    // ตรวจสอบรหัสผ่านเริ่มต้น (baac)
-    this.isDefaultPassword = this.currentUser?.currentPassword === 'baac' || 
-                             this.currentUser?.usrPWD === 'baac';
-    
-    // ตรวจสอบว่าต้องเปลี่ยนรหัสผ่านหรือไม่
-    this.isPasswordChangeRequired = this.isFirstTimeUser || this.isPasswordExpired || this.isDefaultPassword;
-    
-    console.log('Password Status in Dashboard:', {
-      isFirstTimeUser: this.isFirstTimeUser,
-      isPasswordExpired: this.isPasswordExpired,
-      passwordExpiryDays: this.passwordExpiryDays,
-      passwordExpiryDate: this.passwordExpiryDate,
-      isDefaultPassword: this.isDefaultPassword,
-      isPasswordChangeRequired: this.isPasswordChangeRequired,
-      currentUser: this.currentUser
-    });
+    console.log('Password Status in Dashboard:', passwordStatus);
   }
 
   // แสดงเฉพาะเมนูที่จำเป็นเมื่อต้องเปลี่ยนรหัสผ่าน
