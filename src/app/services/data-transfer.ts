@@ -13,6 +13,7 @@ export class DataTransfer {
   // pageStauts = 4 -> โอนเปลี่ยนมือ
   // pageStauts = 5 -> เงินปันผล
   // pageStatus = 6 -> บล็อคใบหุ้น
+  // pageStatus = 7 -> เพิ่มผู้ถือหุ้นรายใหม่
 
   setStkNote(note: string) {
     this.stkNote =note;

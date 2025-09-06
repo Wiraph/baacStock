@@ -33,7 +33,6 @@ import { Pnd2aold } from './components/dashboard-admin/pnd-system/pnd2aold/pnd2a
 import { Pnd53old } from './components/dashboard-admin/pnd-system/pnd53old/pnd53old';
 import { SaleStockComponent } from './components/dashboard-admin/sale-stock/sale-stock';
 import { AnnualdividendcalculatorComponent } from './components/dashboard-admin/annualdividendcalculator/annualdividendcalculator';
-import { NewCusComponent } from './components/dashboard-admin/newcus/newcus';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -77,7 +76,6 @@ export const routes: Routes = [
       { path: 'pnd2aold', component: Pnd2aold },
       { path: 'pnd53old', component: Pnd53old },
       { path: 'AnnualDividendCalculatorComponent', component: AnnualdividendcalculatorComponent },
-      { path: 'newcus', component: NewCusComponent }
     ]
   },
 

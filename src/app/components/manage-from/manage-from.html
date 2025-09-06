@@ -5,7 +5,7 @@
 
         </div>
         <div class="p-4" *ngIf="mode === 'stksale' || mode === 'newcus'">
-            <form (ngSubmit)="onSubmit()" [formGroup]="customerForm">
+            <form (ngSubmit)="onSubmit(action)" [formGroup]="customerForm">
                 <div class="p-2">
                     <!-- ข้อมูลลูกค้า -->
                     <section>
@@ -16,12 +16,17 @@
                                         ประเภทลูกค้า :
                                     </label>
                                     <select
-                                        [class]="'border border-gray-300 rounded-md p-2 focus:outline-none w-full '"
+                                        [class]="'border border-gray-300 rounded-md p-2 focus:outline-none w-full ' + (customerForm.get('customer.cusCODE')?.invalid && customerForm.get('customer.cusCODE')?.touched ? 'border-red-500' : '')"
                                         formControlName="cusCODE" id="custype">
+                                        <option value="">-- เลือกประเภทลูกค้า --</option>
                                         <option *ngFor="let item of custypeList" [value]="item.cusCode">
                                             {{item.cusCode}} : {{item.cusDesc}}
                                         </option>
                                     </select>
+                                    <div *ngIf="customerForm.get('customer.cusCODE')?.invalid && customerForm.get('customer.cusCODE')?.touched"
+                                        class="text-red-500 text-sm mt-1">
+                                        กรุณาเลือกประเภทลูกค้า
+                                    </div>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <label for="" class="whitespace-nowrap text-gray-700 font-semibold">ประเภทผู้ถือหุ้น
@@ -73,10 +78,9 @@
                                     <label for="cusTAXid" class="whitespace-nowrap text-gray-700 font-semibold">
                                         ผู้เสียภาษี :
                                     </label>
-                                                                            <input type="text"
-                                            [class]="'border border-gray-300 rounded-md p-2 focus:outline-none w-full'"
-                                            readonly
-                                            formControlName="cusTAXid">
+                                    <input type="text"
+                                        [class]="'border border-gray-300 rounded-md p-2 focus:outline-none w-full'"
+                                        formControlName="cusTAXid">
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <label for="unit" class="whitespace-nowrap text-gray-700 font-semibold">ถือหุ้น
@@ -94,15 +98,13 @@
                                     <label for="cusFName" class="whitespace-nowrap text-gray-700 font-semibold">
                                         ชื่อ :
                                     </label>
-                                    <input
-                                        [class]="'border border-gray-300 rounded-md p-2 focus:outline-none w-full '"
+                                    <input [class]="'border border-gray-300 rounded-md p-2 focus:outline-none w-full '"
                                         type="text" formControlName="cusFName">
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <label for="cusLName" class="whitespace-nowrap text-gray-700 font-semibold">นามสกุล
                                         : </label>
-                                    <input
-                                        [class]="'border border-gray-300 rounded-md p-2 focus:outline-none w-full '"
+                                    <input [class]="'border border-gray-300 rounded-md p-2 focus:outline-none w-full '"
                                         type="text" formControlName="cusLName">
                                 </div>
                             </div>
@@ -249,8 +251,7 @@
                                 <div class="flex items-center gap-2">
                                     <label for="" class="whitespace-nowrap text-gray-700 font-semibold">จังหวัด :
                                     </label>
-                                    <select
-                                        [class]="'border border-gray-300 rounded-md p-2 focus:outline-none w-full '"
+                                    <select [class]="'border border-gray-300 rounded-md p-2 focus:outline-none w-full '"
                                         formControlName="prvCODE" name="currentAddressPrvCode"
                                         (change)="onProvinceChangeCurrent($event.target.value)">
                                         <option *ngFor="let prv of prvData" [value]="prv.prvCode">{{prv.prvName}}
@@ -260,8 +261,7 @@
                                 <div class="flex items-center gap-2">
                                     <label for="" class="whitespace-nowrap text-gray-700 font-semibold">เขต/อำเภอ :
                                     </label>
-                                    <select
-                                        [class]="'border border-gray-300 rounded-md p-2 focus:outline-none w-full '"
+                                    <select [class]="'border border-gray-300 rounded-md p-2 focus:outline-none w-full '"
                                         formControlName="ampCODE" name="currentAddressAmpcode"
                                         (change)="onAumphorChangeCurrent(customerForm.get('currentAddress.prvCODE')?.value, $event.target.value)">
                                         <option *ngFor="let amp of ampDataCurrent" [value]="amp.ampCode">{{
@@ -273,8 +273,7 @@
                                 <div class="flex items-center gap-2">
                                     <label for="" class="whitespace-nowrap text-gray-700 font-semibold">แขวง/ตำบล :
                                     </label>
-                                    <select
-                                        [class]="'border border-gray-300 rounded-md p-2 focus:outline-none w-full '"
+                                    <select [class]="'border border-gray-300 rounded-md p-2 focus:outline-none w-full '"
                                         name="currentAddressTmbCode" formControlName="tmbCODE"
                                         (change)="onTumbonChangeCurrent($event.target.value)">
                                         <option *ngFor="let tmb of tumbonDataCurrent" [value]="tmb.tmbCode">{{
@@ -374,7 +373,7 @@
                                             <div class="flex justify-start items-center gap-2">
                                                 <input type="text"
                                                     class="flex-1 border border-gray-300 rounded-md p-2 focus:outline-none max-w-80 bg-blue-100"
-                                                    [value]="pricePerUnit?.stkBv || pricePerUnit || 0" disabled />
+                                                    [value]="sysCfg?.stkBv || sysCfg || 0" disabled />
                                                 บาท
                                             </div>
                                         </div>
@@ -392,6 +391,15 @@
                                                     (input)="onUnitInput($event)"
                                                     [class]="'flex-1 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-green-500 max-w-80 '" />
                                                 <p class="whitespace-nowrap text-gray-600">หุ้น</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-6" *ngIf="minUnitMessage">
+                                        <div class="col-span-1"></div>
+                                        <div class="col-span-2 grid grid-cols-[15%_85%] gap-2 items-center">
+                                            <div></div>
+                                            <div class="flex flex-1 gap-2 items-center text-red-600 text-sm mt-1">
+                                                <p>{{ minUnitMessage }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -443,7 +451,7 @@
                                     <!-- เงินสด -->
                                     <div class="flex items-center gap-2 font-semibold text-gray-700">
                                         <input type="radio" name="stkPayTypeDetail" id="cash"
-                                            formControlName="stkPayTypeDetail" value="002"
+                                            formControlName="stkPayTypeDetail" value="CSD"
                                             (change)="updateFormControlStates()" />
                                         <label for="cash">เงินสด</label>
                                     </div>
@@ -451,7 +459,7 @@
                                     <div class="flex flex-col gap-2">
                                         <div class="flex items-center gap-2 font-semibold text-gray-700">
                                             <input type="radio" name="stkPayTypeDetail" id="bankTransfer"
-                                                formControlName="stkPayTypeDetail" value="001"
+                                                formControlName="stkPayTypeDetail" value="TRD"
                                                 (change)="updateFormControlStates()" />
                                             <label for="bankTransfer" class="text-sm">
                                                 โอนจากบัญชีเงินฝาก ธ.ก.ส.
@@ -480,7 +488,7 @@
                                     <div class="flex flex-col gap-2">
                                         <div class="flex items-center gap-2 mt-2 font-semibold text-gray-700">
                                             <input type="radio" name="stkPayTypeDetail" id="cheque"
-                                                formControlName="stkPayTypeDetail" value="004"
+                                                formControlName="stkPayTypeDetail" value="CLD"
                                                 (change)="updateFormControlStates()" />
                                             <label for="cheque" class="text-sm">เช็ค</label>
                                         </div>
@@ -497,19 +505,23 @@
                                             <div class="flex items-center gap-2">
                                                 <label for="" class="whitespace-nowrap w-24 text-right">วันที่
                                                     :</label>
-                                                <mat-form-field
-                                                    [class]="shouldBeGrayedOut('cheque') ? 'bg-gray-100' : 'bg-lime-100'">
-                                                    <mat-label>เลือกวันที่</mat-label>
-                                                    <input formControlName="stkSaleByCHQdat" matInput
-                                                        [matDatepicker]="picker" />
+                                                <div>
+                                                    <!-- Input Tailwind -->
+                                                    <input type="text" name="datemeet"
+                                                        class="peer w-full bg-lime-100 placeholder:text-slate-400 text-slate-700 text-sm border-2 border-lime-400 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none shadow-sm focus:shadow"
+                                                        formControlName="stkSaleByCHQdat"
+                                                        [value]="formatDate(selectedDateMeet)"
+                                                        (focus)="showCalendarMeet = true" readonly />
 
-                                                    <!-- เพิ่มคลาส bg-lime-100, rounded, shadow ให้ปุ่ม toggle -->
-                                                    <mat-datepicker-toggle matIconSuffix
-                                                        [for]="picker"></mat-datepicker-toggle>
-
-                                                    <mat-datepicker #picker startView="year"
-                                                        [startAt]="startDate"></mat-datepicker>
-                                                </mat-form-field>
+                                                    <!-- แสดง Calendar Popup -->
+                                                    <div *ngIf="showCalendarMeet" class="absolute z-50">
+                                                        <app-calendar-popup *ngIf="showCalendarMeet"
+                                                            [(selected)]="selectedDateMeet"
+                                                            (dateSelected)="onDateMeetSelected($event)"
+                                                            (closed)="showCalendarMeet = false">
+                                                        </app-calendar-popup>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <!-- ธนาคาร -->
                                             <div class="flex items-center gap-2">
@@ -617,7 +629,7 @@
                 <div class="py-4 flex gap-6 justify-center">
                     <button
                         class="py-2 px-4 bg-green-500 font-semibold text-sm text-white cursor-pointer rounded-xs hover:bg-green-300"
-                        type="submit" value="UPP">บันทึก</button>
+                        type="submit" (click)="action = (mode === 'stksale' ? 'REG' : 'ADD')">บันทึก</button>
                     <button (click)="onBack()"
                         class="py-2 px-5 bg-green-500 font-semibold text-sm text-white cursor-pointer rounded-xs hover:bg-green-300">กลับ</button>
                 </div>
@@ -625,7 +637,7 @@
         </div>
 
         <div class="p-4" *ngIf="mode === 'editcus'">
-            <form (ngSubmit)="onSubmit()" [formGroup]="customerForm">
+            <form (ngSubmit)="onSubmit(action)" [formGroup]="customerForm">
                 <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
                     <div class="p-2">
 
@@ -698,7 +710,7 @@
                                             </select>
                                         </div>
                                         <div class="flex items-center gap-2">
-                                            <label for="cusTAXid" class="whitespace-nowrap text-gray-700 font-semibold">
+                                            <label for="" class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-blue-100">
                                                 ผู้เสียภาษี :
                                             </label>
                                             <input type="text"
@@ -719,7 +731,8 @@
                                     </div>
                                     <div class="grid grid-cols-2 px-4 mt-2 gap-4">
                                         <div class="flex items-center gap-2">
-                                            <label for="cusFName" class="whitespace-nowrap  text-gray-700 font-semibold">
+                                            <label for="cusFName"
+                                                class="whitespace-nowrap  text-gray-700 font-semibold">
                                                 ชื่อ :
                                             </label>
                                             <input
@@ -727,8 +740,7 @@
                                                 type="text" formControlName="cusFName">
                                         </div>
                                         <div class="flex items-center gap-2">
-                                            <label 
-                                                for="cusLName"
+                                            <label for="cusLName"
                                                 class="whitespace-nowrap text-gray-700 font-semibold">นามสกุล
                                                 : </label>
                                             <input
@@ -765,7 +777,7 @@
                                                     class="whitespace-nowrap text-gray-700 font-semibold">เลขที่ :
                                                 </label>
                                                 <input type="text"
-                                                    class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-blue-100 pointer-events-none"
+                                                    class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-blue-100"
                                                     name="" id="" formControlName="housEno">
                                             </div>
                                             <div class="flex items-center gap-2">
@@ -773,7 +785,7 @@
                                                     :
                                                 </label>
                                                 <input type="text"
-                                                    class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-blue-100 pointer-events-none"
+                                                    class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-blue-100"
                                                     formControlName="troG_SOI">
                                             </div>
                                             <div class="flex items-center gap-2">
@@ -781,7 +793,7 @@
                                                     :
                                                 </label>
                                                 <input type="text"
-                                                    class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-blue-100 pointer-events-none"
+                                                    class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-blue-100"
                                                     formControlName="road">
                                             </div>
                                         </div>
@@ -845,7 +857,7 @@
                                                     :
                                                 </label>
                                                 <input type="text"
-                                                    class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-blue-100 pointer-events-none"
+                                                    class="border border-gray-300 rounded-md p-2 focus:outline-none w-full bg-blue-100"
                                                     formControlName="phone">
                                             </div>
                                         </div>
@@ -974,7 +986,15 @@
                                         </div>
                                     </div>
                                 </div>
+
                             </section>
+                            <div class="py-4 flex gap-6 justify-center">
+                                <button (click)="action='UPD'"
+                                    class="py-2 px-4 bg-green-500 font-semibold text-sm text-white cursor-pointer rounded-xs hover:bg-green-300"
+                                    type="submit">บันทึก</button>
+                                <button (click)="onBack()"
+                                    class="py-2 px-5 bg-green-500 font-semibold text-sm text-white cursor-pointer rounded-xs hover:bg-green-300">กลับ</button>
+                            </div>
                         </mat-tab>
 
                         <mat-tab label="การรับเงินปันผล">
@@ -1057,17 +1077,18 @@
                                     </div>
                                 </div>
                             </section>
+                            <div class="py-4 flex gap-6 justify-center">
+                                <button #actionBtn (click)="action='UPP'"
+                                    class="py-2 px-4 bg-green-500 font-semibold text-sm text-white cursor-pointer rounded-xs hover:bg-green-300"
+                                    type="submit">บันทึก</button>
+                                <button (click)="onBack()"
+                                    class="py-2 px-5 bg-green-500 font-semibold text-sm text-white cursor-pointer rounded-xs hover:bg-green-300">กลับ</button>
+                            </div>
                         </mat-tab>
                     </div>
                 </mat-tab-group>
 
-                <div class="py-4 flex gap-6 justify-center">
-                    <button
-                        class="py-2 px-4 bg-green-500 font-semibold text-sm text-white cursor-pointer rounded-xs hover:bg-green-300"
-                        type="submit">บันทึก</button>
-                    <button (click)="onBack()"
-                        class="py-2 px-5 bg-green-500 font-semibold text-sm text-white cursor-pointer rounded-xs hover:bg-green-300">กลับ</button>
-                </div>
+
             </form>
         </div>
     </div>
