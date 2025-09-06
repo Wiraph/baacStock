@@ -68,16 +68,16 @@ export class CustomerService {
     return this.http.post<any[]>(`${this.apiUrl}/search`, encrypPayload, { withCredentials: true });
   }
 
+  manageCustomer(requestPayload: any) {
+    const encrypPayload = this.encryped.encrypPayload(requestPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/cusmanage`, encrypPayload, { withCredentials: true });
+  }
+
   getCustomerTr(requestPayload: any) {
     const encrypPayload = this.encryped.encrypPayload(requestPayload);
     return this.http.post<any[]>(`${this.apiUrl}/customer2tr`, encrypPayload, { headers: this.createAuthHeaders() });
   }
 
-  postUpdateCustomer(requestPayload: any) {
-    const encrypPayload = this.encryped.encrypPayload(requestPayload);
-    console.log("ข้อมูลที่ถูกเข้ารหัส", encrypPayload);
-    return this.http.post<any[]>(`${this.apiUrl}/update`, encrypPayload, { headers: this.createAuthHeaders() });
-  }
 
   
 

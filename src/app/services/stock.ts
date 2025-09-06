@@ -46,11 +46,9 @@ export class StockService {
   ) { }
 
   stockManage(requestPayload: any): Observable<any[]> {
-    console.log("StockServicePayload", requestPayload);
     const encodePayload = this.encrypt.encrypPayload(requestPayload);
-    console.log("StockService", encodePayload)
     return this.http.post<any[]>(`${this.apiUrl}/manage`, encodePayload, {
-      headers: this.createAuthHeaders()
+      withCredentials: true
     });
   }
 

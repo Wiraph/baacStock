@@ -3,7 +3,7 @@
 </div>
 
 <div *ngIf="activeView == 'editcus'">
-    <app-manage-from [cusId]="cusId" [mode]="activeView" (back)="onBack()" (submit)="onSubmit($event)"></app-manage-from>
+    <app-manage-from [cusId]="cusId" [mode]="activeView" (back)="onBack()" (payload)="onSubmit($event)"></app-manage-from>
 </div>
 
 <!-- Loading Overlay -->

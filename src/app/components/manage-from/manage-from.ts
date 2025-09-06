@@ -19,6 +19,7 @@ import { SystemMetadata } from '../../services/Metadata/system-metadata';
 import { AddressMetadata } from '../../services/Metadata/address-metadata';
 import { StockMetadata } from '../../services/Metadata/stock-metadata';
 import { CustomerMetadata } from '../../services/Metadata/customer-metadata';
+import { ThaiCalendarComponent } from '../thai-calendar-component/thai-calendar-component';
 
 export const THAI_DATE_FORMATS = {
   parse: {
@@ -34,7 +35,7 @@ export const THAI_DATE_FORMATS = {
 @Component({
   standalone: true,
   selector: 'app-manage-from',
-  imports: [CommonModule, ReactiveFormsModule, MatTabsModule, FormsModule, MatFormFieldModule, MatInputModule, MatDatepickerModule],
+  imports: [CommonModule, ReactiveFormsModule, MatTabsModule, FormsModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, ThaiCalendarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './manage-from.html',
   styleUrl: './manage-from.css',
@@ -50,7 +51,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() docType!: string;
   @Input() titleCode!: string;
   @Output() back = new EventEmitter<string>();
-  @Output() payload = new EventEmitter<FormGroup<any>>();
+  @Output() payload = new EventEmitter<[FormGroup<any>, string]>();
   readonly startDate = new Date();
   selectedDate?: Date;
   loading = false;
@@ -65,7 +66,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
     stkACCno: '',
     stkACCname: ''
   };
-  pricePerUnit: any;
+  sysCfg: any;
   unitText: string = "";
   valueText: string = "";
   prvData: any[] = [];
@@ -85,6 +86,42 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
   titleView: string | null = null;
   branch: string | null = null;
   customerForm!: FormGroup;
+  minUnitMessage: string = '';
+
+  // ตัวแปรควบคุมการแสดง calendar
+  showCalendarMeet = false;
+  showCalendarPaid = false;
+
+  // วันที่ที่เลือก
+  selectedDateMeet: Date = new Date();
+  selectedDatePaid: Date = new Date();
+
+  // ฟังก์ชัน format วันที่ให้เป็น string แสดงใน input
+  formatDate(date: Date): string {
+    if (!date) return '';
+
+    const thaiMonths = [
+      'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+      'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+    ];
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = thaiMonths[date.getMonth()];
+    const year = date.getFullYear() + 543;
+    return `${day} ${month} ${year}`;
+  }
+
+  // ฟังก์ชันเรียกเมื่อเลือกวันที่ใหม่
+  onDateMeetSelected(date: Date) {
+    this.selectedDateMeet = date;
+
+    // 1️⃣ อัปเดต FormControl (เก็บเป็น 25680906)
+    this.customerForm.get('detailSale.stkSaleByCHQdat')?.setValue(
+      this.formatDate(date)
+    );
+
+    // 2️⃣ ปิด popup
+    this.showCalendarMeet = false;
+  }
 
   constructor(
     private readonly customerService: CustomerService,
@@ -178,7 +215,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
         stkSaleByTRACCno: [''],
         stkSaleByTRACCname: [''],
         stkSaleByCHQno: [''],
-        stkSaleByCHQdat: [''],
+        stkSaleByCHQdat: [this.formatDate(this.selectedDateMeet)],
         stkSaleByCHQbnk: [''],
         stkSaleByCHQbrn: [''],
       })
@@ -204,8 +241,8 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
     this.systemMetadataService.sysCfg().subscribe({
       next: (res: any) => {
         console.log('🔍 System config response:', res);
-        this.pricePerUnit = res;  // เก็บ response ทั้งหมด
-        console.log('🔍 pricePerUnit assigned:', this.pricePerUnit);
+        this.sysCfg = res;  // เก็บ response ทั้งหมด
+        console.log('🔍 pricePerUnit assigned:', this.sysCfg);
         this.cd.detectChanges();
       }, error: (err) => {
         console.log("Loading fail...", err);
@@ -215,6 +252,8 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
     // ✅ ตรวจสอบ cusId ตั้งแต่เริ่มต้น (fallback)
     setTimeout(() => {
       console.log('🔍 Initial cusId check:', this.cusId);
+      console.log('🔍 this.cusId type:', typeof this.cusId);
+      console.log('🔍 this.cusId length:', this.cusId ? this.cusId.length : 'undefined');
       if (this.cusId && this.customerForm) {
         console.log('🔍 Loading data with initial cusId');
         this.handleData({ view: 'stksale', cusId: this.cusId });
@@ -233,6 +272,8 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
 
     // ✅ เรียก handleData เมื่อ cusId เปลี่ยนแปลง
     if (changes['cusId'].currentValue && this.customerForm) {
+      console.log('🔍 cusId changed to:', changes['cusId'].currentValue);
+      console.log('🔍 this.cusId after change:', this.cusId);
       setTimeout(() => {
         this.handleData({ view: 'stksale', cusId: changes['cusId'].currentValue });
       }, 100);
@@ -266,15 +307,22 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   handleData(event: { view: string; cusId: string }) {
+    console.log('🔍 handleData called with event:', event);
+    console.log('🔍 this.cusId in handleData:', this.cusId);
+
     this.homeAddress = this.addressService.getDefaultAddress();
     this.currentAddress = this.addressService.getDefaultAddress();
     this.zipCodeHome = '';
     this.zipCodeCurrent = '';
     this.loading = true;
 
-    if (!this.cusId) return;
+    if (!this.cusId) {
+      console.warn('⚠️ cusId is empty in handleData');
+      return;
+    }
 
     const requestPayload = { cusId: this.cusId };
+    console.log('🔍 requestPayload:', requestPayload);
 
     // โหลดข้อมูลหลักทั้งหมด
     forkJoin({
@@ -375,8 +423,8 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
         cusCODEg: this.customer.cusCODEg || '',
         cusDESCgABBR: this.customer.cusDESCgABBR || '',
         docTYPE: this.customer.docTYPE || this.docType,
-        cusiD: this.customer.cusiD || '',
-        cusiDnew: this.customer.cusiD || this.cusId,
+        cusiD: this.cusId || this.customer.cusiD || '',
+        cusiDnew: this.cusId || this.customer.cusiD || '',
         brCode: this.customer.brCode || 'NEW',
         cusTAXid: this.customer.cusTAXid || '',
         cusFName: this.customer.cusFName || '',
@@ -388,11 +436,13 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
       };
 
       // เงื่อนไขพิเศษ หาก mode เป็น newcus แต่เจอข้อมูลจะเปลี่ยนเป็น stksale ทันที
-      if (customerFormData.cusiD != '' && this.mode != 'editcus') {
+      if (this.customer.cusiD != null && this.mode != 'editcus') {
         this.mode = 'stksale';
       }
 
       console.log('🔍 customerFormData:', customerFormData);
+      console.log('🔍 this.cusId:', this.cusId);
+      console.log('🔍 this.customer.cusiD:', this.customer.cusiD);
 
       this.customerForm.patchValue({
         customer: customerFormData,
@@ -406,6 +456,8 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
       });
 
       console.log('🔍 Form values after patch:', this.customerForm.value);
+      console.log('🔍 cusiD value after patch:', this.customerForm.get('customer.cusiD')?.value);
+      console.log('🔍 cusiDnew value after patch:', this.customerForm.get('customer.cusiDnew')?.value);
 
       // ✅ เรียกใช้: จัดการ editable state ตาม mode
       setTimeout(() => {
@@ -768,11 +820,22 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
 
   onUnitInput(event: Event) {
     const input = event.target as HTMLInputElement;
-    console.log('🔍 onUnitInput called, pricePerUnit:', this.pricePerUnit);
+    console.log('🔍 onUnitInput called, pricePerUnit:', this.sysCfg);
 
     // ดึงเฉพาะตัวเลข
-    const numericString = input.value.replace(/\D/g, '');
-    const numericValue = numericString ? Number(numericString) : 0;
+    let numericString = input.value.replace(/\D/g, '');
+    let numericValue = numericString ? Number(numericString) : 0;
+
+    // ตรวจสอบ cusId ว่าเป็นตัวเลข 13 หลักหรือไม่
+    const isCusId13 = /^\d{13}$/.test(this.cusId || '');
+    const minUnit = isCusId13 ? this.sysCfg.stkUniTminP : this.sysCfg.stkUniTminB;
+
+    // ตรวจสอบขั้นต่ำ
+    if (numericValue > 0 && numericValue < minUnit) {
+      this.minUnitMessage = `⚠️ จำนวนหุ้นขั้นต่ำคือ ${minUnit} หุ้น`;
+    } else {
+      this.minUnitMessage = '';
+    }
 
     if (!numericValue) {
       this.unitText = '';
@@ -787,7 +850,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
     input.value = numericValue.toLocaleString('en-US');
 
     // ตรวจสอบว่า pricePerUnit มีค่าหรือไม่
-    const pricePerShare = this.pricePerUnit?.stkBv || this.pricePerUnit || 0;
+    const pricePerShare = this.sysCfg?.stkBv || this.sysCfg || 0;
     console.log('🔍 pricePerShare:', pricePerShare);
 
     if (!pricePerShare) {
@@ -859,7 +922,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
     const dividendMethod = this.getDividendPaymentMethod();
 
     // Payment method controls
-    if (paymentMethod === '001') {
+    if (paymentMethod === 'TRD') {
       this.customerForm.get('detailSale.stkSaleByTRACCno')?.enable();
       this.customerForm.get('detailSale.stkSaleByTRACCname')?.enable();
     } else {
@@ -867,7 +930,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
       this.customerForm.get('detailSale.stkSaleByTRACCname')?.disable();
     }
 
-    if (paymentMethod === '004') {
+    if (paymentMethod === 'CLD') {
       this.customerForm.get('detailSale.stkSaleByCHQno')?.enable();
       this.customerForm.get('detailSale.stkSaleByCHQdat')?.enable();
       this.customerForm.get('detailSale.stkSaleByCHQbnk')?.enable();
@@ -904,9 +967,6 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
     return Object.keys(obj || {});
   }
 
-  onSubmit() {
-    this.payload.emit(this.customerForm);
-  }
 
   // ✅ เพิ่ม: จัดการ editable state ของฟิลด์ต่างๆ
   private updateFieldEditability() {
@@ -1004,7 +1064,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
       this.customerForm.get('dividend.dividendStkPayType')?.enable();
       this.customerForm.get('dividend.stkACCno')?.enable();
       this.customerForm.get('dividend.stkACCname')?.enable();
-    } else if (this.mode === 'newcus')  {
+    } else if (this.mode === 'newcus') {
       this.titleView = 'ขายหุ้น';
       // ฟิลด์ที่แก้ไขได้ - enable
       this.customerForm.get('customer.cusFName')?.enable();
@@ -1105,5 +1165,38 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
     this.customerForm.get('customer.cusiD')?.disable();
     this.customerForm.get('currentAddress.addR1')?.disable();
     this.customerForm.get('currentAddress.addR2')?.disable();
+  }
+
+  onSubmit(act: string) {
+    console.log('🔍 ManageForm onSubmit called with action:', act);
+    console.log('🔍 cusiD value in onSubmit:', this.customerForm.get('customer.cusiD')?.value);
+    console.log('🔍 cusiDnew value in onSubmit:', this.customerForm.get('customer.cusiDnew')?.value);
+    if (!this.customerForm) {
+      console.error('❌ customerForm ยังไม่ถูกสร้าง');
+      return;
+    }
+    const payload = this.customerForm.getRawValue();
+
+    // ตรวจสอบความถูกต้องของฟอร์ม
+    if (this.customerForm.valid) {
+      console.log('✅ ฟอร์มถูกต้อง สามารถส่งข้อมูลได้');
+      this.payload.emit([payload, act]);
+    } else {
+      console.warn('⚠️ ฟอร์มไม่ถูกต้อง กรุณาตรวจสอบข้อมูล');
+      // แสดง error ในฟอร์ม
+      this.markFormGroupTouched(this.customerForm);
+    }
+  }
+
+  // เพิ่มฟังก์ชันสำหรับ mark form controls เป็น touched
+  private markFormGroupTouched(formGroup: FormGroup) {
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.get(key);
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      } else {
+        control?.markAsTouched();
+      }
+    });
   }
 }
