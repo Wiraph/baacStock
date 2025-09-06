@@ -33,6 +33,7 @@ export class CratenewsharecertificateComponent implements OnInit {
   stkLostList: any[] = [];
   customerData: any = "";
   stockDetail: any = '';
+  loading = false;
 
   reasonForm!: FormGroup; // ✅ ใช้ FormGroup
   remCodes: {
@@ -51,16 +52,15 @@ export class CratenewsharecertificateComponent implements OnInit {
     private readonly customerStockService: CustomerStockService,
     private readonly stockService: StockService,
     private readonly metaDataService: MetadataService,
-    private readonly systemMedataaService : SystemMetadata
+    private readonly systemMedataaService: SystemMetadata
   ) { }
 
   ngOnInit(): void {
     this.dataTransfer.setPageStatus('3');
-    console.log("Datatransfer", this.dataTransfer.getPageStatus());
     this.activeView = 'search';
     this.cd.detectChanges();
   }
-  
+
   onShowdetail(stock: any) {
     console.log("ค่าที่ได้รับกลับมา: ", stock);
     this.setView(stock.view);
@@ -69,11 +69,11 @@ export class CratenewsharecertificateComponent implements OnInit {
   }
 
   onLoadStkDetail(stkNote: string) {
-    
+
   }
 
   onLoadStkLostList(cusiD: string) {
-    const payload = {
+    const payloadSearch = {
       GetDTL: 'bySTK@bySTK-LOS',
       STKno: '',
       CUSid: cusiD,
@@ -83,22 +83,22 @@ export class CratenewsharecertificateComponent implements OnInit {
       PGNum: 1,
       PGSize: 9999999
     };
-    console.log("cusiD", payload);
 
-    this.customerStockService.searchCustomerStock(payload).subscribe({
+    this.customerService.searchCustomerStk(payloadSearch).subscribe({
       next: (res) => {
         this.stkLostList = res;
+        console.log("res", res);
         this.cd.detectChanges();
       }, error: (err) => {
         console.log("Errors", err);
       }
     })
 
-    const payload2 = {
-      CUSid: cusiD
+    const payloadCustomer = {
+      cusId: cusiD
     }
 
-    this.customerService.getCustomerTable(payload2).subscribe({
+    this.customerService.getCustomerDetail(payloadCustomer).subscribe({
       next: (res) => {
         this.customerData = res;
         this.cd.detectChanges();
@@ -114,12 +114,14 @@ export class CratenewsharecertificateComponent implements OnInit {
 
 
   handleNewStockRequest(stkNote: string) {
+    this.loading = true;
     this.activeView = "select";
     const payload = {
       stkNote: stkNote
     };
     this.stockService.getStockDetail(payload).subscribe({
       next: (res) => {
+        this.loading = false;
         this.stockDetail = res;
         this.cd.detectChanges();
       }, error: (err) => {
@@ -144,12 +146,6 @@ export class CratenewsharecertificateComponent implements OnInit {
   onSubmitReason() {
     if (this.reasonForm.valid) {
       const selectedCode = this.reasonForm.value.remCode;
-
-      const payloadLogStock = {
-        stkNOTE: this.stockDetail.stkNote,
-        ACT: "INSERT"
-      };
-
       const payloadNewLost = {
         remCode: selectedCode,
         StkNOTE: this.stockDetail.stkNote,
@@ -168,25 +164,20 @@ export class CratenewsharecertificateComponent implements OnInit {
         showCancelButton: true
       }).then((result) => {
         if (result.isConfirmed) {
-          this.stockService.stockLog(payloadLogStock).subscribe({
-            next: () => {
-              this.stockLostService.stockLost(payloadNewLost).subscribe({
-                next: () => {
-                  Swal.fire({
-                    icon: 'success',
-                    text: 'บันทึกเรียบร้อยแล้ว',
-                    timer: 3000,
-                    timerProgressBar: true,
-                  })
-                  this.activeView = 'search';
-                  this.customerData = '';
-                  this.cd.detectChanges();
-                }, error: (err) => {
-                  console.log("เกิดข้อผิดพลาด", err);
-                }
+          this.stockService.stockLost(payloadNewLost).subscribe({
+            next: (res: any) => {
+              console.log("Res", res);
+              Swal.fire({
+                icon: 'success',
+                text: 'บันทึกเรียบร้อยแล้ว',
+                timer: 3000,
+                timerProgressBar: true,
               })
+              this.activeView = 'search';
+              this.customerData = '';
+              this.cd.detectChanges();
             }, error: (err) => {
-              console.log("เกิดข้อผิดพลาด",err);
+              console.log("เกิดข้อผิดพลาด", err);
             }
           })
         }

@@ -113,7 +113,7 @@ export class TransferShareComponent implements OnInit {
       CUSid: cusiD
     }
 
-    this.customerService.getCustomerTable(payload2).subscribe({
+    this.customerService.getCustomerDetail(payload2).subscribe({
       next: (res: any) => {
         this.customerData = res;
         this.cdRef.detectChanges();

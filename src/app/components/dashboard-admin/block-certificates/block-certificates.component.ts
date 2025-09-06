@@ -98,7 +98,7 @@ export class BlockCertificatesComponent implements OnInit {
       CUSid: cusiD
     }
 
-    this.customerService.getCustomerTable(payload2).subscribe({
+    this.customerService.getCustomerDetail(payload2).subscribe({
       next: (res) => {
         this.customerData = res;
         this.loading = false;

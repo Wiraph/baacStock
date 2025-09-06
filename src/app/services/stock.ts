@@ -54,16 +54,15 @@ export class StockService {
 
   getStockDetail(requestPayload: any): Observable<any[]> {
     const encodePayload = this.encrypt.encrypPayload(requestPayload);
-    console.log(encodePayload);
     return this.http.post<any[]>(`${this.apiUrl}/stkdetail`, encodePayload, {
-      headers: this.createAuthHeaders()
+      withCredentials: true
     });
   }
 
-  stockLog(requestPayload: any): Observable<any[]> {
+  stockLost(requestPayload: any): Observable<any[]> {
     const encodePayload = this.encrypt.encrypPayload(requestPayload);
-    return this.http.post<any[]>(`${this.apiUrl}/logstock`, encodePayload, {
-      headers: this.createAuthHeaders()
+    return this.http.post<any[]>(`${this.apiUrl}/stklost`, encodePayload, {
+      withCredentials: true
     });
   }
 

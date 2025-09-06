@@ -48,7 +48,7 @@ export class CustomerService {
   // payload = {
   //   CUSid: string;
   // }
-  getCustomerTable(requestPayload: any) {
+  getCustomerDetail(requestPayload: any) {
     const encrypPayload = this.encryped.encrypPayload(requestPayload);
     return this.http.post<any[]>(`${this.apiUrl}/detailcus`, encrypPayload, { withCredentials: true });
   }

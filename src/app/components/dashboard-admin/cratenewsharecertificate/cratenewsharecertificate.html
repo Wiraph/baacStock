@@ -8,12 +8,12 @@
             ออกใบหุ้นใหม่แทนใบหุ้นที่ชำรุด/สูญหาย</p>
         <div class="text-center py-4 gap-4">
             <div class="flex justify-center gap-4">
-                <p>บัตรแสดงตนเลขที่ :  {{ customerData.cusiD }}</p>
-                <p>สถานะ : {{ customerData.staDesc }} </p>
+                <p>บัตรแสดงตนเลขที่ : {{ customerData.cusId }}</p>
+                <p>สถานะ : {{ customerData.statusDesc }} </p>
             </div>
-            <p>ชื่อ - นามสกุล : {{ customerData.title }}{{ customerData.fname }} {{ customerData.lname }}</p>
+            <p>ชื่อ - นามสกุล : {{ customerData.titleName }}{{ customerData.cusFName }} {{ customerData.cusLName }}</p>
         </div>
-        <div class="p-4">
+        <div class="p-4" *ngIf="stkLostList != ''">
             <table class="table-auto w-full border border-gray-300 rounded-lg shadow-sm">
                 <thead>
                     <tr class="bg-blue-600 text-white text-sm uppercase tracking-wider">
@@ -41,7 +41,8 @@
                         <td class="px-4 py-2 text-center">{{ item.stDESC }}</td>
                         <td class="px-4 py-2 text-center">{{ formatThaiDateTime(item.datetimeup) || '-' }}</td>
                         <td class="px-4 py-2 text-center">
-                            <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600" (click)="handleNewStockRequest(item.stkNOTE)">
+                            <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                (click)="handleNewStockRequest(item.stkNOTE)">
                                 ออกใบหุ้น
                             </button>
                         </td>
@@ -49,13 +50,16 @@
                 </tbody>
             </table>
         </div>
+        <div *ngIf="stkLostList == ''">
+            <p class="text-center text-xl py-4">ไม่พบใบหุ้นที่มีสถานะ Active</p>
+        </div>
     </div>
 </div>
 
 <div *ngIf="activeView === 'select'" class="w-full p-4">
     <div class="bg-white rounded-md">
         <div class="bg-green-400 rounded-t-md">
-            <p class="text-center py-2 text-white">ออกใบหุ้นใหม่แทนใบหุ้นที่ชำรุด/สูญหาย</p>
+            <p class="text-center py-2 text-white text-xl">ออกใบหุ้นใหม่แทนใบหุ้นที่ชำรุด/สูญหาย</p>
         </div>
         <div class="p-5">
             <div class="grid grid-cols-3 mb-3">
@@ -71,7 +75,7 @@
             </div>
             <div class="grid grid-cols-3 mb-3">
                 <div class="flex">
-                    <p>ชื่อ-นามสกุล : <span>{{ stockDetail.titleDesc }}{{ stockDetail.cusFName }} {{ stockDetail.cusLName }}</span></p>
+                    <p class="flex gap-2">ชื่อ-นามสกุล : <span class="flex"><div *ngIf="stockDetail.titleCode != 'JUR'">{{ stockDetail.titleDesc }}</div>{{ stockDetail.cusFName }} {{ stockDetail.cusLName }}</span></p>
                 </div>
                 <div></div>
                 <div></div>
@@ -82,7 +86,8 @@
                 </div>
                 <div></div>
                 <div>
-                    <p>จำนวนหุ้น : <span>{{ stockDetail.stkUnit }} หุ้น / {{ stockDetail.stkValue | number:'1.0-0' }} บาท</span>
+                    <p>จำนวนหุ้น : <span>{{ stockDetail.stkUnit }} หุ้น / {{ stockDetail.stkValue | number:'1.0-0' }}
+                            บาท</span>
                     </p>
                 </div>
             </div>
@@ -114,5 +119,18 @@
                 </div>
             </form>
         </div>
+    </div>
+</div>
+
+<div *ngIf="loading"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-40 backdrop-blur-sm"
+    style="background-color: rgba(128, 128, 128, 0.7);">
+    <div class="text-center">
+        <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+        </svg>
+        <p class="text-lg text-white font-medium">🔄 กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
     </div>
 </div>
