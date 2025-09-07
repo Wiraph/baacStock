@@ -11,8 +11,8 @@ export class StockBlockService {
   private apiUrl = `${environment.dotnetApiUrl}api/StockBlock`;
 
   constructor(
-    private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private readonly http: HttpClient,
+    @Inject(PLATFORM_ID) private readonly platformId: Object
   ) { }
 
 

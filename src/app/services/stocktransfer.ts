@@ -53,25 +53,6 @@ export class StocktransferService {
     return this.http.post<any[]>(`${this.apiUrl}/transfer`, encryptedPayload, { headers: this.createAuthHeaders() });
   }
 
-  transferCancel(payload: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/cancel`, payload, { headers: this.createAuthHeaders() });
-  }
-
-  transferApprove(payload: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/approve`, payload, { headers: this.createAuthHeaders() });
-  }
-
-  getPendingTransfers(action: string, branchCode: string, pageNumber = 1, pageSize = 10): Observable<PendingTransferResponse> {
-    let params = new HttpParams()
-      .set('action', action)
-      .set('branchCode', branchCode)
-      .set('pageNumber', pageNumber.toString())
-      .set('pageSize', pageSize.toString());
-
-    return this.http.get<PendingTransferResponse>(`${this.apiUrl}/pending-transfers`, { params, headers: this.createAuthHeaders() });
-  }
-
-
   private createAuthHeaders(): HttpHeaders {
     let token = '';
     if (isPlatformBrowser(this.platformId)) {

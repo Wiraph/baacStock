@@ -5,12 +5,9 @@ import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Va
 import { CustomerService, CustomerDetailDto2 } from '../../../services/customer';
 import Swal from 'sweetalert2';
 import { DataTransfer } from '../../../services/data-transfer';
-import { MetadataService } from '../../../services/metadata';
-import { CustomerStockService } from '../../../services/customer-stock-service';
 import { StockService } from '../../../services/stock';
 import { Divident } from '../../../services/divident';
 import { forkJoin } from 'rxjs';
-import { StocktransferService } from '../../../services/stocktransfer';
 import { StockMetadata } from '../../../services/Metadata/stock-metadata';
 import { SystemMetadata } from '../../../services/Metadata/system-metadata';
 
@@ -58,13 +55,10 @@ export class TransferShareComponent implements OnInit {
   constructor(
     private readonly cdRef: ChangeDetectorRef,
     private readonly dataTransfer: DataTransfer,
-    private readonly metadataService: MetadataService,
     private readonly customerService: CustomerService,
-    private readonly customerStockService: CustomerStockService,
     private readonly fb: FormBuilder,
     private readonly stockService: StockService,
     private readonly dividendService: Divident,
-    private readonly stocktransferService: StocktransferService,
     private readonly stockMetadataService: StockMetadata,
     private readonly systemMetadataService: SystemMetadata
   ) {
@@ -84,6 +78,7 @@ export class TransferShareComponent implements OnInit {
   onTransferStockSelected(event: any) {
     // เรียก api เพื่อดึงข้อมูลของลูกค้า
     this.cusId = event.cusId;
+    console.log(this.cusId);
     this.activeView = event.view;
     this.onLoadTransferList(this.cusId);
   }
@@ -99,23 +94,24 @@ export class TransferShareComponent implements OnInit {
       PGNum: 1,
       PGSize: 9999999
     };
-    this.customerStockService.searchCustomerStock(payload).subscribe({
+    this.customerService.searchCustomerStk(payload).subscribe({
       next: (res) => {
         this.stkTransList = res;
-        console.log("stkTransList", this.stkTransList);
+        console.log("stkTransList", res);
         this.cdRef.detectChanges();
       }, error: (err) => {
         console.log("Errors", err);
       }
     })
 
-    const payload2 = {
-      CUSid: cusiD
+    const cusPayload = {
+      cusId: cusiD
     }
 
-    this.customerService.getCustomerDetail(payload2).subscribe({
+    this.customerService.getCustomerDetail(cusPayload).subscribe({
       next: (res: any) => {
         this.customerData = res;
+        console.log(res);
         this.cdRef.detectChanges();
       }, error: (err) => {
         console.log("Error", err);
@@ -170,7 +166,7 @@ export class TransferShareComponent implements OnInit {
       CUSid: [receiver.cusiD, Validators.required],
       Name: [fullname],
       CUSun: [null, [Validators.required, Validators.min(1)]],
-      accTY: [dividend?.stkACCtype || ''],
+      accTY: [dividend?.stkACCtype || '000'],
       accNO: [dividend?.stkACCno || ''],
       accNA: [dividend?.stkACCname || ''],
       payTY: [dividend?.stkPayType || '']
@@ -438,12 +434,13 @@ export class TransferShareComponent implements OnInit {
         TR2_LST_accTY: transfers.map((t: TransferItem) => t.accTY).join('|'),
         TR2_LST_accNO: transfers.map((t: TransferItem) => t.accNO).join('|'),
         TR2_LST_accNA: transfers.map((t: TransferItem) => t.accNA).join('|'),
-        TR2_LST_payTY: transfers.map((t: TransferItem) => t.payTY).join('|')
+        TR2_LST_payTY: transfers.map((t: TransferItem) => t.payTY).join('|'),
+
+        ACT: "UPDATE"
       };
 
       console.log("Final Payload", payload);
 
-      // แสดงข้อความยืนยัน
       Swal.fire({
         icon: 'success',
         title: 'ข้อมูลถูกต้อง',
@@ -452,36 +449,32 @@ export class TransferShareComponent implements OnInit {
         confirmButtonText: 'บันทึก',
         cancelButtonText: 'ยกเลิก'
       }).then((result) => {
+        this.loading = true;
         if (result.isConfirmed) {
-          this.stocktransferService.transferRequest(payload).subscribe({
+          this.stockService.stockTransfer(payload).subscribe({
             next: (res: any) => {
-              console.log(res);
-              if (res.data[0].rst == "PASS") {
+              this.loading = false;
+              if (res[0].rst == "PASS") {
                 Swal.fire({
                   icon: 'success',
-                  title: 'บันทึกสำเร็จ',
-                  text: 'การโอนหุ้นได้รับการบันทึกเรียบร้อยแล้ว',
-                  confirmButtonText: 'ตกลง'
-                }).then((result) => {
-                  if (result.isConfirmed) {
-                    window.location.reload();
-                  }
+                  text: `${res[0].msg}`,
+                  timer: 3000,
+                  timerProgressBar: true,
                 })
+                this.activeView = 'search'
+                this.cdRef.detectChanges();
               } else {
                 Swal.fire({
-                  icon: 'warning',
-                  title: 'บันทึกไม่สำเร็จ',
-                  text: 'การโอนหุ้นไม่สามารถบันทึกได้ กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง',
-                  confirmButtonText: 'ตกลง'
-                }).then((result) => {
-                  if (result.isConfirmed) {
-                    return;
-                  }
+                  icon: 'error',
+                  text: 'โอนเปลี่ยนมือ-ฐานข้อมูลผิดพลาด'
                 })
               }
-
+              console.log(res);
+              this.cdRef.detectChanges();
             }, error: (err) => {
               console.log("Fail", err);
+              this.loading = false;
+              this.cdRef.detectChanges();
               Swal.fire({
                 icon: 'error',
                 title: 'เกิดข้อผิดพลาด',
@@ -490,7 +483,6 @@ export class TransferShareComponent implements OnInit {
               });
             }
           })
-          console.log('บันทึกข้อมูล:', payload);
         }
       });
     } else {

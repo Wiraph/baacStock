@@ -75,7 +75,7 @@ export class CustomerService {
 
   getCustomerTr(requestPayload: any) {
     const encrypPayload = this.encryped.encrypPayload(requestPayload);
-    return this.http.post<any[]>(`${this.apiUrl}/customer2tr`, encrypPayload, { headers: this.createAuthHeaders() });
+    return this.http.post<any[]>(`${this.apiUrl}/customer2tr`, encrypPayload, { withCredentials: true });
   }
 
 

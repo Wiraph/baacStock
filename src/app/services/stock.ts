@@ -66,6 +66,11 @@ export class StockService {
     });
   }
 
+  stockTransfer(requestPayload: any): Observable<any[]> {
+    const encryptedPayload = this.encrypt.encrypPayload(requestPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/transfer`, encryptedPayload, { withCredentials: true });
+  }
+
   blockStock(requestPayload: any): Observable<any[]> {
     const encodePayload = this.encrypt.encrypPayload(requestPayload);
     return this.http.post<any[]>(`${this.apiUrl}/block`, encodePayload, {
