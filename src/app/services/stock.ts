@@ -78,12 +78,9 @@ export class StockService {
     });
   }
 
-  noteDetial(requestPayload: any): Observable<any[]> {
+  detailApprove(requestPayload: any): Observable<any[]> {
     const encodePayload = this.encrypt.encrypPayload(requestPayload);
-    console.log("=======================", encodePayload);
-    return this.http.post<any[]>(`${this.apiUrl}/notedetail`, encodePayload, {
-      headers: this.createAuthHeaders()
-    });
+    return this.http.post<any[]>(`${this.apiUrl}/approvedetail`, encodePayload, { withCredentials: true });
   }
 
   private createAuthHeaders(): HttpHeaders {

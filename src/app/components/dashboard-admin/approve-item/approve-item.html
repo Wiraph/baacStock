@@ -18,7 +18,7 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <tr *ngFor="let item of requestList; let i = index" class="hover:bg-green-50 transition duration-150">
+          <tr *ngFor="let item of requestList;" class="hover:bg-green-50 transition duration-150">
             <td class="p-3 text-center">{{ item.roWi }}</td>
             <td class="p-3">{{ item.cusiD }}</td>
             <td class="p-3">{{ item.titleABBR }}{{ item.cusFName }} {{ item.cusLName }}</td>
@@ -29,7 +29,8 @@
             <td class="p-3 text-center cursor-pointer hover:text-green-600">
               <button
                 matButton="elevated"
-                matTooltip={{item.stDESCs}}
+                [matTooltipShowDelay]="300"
+                [matTooltip]="setTitleDetail(item)"
                 (click)="approveDetail(item.stkNOTE, item.stCODE)">📝</button>
             </td>
           </tr>

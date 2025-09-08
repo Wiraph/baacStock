@@ -94,10 +94,8 @@ export class SearchEditComponent implements OnInit {
 
     // ตรวจสอบว่าอยู่ใน browser environment หรือไม่
     if (isPlatformBrowser(this.platformId)) {
-      console.log("All cookies:", document.cookie);
       const rawBrName = this.getCookie('BrName');
       this.branch = rawBrName ? decodeURIComponent(rawBrName) : null;
-      console.log("BrName", this.branch);
     }
 
     // โหลดข้อมูล user ปัจจุบัน

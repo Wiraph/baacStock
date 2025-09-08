@@ -147,15 +147,10 @@ export class CratenewsharecertificateComponent implements OnInit {
     if (this.reasonForm.valid) {
       const selectedCode = this.reasonForm.value.remCode;
       const payloadNewLost = {
-        remCode: selectedCode,
+        StkRemCode: selectedCode,
         StkNOTE: this.stockDetail.stkNote,
-        BrCode: '',
-        UserId: '',
-        IpAddress: '',
-        HostName: '',
         Act: 'UPDATE'
       }
-
       Swal.fire({
         icon: 'question',
         text: 'ยืนยัน ต้องการออกใบหุ้นใหม่ทดแทนใบหุ้นชำรุด/สูญหาย',
