@@ -48,7 +48,7 @@ export class CustomerService {
   // payload = {
   //   CUSid: string;
   // }
-  getCustomerTable(requestPayload: any) {
+  getCustomerDetail(requestPayload: any) {
     const encrypPayload = this.encryped.encrypPayload(requestPayload);
     return this.http.post<any[]>(`${this.apiUrl}/detailcus`, encrypPayload, { withCredentials: true });
   }
@@ -68,16 +68,16 @@ export class CustomerService {
     return this.http.post<any[]>(`${this.apiUrl}/search`, encrypPayload, { withCredentials: true });
   }
 
-  getCustomerTr(requestPayload: any) {
+  manageCustomer(requestPayload: any) {
     const encrypPayload = this.encryped.encrypPayload(requestPayload);
-    return this.http.post<any[]>(`${this.apiUrl}/customer2tr`, encrypPayload, { headers: this.createAuthHeaders() });
+    return this.http.post<any[]>(`${this.apiUrl}/cusmanage`, encrypPayload, { withCredentials: true });
   }
 
-  postUpdateCustomer(requestPayload: any) {
+  getCustomerTr(requestPayload: any) {
     const encrypPayload = this.encryped.encrypPayload(requestPayload);
-    console.log("ข้อมูลที่ถูกเข้ารหัส", encrypPayload);
-    return this.http.post<any[]>(`${this.apiUrl}/update`, encrypPayload, { headers: this.createAuthHeaders() });
+    return this.http.post<any[]>(`${this.apiUrl}/customer2tr`, encrypPayload, { withCredentials: true });
   }
+
 
   
 

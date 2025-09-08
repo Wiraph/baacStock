@@ -46,27 +46,29 @@ export class StockService {
   ) { }
 
   stockManage(requestPayload: any): Observable<any[]> {
-    console.log("StockServicePayload", requestPayload);
     const encodePayload = this.encrypt.encrypPayload(requestPayload);
-    console.log("StockService", encodePayload)
     return this.http.post<any[]>(`${this.apiUrl}/manage`, encodePayload, {
-      headers: this.createAuthHeaders()
+      withCredentials: true
     });
   }
 
   getStockDetail(requestPayload: any): Observable<any[]> {
     const encodePayload = this.encrypt.encrypPayload(requestPayload);
-    console.log(encodePayload);
     return this.http.post<any[]>(`${this.apiUrl}/stkdetail`, encodePayload, {
-      headers: this.createAuthHeaders()
+      withCredentials: true
     });
   }
 
-  stockLog(requestPayload: any): Observable<any[]> {
+  stockLost(requestPayload: any): Observable<any[]> {
     const encodePayload = this.encrypt.encrypPayload(requestPayload);
-    return this.http.post<any[]>(`${this.apiUrl}/logstock`, encodePayload, {
-      headers: this.createAuthHeaders()
+    return this.http.post<any[]>(`${this.apiUrl}/stklost`, encodePayload, {
+      withCredentials: true
     });
+  }
+
+  stockTransfer(requestPayload: any): Observable<any[]> {
+    const encryptedPayload = this.encrypt.encrypPayload(requestPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/transfer`, encryptedPayload, { withCredentials: true });
   }
 
   blockStock(requestPayload: any): Observable<any[]> {
@@ -76,12 +78,9 @@ export class StockService {
     });
   }
 
-  noteDetial(requestPayload: any): Observable<any[]> {
+  detailApprove(requestPayload: any): Observable<any[]> {
     const encodePayload = this.encrypt.encrypPayload(requestPayload);
-    console.log("=======================", encodePayload);
-    return this.http.post<any[]>(`${this.apiUrl}/notedetail`, encodePayload, {
-      headers: this.createAuthHeaders()
-    });
+    return this.http.post<any[]>(`${this.apiUrl}/approvedetail`, encodePayload, { withCredentials: true });
   }
 
   private createAuthHeaders(): HttpHeaders {

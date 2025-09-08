@@ -1,15 +1,13 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { StocktransferService } from '../../../services/stocktransfer';
 import { MatDialog } from '@angular/material/dialog';
 import { PopupDetail } from '../../popup-detail/popup-detail';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import Swal from 'sweetalert2';
-import { JwtDecoder } from '../../../services/jwt-decoder';
 import { ApproveService } from '../../../services/approve';
-import {MatTooltipModule} from '@angular/material/tooltip';
-import {MatButtonModule} from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   standalone: true,
@@ -19,7 +17,7 @@ import {MatButtonModule} from '@angular/material/button';
   styleUrl: './approve-item.css'
 })
 export class ApproveItemComponent implements OnInit {
-  brName = '';
+  brName: any;
   searchText = '';
   filterType = '';
   requestList: any[] = [];
@@ -31,44 +29,45 @@ export class ApproveItemComponent implements OnInit {
 
   constructor(
     private readonly cdr: ChangeDetectorRef,
-    private readonly stockTransferService: StocktransferService,
     private readonly dialog: MatDialog,
-    private readonly jwtDecoder: JwtDecoder,
     private readonly approveService: ApproveService
   ) { }
 
   stockList: string[] = [];
 
   ngOnInit(): void {
+    if (typeof document !== 'undefined') {
+      const rowBrName = this.getCookie('BrName');
+      this.brName = rowBrName ? decodeURIComponent(rowBrName) : null;
+    }
     this.loading = true;
     this.onSearch(this.pageNumber, this.pageSize);
     this.cdr.detectChanges();
   }
 
-  onSearch(pageNumber: number, pageSize: number) {
-    // ตรวจสอบว่าอยู่ใน browser environment หรือไม่
-    if (typeof window !== 'undefined' && window.sessionStorage) {
-      const token = sessionStorage.getItem('token');
-      if (token) {
-        const decoder = this.jwtDecoder.decodeToken(String(token));
-        this.brCode = decoder.BrCode;
-        this.brName = decoder.BrName;
-      } else {
-        // ถ้าไม่มี token ให้ redirect ไป login
-        window.location.href = '/login';
-        return;
-      }
-    } else {
-      // SSR environment - ไม่สามารถใช้งาน sessionStorage ได้
-      console.warn('SSR environment detected - sessionStorage not available');
-      this.loading = false;
-      this.cdr.detectChanges();
-      return;
-    }
+  getCookie(name: string): string | null {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()!.split(';').shift()!;
+    return null;
+  }
 
+  setTitleDetail(item: any): string {
+    // สร้างสำเนาของ item เพื่อไม่ให้แก้ไข original object
+    const itemCopy = { ...item };
+    
+    if (itemCopy.remCode == "0040") {
+      const stDESCs = itemCopy.stDESCs.replace("ใบหุ้นที่ชำรุด/สูญหาย", "กรณีเปลี่ยนแปลงชื่อสกุล");
+      return `${stDESCs}`;
+    } else if (itemCopy.remList != "") {
+      return `${itemCopy.stDESCs} ${itemCopy.remList}`;
+    }
+    return `${itemCopy.stDESCs}${itemCopy.remList || ''}`;
+  }
+
+  onSearch(pageNumber: number, pageSize: number) {
     const payload = {
       ACT: 'APPROVE',
-      stkBRC: this.brCode,
       PGNum: pageNumber,
       PGSize: pageSize
     };
@@ -124,6 +123,10 @@ export class ApproveItemComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
+      if (result == "PASS") {
+        this.onSearch(1, 20);
+        this.cdr.detectChanges();
+      }
       if (result) {
         console.log('กดตกลง');
       } else {

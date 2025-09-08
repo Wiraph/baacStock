@@ -24,12 +24,15 @@ import { ApproveIssue } from './components/dashboard-admin/approve-issue/approve
 import { FormsProceduresComponent } from './components/dashboard-admin/forms-procedures/forms-procedures.component';
 import { UploadComponent } from './components/dashboard-admin/upload-document/upload.component';
 import { UserManualComponent } from './components/dashboard-admin/user-manual/user-manual.component';
+import { SapInterface } from './components/dashboard-admin/sap-interface/sap-interface';
 import { Pnd2Component } from './components/dashboard-admin/pnd-system/pnd2/pnd2.component';
 import { Pnd2aComponent } from './components/dashboard-admin/pnd-system/pnd2a/pnd2a.component';
 import { Pnd53Component } from './components/dashboard-admin/pnd-system/pnd53/pnd53.component';
+import { Pnd2old } from './components/dashboard-admin/pnd-system/pnd2old/pnd2old';
+import { Pnd2aold } from './components/dashboard-admin/pnd-system/pnd2aold/pnd2aold';
+import { Pnd53old } from './components/dashboard-admin/pnd-system/pnd53old/pnd53old';
 import { SaleStockComponent } from './components/dashboard-admin/sale-stock/sale-stock';
 import { AnnualdividendcalculatorComponent } from './components/dashboard-admin/annualdividendcalculator/annualdividendcalculator';
-import { NewCusComponent } from './components/dashboard-admin/newcus/newcus';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -65,11 +68,14 @@ export const routes: Routes = [
       { path: 'documents/upload', component: UploadComponent }, 
       { path: 'documents/forms-procedures', component: FormsProceduresComponent },
       { path: 'documents/user-manual', component: UserManualComponent },
+      { path: 'sap-interface', component: SapInterface },
       { path: 'pnd2', component: Pnd2Component },
       { path: 'pnd2a', component: Pnd2aComponent },
       { path: 'pnd53', component: Pnd53Component },
+      { path: 'pnd2old', component: Pnd2old },
+      { path: 'pnd2aold', component: Pnd2aold },
+      { path: 'pnd53old', component: Pnd53old },
       { path: 'AnnualDividendCalculatorComponent', component: AnnualdividendcalculatorComponent },
-      { path: 'newcus', component: NewCusComponent }
     ]
   },
 

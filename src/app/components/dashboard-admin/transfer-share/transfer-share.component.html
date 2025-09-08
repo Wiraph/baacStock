@@ -5,13 +5,13 @@
 <div *ngIf="activeView === 'transfer'">
     <div class="m-4 rounded-md shadow-md bg-white">
         <p class="text-center py-3 rounded-t-md bg-green-400 text-xl font-semibold text-white">รายการใบหุ้น :
-            ออกใบหุ้นใหม่แทนใบหุ้นที่ชำรุด/สูญหาย</p>
+            โอนเปลี่ยนมือ </p>
         <div class="text-center py-4 gap-4">
             <div class="flex justify-center gap-4">
-                <p>บัตรแสดงตนเลขที่ : {{ customerData.cusiD }}</p>
-                <p>สถานะ : {{ customerData.staDesc }} </p>
+                <p>บัตรแสดงตนเลขที่ : {{ customerData.cusId }}</p>
+                <p>สถานะ : {{ customerData.statusDesc }} </p>
             </div>
-            <p>ชื่อ - นามสกุล : {{ customerData.title }}{{ customerData.fname }} {{ customerData.lname }}</p>
+            <p>ชื่อ - นามสกุล : {{ customerData.titleName }}{{ customerData.cusFName }} {{ customerData.cusLName }}</p>
         </div>
         <div class="p-4">
             <table class="table-auto w-full border border-gray-300 rounded-lg shadow-sm">

@@ -4,7 +4,6 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { CustomerStockService } from '../../../services/customer-stock-service';
 import { DataTransfer } from '../../../services/data-transfer';
 import { StocksComponent } from '../stocks/stocks';
-import { NewCusComponent } from '../newcus/newcus';
 import { UserService } from '../../../services/user';
 import { CustomerService } from '../../../services/customer';
 import Swal from 'sweetalert2';
@@ -16,14 +15,13 @@ import Swal from 'sweetalert2';
   imports: [
     FormsModule,
     CommonModule,
-    StocksComponent,
-    NewCusComponent
+    StocksComponent
   ],
   templateUrl: './search-edit.html',
   styleUrls: ['./search-edit.css']
 })
 export class SearchEditComponent implements OnInit {
-  @Output() statusView = new EventEmitter<{ view: string; cusId: string }>();
+  @Output() statusView = new EventEmitter<{ view: string; cusId: string; }>();
   // @Output() cusId = new EventEmitter<{cusid: string}>();
 
   cusId: string = '';
@@ -96,10 +94,8 @@ export class SearchEditComponent implements OnInit {
 
     // ตรวจสอบว่าอยู่ใน browser environment หรือไม่
     if (isPlatformBrowser(this.platformId)) {
-      console.log("All cookies:", document.cookie);
       const rawBrName = this.getCookie('BrName');
       this.branch = rawBrName ? decodeURIComponent(rawBrName) : null;
-      console.log("BrName", this.branch);
     }
 
     // โหลดข้อมูล user ปัจจุบัน
@@ -197,6 +193,8 @@ export class SearchEditComponent implements OnInit {
       this.statusView.emit({ view: 'dividend', cusId: cusId });
     } else if (this.statusPage == '6') {
       this.statusView.emit({ view: 'block', cusId: cusId });
+    } else if (this.statusPage == '7') {
+      this.statusView.emit({ view: 'newcus', cusId: cusId })
     }
   }
 

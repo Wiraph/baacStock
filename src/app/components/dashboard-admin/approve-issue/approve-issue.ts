@@ -25,7 +25,7 @@ export class ApproveIssue implements OnInit {
   ) { }
 
   activeView: string = "table";
-  brName: string = '';
+  brName: any;
   issueList: any[] = [];
   issuadata: any;
   brCode = '';
@@ -35,8 +35,19 @@ export class ApproveIssue implements OnInit {
 
 
   ngOnInit(): void {
+    if ( typeof document !== "undefined") {
+      const rawBrName = this.getCookie("BrName");
+      this.brName = rawBrName ? decodeURIComponent(rawBrName) : null;
+    }
     this.loading = true;
     this.onsearch(1, 20);
+  }
+
+  getCookie(name: string): string | null {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()!.split(';').shift()!;
+    return null;
   }
 
   setView(view: string) {
@@ -62,28 +73,8 @@ export class ApproveIssue implements OnInit {
   }
 
   onsearch(pageNumber: number, pageSize: number) {
-    // ตรวจสอบว่าอยู่ใน browser environment หรือไม่
-    if (typeof window !== 'undefined' && window.sessionStorage) {
-      const token = sessionStorage.getItem('token');
-      if (token) {
-        const decoder = this.jwtDecoder.decodeToken(String(token));
-        this.brCode = decoder.BrCode;
-        this.brName = decoder.BrName;
-      } else {
-        // ถ้าไม่มี token ให้ redirect ไป login
-        window.location.href = '/login';
-        return;
-      }
-    } else {
-      // SSR environment - ไม่สามารถใช้งาน sessionStorage ได้
-      console.warn('SSR environment detected - sessionStorage not available');
-      this.loading = false;
-      this.cd.detectChanges();
-      return;
-    }
     const payload = {
       ACT: 'iSSUE',
-      stkBRC: this.brCode,
       PGNum: pageNumber,
       PGSize: pageSize
     };
@@ -120,6 +111,10 @@ export class ApproveIssue implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
+      if (result == "PASS") {
+        this.onsearch(1, 20);
+        this.cd.detectChanges();
+      }
       if (result) {
         console.log('กดตกลง');
       } else {

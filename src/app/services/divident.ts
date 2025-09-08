@@ -17,8 +17,7 @@ export class Divident {
   getDividend(requestPayload: any) {
     const encrypPayload = this.encryptionService.encrypPayload(requestPayload);
     return this.http.post<any[]>(`${this.apiUrl}/dividend`, encrypPayload, {
-      withCredentials: true,
-      headers: this.createAuthHeaders()
+      withCredentials: true
     });
   }
 
