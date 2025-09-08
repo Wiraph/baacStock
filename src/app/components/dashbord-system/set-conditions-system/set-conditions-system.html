@@ -1,1 +1,360 @@
-<p>set-conditions-system works!</p>
+  <div class="min-h-screen bg-gray-50 p-6">
+    <!-- Container to center content -->
+    <div class="w-full mx-auto max-w-7xl">
+    <!-- Header -->
+    <div class="bg-blue-600 text-white p-4 rounded-t-lg">
+      <h1 class="text-xl font-bold text-center">กำหนดเงื่อนไขระบบงาน</h1>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-8">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <span class="ml-2 text-gray-600">กำลังโหลดข้อมูล...</span>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!isLoading" class="bg-white rounded-b-lg shadow-lg">
+      <div class="p-6">
+        <!-- System Configuration Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- คอลัมน์ที่ 1: ข้อมูลพื้นฐาน -->
+          <div class="space-y-6">
+            <!-- กลุ่มข้อมูลพื้นฐาน -->
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-6 shadow-sm">
+              <h3 class="text-lg font-bold text-blue-800 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"/>
+                </svg>
+                ข้อมูลพื้นฐาน
+              </h3>
+              <div class="grid grid-cols-1 gap-4">
+                <!-- ทุนจดทะเบียน -->
+                <div class="bg-white border border-blue-200 rounded-lg p-4">
+                  <div class="font-medium text-gray-700 mb-2">ทุนจดทะเบียน (จำนวนเงิน)</div>
+                  <div class="text-right">
+                    <span *ngIf="!isEditing" class="text-xl font-bold">
+                      {{ formatNumber(systemConfig.stkCAP) }} บาท
+                    </span>
+                    <input *ngIf="isEditing"
+                           type="number"
+                           [(ngModel)]="systemConfig.stkCAP"
+                           class="w-full p-3 border-2 border-blue-300 rounded-lg text-right text-lg font-medium bg-blue-50 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:bg-white transition-all duration-200 shadow-sm hover:shadow-md">
+                  </div>
+                </div>
+
+                <!-- ราคาพาร์ -->
+                <div class="bg-white border border-blue-200 rounded-lg p-4">
+                  <div class="font-medium text-gray-700 mb-2">ราคาพาร์ (PAR)</div>
+                  <div class="text-right">
+                    <span *ngIf="!isEditing" class="text-xl font-bold">
+                      {{ formatNumber(systemConfig.stkPAR) }} บาท
+                    </span>
+                    <input *ngIf="isEditing"
+                           type="number"
+                           [(ngModel)]="systemConfig.stkPAR"
+                           class="w-full p-3 border-2 border-blue-300 rounded-lg text-right text-lg font-medium bg-blue-50 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:bg-white transition-all duration-200 shadow-sm hover:shadow-md">
+                  </div>
+                </div>
+
+                <!-- มูลค่าหุ้นตามบัญชี -->
+                <div class="bg-white border border-blue-200 rounded-lg p-4">
+                  <div class="font-medium text-gray-700 mb-2">มูลค่าหุ้นตามบัญชี</div>
+                  <div class="text-right">
+                    <span *ngIf="!isEditing" class="text-xl font-bold">
+                      {{ formatNumber(systemConfig.stkBV) }} บาท
+                    </span>
+                    <input *ngIf="isEditing"
+                           type="number"
+                           [(ngModel)]="systemConfig.stkBV"
+                           class="w-full p-3 border-2 border-blue-300 rounded-lg text-right text-lg font-medium bg-blue-50 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:bg-white transition-all duration-200 shadow-sm hover:shadow-md">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- คอลัมน์ที่ 2: ข้อมูลหุ้น -->
+          <div class="space-y-6">
+            <!-- กลุ่มข้อมูลหุ้น -->
+            <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-6 shadow-sm">
+              <h3 class="text-lg font-bold text-green-800 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                ข้อมูลหุ้น
+              </h3>
+              <div class="grid grid-cols-1 gap-4">
+                <!-- หุ้นทั้งหมด -->
+                <div class="bg-white border border-green-200 rounded-lg p-4">
+                  <div class="font-medium text-gray-700 mb-2">หุ้นทั้งหมด</div>
+                  <div class="text-right">
+                    <span *ngIf="!isEditing" class="text-xl font-bold">
+                      {{ formatNumber(systemConfig.stkAll) }} หุ้น
+                    </span>
+                    <input *ngIf="isEditing"
+                           type="number"
+                           [(ngModel)]="systemConfig.stkAll"
+                           class="w-full p-3 border-2 border-green-300 rounded-lg text-right text-lg font-medium bg-green-50 focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-green-100 focus:bg-white transition-all duration-200 shadow-sm hover:shadow-md">
+                  </div>
+                </div>
+
+                <!-- จำนวนหุ้นที่จำหน่ายได้ต่อปี -->
+                <div class="bg-white border border-green-200 rounded-lg p-4">
+                  <div class="font-medium text-gray-700 mb-2">จำนวนหุ้นที่จำหน่ายได้ต่อปี</div>
+                  <div class="text-right">
+                    <span *ngIf="!isEditing" class="text-xl font-bold">
+                      {{ formatNumber(systemConfig.stkUniTyear) }} หุ้น
+                    </span>
+                    <input *ngIf="isEditing"
+                           type="number"
+                           [(ngModel)]="systemConfig.stkUniTyear"
+                           class="w-full p-3 border-2 border-green-300 rounded-lg text-right text-lg font-medium bg-green-50 focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-green-100 focus:bg-white transition-all duration-200 shadow-sm hover:shadow-md">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- คอลัมน์ที่ 3: เงื่อนไขการจำหน่าย -->
+          <div class="space-y-6">
+            <!-- กลุ่มเงื่อนไขการจำหน่าย -->
+            <div class="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-6 shadow-sm">
+              <h3 class="text-lg font-bold text-purple-800 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                </svg>
+                เงื่อนไขการจำหน่าย
+              </h3>
+              <div class="grid grid-cols-1 gap-4">
+                <!-- จำนวนหุ้นต่ำสุดที่จำหน่ายประเภทรายบุคคล -->
+                <div class="bg-white border border-purple-200 rounded-lg p-4">
+                  <div class="font-medium text-gray-700 mb-2">จำนวนหุ้นต่ำสุดที่จำหน่ายประเภทรายบุคคล</div>
+                  <div class="text-right">
+                    <span *ngIf="!isEditing" class="text-xl font-bold">
+                      {{ formatNumber(systemConfig.stkUNiTminP) }} หุ้น
+                    </span>
+                    <input *ngIf="isEditing"
+                           type="number"
+                           [(ngModel)]="systemConfig.stkUNiTminP"
+                           class="w-full p-3 border-2 border-purple-300 rounded-lg text-right text-lg font-medium bg-purple-50 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-100 focus:bg-white transition-all duration-200 shadow-sm hover:shadow-md">
+                  </div>
+                </div>
+
+                <!-- จำนวนหุ้นต่ำสุดที่จำหน่ายประเภทนิติบุคคล -->
+                <div class="bg-white border border-purple-200 rounded-lg p-4">
+                  <div class="font-medium text-gray-700 mb-2">จำนวนหุ้นต่ำสุดที่จำหน่ายประเภทนิติบุคคล</div>
+                  <div class="text-right">
+                    <span *ngIf="!isEditing" class="text-xl font-bold">
+                      {{ formatNumber(systemConfig.stkUNiTminB) }} หุ้น
+                    </span>
+                    <input *ngIf="isEditing"
+                           type="number"
+                           [(ngModel)]="systemConfig.stkUNiTminB"
+                           class="w-full p-3 border-2 border-purple-300 rounded-lg text-right text-lg font-medium bg-purple-50 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-100 focus:bg-white transition-all duration-200 shadow-sm hover:shadow-md">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- แถวที่ 2 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+          <!-- คอลัมน์ที่ 1: การปิดพักบัญชีหุ้น (ห้ามขาย) -->
+          <div class="space-y-6">
+            <!-- กลุ่มข้อมูลการปิดพักบัญชีหุ้น (ห้ามขาย) -->
+            <div class="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-xl p-6 shadow-sm">
+              <h3 class="text-lg font-bold text-orange-800 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+                การปิดพักบัญชีหุ้น (ห้ามขาย)
+              </h3>
+              <div class="grid grid-cols-1 gap-4">
+                <!-- วันเริ่มต้นปิดพักบัญชีหุ้น (ห้ามขาย) -->
+                <div class="bg-white border border-orange-200 rounded-lg p-4">
+                  <div class="font-medium text-gray-700 mb-2">วันเริ่มต้นปิดพักบัญชีหุ้น (ห้ามขาย)</div>
+                  <div class="text-right">
+                    <span *ngIf="!isEditing" class="text-xl font-bold">
+                      {{ formatDate(systemConfig.stkDatePauseSALESTA) }}
+                    </span>
+                    <div *ngIf="isEditing" class="relative">
+                      <input type="text"
+                             [value]="formatDate(systemConfig.stkDatePauseSALESTA)"
+                             (focus)="showCalendarSALESTA = true" 
+                             readonly
+                             class="w-full p-3 border-2 border-orange-300 rounded-lg text-right text-lg font-medium bg-orange-50 focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-100 focus:bg-white transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer">
+                  
+                      <!-- แสดง Calendar Popup -->
+                      <div *ngIf="showCalendarSALESTA" class="absolute z-50 top-full left-0 mt-1">
+                        <app-calendar-popup *ngIf="showCalendarSALESTA"
+                                            [(selected)]="selectedDateSALESTA"
+                                            (dateSelected)="onDateSALESTASelected($event)"
+                                            (closed)="showCalendarSALESTA = false">
+                        </app-calendar-popup>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- วันสิ้นสุดปิดพักบัญชีหุ้น (ห้ามขาย) -->
+                <div class="bg-white border border-orange-200 rounded-lg p-4">
+                  <div class="font-medium text-gray-700 mb-2">วันสิ้นสุดปิดพักบัญชีหุ้น (ห้ามขาย)</div>
+                  <div class="text-right">
+                    <span *ngIf="!isEditing" class="text-xl font-bold">
+                      {{ formatDate(systemConfig.stkDatePauseSALESTP) }}
+                    </span>
+                    <div *ngIf="isEditing" class="relative">
+                      <input type="text"
+                             [value]="formatDate(systemConfig.stkDatePauseSALESTP)"
+                             (focus)="showCalendarSALESTP = true" 
+                             readonly
+                             class="w-full p-3 border-2 border-orange-300 rounded-lg text-right text-lg font-medium bg-orange-50 focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-100 focus:bg-white transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer">
+                      
+                      <!-- แสดง Calendar Popup -->
+                      <div *ngIf="showCalendarSALESTP" class="absolute z-50 top-full left-0 mt-1">
+                        <app-calendar-popup *ngIf="showCalendarSALESTP"
+                                            [(selected)]="selectedDateSALESTP"
+                                            (dateSelected)="onDateSALESTPSelected($event)"
+                                            (closed)="showCalendarSALESTP = false">
+                        </app-calendar-popup>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- คอลัมน์ที่ 2: การปิดพักบัญชีหุ้น (ห้ามโอน) -->
+          <div class="space-y-6">
+            <!-- กลุ่มข้อมูลการปิดพักบัญชีหุ้น (ห้ามโอน) -->
+            <div class="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-xl p-6 shadow-sm">
+              <h3 class="text-lg font-bold text-red-800 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd"/>
+                </svg>
+                การปิดพักบัญชีหุ้น (ห้ามโอน)
+              </h3>
+              <div class="grid grid-cols-1 gap-4">
+                <!-- วันเริ่มต้นปิดพักบัญชีหุ้น (ห้ามโอน) -->
+                <div class="bg-white border border-red-200 rounded-lg p-4">
+                  <div class="font-medium text-gray-700 mb-2">วันเริ่มต้นปิดพักบัญชีหุ้น (ห้ามโอน)</div>
+                  <div class="text-right">
+                    <span *ngIf="!isEditing" class="text-xl font-bold">
+                      {{ formatDate(systemConfig.stkDatePauseTRANSTA) }}
+                    </span>
+                    <div *ngIf="isEditing" class="relative">
+                      <input type="text"
+                             [value]="formatDate(systemConfig.stkDatePauseTRANSTA)"
+                             (focus)="showCalendarTRANSTA = true" 
+                             readonly
+                             class="w-full p-3 border-2 border-red-300 rounded-lg text-right text-lg font-medium bg-red-50 focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100 focus:bg-white transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer">
+                      
+                      <!-- แสดง Calendar Popup -->
+                      <div *ngIf="showCalendarTRANSTA" class="absolute z-50 top-full left-0 mt-1">
+                        <app-calendar-popup *ngIf="showCalendarTRANSTA"
+                                            [(selected)]="selectedDateTRANSTA"
+                                            (dateSelected)="onDateTRANSTASelected($event)"
+                                            (closed)="showCalendarTRANSTA = false">
+                        </app-calendar-popup>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- วันสิ้นสุดปิดพักบัญชีหุ้น (ห้ามโอน) -->
+                <div class="bg-white border border-red-200 rounded-lg p-4">
+                  <div class="font-medium text-gray-700 mb-2">วันสิ้นสุดปิดพักบัญชีหุ้น (ห้ามโอน)</div>
+                  <div class="text-right">
+                    <span *ngIf="!isEditing" class="text-xl font-bold">
+                      {{ formatDate(systemConfig.stkDatePauseTRANSTP) }}
+                    </span>
+                    <div *ngIf="isEditing" class="relative">
+                      <input type="text"
+                             [value]="formatDate(systemConfig.stkDatePauseTRANSTP)"
+                             (focus)="showCalendarTRANSTP = true" 
+                             readonly
+                             class="w-full p-3 border-2 border-red-300 rounded-lg text-right text-lg font-medium bg-red-50 focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100 focus:bg-white transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer">
+                      
+                      <!-- แสดง Calendar Popup -->
+                      <div *ngIf="showCalendarTRANSTP" class="absolute z-50 top-full left-0 mt-1">
+                        <app-calendar-popup *ngIf="showCalendarTRANSTP"
+                                            [(selected)]="selectedDateTRANSTP"
+                                            (dateSelected)="onDateTRANSTPSelected($event)"
+                                            (closed)="showCalendarTRANSTP = false">
+                        </app-calendar-popup>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- คอลัมน์ที่ 3: ข้อมูลไปรษณีย์ -->
+          <div class="space-y-6">
+            <!-- กลุ่มข้อมูลไปรษณีย์ -->
+            <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200 rounded-xl p-6 shadow-sm">
+              <h3 class="text-lg font-bold text-indigo-800 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                </svg>
+                ข้อมูลไปรษณีย์
+              </h3>
+              <div class="grid grid-cols-1 gap-4">
+                <!-- เลขที่ใบอนุญาตไปรษณีย์ -->
+                <div class="bg-white border border-indigo-200 rounded-lg p-4">
+                  <div class="font-medium text-gray-700 mb-2">เลขที่ใบอนุญาตไปรษณีย์</div>
+                  <div class="text-right">
+                    <span *ngIf="!isEditing" class="text-xl font-bold">
+                      {{ systemConfig.post_License }}
+                    </span>
+                    <input *ngIf="isEditing"
+                           type="text"
+                           [(ngModel)]="systemConfig.post_License"
+                           class="w-full p-3 border-2 border-indigo-300 rounded-lg text-right text-lg font-medium bg-indigo-50 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 focus:bg-white transition-all duration-200 shadow-sm hover:shadow-md">
+                  </div>
+                </div>
+
+                <!-- ที่ทำการไปรษณีย์ -->
+                <div class="bg-white border border-indigo-200 rounded-lg p-4">
+                  <div class="font-medium text-gray-700 mb-2">ที่ทำการไปรษณีย์</div>
+                  <div class="text-right">
+                    <span *ngIf="!isEditing" class="text-xl font-bold">
+                      {{ systemConfig.post_Office }}
+                    </span>
+                    <input *ngIf="isEditing"
+                           type="text"
+                           [(ngModel)]="systemConfig.post_Office"
+                           class="w-full p-3 border-2 border-indigo-300 rounded-lg text-right text-lg font-medium bg-indigo-50 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 focus:bg-white transition-all duration-200 shadow-sm hover:shadow-md">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-center gap-4 mt-6">
+        <!-- ปุ่มแก้ไข/ยกเลิก -->
+        <button (click)="toggleEdit()"
+                class="bg-green-600 hover:bg-green-700 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+          <span *ngIf="!isEditing">แก้ไข</span>
+          <span *ngIf="isEditing">ยกเลิก</span>
+        </button>
+        
+        <!-- ปุ่มบันทึก (แสดงเฉพาะเมื่อแก้ไข) -->
+        <button *ngIf="isEditing" 
+                (click)="saveConfig()"
+                [disabled]="isLoading"
+                class="bg-blue-600 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:bg-gray-400 disabled:hover:translate-y-0 disabled:hover:shadow-none text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+          <span *ngIf="!isLoading">บันทึก</span>
+          <span *ngIf="isLoading">⏳ กำลังบันทึก...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  </div> <!-- Close centering container -->
+</div>
