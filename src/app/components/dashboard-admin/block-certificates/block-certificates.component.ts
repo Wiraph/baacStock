@@ -67,8 +67,8 @@ export class BlockCertificatesComponent implements OnInit {
   // Search Integration
   onHandle(event: any) {
     this.loading = true;
-    this.setView('certificate-list');
     this.activeView = event.view;
+    this.cusId = event.cusId;
     this.onLoadBlockList(event.cusId);
     this.cdRef.detectChanges();
   }
@@ -84,7 +84,7 @@ export class BlockCertificatesComponent implements OnInit {
       PGNum: 1,
       PGSize: 9999999
     };
-    this.customerStockService.searchCustomerStock(payload).subscribe({
+    this.customerService.searchCustomerStk(payload).subscribe({
       next: (res) => {
         this.stkBlockList = res;
         console.log("stkBlockList", this.stkBlockList);
@@ -95,7 +95,7 @@ export class BlockCertificatesComponent implements OnInit {
     })
 
     const payload2 = {
-      CUSid: cusiD
+      cusId: cusiD
     }
 
     this.customerService.getCustomerDetail(payload2).subscribe({
@@ -122,8 +122,6 @@ export class BlockCertificatesComponent implements OnInit {
       }).then((result) => {
         if (result.isConfirmed) {
           this.onLoadBlock(stkNote);
-          this.activeView = 'search';
-          this.cdRef.detectChanges();
         }
       })
     } else if (stCode == "S008") {
@@ -137,8 +135,6 @@ export class BlockCertificatesComponent implements OnInit {
       }).then((result) => {
         if (result.isConfirmed) {
           this.onLoadBlock(stkNote);
-          this.activeView = 'search';
-          this.cdRef.detectChanges();
         }
       })
     } else {
@@ -153,19 +149,20 @@ export class BlockCertificatesComponent implements OnInit {
 
   onLoadBlock(stkNote: string) {
     const payload = {
-      stkNOTE: stkNote,
-      ACT: 'INSERT'
+      stkNote: stkNote
     };
     this.stockService.blockStock(payload).subscribe({
       next: (res: any) => {
         Swal.fire({
           icon: 'success',
-          text: `${res.message}`,
+          text: `ดำเนินการ ${res.perMSG} บล็อคใบหุ้นเลขที่ ${this.cusId} เรียบร้อย`,
           confirmButtonText: 'ตกลง',
           confirmButtonColor: '#04AA6D',
           timer: 3000,
           timerProgressBar: true,
         })
+        this.onLoadBlockList(this.cusId);
+        this.cdRef.detectChanges();
       }, error: (err) => {
         console.log("Error", err);
       }
