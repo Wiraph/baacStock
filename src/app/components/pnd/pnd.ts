@@ -1,7 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Pnd } from '../../services/pnd';
-import { Pndfile } from '../../services/pndfile';
 import { firstValueFrom } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,7 +23,6 @@ export class PndComponent implements OnInit {
   currentGenerating = '';
 
   constructor(
-    private readonly pndFileService: Pndfile,
     private readonly pndService: Pnd,
     private readonly cd: ChangeDetectorRef,
     private readonly ngZone: NgZone
@@ -86,7 +84,7 @@ export class PndComponent implements OnInit {
     console.log("All File", allFiles);
 
     try {
-      const checkRes: any[] = await firstValueFrom(this.pndFileService.checkFiles(allFiles));
+      const checkRes: any[] = await firstValueFrom(this.pndService.checkFiles(allFiles));
 
       this.pndData.forEach(item => {
         const pattern = item.txtFiLE.replace('.txt', '');
@@ -140,7 +138,7 @@ export class PndComponent implements OnInit {
       FilePath: dir
     };
 
-    this.pndFileService.download(payload).subscribe({
+    this.pndService.download(payload).subscribe({
       next: (blob) => {
         const link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);

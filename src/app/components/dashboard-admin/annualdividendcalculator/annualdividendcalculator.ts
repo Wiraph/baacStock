@@ -1,13 +1,12 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, Inject, PLATFORM_ID, inject, ElementRef, ViewChild, forwardRef, Input } from '@angular/core';
 import { Divident } from '../../../services/divident';
 import Swal from 'sweetalert2';
-import { Thai } from 'flatpickr/dist/l10n/th.js';
 import { Thaidateadapter } from '../../thaidateadapter/thaidateadapter';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ThaiCalendarComponent } from '../../thai-calendar-component/thai-calendar-component';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -146,36 +145,6 @@ export class AnnualdividendcalculatorComponent implements OnInit {
   ngOnInit(): void {
     this.loading = true;
     this.calDividend();
-  }
-
-  ngAfterViewInit(): void {
-    // แปลงปี ค.ศ. → พ.ศ.
-    const toThaiYear = (date: Date) => {
-      const d = new Date(date);
-      d.setFullYear(d.getFullYear() + 543);
-      return d;
-    };
-    if (isPlatformBrowser(this.platformId)) {
-      import('flatpickr').then(flatpickr => {
-        flatpickr.default("#myDateInput", {
-          locale: Thai,
-          dateFormat: "d F Y",
-          altInput: true,
-          altFormat: "d F Y",
-          defaultDate: new Date(),
-          onChange: function (selectedDates, dateStr, instance) {
-            if (selectedDates.length > 0) {
-              const thaiDate = toThaiYear(selectedDates[0]);
-              instance.input.value = `${thaiDate.getDate()} ${Thai.months.longhand[thaiDate.getMonth()]} ${thaiDate.getFullYear()}`;
-            }
-          },
-          formatDate: function (date, format, locale) {
-            const thaiDate = toThaiYear(date);
-            return `${thaiDate.getDate()} ${locale.months.longhand[thaiDate.getMonth()]} ${thaiDate.getFullYear()}`;
-          }
-        });
-      });
-    }
   }
 
   onDatePickedMeet(date: Date) {
@@ -614,7 +583,7 @@ export class DialogAnimationsExampleDialog {
   styleUrls: ['./annualdividendcalculator.css'],
   imports: [CommonModule],
 })
-export class VoucherComponent implements OnInit {
+export class VoucherComponent {
   @ViewChild('voucherDiv') voucherDiv!: ElementRef;
   
   @Input() dataForm: any = { year: '', time: '' };
@@ -631,10 +600,6 @@ export class VoucherComponent implements OnInit {
     if (!date) return '';
     const d = new Date(date);
     return d.toLocaleDateString('th-TH');
-  }
-
-  ngOnInit(): void {
-    // Component initialized
   }
 
   async generatePDF(): Promise<void> {

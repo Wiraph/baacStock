@@ -2,14 +2,10 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SearchEditComponent } from '../search-edit/search-edit';
-import { StockRequestService } from '../../../services/stock-request';
 import { DataTransfer } from '../../../services/data-transfer';
-import { Stocklost } from '../../../services/stocklost';
 import { CustomerService } from '../../../services/customer';
-import { CustomerStockService } from '../../../services/customer-stock-service';
 import { StockService } from '../../../services/stock';
 import Swal from 'sweetalert2';
-import { MetadataService } from '../../../services/metadata';
 import { SystemMetadata } from '../../../services/Metadata/system-metadata';
 
 @Component({
@@ -45,13 +41,9 @@ export class CratenewsharecertificateComponent implements OnInit {
   constructor(
     private readonly fb: FormBuilder,
     private readonly cd: ChangeDetectorRef,
-    private readonly StockRequestServer: StockRequestService,
     private readonly dataTransfer: DataTransfer,
-    private readonly stockLostService: Stocklost,
     private readonly customerService: CustomerService,
-    private readonly customerStockService: CustomerStockService,
     private readonly stockService: StockService,
-    private readonly metaDataService: MetadataService,
     private readonly systemMedataaService: SystemMetadata
   ) { }
 

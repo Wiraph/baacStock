@@ -9,8 +9,6 @@ import { EncryptionService } from './encryption.service';
 })
 export class Spin {
   private readonly apiUrl = `${environment.dotnetApiUrl}/api/Spin`;
-  private readonly apiUrlUpload = `${environment.dotnetApiUrl}/api/SpinUpload`;
-  private readonly apiUrlDownload = `${environment.dotnetApiUrl}/api/SpinDownload`;
 
   constructor(
     private readonly http: HttpClient,
@@ -35,7 +33,7 @@ export class Spin {
     console.log("Payload", padload);
     const encryptedPayload = this.encryptionService.encrypPayload(padload);
     console.log("Encrypt", encryptedPayload);
-    return this.http.post(`${this.apiUrlDownload}/download`, encryptedPayload, {
+    return this.http.post(`${this.apiUrl}/download`, encryptedPayload, {
       withCredentials: true,
       responseType: 'blob'
     });
@@ -43,7 +41,7 @@ export class Spin {
 
   uploadFiles(payload: any): Observable<any[]> {
     const encrypPayload = this.encryptionService.encrypPayload(payload);
-    return this.http.post<any[]>(`${this.apiUrlUpload}/uploadout`, encrypPayload, {
+    return this.http.post<any[]>(`${this.apiUrl}/uploadout`, encrypPayload, {
       withCredentials: true
     });
   }

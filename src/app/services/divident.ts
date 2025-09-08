@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { EncryptionService } from './encryption.service';
 import { environment } from '../../environments/environments';
@@ -21,15 +21,8 @@ export class Divident {
     });
   }
 
-  private createAuthHeaders(): HttpHeaders {
-    return new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-  }
-
   getAllDividend(payload: any = {}) {
     const encrypPayload = this.encryptionService.encrypPayload(payload);
-    console.log("EncrypPayload", encrypPayload);
     return this.http.post<any[]>(`${this.apiUrl}/dividends`, encrypPayload , {
       withCredentials: true
     })
@@ -37,7 +30,6 @@ export class Divident {
 
   getDividendList(payload: any) {
     const encrypPayload = this.encryptionService.encrypPayload(payload);
-    console.log("รหัสที่จะไปดึง array ", encrypPayload);
     return this.http.post<any[]>(`${this.apiUrl}/dividendlist`, encrypPayload , {
       withCredentials: true
     });
@@ -59,8 +51,6 @@ export class Divident {
   getDividend2Pay(stkOwnId: string) {
     const payload = { stkOwnId: stkOwnId };
     const encrypPayload = this.encryptionService.encrypPayload(payload);
-    console.log('💰 Calling getDividend2Pay with payload:', payload);
-    console.log('💰 API URL:', `${this.apiUrl}/2pay`);
     return this.http.post<any[]>(`${this.apiUrl}/2pay`, encrypPayload, {
       withCredentials: true
     });
