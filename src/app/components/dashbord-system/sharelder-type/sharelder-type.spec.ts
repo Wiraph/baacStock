@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DashboardSystemComponent } from './dashbord-system';
+import { SharelderType } from './sharelder-type';
 
-describe('DashboardSystemComponent', () => {
-  let component: DashboardSystemComponent;
-  let fixture: ComponentFixture<DashboardSystemComponent>;
+describe('SharelderType', () => {
+  let component: SharelderType;
+  let fixture: ComponentFixture<SharelderType>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DashboardSystemComponent]
+      imports: [SharelderType]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(DashboardSystemComponent);
+    fixture = TestBed.createComponent(SharelderType);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

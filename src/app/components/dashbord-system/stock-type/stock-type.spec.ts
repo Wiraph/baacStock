@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DashboardSystemComponent } from './dashbord-system';
+import { StockType } from './stock-type';
 
-describe('DashboardSystemComponent', () => {
-  let component: DashboardSystemComponent;
-  let fixture: ComponentFixture<DashboardSystemComponent>;
+describe('StockType', () => {
+  let component: StockType;
+  let fixture: ComponentFixture<StockType>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DashboardSystemComponent]
+      imports: [StockType]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(DashboardSystemComponent);
+    fixture = TestBed.createComponent(StockType);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

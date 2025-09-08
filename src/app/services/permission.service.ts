@@ -17,7 +17,9 @@ export interface MenuPermission {
 })
 export class PermissionService {
 
-  // Menu permissions (เมนูหลัก)
+  // ========================================
+  // เมนูหลัก (Dashboard Admin) - ระบบหุ้น
+  // ========================================
   private readonly menuPermissions: { [key: string]: MenuPermission } = {
     'home': { 
       key: 'home',
@@ -66,8 +68,11 @@ export class PermissionService {
     }
   };
 
-  // Sub-menu permissions (เมนูย่อย)
+  // ========================================
+  // เมนูย่อย (Dashboard Admin) - ระบบหุ้น
+  // ========================================
   private readonly subMenuPermissions: { [key: string]: SubMenuPermission } = {
+    // เมนูหลัก - ระบบหุ้น
     'home': {
       id: 'home',
       name: 'Home',
@@ -228,21 +233,107 @@ export class PermissionService {
       name: 'คู่มือการใช้งานระบบ',
       levels: ['99','98','90', '89', '85', '80', '50', '20', '19', '10', '09', '05', '00']
     },
-
     'developer': {
       id: 'developer',
       name: 'DEVELOPER',
       levels: ['99', '89']
+    },
+
+    // ========================================
+    // เมนูควบคุมระบบ (Dashboard System)
+    // ========================================
+    // เมนูหลัก - ควบคุมระบบ
+    'system-home': {
+      id: 'system-home',
+      name: 'Home',
+      levels: ['99', '89', '85']
+    },
+    'system-contact': {
+      id: 'system-contact',
+      name: 'ติดต่อ',
+      levels: ['99', '89', '85']
+    },
+    'set-conditions-system': {
+      id: 'set-conditions-system',
+      name: 'กำหนดเงื่อนไขระบบ',
+      levels: ['99', '89', '85']
+    },
+    'signature': {
+      id: 'signature',
+      name: 'ลายมือชื่อ',
+      levels: ['99', '89', '85']
+    },
+    'stock-type': {
+      id: 'stock-type',
+      name: 'ประเภทหุ้น',
+      levels: ['99', '89', '85']
+    },
+    'shareholder-group': {
+      id: 'shareholder-group',
+      name: 'กลุ่มผู้ถือหุ้น',
+      levels: ['99', '89', '85']
+    },
+    'shareholder-type': {
+      id: 'shareholder-type',
+      name: 'ประเภทผู้ถือหุ้น',
+      levels: ['99', '89', '85']
+    },
+    'dividend-type': {
+      id: 'dividend-type',
+      name: 'ประเภทการจ่ายเงินปันผล',
+      levels: ['99', '89', '85']
+    },
+    'title': {
+      id: 'title',
+      name: 'คำนำหน้าชื่อ',
+      levels: ['99', '89', '85']
+    },
+    'title-test': {
+      id: 'title-test',
+      name: 'ทดสอบคำนำหน้าชื่อ',
+      levels: ['99', '89', '85']
+    },
+    'province': {
+      id: 'province',
+      name: 'จังหวัด',
+      levels: ['99', '89', '85']
     }
   };
 
-  // ตรวจสอบสิทธิ์เมนูหลัก
+  // ========================================
+  // เมนูหลัก (Dashboard System) - ควบคุมระบบ
+  // ========================================
+  private readonly systemMenuPermissions: { [key: string]: MenuPermission } = {
+    'home': { 
+      key: 'home',
+      levels: ['99', '89', '85'],
+      description: 'แผงควบคุม'
+    },
+    'system-conditions': { 
+      key: 'system-conditions',
+      levels: ['99', '89', '85'],
+      description: 'กำหนดเงื่อนไขระบบ'
+    },
+    'reference-files': { 
+      key: 'reference-files',
+      levels: ['99', '89', '85'],
+      description: 'แฟ้มอ้างอิง'
+    }
+  };
+
+  // ตรวจสอบสิทธิ์เมนูหลัก (Dashboard Admin)
   hasMenuPermission(menuKey: string, userLevel: string): boolean {
     const menuConfig = this.menuPermissions[menuKey];
     return menuConfig?.levels.includes(userLevel) || false;
   }
 
-  // ตรวจสอบสิทธิ์ 
+  // ตรวจสอบสิทธิ์เมนูหลัก (Dashboard System)
+  hasSystemMenuPermission(menuKey: string, userLevel: string): boolean {
+    const menuConfig = this.systemMenuPermissions[menuKey];
+    return menuConfig?.levels.includes(userLevel) || false;
+  }
+
+  // ตรวจสอบสิทธิ์เมนูย่อย
   hasActionPermission(menuId: string, userLevel: string): boolean {
     const menuConfig = this.subMenuPermissions[menuId];
     if (!menuConfig) return false;
@@ -250,9 +341,8 @@ export class PermissionService {
     return menuConfig.levels.includes(userLevel);
   }
 
-  // Filter menus ตามสิทธิ์
+  // Filter menus ตามสิทธิ์ (Dashboard Admin)
   filterMenusByPermission(menus: any[], userLevel: string): any[] {
-    
     if (!userLevel || userLevel === '') {
       return menus;
     }
@@ -266,7 +356,6 @@ export class PermissionService {
       }
 
       // ตรวจสอบ sub-menus
-      const originalChildrenCount = menu.children.length;
       menu.children = menu.children.filter((child: any) => {
         const hasViewPermission = this.hasActionPermission(child.key, userLevel);
         return hasViewPermission;
@@ -278,19 +367,35 @@ export class PermissionService {
     return filteredMenus;
   }
 
-<<<<<<< HEAD
-  // ตรวจสอบสิทธิ์การแก้ไขข้อมูล (เฉพาะ level 99, 85, 09, 05)
-  canEditData(userLevel: string): boolean {
-    const allowedLevels = ['99', '85', '09', '05'];
-    return allowedLevels.includes(userLevel);
+  // Filter menus ตามสิทธิ์ (Dashboard System)
+  filterSystemMenusByPermission(menus: any[], userLevel: string): any[] {
+    if (!userLevel || userLevel === '') {
+      return menus;
+    }
+    
+    const filteredMenus = menus.filter(menu => {
+      // ตรวจสอบ menu หลัก
+      const hasMenuPermission = this.hasSystemMenuPermission(menu.key, userLevel);
+      
+      if (!hasMenuPermission) {
+        return false;
+      }
+
+      // ตรวจสอบ sub-menus
+      menu.children = menu.children.filter((child: any) => {
+        const hasViewPermission = this.hasActionPermission(child.key, userLevel);
+        return hasViewPermission;
+      });
+      
+      return menu.children.length > 0;
+    });
+    
+    return filteredMenus;
   }
 
   // ตรวจสอบสิทธิ์การแก้ไขข้อมูล (เฉพาะ level 99, 85, 09, 05)
-=======
-  // ตรวจสอบสิทธิ์การแก้ไขข้อมูล (เฉพาะ level 99, 85, 05)
->>>>>>> develop
   hasEditPermission(userLevel: string): boolean {
     const allowedLevels = ['99', '85', '09', '05'];
     return allowedLevels.includes(userLevel);
   }
-} 
+}

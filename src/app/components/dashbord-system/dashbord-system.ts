@@ -1,81 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule, RouterOutlet } from '@angular/router';
-import { trigger, transition, style, animate } from '@angular/animations';
+import { Router, RouterModule } from '@angular/router';
 import { UserService } from '../../services/user';
 import { PermissionService } from '../../services/permission.service';
 
-interface MenuItem {
-  key: string;
-  label: string;
-  icon: string;
-  open: boolean;
-  children: { key: string; icon: string; label: string; route: string; submenu?: { key: string; icon: string; label: string; route: string }[] }[];
-}
-
 @Component({
+  selector: 'app-dashboard-system',
   standalone: true,
-  selector: 'app-dashbord-system',
+  imports: [CommonModule, RouterModule],
   templateUrl: './dashbord-system.html',
-  styleUrls: ['./dashbord-system.css'],
-  imports: [CommonModule, RouterOutlet, RouterModule],
-  animations: [
-    trigger('slideInOut', [
-      transition(':enter', [
-        style({ height: 0, opacity: 0 }),
-        animate('200ms ease-out', style({ height: '*', opacity: 1 }))
-      ]),
-      transition(':leave', [
-        animate('200ms ease-in', style({ height: 0, opacity: 0 }))
-      ])
-    ])
-  ],
+  styleUrls: ['./dashbord-system.css']
 })
-export class AdminDashboardComponent implements OnInit {
-  sidebarCollapsed = false;
-  currentUser: any = {};
-  filteredMenus: MenuItem[] = [];
+export class DashboardSystemComponent implements OnInit {
 
-  menus: MenuItem[] = [
-    {
-      key: 'home',
-      label: 'แผงควบคุม',
-      icon: '📑',
-      open: false,
-      children: [
-        { key: 'home', icon: '🏠', label: 'Home', route: '/dashboard-system/' },
-        { key: 'contact', icon: '📞', label: 'ติดต่อ', route: '/dashboard-system/contact' },
-      
-      ]},
-    {
-      key: 'system-conditions',
-      label: 'กำหนดเงื่อนไขระบบงาน',
-      icon: '📊',
-      open: false,
-      children: [
-        { key: 'print-share-purchase-request', icon: '🛒', label: 'กำหนดเงื่อนไขระบบงาน ', route: '/dashboard-admin/print-share-purchase-request' }
-      
-      ]},
-      {
-        key: 'reference-file',
-        label: 'แฟ้มอ้างอิง',
-        icon: '📊',
-        open: false,
-        children: [
-          { key: 'print-share-purchase-request', icon: '🛒', label: 'พิมพ์คำขอซื้อหุ้น', route: '/dashboard-admin/print-share-purchase-request' }
-        
-        ]},
-    {
-      key: 'back-to-main',
-      label: 'กลับเมนูหลัก',
-      icon: '💰',
-      open: false,
-      children: [
-        { key: 'dividend', icon: '💰', label: 'เงินปันผล', route: '/dashboard-admin/dividend' },
-        { key: 'dividend', icon: '😵‍💫', label: 'คำนวณเงินปันผลประจำปี', route: '/dashboard-admin/AnnualDividendCalculatorComponent' },
-      
-      ]}
-  ];
+  currentUser: any;
+  filteredMenus: any[] = [];
+  sidebarCollapsed = false;
 
   constructor(
     private readonly router: Router,
@@ -83,66 +23,85 @@ export class AdminDashboardComponent implements OnInit {
     private readonly permissionService: PermissionService
   ) { }
 
-  toggleSidebar() {
-    this.sidebarCollapsed = !this.sidebarCollapsed;
-  }
-
-  openMenu(key: string) {
-    // อัพเดท state ใน menus
-    this.menus = this.menus.map(menu => {
-      const isTarget = menu.key === key;
-      return {
-        ...menu,
-        open: isTarget ? !menu.open : false
-      };
-    });
-    
-    // อัพเดท filteredMenus ด้วย
-    this.filteredMenus = this.permissionService.filterMenusByPermission(
-      this.menus, 
-      this.currentUser.level
-    );
-  }
-
-
-  logout() {
-    sessionStorage.clear();
-    this.router.navigate(['/login']);
-  }
-
-  // ดึงชื่อ level จาก lvlDesc
-  getUserLevelName(levelCode: string): string {
-    return this.userService.getUserLevelName(levelCode);
-  }
-
-  // ดึงตัวอักษรแรกของชื่อ
-  getUserInitials(fullname: string): string {
-    return this.userService.getInitials(fullname);
-  }
-
-  // Filter menus ตามสิทธิ์
-  private filterMenusByPermission(): void {
-    this.filteredMenus = this.permissionService.filterMenusByPermission(
-      this.menus, 
-      this.currentUser.level
-    );
-  }
-
-  // ตรวจสอบสิทธิ์ใน component
-  canView(menuId: string): boolean {
-    return this.permissionService.hasActionPermission(menuId, this.currentUser.level);
-  }
-
   ngOnInit(): void {
-    if (typeof window !== 'undefined') {
-      const token = sessionStorage.getItem('token');
-      if (!token) {
-        this.router.navigate(['/login']);
-      } else {
-        this.currentUser = this.userService.getCurrentUser();
-        
-        this.filterMenusByPermission();
+    this.loadCurrentUser();
+    this.loadMenus();
+  }
+
+  loadCurrentUser(): void {
+    this.currentUser = this.userService.getCurrentUser();
+    console.log('Current User in Dashboard System:', this.currentUser);
+  }
+
+  loadMenus(): void {
+    // กำหนดเมนูสำหรับ System Control Dashboard
+    const systemMenus = [
+      {
+        key: 'home',
+        label: 'แผงควบคุม',
+        icon: '📑',
+        open: false,
+        children: [
+          { key: 'system-home', icon: '🏠', label: 'Home', route: '/dashboard-system/' },
+          { key: 'system-contact', icon: '📞', label: 'ติดต่อ', route: '/dashboard-system/contact' }
+        ]
+      },
+      {
+        key: 'system-conditions',
+        label: 'กำหนดเงื่อนไขระบบ',
+        icon: '⚙️',
+        open: false,
+        children: [
+          { key: 'set-conditions-system', icon: '⚙️', label: 'กำหนดเงื่อนไขระบบ', route: '/dashboard-system/set-conditions-system' }
+        ]
+      },
+      {
+        key: 'reference-files',
+        label: 'แฟ้มอ้างอิง',
+        icon: '📁',
+        open: false,
+        children: [
+          { key: 'signature', icon: '✍️', label: 'ลายมือชื่อ', route: '/dashboard-system/signature' },
+          { key: 'stock-type', icon: '📊', label: 'ประเภทหุ้น', route: '/dashboard-system/stock-type' },
+          { key: 'shareholder-group', icon: '👥', label: 'กลุ่มผู้ถือหุ้น', route: '/dashboard-system/shareholder-group' },
+          { key: 'shareholder-type', icon: '🏢', label: 'ประเภทผู้ถือหุ้น', route: '/dashboard-system/shareholder-type' },
+          { key: 'dividend-type', icon: '💰', label: 'ประเภทการจ่ายเงินปันผล', route: '/dashboard-system/dividend-type' },
+          { key: 'title', icon: '👑', label: 'คำนำหน้าชื่อ', route: '/dashboard-system/title' },
+          { key: 'title-test', icon: '🧪', label: 'ทดสอบคำนำหน้าชื่อ', route: '/dashboard-system/title-test' },
+          { key: 'province', icon: '🗺️', label: 'จังหวัด', route: '/dashboard-system/province' }
+        ]
       }
+    ];
+
+    // กรองเมนูตามสิทธิ์ของผู้ใช้
+    if (this.currentUser?.level) {
+      this.filteredMenus = this.permissionService.filterSystemMenusByPermission(systemMenus, this.currentUser.level);
+    } else {
+      this.filteredMenus = systemMenus;
     }
+
+    console.log('Filtered Menus for System Dashboard:', this.filteredMenus);
+  }
+
+  openMenu(menuKey: string): void {
+    const menu = this.filteredMenus.find(m => m.key === menuKey);
+    if (menu) {
+      menu.open = !menu.open;
+    }
+  }
+
+  canView(key: string): boolean {
+    if (!this.currentUser?.level) return true;
+    return this.permissionService.hasActionPermission(key, this.currentUser.level);
+  }
+
+  getUserInitials(fullname: string): string {
+    if (!fullname) return 'U';
+    return fullname.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+  }
+
+  goBackToMain(): void {
+    // กลับไปยังเมนูหลัก (dashboard-admin)
+    this.router.navigate(['/dashboard-admin']);
   }
 }

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DashboardSystemComponent } from './dashbord-system';
+import { SharelderGroup } from './sharelder-group';
 
-describe('DashboardSystemComponent', () => {
-  let component: DashboardSystemComponent;
-  let fixture: ComponentFixture<DashboardSystemComponent>;
+describe('SharelderGroup', () => {
+  let component: SharelderGroup;
+  let fixture: ComponentFixture<SharelderGroup>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DashboardSystemComponent]
+      imports: [SharelderGroup]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(DashboardSystemComponent);
+    fixture = TestBed.createComponent(SharelderGroup);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

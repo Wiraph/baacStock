@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DashboardSystemComponent } from './dashbord-system';
+import { Signature } from './signature';
 
-describe('DashboardSystemComponent', () => {
-  let component: DashboardSystemComponent;
-  let fixture: ComponentFixture<DashboardSystemComponent>;
+describe('Signature', () => {
+  let component: Signature;
+  let fixture: ComponentFixture<Signature>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DashboardSystemComponent]
+      imports: [Signature]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(DashboardSystemComponent);
+    fixture = TestBed.createComponent(Signature);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

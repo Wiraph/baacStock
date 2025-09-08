@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DashboardSystemComponent } from './dashbord-system';
+import { SetConditionsSystem } from './set-conditions-system';
 
-describe('DashboardSystemComponent', () => {
-  let component: DashboardSystemComponent;
-  let fixture: ComponentFixture<DashboardSystemComponent>;
+describe('SetConditionsSystem', () => {
+  let component: SetConditionsSystem;
+  let fixture: ComponentFixture<SetConditionsSystem>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DashboardSystemComponent]
+      imports: [SetConditionsSystem]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(DashboardSystemComponent);
+    fixture = TestBed.createComponent(SetConditionsSystem);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
