@@ -1,7 +1,6 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { isPlatformBrowser } from '@angular/common';
 import { EncryptionService } from './encryption.service';
 import { environment } from '../../environments/environments';
 
@@ -41,8 +40,7 @@ export class StockService {
 
   constructor(
     private readonly http: HttpClient,
-    private readonly encrypt: EncryptionService,
-    @Inject(PLATFORM_ID) private readonly platformId: Object
+    private readonly encrypt: EncryptionService
   ) { }
 
   stockManage(requestPayload: any): Observable<any[]> {
@@ -73,24 +71,12 @@ export class StockService {
 
   blockStock(requestPayload: any): Observable<any[]> {
     const encodePayload = this.encrypt.encrypPayload(requestPayload);
-    return this.http.post<any[]>(`${this.apiUrl}/block`, encodePayload, {
-      headers: this.createAuthHeaders()
-    });
+    return this.http.post<any[]>(`${this.apiUrl}/block`, encodePayload, { withCredentials: true });
   }
 
   detailApprove(requestPayload: any): Observable<any[]> {
     const encodePayload = this.encrypt.encrypPayload(requestPayload);
     return this.http.post<any[]>(`${this.apiUrl}/approvedetail`, encodePayload, { withCredentials: true });
-  }
-
-  private createAuthHeaders(): HttpHeaders {
-    let token = '';
-    if (isPlatformBrowser(this.platformId)) {
-      token = sessionStorage.getItem('token') || '';
-    }
-    return new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
   }
 }
 
