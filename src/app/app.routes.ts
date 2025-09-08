@@ -33,11 +33,7 @@ import { Pnd2aold } from './components/dashboard-admin/pnd-system/pnd2aold/pnd2a
 import { Pnd53old } from './components/dashboard-admin/pnd-system/pnd53old/pnd53old';
 import { SaleStockComponent } from './components/dashboard-admin/sale-stock/sale-stock';
 import { AnnualdividendcalculatorComponent } from './components/dashboard-admin/annualdividendcalculator/annualdividendcalculator';
-<<<<<<< HEAD
-import { NewCusComponent } from './components/dashboard-admin/newcus/newcus';
 import { DashboardSystemComponent } from './components/dashbord-system/dashbord-system';
-=======
->>>>>>> develop
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -81,8 +77,6 @@ export const routes: Routes = [
       { path: 'pnd2aold', component: Pnd2aold },
       { path: 'pnd53old', component: Pnd53old },
       { path: 'AnnualDividendCalculatorComponent', component: AnnualdividendcalculatorComponent },
-<<<<<<< HEAD
-      { path: 'newcus', component: NewCusComponent },
       { path: 'system', component: DashboardSystemComponent } // ✅ เพิ่มเส้นทางสำหรับ System Dashboard
     ]
   },
@@ -102,11 +96,9 @@ export const routes: Routes = [
       { path: 'shareholder-group', component: HomeComponent },
       { path: 'shareholder-type', component: HomeComponent },
       { path: 'dividend-type', component: HomeComponent },
-      { path: 'name-prefix', component: HomeComponent },
-      { path: 'test-name-prefix', component: HomeComponent },
+      { path: 'title', component: HomeComponent },
+      { path: 'title-test', component: HomeComponent },
       { path: 'province', component: HomeComponent }
-=======
->>>>>>> develop
     ]
   },
 
