@@ -1,6 +1,5 @@
-import { isPlatformBrowser } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environments';
 import { EncryptionService } from './encryption.service';
@@ -15,21 +14,20 @@ export class Spin {
 
   constructor(
     private readonly http: HttpClient,
-    @Inject(PLATFORM_ID) private readonly platformId: object,
     private readonly encryptionService: EncryptionService
   ) { }
 
   createSpinFile(): Observable<any> {
     // Implementation for creating a spin file
     return this.http.post<any>(`${this.apiUrl}/createspindat`, {}, {
-      headers: this.createAuthHeaders()
+      withCredentials: true
     });
   }
 
   getSpinFiles(payload: any): Observable<string[]> {
     const encrypPayload = this.encryptionService.encrypPayload(payload);
     return this.http.post<string[]>(`${this.apiUrl}/listspin`, encrypPayload, {
-      headers: this.createAuthHeaders()
+      withCredentials: true
     });
   }
 
@@ -38,7 +36,7 @@ export class Spin {
     const encryptedPayload = this.encryptionService.encrypPayload(padload);
     console.log("Encrypt", encryptedPayload);
     return this.http.post(`${this.apiUrlDownload}/download`, encryptedPayload, {
-      headers: this.createAuthHeaders(),
+      withCredentials: true,
       responseType: 'blob'
     });
   }
@@ -46,18 +44,7 @@ export class Spin {
   uploadFiles(payload: any): Observable<any[]> {
     const encrypPayload = this.encryptionService.encrypPayload(payload);
     return this.http.post<any[]>(`${this.apiUrlUpload}/uploadout`, encrypPayload, {
-      headers: this.createAuthHeaders()
-    });
-  }
-
-
-  private createAuthHeaders() {
-    let token = '';
-    if (isPlatformBrowser(this.platformId)) {
-      token = sessionStorage.getItem('token') || '';
-    }
-    return new HttpHeaders({
-      Authorization: `Bearer ${token}`
+      withCredentials: true
     });
   }
 }

@@ -29,7 +29,7 @@ export class UserService {
     };
     const encrypPayload = this.encryptionService.encrypPayload(payload);
     return this.http.post(`${this.apiUrl}/getuserbyid`, encrypPayload ,{
-      headers: this.createAuthHeaders()
+      withCredentials: true
     });
   }
 
@@ -40,7 +40,7 @@ export class UserService {
   manageUser(payload: any): Observable<any[]> {
     const encryptionPayload = this.encryptionService.encrypPayload(payload);
     return this.http.post<any[]>(`${this.apiUrl}/controlleraction`, encryptionPayload , {
-      headers: this.createAuthHeaders()
+      withCredentials: true
     });
   }
 
@@ -48,7 +48,7 @@ export class UserService {
   changePassword(payload: any): Observable<string> {
     const encrypPayload = this.encryptionService.encrypPayload(payload);
     return this.http.post(`${this.apiUrl}/changepassword`, encrypPayload, {
-      headers: this.createAuthHeaders(),
+      withCredentials: true,
       responseType: 'text'
     });
   }
@@ -56,7 +56,7 @@ export class UserService {
   addUser(payload: any): Observable<string> {
     const encrypPayload = this.encryptionService.encrypPayload(payload);
     return this.http.post(`${this.apiUrl}/adduser`, encrypPayload, {
-      headers: this.createAuthHeaders(),
+      withCredentials: true,
       responseType: 'text'
     });
   }
@@ -120,14 +120,4 @@ export class UserService {
     return fullname.charAt(0).toUpperCase();
   }
   
-  private createAuthHeaders(): HttpHeaders {
-    let token = '';
-    if (isPlatformBrowser(this.platformId)) {
-      token = sessionStorage.getItem('token') || '';
-    }
-    return new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
-  }
-
 }

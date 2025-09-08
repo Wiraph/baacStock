@@ -31,22 +31,6 @@ export class AdduserComponent implements OnInit {
   fullName: string = '';
 
   ngOnInit(): void {
-    // ตรวจสอบว่าอยู่ใน browser environment หรือไม่
-    if (typeof window !== 'undefined' && window.sessionStorage) {
-      this.token = sessionStorage.getItem('token') || '';
-      if (this.token) {
-        this.decodedToken = this.jwtDecoder.decodeToken(this.token);
-      } else {
-        // ถ้าไม่มี token ให้ redirect ไป login
-        window.location.href = '/login';
-        return;
-      }
-    } else {
-      // SSR environment - ไม่สามารถใช้งาน sessionStorage ได้
-      console.warn('SSR environment detected - sessionStorage not available');
-      return;
-    }
-
     this.metadataService.getLevel().subscribe({
       next: (data) => {
         this.levelList = data;
