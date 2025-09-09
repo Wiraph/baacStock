@@ -117,7 +117,6 @@ export class SetConditionsSystemComponent implements OnInit {
       });
       return;
     }
-
     this.loadSystemConfig();
   }
 
@@ -298,7 +297,4 @@ export class SetConditionsSystemComponent implements OnInit {
     return this.systemConfig.stkUniTyear || 0;
   }
 
-  goBack(): void {
-    this.router.navigate(['/dashboard-system']);
-  }
 }

@@ -68,6 +68,57 @@ export class SignatureService {
     );
   }
 
+  /**
+   * เพิ่มลายเซ็นใหม่
+   */
+  addSignature(signature: Signature): Observable<any> {
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+      return throwError(() => new Error('ไม่มีการยืนยันตัวตน กรุณา login ใหม่'));
+    }
+
+    return this.http.post<any>(this.apiUrl, signature, {
+      headers: this.createAuthHeaders()
+    }).pipe(
+      timeout(10000),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * อัปเดตลายเซ็น
+   */
+  updateSignature(id: number, signature: Signature): Observable<any> {
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+      return throwError(() => new Error('ไม่มีการยืนยันตัวตน กรุณา login ใหม่'));
+    }
+
+    return this.http.put<any>(`${this.apiUrl}/${id}`, signature, {
+      headers: this.createAuthHeaders()
+    }).pipe(
+      timeout(10000),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * ลบลายเซ็น
+   */
+  deleteSignature(id: number): Observable<any> {
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+      return throwError(() => new Error('ไม่มีการยืนยันตัวตน กรุณา login ใหม่'));
+    }
+
+    return this.http.delete<any>(`${this.apiUrl}/${id}`, {
+      headers: this.createAuthHeaders()
+    }).pipe(
+      timeout(10000),
+      catchError(this.handleError)
+    );
+  }
+
   // ทดสอบ API endpoint และ payload หลายแบบ
   testMultipleAPIs(searchPayload: any): Observable<StockData[]> {
     const token = sessionStorage.getItem('token');
