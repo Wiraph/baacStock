@@ -340,7 +340,7 @@
       <div class="flex justify-center gap-4 mt-6">
         <!-- ปุ่มแก้ไข/ยกเลิก -->
         <button (click)="toggleEdit()"
-                class="bg-green-600 hover:bg-green-700 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                class="bg-blue-600 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
           <span *ngIf="!isEditing">แก้ไข</span>
           <span *ngIf="isEditing">ยกเลิก</span>
         </button>
@@ -349,7 +349,7 @@
         <button *ngIf="isEditing" 
                 (click)="saveConfig()"
                 [disabled]="isLoading"
-                class="bg-blue-600 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:bg-gray-400 disabled:hover:translate-y-0 disabled:hover:shadow-none text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                class="bg-green-600 hover:bg-breen-700 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:bg-gray-400 disabled:hover:translate-y-0 disabled:hover:shadow-none text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
           <span *ngIf="!isLoading">บันทึก</span>
           <span *ngIf="isLoading">⏳ กำลังบันทึก...</span>
         </button>

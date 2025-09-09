@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -9,6 +9,7 @@ import { PermissionService } from '../../../services/permission.service';
 import { ThaiCalendarComponent } from '../../thai-calendar-component/thai-calendar-component';
 import { Thaidateadapter } from '../../thaidateadapter/thaidateadapter';
 import Swal from 'sweetalert2';
+import { SyscfgService } from '../../../services/syscfg';
 
 export const THAI_DATE_FORMATS = {
   parse: {
@@ -23,6 +24,12 @@ export const THAI_DATE_FORMATS = {
 };
 
 interface SystemConfig {
+  USRLen: number;
+  USROpr: number;
+  USRAth: number;
+  USRAdm: number;
+  PWDLen: number;
+  PWDExp: number;
   stkCAP: number;           // ทุนจดทะเบียน (จำนวนเงิน)
   stkPAR: number;           // ราคาพาร์ (PAR)
   stkBV: number;            // มูลค่าหุ้นตามบัญชี
@@ -51,8 +58,14 @@ interface SystemConfig {
   styleUrl: './set-conditions-system.css'
 })
 export class SetConditionsSystemComponent implements OnInit {
-  
+
   systemConfig: SystemConfig = {
+    USRLen: 0,
+    USROpr: 0,
+    USRAth: 0,
+    USRAdm: 0,
+    PWDLen: 0,
+    PWDExp: 0,
     stkCAP: 0,
     stkPAR: 0,
     stkBV: 0,
@@ -89,8 +102,10 @@ export class SetConditionsSystemComponent implements OnInit {
     private readonly systemMetadata: SystemMetadata,
     private readonly router: Router,
     private readonly userService: UserService,
-    private readonly permissionService: PermissionService
-  ) {}
+    private readonly permissionService: PermissionService,
+    private readonly cd: ChangeDetectorRef,
+    private readonly syscfgService: SyscfgService
+  ) { }
 
   ngOnInit(): void {
     this.checkUserPermission();
@@ -125,6 +140,12 @@ export class SetConditionsSystemComponent implements OnInit {
       next: (data) => {
         // อัปเดตข้อมูลจาก API ทันที
         this.systemConfig = {
+          USRLen: data.usrlen,
+          USROpr: data.usropr,
+          USRAth: data.usrath,
+          USRAdm: data.usradm,
+          PWDLen: data.pwdlen,
+          PWDExp: data.pwdexp,
           stkCAP: data.stkCap || 0,
           stkPAR: data.stkPar || 0,
           stkBV: data.stkBv || 0,
@@ -139,14 +160,15 @@ export class SetConditionsSystemComponent implements OnInit {
           post_License: data.postLicense || '',
           post_Office: data.postOffice || ''
         };
-        
+
         // ตั้งค่าวันที่สำหรับ calendar
         this.selectedDateSALESTA = this.parseDateString(data.stkDatePauseSalesta || '');
         this.selectedDateSALESTP = this.parseDateString(data.stkDatePauseSalestp || '');
         this.selectedDateTRANSTA = this.parseDateString(data.stkDatePauseTransta || '');
         this.selectedDateTRANSTP = this.parseDateString(data.stkDatePauseTranstp || '');
-        
+
         this.originalSystemConfig = { ...this.systemConfig };
+        this.cd.detectChanges();
       },
       error: (error) => {
         console.error('❌ Error loading system config:', error);
@@ -174,44 +196,86 @@ export class SetConditionsSystemComponent implements OnInit {
 
   saveConfig(): void {
     this.isLoading = true;
-    
-    // Note: Save API call will be implemented when backend is ready
-    // this.systemMetadata.updateSysCfg(this.systemConfig).subscribe({
-    //   next: (response) => {
-    //     Swal.fire({
-    //       icon: 'success',
-    //       title: 'บันทึกสำเร็จ',
-    //       text: 'บันทึกการตั้งค่าระบบเรียบร้อยแล้ว'
-    //     });
-    //     this.isEditing = false;
-    //     this.isLoading = false;
-    //   },
-    //   error: (error) => {
-    //     console.error('Error saving system config:', error);
-    //     Swal.fire({
-    //       icon: 'error',
-    //       title: 'เกิดข้อผิดพลาด',
-    //       text: 'ไม่สามารถบันทึกการตั้งค่าระบบได้'
-    //     });
-    //     this.isLoading = false;
-    //   }
-    // });
-
-    // Mock save for now
-    setTimeout(() => {
+    if (Number(this.systemConfig.stkDatePauseSALESTA) >= Number(this.systemConfig.stkDatePauseSALESTP)) {
       Swal.fire({
-        icon: 'success',
-        title: 'บันทึกสำเร็จ',
-        text: 'บันทึกการตั้งค่าระบบเรียบร้อยแล้ว'
+        icon: 'warning',
+        text: 'ไม่สามารถตั้งวันที่เริ่มต้นมากกว่าวันที่สิ้นสุดได้'
+      })
+      this.isLoading = false;
+      this.cd.detectChanges();
+      return
+    }
+    if (Number(this.systemConfig.stkDatePauseTRANSTA) >= Number(this.systemConfig.stkDatePauseTRANSTP)) {
+      Swal.fire({
+        icon: 'warning',
+        text: 'ไม่สามารถตั้งวันที่เริ่มต้นมากกว่าวันที่สิ้นสุดได้'
+      })
+      this.isLoading = false;
+      this.cd.detectChanges();
+      return
+    }
+    const payload = {
+      USRLen: this.systemConfig.USRLen,
+      USROpr: this.systemConfig.USROpr,
+      USRAth: this.systemConfig.USRAth,
+      USRAdm: this.systemConfig.USRAdm,
+
+      PWDLen: this.systemConfig.PWDLen,
+      PWDExp: this.systemConfig.PWDExp,
+
+      stkCAP: this.systemConfig.stkCAP,
+      stkPAR: this.systemConfig.stkPAR,
+      stkBV: this.systemConfig.stkBV,
+      stkALL: this.systemConfig.stkAll,
+      stkUNiTyear: this.systemConfig.stkUniTyear,
+      stkUNiTminP: this.systemConfig.stkUNiTminP,
+      stkUNiTminB: this.systemConfig.stkUNiTminB,
+
+      stkDatePauseSALESTA: this.systemConfig.stkDatePauseSALESTA,
+      stkDatePauseSALESTP: this.systemConfig.stkDatePauseSALESTP,
+      stkDatePauseTRANSTA: this.systemConfig.stkDatePauseTRANSTA,
+      stkDatePauseTRANSTP: this.systemConfig.stkDatePauseTRANSTP,
+
+      post_License: this.systemConfig.post_License,
+      post_Office: this.systemConfig.post_Office
+    };
+
+    console.log("Payload", payload);
+
+    // Note: Save API call will be implemented when backend is ready
+    this.syscfgService.updateSyscfg(payload).subscribe({
+      next: (response: any) => {
+        Swal.fire({
+          icon: 'success',
+          text: `${response.message}`,
+          timer: 2000,
+          timerProgressBar: true
         });
         this.isEditing = false;
         this.isLoading = false;
-        this.originalSystemConfig = { ...this.systemConfig };
-      }, 1000);
-    }
+        this.loadSystemConfig();
+      },
+      error: (error) => {
+        console.error('Error saving system config:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'เกิดข้อผิดพลาด',
+          text: 'ไม่สามารถบันทึกการตั้งค่าระบบได้'
+        });
+        this.isLoading = false;
+      }
+    });
+
+    // Mock save for now
+    setTimeout(() => {
+      this.isEditing = false;
+      this.isLoading = false;
+      this.originalSystemConfig = { ...this.systemConfig };
+    }, 1000);
+  }
 
   cancelEdit(): void {
-    this.systemConfig = { ...this.originalSystemConfig }; 
+    this.systemConfig = { ...this.originalSystemConfig };
     this.isEditing = false;
   }
 
@@ -223,22 +287,22 @@ export class SetConditionsSystemComponent implements OnInit {
     if (!dateString || dateString.length !== 8) {
       return '';
     }
-    
+
     // Convert from YYYYMMDD format to Thai date
     const year = dateString.substring(0, 4);
     const month = dateString.substring(4, 6);
     const day = dateString.substring(6, 8);
-    
+
     const thaiMonths = [
       'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
       'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
     ];
-    
+
     const monthIndex = parseInt(month) - 1;
     if (monthIndex < 0 || monthIndex > 11) {
       return '';
     }
-    
+
     return `${day} ${thaiMonths[monthIndex]} ${year}`;
   }
 
@@ -248,11 +312,11 @@ export class SetConditionsSystemComponent implements OnInit {
     if (!dateString || dateString.length !== 8) {
       return new Date();
     }
-    
+
     const year = parseInt(dateString.substring(0, 4)) - 543; // แปลงจาก พ.ศ. เป็น ค.ศ.
     const month = parseInt(dateString.substring(4, 6)) - 1; // month index เริ่มจาก 0
     const day = parseInt(dateString.substring(6, 8));
-    
+
     return new Date(year, month, day);
   }
 
