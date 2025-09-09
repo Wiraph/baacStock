@@ -16,6 +16,7 @@ import Swal from 'sweetalert2';
 export class PndComponent implements OnInit {
   @Input() pndType: string = '';
   @Input() title: string = '';
+  @Input() mode: string = '';
   @Output() back = new EventEmitter<string>();
   pndData: any[] = [];
   isLoading = false;
@@ -40,12 +41,14 @@ export class PndComponent implements OnInit {
    * โหลดข้อมูล PND จาก API
    */
   async loadPNDData(pndType: string) {
+    if (this.mode == '') return;
     const payload = {
       ACT: "datLiST",
       PNDtype: pndType,
       dateSTA: '',
       getPNDformat: '',
-      dateSPL: ''
+      dateSPL: '',
+      MODE: this.mode
     };
 
     this.ngZone.run(() => {
@@ -161,7 +164,7 @@ export class PndComponent implements OnInit {
     const payload = {
       Action: "getDATA",
       PndType: this.pndType,
-      YearMonth: `${item.ym}01`,
+      YearMonth: `${item.ym}`,
       FileName: fileName,
       TaxForm: this.title
     }
@@ -194,5 +197,36 @@ export class PndComponent implements OnInit {
         console.log("Error", err);
       }
     })
+  }
+
+  /** 
+   * สร้างและดาวน์โหลดไฟล์ Excel
+   */
+  DowloadEcel(yyyymm: string, fileName: string, typefile: string) {
+    if (typefile == "XLSX") {
+      fileName = fileName.replace("txt", "xlsx");
+    } 
+    const payload = { Yyyymm: yyyymm, PndType: this.pndType, FileName: fileName, TypeFile: typefile };
+    console.log("Payload", payload);
+
+    this.pndService.downloadExcel(payload).subscribe({
+      next: (blob) => {
+        // ✅ Success → save file
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName || `PND_${this.pndType}_${yyyymm}.xlsx`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err:any) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'เกิดข้อผิดพลาด',
+          text: err.response?.data?.message || 'ไม่พบข้อมูลตามที่ระบุ'
+        });
+      }
+
+    });
   }
 }

@@ -11,11 +11,13 @@ import { PndComponent } from '../../../pnd/pnd';
 export class Pnd2aold implements OnInit {
   pndType: string = '';
   title: string = '';
+  mode: string = '';
 
   constructor() { }
 
   ngOnInit(): void {
-    this.pndType = "PND2AOLD";
+    this.pndType = "PND2A";
     this.title = "ภ.ง.ด. 2 ก เก่า";
+    this.mode = 'PND2';
   }
 }

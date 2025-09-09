@@ -8,7 +8,7 @@
   <div class="bg-white border border-gray-300 rounded-b-lg shadow-md overflow-hidden">
 
     <!-- ตารางข้อมูล -->
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto" *ngIf="mode == 'PND'">
       <table class="w-full border-collapse">
         <thead>
           <tr class="bg-gray-100 border-b">
@@ -45,6 +45,63 @@
                     {{file.name}}
                   </button>
                   <span *ngIf="!file.available" class="text-gray-400">{{file.name}} (ไม่มี)</span>
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <!-- แสดงเมื่อไม่มีข้อมูล -->
+          <tr *ngIf="pndData.length == 0">
+            <td colspan="2" class="border border-gray-300 px-4 py-8 text-center text-gray-500">
+              <div class="flex flex-col items-center space-y-2">
+                <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                  </path>
+                </svg>
+                <p class="text-lg font-medium">ไม่มีข้อมูล ภ.ง.ด. 2</p>
+                <p class="text-sm">กรุณาตรวจสอบข้อมูลการจ่ายเงินปันผล</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="overflow-x-auto" *ngIf="mode == 'PND2'">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-100 border-b">
+            <th class="border border-gray-300 px-4 py-3 text-left font-medium text-gray-700" style="width: 30%">
+              ปี-เดือน
+            </th>
+            <th class="border border-gray-300 px-4 py-3 text-left font-medium text-gray-700" style="width: 70%">
+              ดาวน์โหลด
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- แต่ละแถวข้อมูล -->
+          <tr *ngFor="let item of pndData;" class="hover:bg-gray-50 transition-colors duration-200 border border-gray-300">
+            <!-- คอลัมน์ปี-เดือน -->
+            <td class=" px-4 py-4 align-top flex justify-between items-center">
+              <div class="flex items-center space-x-3">
+                <span class="text-gray-800 font-medium">{{ toNumber(item.ym)+54300 }} -
+                  {{ getShortMonthName(toNumber(item.ym.substring(4, 6))) }} {{ toNumber(item.ym.substring(0,4))+543
+                  }}</span>
+              </div>
+            </td>
+
+            <!-- คอลัมน์ดาวน์โหลด -->
+            <td class="border border-gray-300 px-4 py-4">
+              <div class="space-y-2">
+                <div class="flex gap-4">
+                  <button 
+                    (click)="DowloadEcel(item.ym,item.txtFiLE, 'TXT');" type="button"
+                  class="w-50 bg-lime-400 py-1 hover:bg-lime-300 rounded-md shadow-md cursor-pointer">TEXT FILE</button>
+                  <button 
+                    (click)="DowloadEcel(item.ym,item.txtFiLE, 'XLSX');" type="button"
+                    class="w-50 bg-lime-400 py-1 hover:bg-lime-300 rounded-md shadow-md cursor-pointer">รายละเอียด ( ใบแนบ )</button>
                 </div>
               </div>
             </td>

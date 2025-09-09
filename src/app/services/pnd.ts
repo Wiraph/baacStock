@@ -21,30 +21,36 @@ export class Pnd {
   // payload = { pndType: string }
   getPndReport(payload: any): Observable<any[]> {
     const encryptionPayload = this.encryptionService.encrypPayload(payload);
-    console.log("en", encryptionPayload);
-    return this.http.post<any[]>(`${this.apiUrl}/list` , encryptionPayload , { withCredentials: true });
+    return this.http.post<any[]>(`${this.apiUrl}/list`, encryptionPayload, { withCredentials: true });
   }
 
   getPndDividendList(payload: any): Observable<any[]> {
     const encrypPayload = this.encryptionService.encrypPayload(payload);
-    console.log("en", encrypPayload);
     return this.http.post<any[]>(`${this.apiUrl}/pndx`, encrypPayload, { withCredentials: true });
   }
 
   generateReport(payload: any): Observable<any[]> {
     const encrypPayload = this.encryptionService.encrypPayload(payload);
-    return this.http.post<any[]>(`${this.apiUrl}/generate`, encrypPayload , { withCredentials: true });
+    return this.http.post<any[]>(`${this.apiUrl}/generate`, encrypPayload, { withCredentials: true });
   }
 
   checkFiles(fileNames: string[]): Observable<PndFileCheck[]> {
-      return this.http.post<PndFileCheck[]>(`${this.apiUrl}/check`, fileNames, { withCredentials: true });
-    }
-  
-    download(payload: any): Observable<Blob> {
-      const encrypPayload = this.encryptionService.encrypPayload(payload);
-      return this.http.post(`${this.apiUrl}/download`, encrypPayload, {
-        withCredentials: true,
-        responseType: 'blob'
-      })
-    }
+    return this.http.post<PndFileCheck[]>(`${this.apiUrl}/check`, fileNames, { withCredentials: true });
+  }
+
+  download(payload: any): Observable<Blob> {
+    const encrypPayload = this.encryptionService.encrypPayload(payload);
+    return this.http.post(`${this.apiUrl}/download`, encrypPayload, {
+      withCredentials: true,
+      responseType: 'blob'
+    })
+  }
+
+  downloadExcel(payload: any): Observable<Blob> {
+    const encrypPayload = this.encryptionService.encrypPayload(payload);
+    return this.http.post(`${this.apiUrl}/downloadExcel`, encrypPayload, {
+      withCredentials: true,
+      responseType: 'blob'
+    })
+  }
 }
