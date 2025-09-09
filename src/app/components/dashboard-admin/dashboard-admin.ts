@@ -226,7 +226,7 @@ export class AdminDashboardComponent implements OnInit {
   private checkPasswordStatus() {
     console.log('Checking password status with currentUser:', this.currentUser);
     
-    // ใช้ PasswordStatusService แทนการเขียน logic ซ้ำ
+    // ใช้ PasswordStatusService
     const passwordStatus: PasswordStatus = this.passwordStatusService.checkPasswordStatus(this.currentUser);
     
     // อัปเดต properties จาก service
