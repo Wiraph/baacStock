@@ -33,7 +33,11 @@ import { Pnd2aold } from './components/dashboard-admin/pnd-system/pnd2aold/pnd2a
 import { Pnd53old } from './components/dashboard-admin/pnd-system/pnd53old/pnd53old';
 import { SaleStockComponent } from './components/dashboard-admin/sale-stock/sale-stock';
 import { AnnualdividendcalculatorComponent } from './components/dashboard-admin/annualdividendcalculator/annualdividendcalculator';
+
+// Dashboard System Routes
 import { DashboardSystemComponent } from './components/dashbord-system/dashbord-system';
+import { SetConditionsSystemComponent } from './components/dashbord-system/set-conditions-system/set-conditions-system';
+import { SignatureComponent } from './components/dashbord-system/signature/signature';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -90,8 +94,8 @@ export const routes: Routes = [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', component: HomeComponent },
       { path: 'contact', component: ContactComponent },
-      { path: 'system-settings', component: HomeComponent },
-      { path: 'signature', component: HomeComponent },
+      { path: 'set-conditions-system', component: SetConditionsSystemComponent },
+      { path: 'signature', component: SignatureComponent },
       { path: 'stock-type', component: HomeComponent },
       { path: 'shareholder-group', component: HomeComponent },
       { path: 'shareholder-type', component: HomeComponent },
