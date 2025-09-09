@@ -88,12 +88,12 @@ export class AdminDashboardComponent implements OnInit {
     },
     {
       key: 'spin-file',
-      label: 'SCB SPIN FILE',
+      label: 'CBS SPIN FILE',
       icon: '⚡',
       open: false,
       children: [
-        { key: 'create-spin-files', icon: '⚡', label: 'สร้าง SPIN FILE ส่ง SCB', route: '/dashboard-admin/create-spin-files' },
-        { key: 'spin-files', icon: '🔌', label: 'รับผล SPIN FILE จาก SCB', route: '/dashboard-admin/spin-files' }
+        { key: 'create-spin-files', icon: '⚡', label: 'สร้าง SPIN FILE ส่ง CBS', route: '/dashboard-admin/create-spin-files' },
+        { key: 'spin-files', icon: '🔌', label: 'รับผล SPIN FILE จาก CBS', route: '/dashboard-admin/spin-files' }
       ]
     },
     {
