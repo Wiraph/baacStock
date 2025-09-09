@@ -36,7 +36,6 @@ export class PasswordStatusService {
     // ตรวจสอบรหัสผ่านหมดอายุ
     if (userData.level === '99') {
       // User level 99 ไม่มีรหัสผ่านหมดอายุ
-      console.log('System Super Administrator (Level 99) - No password expiry');
     } else if (userData.pwdExp && userData.datetimeup) {
       passwordExpiryDays = userData.pwdExp;
       passwordExpiryDate = userData.datetimeup;
@@ -44,13 +43,12 @@ export class PasswordStatusService {
       // คำนวณวันที่หมดอายุ
       isPasswordExpired = this.calculatePasswordExpiry(userData.datetimeup, userData.pwdExp);
     } else if (!userData.pwdExp) {
-      // ถ้าไม่มี pwdExp ให้ใช้ค่า default 30 วัน
-      passwordExpiryDays = 30;
+      // ถ้าไม่มี pwdExp ให้ใช้ค่า default 60 วัน
+      passwordExpiryDays = 60;
     }
     
     // ตรวจสอบรหัสผ่านเริ่มต้น (baac)
-    const isDefaultPassword = userData.currentPassword === 'baac' || 
-                             userData.usrPWD === 'baac';
+    const isDefaultPassword = userData.currentPassword === 'baac' || userData.usrPWD === 'baac';
     
     // ตรวจสอบว่าต้องเปลี่ยนรหัสผ่านหรือไม่
     const isPasswordChangeRequired = isFirstTimeUser || isPasswordExpired || isDefaultPassword;
