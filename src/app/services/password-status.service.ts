@@ -19,6 +19,8 @@ export class PasswordStatusService {
   /**
    * ตรวจสอบสถานะรหัสผ่านจากข้อมูลผู้ใช้
    * @param userData ข้อมูลผู้ใช้จาก sessionStorage หรือ API
+   * @param userData.usr_PWDExp สถานะการหมดอายุรหัสผ่าน (0 = ไม่ต้องตรวจสอบ, >0 = ต้อง
+   * @param userData.datetimeup วันที่เปลี่ยนรหัสผ่านล่าสุด
    * @returns PasswordStatus object
    */
   checkPasswordStatus(userData: any): PasswordStatus {
@@ -34,9 +36,12 @@ export class PasswordStatusService {
     let passwordExpiryDate: string | null = null;
 
     // ตรวจสอบรหัสผ่านหมดอายุ
-    if (userData.level === '99') {
-      // User level 99 ไม่มีรหัสผ่านหมดอายุ
-    } else if (userData.pwdExp && userData.datetimeup) {
+    if (userData.usr_PWDExp === 0) {
+      // ถ้า usr_PWDExp = 0 ไม่ต้องตรวจสอบรหัสผ่านหมดอายุ
+      isPasswordExpired = false;
+      passwordExpiryDays = 0;
+    } else if (userData.usr_PWDExp > 0 && userData.pwdExp && userData.datetimeup) {
+      // ถ้า usr_PWDExp > 0 ตรวจสอบรหัสผ่านหมดอายุ
       passwordExpiryDays = userData.pwdExp;
       passwordExpiryDate = userData.datetimeup;
       
@@ -62,7 +67,11 @@ export class PasswordStatusService {
       isPasswordChangeRequired
     };
 
-    console.log('Password Status Calculation:', result);
+    console.log('Password Status:', {
+      usr_PWDExp: userData.usr_PWDExp,
+      isPasswordExpired,
+      isPasswordChangeRequired
+    });
     
     return result;
   }
@@ -86,11 +95,7 @@ export class PasswordStatusService {
         const currentDate = new Date();
         const daysDiff = Math.floor((currentDate.getTime() - lastPasswordChange.getTime()) / (1000 * 60 * 60 * 24));
         
-        console.log('Password Expiry Calculation:', {
-          dateStr: datetimeup,
-          year, month, day,
-          lastPasswordChange,
-          currentDate,
+        console.log('Password Expiry:', {
           daysDiff,
           pwdExp,
           isExpired: daysDiff > pwdExp

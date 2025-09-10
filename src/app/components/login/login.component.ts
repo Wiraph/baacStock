@@ -57,6 +57,7 @@ export class LoginComponent {
           const userData = {
             datetimeup: res.datetimeup,
             pwdExp: res.pwdExp,
+            usr_PWDExp: res.usr_PWDExp, // เพิ่ม usr_PWDExp
             usrPWD: res.usr_PWD || this.password, // เก็บรหัสผ่านที่ใช้ login
             currentPassword: this.password, // เก็บรหัสผ่านปัจจุบัน
             level: res.usr_LVL,

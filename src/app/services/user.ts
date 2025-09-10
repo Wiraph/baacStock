@@ -78,6 +78,7 @@ export class UserService {
             // เพิ่มข้อมูลสำหรับตรวจสอบ password status
             datetimeup: parsedUserData.datetimeup,
             pwdExp: parsedUserData.pwdExp,
+            usr_PWDExp: parsedUserData.usr_PWDExp,
             usrPWD: parsedUserData.usrPWD,
             currentPassword: parsedUserData.currentPassword
           };
