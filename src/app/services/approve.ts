@@ -1,9 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-<<<<<<< HEAD
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
-=======
-import { Injectable } from '@angular/core';
->>>>>>> c5dd85f69f1dbf7355e4b7f2843a194a25e79895
 import { Observable } from 'rxjs';
 import { EncryptionService } from './encryption.service';
 import { environment } from '../../environments/environments';
