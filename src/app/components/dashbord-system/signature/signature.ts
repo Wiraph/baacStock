@@ -69,7 +69,6 @@ export class SignatureComponent implements OnInit {
 
     this.currentUser = this.userService.getCurrentUser();
 
-    console.log('🔍 Signature Component - Current User:', this.currentUser);
 
     if (!this.currentUser) {
       console.log('❌ No current user found, redirecting to login');
