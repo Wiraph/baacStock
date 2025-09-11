@@ -13,7 +13,13 @@ export class ApproveService {
   constructor(
     private readonly http: HttpClient,
     private readonly encryption: EncryptionService,
+    @Inject(PLATFORM_ID) private readonly platformId: object
   ) { }
+
+  test(payload:any) {
+    const encrypPayload = this.encryption.encrypPayload(payload);
+    console.log("Tesst ", encrypPayload);
+  }
 
   getStockApprove(payloadRequst: any): Observable<any[]> {
     const encrypPayload = this.encryption.encrypPayload(payloadRequst);
