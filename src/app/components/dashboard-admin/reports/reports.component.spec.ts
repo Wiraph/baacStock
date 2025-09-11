@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ShareholderGroupComponent } from './sharelder-group';
+import { ReportsComponent } from './reports.component';
 
-describe('ShareholderGroupComponent', () => {
-  let component: ShareholderGroupComponent;
-  let fixture: ComponentFixture<ShareholderGroupComponent>;
+describe('SaleStock', () => {
+  let component: ReportsComponent;
+  let fixture: ComponentFixture<ReportsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ShareholderGroupComponent]
+      imports: [ReportsComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ShareholderGroupComponent);
+    fixture = TestBed.createComponent(ReportsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

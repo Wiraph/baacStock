@@ -8,7 +8,7 @@ import { environment } from '../../environments/environments';
   providedIn: 'root'
 })
 export class StockBlockService {
-  private apiUrl = `${environment.dotnetApiUrl}api/StockBlock`;
+  private readonly apiUrl = `${environment.dotnetApiUrl}api/StockBlock`;
 
   constructor(
     private readonly http: HttpClient,

@@ -48,10 +48,17 @@ export class StocksComponent implements OnInit {
 
     this.customerService.searchCustomerStk(payload).subscribe({
       next: (res) => {
-        this.stockList = res;
+        console.log('📊 ข้อมูลใบหุ้นที่ได้รับจาก API:', res);
+        console.log('📋 จำนวนรายการ:', res?.length || 0);
+        if (res && res.length > 0) {
+          console.log('📄 ตัวอย่างข้อมูลรายการแรก:', res[0]);
+        }
+        this.stockList = res || [];
         this.cd.detectChanges();
       }, error: (err) => {
-        console.log("Load data fail...", err);
+        console.log("❌ Load data fail...", err);
+        this.stockList = [];
+        this.cd.detectChanges();
       }
     })
   }

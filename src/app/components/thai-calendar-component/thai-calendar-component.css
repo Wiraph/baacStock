@@ -1,5 +1,8 @@
 .calendar-card {
     width: 300px;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .overlay {
@@ -13,10 +16,4 @@
     justify-content: center;
     align-items: center;
     z-index: 1000;
-}
-
-.calendar-card {
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
 }

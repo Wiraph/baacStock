@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ShareholderGroupComponent } from './sharelder-group';
+import { Pnd2Component } from './pnd2.component';
 
-describe('ShareholderGroupComponent', () => {
-  let component: ShareholderGroupComponent;
-  let fixture: ComponentFixture<ShareholderGroupComponent>;
+describe('Pnd2aold', () => {
+  let component: Pnd2Component;
+  let fixture: ComponentFixture<Pnd2Component>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ShareholderGroupComponent]
+      imports: [Pnd2Component]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ShareholderGroupComponent);
+    fixture = TestBed.createComponent(Pnd2Component);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

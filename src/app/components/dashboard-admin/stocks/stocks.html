@@ -20,16 +20,16 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-6">
       <div>
         <label for="" class="block text-sm text-gray-500">บัตรแสดงตนเลขที่:</label>
-        <p class="text-base font-semibold text-gray-800 border-b py-1">{{ stockList[0].cusiD || '-' }}</p>
+        <p class="text-base font-semibold text-gray-800 border-b py-1">{{ stockList[0]?.cusiD || '-' }}</p>
       </div>
       <div>
         <label for="" class="block text-sm text-gray-500">สถานะ:</label>
-        <p class="text-base font-semibold text-gray-800 border-b py-1">{{ stockList[0].stDESC || '-' }}</p>
+        <p class="text-base font-semibold text-gray-800 border-b py-1">{{ stockList[0]?.stDESC || '-' }}</p>
       </div>
       <div>
         <label for="" class="block text-sm text-gray-500">ชื่อ - นามสกุล:</label>
-        <p class="text-base font-semibold text-gray-800 border-b py-1">{{ stockList[0].titleABBR }}{{
-          stockList[0].cusFName }} {{ stockList[0].cusLName || '-' }}
+        <p class="text-base font-semibold text-gray-800 border-b py-1">{{ stockList[0]?.titleABBR || '' }}{{
+          stockList[0]?.cusFName || '' }} {{ stockList[0]?.cusLName || '-' }}
         </p>
       </div>
     </div>

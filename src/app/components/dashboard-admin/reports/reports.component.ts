@@ -18,7 +18,7 @@ interface ReportItem {
 export class ReportsComponent implements OnInit {
 
   reports: ReportItem[] = [
-    // รายงานปกติ (สีชมพู)
+    // รายงานตัวอย่าง
     { id: 'report_1', title: 'รายงานการขายหุ้นใใหม่เป็นเงิน', icon: '🌸', category: 'normal', color: 'pink' },
     { id: 'report_2', title: 'รายงานการขายหุ้นออกใหม่ใหม่', icon: '🌸', category: 'normal', color: 'pink' },
     { id: 'report_3', title: 'รายงานรูปแบบการโอนหุ้นประจำวันแยกตามประเภทหุ้นอื่น', icon: '🌸', category: 'normal', color: 'pink' },
@@ -35,14 +35,6 @@ export class ReportsComponent implements OnInit {
     { id: 'report_14', title: 'หนังสือส่งยอนใหม่หุ้น', icon: '🌸', category: 'normal', color: 'pink' },
     { id: 'report_15', title: 'หน้าข้อมูลกำลังใหม่หุ้น', icon: '🌸', category: 'normal', color: 'pink' },
     { id: 'report_16', title: 'สถิติเกอร์รายข้อมูลหุ้นอื่น', icon: '🌸', category: 'normal', color: 'pink' },
-
-    // รายงานพิเศษ (สีแดง)
-    { id: 'report_special_1', title: 'รายงานขายประจำวัน (กรีนอมฟิค)', icon: '🔴', category: 'special', color: 'red' },
-    { id: 'report_special_2', title: 'รายงานขายประจำวัน (หนังสือมก)', icon: '🔴', category: 'special', color: 'red' },
-    { id: 'report_special_3', title: 'รายงานการรายงานสามัญ (เฟพระรวมใหม่)', icon: '🔴', category: 'special', color: 'red' },
-
-    // รายงานอื่นๆ (สีชมพู)
-    { id: 'report_other_1', title: 'หนังสือแจ้งเงินปันผลแก่ลูกค้า', icon: '🌸', category: 'normal', color: 'pink' }
   ];
 
   constructor() { }

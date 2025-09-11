@@ -38,8 +38,7 @@ export class PasswordStatusService {
     // ตรวจสอบรหัสผ่านหมดอายุ
     if (userData.usr_PWDExp === 0) {
       // ถ้า usr_PWDExp = 0 ไม่ต้องตรวจสอบรหัสผ่านหมดอายุ
-      isPasswordExpired = false;
-      passwordExpiryDays = 0;
+      // ค่าเริ่มต้น isPasswordExpired = false และ passwordExpiryDays = 0 ใช้ได้แล้ว
     } else if (userData.usr_PWDExp > 0 && userData.pwdExp && userData.datetimeup) {
       // ถ้า usr_PWDExp > 0 ตรวจสอบรหัสผ่านหมดอายุ
       passwordExpiryDays = userData.pwdExp;

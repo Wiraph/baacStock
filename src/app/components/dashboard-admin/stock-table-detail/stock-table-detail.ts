@@ -17,8 +17,8 @@ export class StockTableDetailComponent implements OnInit, OnChanges {
   selectedCustomer: any = null;
 
   constructor(
-    private customerService: CustomerService,
-    private cd: ChangeDetectorRef
+    private readonly customerService: CustomerService,
+    private readonly cd: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
