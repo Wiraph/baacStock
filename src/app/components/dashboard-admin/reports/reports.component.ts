@@ -25,7 +25,7 @@ export class ReportsComponent {
   reports: ReportItem[] = [
     // รายงานตัวอย่าง
     { id: 'report_transfer', title: 'รายงานการขายหุ้น/โอนเปลี่ยนมือ', icon: '🌸', category: 'normal', color: 'pink' },
-    { id: 'report_2', title: 'รายงานการขายหุ้นออกใหม่ใหม่', icon: '🌸', category: 'normal', color: 'pink' },
+    { id: 'report_newstock', title: 'รายงานการขายหุ้นออกใหม่', icon: '🌸', category: 'normal', color: 'pink' },
     { id: 'report_3', title: 'รายงานรูปแบบการโอนหุ้นประจำวันแยกตามประเภทหุ้นอื่น', icon: '🌸', category: 'normal', color: 'pink' },
     { id: 'report_4', title: 'รายงานข้อมูลอัตราเงินปันผล', icon: '🌸', category: 'normal', color: 'pink' },
     { id: 'report_5', title: 'รายงานสิทธิหุ้นอื่น', icon: '🌸', category: 'normal', color: 'pink' },

@@ -55,5 +55,7 @@
   <div class="text-center text-xl py-2 bg-lime-400 text-white rounded-t-xl">
     <p>{{headerReport}}</p>
   </div>
-  <div *ngIf="actView == 'report_transfer'"><app-reporttransfer (headerChange)="getHeader($event)"></app-reporttransfer></div>
+  <div *ngIf="actView == 'report_transfer'">
+    <app-reporttransfer (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''"></app-reporttransfer>
+  </div>
 </div>
