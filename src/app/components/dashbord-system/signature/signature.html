@@ -23,7 +23,7 @@
             class="bg-gray-600 hover:bg-gray-700 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
             กลับ
           </button>
-          <button (click)="openAddForm()"
+          <button (click)="addForm()"
             class="bg-green-600 hover:bg-green-700 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
             เพิ่มผู้ลงนาม
           </button>
@@ -52,21 +52,16 @@
                 <td class="border border-gray-300 px-4 py-3">
                   <div
                     class="w-20 h-12 border border-gray-300 rounded-lg bg-gray-50 flex items-center justify-center shadow-sm">
-                    <img *ngIf="sig.sigFileBase64" [src]="'data:' + sig.sigFileMIME + ';base64,' + sig.sigFileBase64"
+                    <img *ngIf="sig.sigFileData" [src]="'data:' + sig.sigFileMIME + ';base64,' + sig.sigFileData"
                       alt="Signature" class="h-16 mx-auto" />
-                    <span *ngIf="!sig.sigFileBase64" class="text-gray-400 text-xs">ไม่มีรูป</span>
+                    <span *ngIf="!sig.sigFileData" class="text-gray-400 text-xs">ไม่มีรูป</span>
 
                   </div>
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <span
                     class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
-                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clip-rule="evenodd" />
-                    </svg>
-                    ใช้งานได้
+                    {{ sig.sigBr ? '✅' : '❌' }}
                   </span>
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
@@ -75,7 +70,7 @@
                       class="bg-blue-500 hover:bg-blue-600 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 text-white px-3 py-1 rounded text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
                       แก้ไข
                     </button>
-                    <button (click)="deleteSignature(sig)"
+                    <button (click)="deleteSignature(sig.empID)"
                       class="bg-red-500 hover:bg-red-600 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 text-white px-3 py-1 rounded text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1">
                       ลบ
                     </button>
@@ -98,7 +93,7 @@
           </div>
         </div>
 
-        <div *ngIf="isAdding || isEditing" class="mt-4">
+        <div *ngIf="isAdding || isEditing" class="mt-4" id="signatureSection">
           <div class="p-6 w-full max-w-2xl mx-4">
             <!-- Form Header -->
             <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
@@ -112,7 +107,7 @@
               <!-- รหัสพนักงาน -->
               <div>
                 <label for="empId" class="block text-sm font-medium text-gray-700 mb-2">รหัสพนักงาน</label>
-                <input type="number" id="empId" [(ngModel)]="newSignature.empId" name="empId"
+                <input type="number" id="empId" [(ngModel)]="newSignature.empID" name="empId"
                   class="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all duration-200 bg-gray-50 focus:bg-white">
               </div>
 
@@ -143,7 +138,7 @@
 
               <!-- Checkbox สำหรับกำหนดให้สาขาใช้ลายเซ็นนี้ -->
               <div class="flex items-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <input type="checkbox" id="allowBranchUse"
+                <input type="checkbox" id="allowBranchUse" [(ngModel)]="newSignature.sigBr" name="sigBr"
                   class="h-5 w-5 text-green-600 focus:ring-green-500 border-gray-300 rounded transition-colors">
                 <label for="allowBranchUse" class="ml-3 text-sm text-gray-700 font-medium">
                   (เพื่อกำหนดให้สาขาใช้ลายเซ็นนี้ลงนามในหนังสือได้)
@@ -184,10 +179,13 @@
                   class="bg-gray-500 hover:bg-gray-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                   ยกเลิก
                 </button>
-                <button type="submit" [disabled]="isLoading"
+                <button *ngIf="isAdding" type="submit" [disabled]="isLoading"
                   class="bg-green-600 hover:bg-green-700 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:bg-gray-400 disabled:hover:translate-y-0 disabled:hover:shadow-none text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                  <span *ngIf="!isLoading">{{ isEditing ? 'บันทึกการแก้ไข' : 'เพิ่มลายเซ็น' }}</span>
-                  <span *ngIf="isLoading">⏳ กำลังบันทึก...</span>
+                  บันทึก
+                </button>
+                <button *ngIf="isEditing" type="submit" [disabled]="isLoading"
+                  class="bg-green-600 hover:bg-green-700 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:bg-gray-400 disabled:hover:translate-y-0 disabled:hover:shadow-none text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                  บันทึก
                 </button>
               </div>
             </form>

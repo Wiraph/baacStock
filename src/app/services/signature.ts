@@ -28,4 +28,16 @@ export class SignatureService {
     const encryptedPayload = this.encryptionService.encrypPayload(request);
     return this.http.post<any[]>(`${this.apiUrl}/create`, encryptedPayload , { withCredentials: true });
   }
+
+  // เรียก API อัปเดต
+  updateSignature(request: any): Observable<any[]> {
+    const encryptedPayload = this.encryptionService.encrypPayload(request);
+    return this.http.post<any[]>(`${this.apiUrl}/update`, encryptedPayload , { withCredentials: true });
+  }
+
+  // เรียก API ลบ
+  deleteSignature(request: any): Observable<any[]> {
+    const encryptedPayload = this.encryptionService.encrypPayload(request);
+    return this.http.post<any[]>(`${this.apiUrl}/delete`, encryptedPayload , { withCredentials: true });
+  }
 }
