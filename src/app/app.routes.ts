@@ -41,7 +41,7 @@ import { SetConditionsSystemComponent } from './components/dashbord-system/set-c
 import { SignatureComponent } from './components/dashbord-system/signature/signature';
 import { StockTypeComponent } from './components/dashbord-system/stock-type/stock-type';
 import { ShareholderGroupComponent } from './components/dashbord-system/sharelder-group/sharelder-group';
-import { SharelderType } from './components/dashbord-system/sharelder-type/sharelder-type';
+import { ShareholderTypeComponent } from './components/dashbord-system/sharelder-type/sharelder-type';
 import { DividendType } from './components/dashbord-system/dividend-type/dividend-type';
 import { Title } from './components/dashbord-system/title/title';
 import { TitleTest } from './components/dashbord-system/title-test/title-test';
@@ -107,7 +107,7 @@ export const routes: Routes = [
       { path: 'signature', component: SignatureComponent },
       { path: 'stock-type', component: StockTypeComponent },
       { path: 'shareholder-group', component: ShareholderGroupComponent },
-      { path: 'shareholder-type', component: SharelderType },
+      { path: 'shareholder-type', component: ShareholderTypeComponent },
       { path: 'dividend-type', component: DividendType },
       { path: 'title', component: Title },
       { path: 'title-test', component: TitleTest },

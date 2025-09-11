@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SharelderType } from './sharelder-type';
+import { ShareholderTypeComponent } from './sharelder-type';
 
 describe('SharelderType', () => {
-  let component: SharelderType;
-  let fixture: ComponentFixture<SharelderType>;
+  let component: ShareholderTypeComponent;
+  let fixture: ComponentFixture<ShareholderTypeComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SharelderType]
+      imports: [ShareholderTypeComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(SharelderType);
+    fixture = TestBed.createComponent(ShareholderTypeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

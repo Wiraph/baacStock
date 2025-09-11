@@ -1,5 +1,5 @@
 <div class="min-h-screen bg-gray-50 p-6">
-    <div class="w-full mx-auto max-w-7xl">
+    <div class="w-full">
       <!-- Header -->
       <div class="bg-white rounded-t-lg shadow-lg">
         <div class="px-6 py-4 border-b border-gray-200">
@@ -12,7 +12,7 @@
               </div>
               <div>
                 <h1 class="text-2xl font-bold text-gray-900">แฟ้มอ้างอิงประเภทผู้ถือหุ้น</h1>
-                <p class="text-sm text-gray-500">จัดการข้อมูลกลุ่มผู้ถือหุ้นในระบบ</p>
+                <p class="text-sm text-gray-500">จัดการข้อมูลประเภทผู้ถือหุ้นในระบบ</p>
               </div>
             </div>
             <button (click)="goBack()" 
@@ -27,7 +27,7 @@
       </div>
   
       <!-- Loading State -->
-      <div *ngIf="isLoading && shareholderGroups.length === 0" class="bg-white rounded-b-lg shadow-lg p-8">
+      <div *ngIf="isLoading && shareholderTypes.length === 0" class="bg-white rounded-b-lg shadow-lg p-8">
         <div class="flex items-center justify-center">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           <span class="ml-3 text-gray-600">กำลังโหลดข้อมูล...</span>
@@ -35,7 +35,7 @@
       </div>
   
       <!-- Main Content -->
-      <div *ngIf="!isLoading || shareholderGroups.length > 0" class="bg-white rounded-b-lg shadow-lg">
+      <div *ngIf="!isLoading || shareholderTypes.length > 0" class="bg-white rounded-b-lg shadow-lg">
         <div class="p-6">
           <!-- Action Buttons -->
           <div class="flex justify-between items-center mb-6">
@@ -52,28 +52,60 @@
             </button>
           </div>
   
-          <!-- Shareholder Groups Table -->
+          <!-- Shareholder Types Table -->
           <div class="overflow-x-auto">
             <table class="w-full border-collapse border border-gray-300">
               <thead>
                 <tr class="bg-yellow-50">
+                  <th class="border border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700">รหัสประเภทลูกค้า</th>
+                  <th class="border border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700">คำอธิบายรหัสประเภทลูกค้า</th>
+                  <th class="border border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700">อัตราภาษีหัก ณ ที่จ่าย</th>
                   <th class="border border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700">รหัสประเภทผู้ถือหุ้น</th>
-                  <th class="border border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700">คำอธิบายรหัสประเภทผู้ถือหุ้น</th>
+                  <th class="border border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700">รหัสประเภทบุคคล</th>
+                  <th class="border border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700">-</th>
+                  <th class="border border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700">-</th>
+                  <th class="border border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700">จำนวนหุ้นตำสุดที่ขายได้</th>
+                  <th class="border border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700">จำนวนหุ้นสูงสุดที่ขายได้</th>
+                  <th class="border border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700">อนุญาตให้ขายได้หรือไม่</th>
                   <th class="border border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700">แก้ไข</th>
                   <th class="border border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700">ลบ</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let shareholderGroup of shareholderGroups;" 
+                <tr *ngFor="let shareholderType of shareholderTypes; let i = index" 
                     [class]="i % 2 === 0 ? 'bg-purple-50' : 'bg-white'">
                   <td class="border border-gray-300 px-4 py-3 text-center text-sm font-medium text-gray-900">
-                    {{ shareholderGroup.cusCodeg }}
+                    {{ shareholderType.cusCodeg }}
                   </td>
                   <td class="border border-gray-300 px-4 py-3 text-center text-sm text-gray-700">
-                    {{ shareholderGroup.cusDescg }}
+                    {{ shareholderType.cusDescg }}
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center text-sm text-gray-700">
+                    {{ shareholderType.cusDescg }}
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center text-sm text-gray-700">
+                    {{ shareholderType.cusDescg }}
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center text-sm text-gray-700">
+                    {{ shareholderType.cusDescg }}
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center text-sm text-gray-700">
+                    {{ shareholderType.cusDescg }}
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center text-sm text-gray-700">
+                    {{ shareholderType.cusDescg }}
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center text-sm text-gray-700">
+                    {{ shareholderType.cusDescg }}
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center text-sm text-gray-700">
+                    {{ shareholderType.cusDescg }}
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center text-sm text-gray-700">
+                    {{ shareholderType.cusDescg }}
                   </td>
                   <td class="border border-gray-300 px-4 py-3 text-center">
-                    <button (click)="openEditForm(shareholderGroup)" 
+                    <button (click)="openEditForm(shareholderType)" 
                             class="inline-flex items-center justify-center w-8 h-8 text-blue-600 bg-blue-100 rounded-full hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -81,7 +113,7 @@
                     </button>
                   </td>
                   <td class="border border-gray-300 px-4 py-3 text-center">
-                    <button (click)="deleteShareholderGroup(shareholderGroup)" 
+                    <button (click)="deleteShareholderType(shareholderType)" 
                             class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-full hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -93,20 +125,20 @@
             </table>
   
             <!-- Empty State -->
-            <div *ngIf="shareholderGroups.length === 0" class="text-center py-12">
+            <div *ngIf="shareholderTypes.length === 0" class="text-center py-12">
               <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                 <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
               </div>
-              <h3 class="text-lg font-medium text-gray-900 mb-2">ไม่มีข้อมูลกลุ่มผู้ถือหุ้น</h3>
-              <p class="text-gray-500 mb-4">เริ่มต้นด้วยการเพิ่มกลุ่มผู้ถือหุ้นใหม่</p>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">ไม่มีข้อมูลประเภทผู้ถือหุ้น</h3>
+              <p class="text-gray-500 mb-4">เริ่มต้นด้วยการเพิ่มประเภทผู้ถือหุ้นใหม่</p>
               <button (click)="openAddForm()" 
                       class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
-                เพิ่มกลุ่มผู้ถือหุ้น
+                เพิ่มประเภทผู้ถือหุ้น
               </button>
             </div>
           </div>
@@ -120,7 +152,7 @@
           <!-- Form Header -->
           <div class="flex items-center justify-between mb-6">
             <h2 class="text-xl font-bold text-gray-900">
-              {{ isAdding ? 'เพิ่มกลุ่มผู้ถือหุ้นใหม่' : 'แก้ไขกลุ่มผู้ถือหุ้น' }}
+              {{ isAdding ? 'เพิ่มประเภทผู้ถือหุ้นใหม่' : 'แก้ไขประเภทผู้ถือหุ้น' }}
             </h2>
             <button (click)="cancelForm()" 
                     class="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 rounded-lg p-1">
@@ -131,7 +163,7 @@
           </div>
   
           <!-- Form -->
-          <form (ngSubmit)="saveShareholderGroup()" class="space-y-6">
+          <form (ngSubmit)="saveShareholderType()" class="space-y-6">
             <!-- Shareholder Group Code -->
             <div>
               <label for="cusCodeg" class="block text-sm font-medium text-gray-700 mb-2">
@@ -139,7 +171,7 @@
               </label>
               <input type="text" 
                      id="cusCodeg"
-                     [(ngModel)]="newShareholderGroup.cusCodeg" 
+                     [(ngModel)]="newShareholderType.cusCodeg" 
                      name="cusCodeg"
                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
                      placeholder="กรอกรหัสประเภทผู้ถือหุ้น"
@@ -153,7 +185,7 @@
               </label>
               <input type="text" 
                      id="cusDescg"
-                     [(ngModel)]="newShareholderGroup.cusDescg" 
+                     [(ngModel)]="newShareholderType.cusDescg" 
                      name="cusDescg"
                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
                      placeholder="กรอกคำอธิบายประเภทผู้ถือหุ้น"
