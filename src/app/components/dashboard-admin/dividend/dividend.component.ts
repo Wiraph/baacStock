@@ -124,17 +124,20 @@ export class DividendComponent implements OnInit {
 
   // Load customer data from API like other systems
   loadCustomerDataFromAPI(cusId: string) {
+    const payload = {
+      stkOWNiD: cusId
+    }
     
     // เรียก API GetDividend2Pay เพื่อดึงข้อมูลเงินปันผล
-    this.dividendService.getDividend2Pay(cusId).subscribe({
-      next: (response) => {
+    this.dividendService.getDividend2Pay(payload).subscribe({
+      next: (response:any) => {
         
         if (response && response.length > 0) {
 
           //กรณีที่ 1: มีข้อมูลเงินปันผล
           this.systemStatus.hasDividendData = true;
           
-          const dividendData = response[0];
+          const dividendData = response;
           
           // ตั้งค่าข้อมูลลูกค้า
            this.customerData = {

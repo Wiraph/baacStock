@@ -121,7 +121,7 @@
           <label for="" class="text-sm font-medium text-gray-700 min-w-[80px]">ผู้ลงนาม 1</label>
           <select [(ngModel)]="sigNature1" class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
             <option value="">เลือกผู้ลงนาม</option>
-            <option *ngFor="let sig of signatureList" [value]="sig.empId">{{ sig.empName }}</option>
+            <!-- <option *ngFor="let sig of signatureList" [value]="sig.empId">{{ sig.empName }}</option> -->
           </select>
         </div>
         
@@ -129,7 +129,7 @@
           <label for="" class="text-sm font-medium text-gray-700 min-w-[80px]">ผู้ลงนาม 2</label>
           <select [(ngModel)]="sigNature2" class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
             <option value="">เลือกผู้ลงนาม</option>
-            <option *ngFor="let sig of signatureList" [value]="sig.empId">{{ sig.empName }}</option>
+            <!-- <option *ngFor="let sig of signatureList" [value]="sig.empId">{{ sig.empName }}</option> -->
           </select>
         </div>
       </div>
@@ -145,63 +145,6 @@
       </div>
     </div>
 
-    <!-- ผลการค้นหา -->
-    <div *ngIf="stockList.length > 0 || loadingStocks || stockError" class="mt-8 max-w-6xl mx-auto">
-      <h3 class="text-lg font-semibold text-gray-800 mb-4">ผลการค้นหา</h3>
-      
-      <!-- Loading -->
-      <div *ngIf="loadingStocks" class="text-center py-8">
-        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
-        <p class="mt-2 text-gray-600">กำลังค้นหาข้อมูล...</p>
-      </div>
-
-      <!-- Error -->
-      <div *ngIf="stockError" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-        {{ stockError }}
-      </div>
-
-      <!-- ตารางผลลัพธ์ -->
-      <div *ngIf="stockList.length > 0" class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-        <table class="min-w-full text-sm text-left text-gray-800">
-          <thead class="bg-green-50 text-gray-700 text-xs uppercase tracking-wide">
-            <tr>
-              <th class="px-4 py-3 text-center">ลำดับ</th>
-              <th class="px-4 py-3">สาขา</th>
-              <th class="px-4 py-3">เลขที่ใบหุ้น</th>
-              <th class="px-4 py-3">เลขบัตรประชาชน</th>
-              <th class="px-4 py-3">ชื่อผู้ถือหุ้น</th>
-              <th class="px-4 py-3 text-center">จำนวนหุ้น</th>
-              <th class="px-4 py-3 text-center">มูลค่า</th>
-              <th class="px-4 py-3 text-center">สถานะ</th>
-              <th class="px-4 py-3 text-center">วันที่ทำรายการ</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let stock of stockList; let i = index" class="hover:bg-gray-50 transition">
-              <td class="px-4 py-2 text-center">{{ i + 1 }}</td>
-              <td class="px-4 py-2">{{ stock.brName || stock.brCode }}</td>
-              <td class="px-4 py-2">{{ stock.stkNOTE }}</td>
-              <td class="px-4 py-2">{{ stock.cusiD }}</td>
-              <td class="px-4 py-2">{{ stock.fullName }}</td>
-              <td class="px-4 py-2 text-center">{{ stock.stkUNiT | number }}</td>
-              <td class="px-4 py-2 text-center">{{ stock.stkValue | number: '1.0-0' }}</td>
-              <td class="px-4 py-2 text-center">
-                <span class="px-2 py-1 text-xs rounded-full" 
-                      [class]="stock.stkSTATUS === 'S000' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
-                  {{ stock.statusDesc || stock.stkSTATUS }}
-                </span>
-              </td>
-              <td class="px-4 py-2 text-center">{{ stock.stkDateIssue | date: 'dd/MM/yyyy' }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- ไม่พบข้อมูล -->
-      <div *ngIf="!loadingStocks && !stockError && stockList.length === 0" class="text-center py-8 text-gray-500">
-        <p>ไม่พบข้อมูลหุ้นที่ค้นหา</p>
-      </div>
-    </div>
   </div>
 </div>
 

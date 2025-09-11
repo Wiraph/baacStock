@@ -1,5 +1,9 @@
 import { HttpClient } from '@angular/common/http';
+<<<<<<< HEAD
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+=======
+import { Injectable } from '@angular/core';
+>>>>>>> c5dd85f69f1dbf7355e4b7f2843a194a25e79895
 import { Observable } from 'rxjs';
 import { EncryptionService } from './encryption.service';
 import { environment } from '../../environments/environments';
@@ -13,13 +17,7 @@ export class ApproveService {
   constructor(
     private readonly http: HttpClient,
     private readonly encryption: EncryptionService,
-    @Inject(PLATFORM_ID) private readonly platformId: object
   ) { }
-
-  test(payload:any) {
-    const encrypPayload = this.encryption.encrypPayload(payload);
-    console.log("Tesst ", encrypPayload);
-  }
 
   getStockApprove(payloadRequst: any): Observable<any[]> {
     const encrypPayload = this.encryption.encrypPayload(payloadRequst);

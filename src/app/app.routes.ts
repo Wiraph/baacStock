@@ -38,6 +38,8 @@ import { AnnualdividendcalculatorComponent } from './components/dashboard-admin/
 import { DashboardSystemComponent } from './components/dashbord-system/dashbord-system';
 import { SetConditionsSystemComponent } from './components/dashbord-system/set-conditions-system/set-conditions-system';
 import { SignatureComponent } from './components/dashbord-system/signature/signature';
+import { StockTypeComponent } from './components/dashbord-system/stock-type/stock-type';
+import { ShareholderGroupComponent } from './components/dashbord-system/sharelder-group/sharelder-group';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -96,8 +98,8 @@ export const routes: Routes = [
       { path: 'contact', component: ContactComponent },
       { path: 'set-conditions-system', component: SetConditionsSystemComponent },
       { path: 'signature', component: SignatureComponent },
-      { path: 'stock-type', component: HomeComponent },
-      { path: 'shareholder-group', component: HomeComponent },
+      { path: 'stock-type', component: StockTypeComponent },
+      { path: 'shareholder-group', component: ShareholderGroupComponent },
       { path: 'shareholder-type', component: HomeComponent },
       { path: 'dividend-type', component: HomeComponent },
       { path: 'title', component: HomeComponent },

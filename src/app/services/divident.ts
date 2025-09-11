@@ -48,8 +48,7 @@ export class Divident {
     })
   }
 
-  getDividend2Pay(stkOwnId: string) {
-    const payload = { stkOwnId: stkOwnId };
+  getDividend2Pay(payload: any) {
     const encrypPayload = this.encryptionService.encrypPayload(payload);
     return this.http.post<any[]>(`${this.apiUrl}/2pay`, encrypPayload, {
       withCredentials: true

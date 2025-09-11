@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { SignatureService, Signature, StockData } from '../../../services/signature';
+import { SignatureService } from '../../../services/signature';
 import { StockService } from '../../../services/stock';
 
 @Component({
@@ -37,12 +37,10 @@ export class PrintCertificatesComponent implements OnInit {
   // Properties สำหรับผู้ลงนาม 
   sigNature1: string = '';
   sigNature2: string = '';
-  signatureList: Signature[] = [];
   loadingSignatures: boolean = false;
   signatureError: string = '';
 
   // ข้อมูลหุ้น
-  stockList: StockData[] = [];
   loadingStocks: boolean = false;
   stockError: string = '';
 
@@ -94,7 +92,6 @@ export class PrintCertificatesComponent implements OnInit {
     this.signatureService.getSignatures().subscribe({
       next: (signatures) => {
         console.log(`โหลดข้อมูลผู้ลงนามสำเร็จ: ${signatures.length} คน`);
-        this.signatureList = signatures;
         this.loadingSignatures = false;
         
         // ตั้งค่าเริ่มต้นให้กับ dropdown ผู้ลงนาม
@@ -104,22 +101,13 @@ export class PrintCertificatesComponent implements OnInit {
         console.error('Error loading signatures:', error);
         this.loadingSignatures = false;
         this.signatureError = 'ไม่สามารถโหลดข้อมูลผู้ลงนามได้ กรุณาลองใหม่อีกครั้ง';
-        this.signatureList = [];
       }
     });
   }
 
   // ตั้งค่าเริ่มต้นให้กับ dropdown ผู้ลงนาม
   private setDefaultSignatories() {
-    if (this.signatureList && this.signatureList.length > 0) {
-      // ตั้งค่าผู้ลงนามคนแรกเป็นค่าเริ่มต้น
-      this.sigNature1 = this.signatureList[0].empId.toString();
-      
-      // ตั้งค่าผู้ลงนามคนที่สองเป็นค่าเริ่มต้น (ถ้ามีมากกว่า 1 คน)
-      if (this.signatureList.length > 1) {
-        this.sigNature2 = this.signatureList[1].empId.toString();
-      }
-    }
+    
   }
 
   // ตั้งค่าปีปัจจุบัน
@@ -188,25 +176,11 @@ export class PrintCertificatesComponent implements OnInit {
 
     this.loadingStocks = true;
     this.stockError = '';
-    this.stockList = [];
 
     const searchPayload = this.buildSearchPayload();
     console.log('Search payload:', searchPayload);
     
     // ใช้ searchPayload โดยตรงแทนการสร้าง payload ใหม่
-    this.stockService.getStockDetail(searchPayload).subscribe({
-      next: (response: StockData[]) => {
-        console.log('API Response:', response);
-        this.stockList = response || [];
-        this.loadingStocks = false;
-      },
-      error: (error: any) => {
-        console.error('Search error:', error);
-        this.loadingStocks = false;
-        this.handleSearchError(error);
-        this.stockList = [];
-      }
-    });
   }
 
   private validateToken(): boolean {
