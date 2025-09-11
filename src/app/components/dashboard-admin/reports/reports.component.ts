@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Reporttransfer } from './reporttransfer/reporttransfer';
 
 interface ReportItem {
   id: string;
@@ -12,14 +13,18 @@ interface ReportItem {
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Reporttransfer],
   templateUrl: './reports.component.html'
 })
-export class ReportsComponent implements OnInit {
+export class ReportsComponent {
+  main: boolean = true;
+  report: boolean = false;
+  actView: string = '';
+  headerReport: string = '';
 
   reports: ReportItem[] = [
     // รายงานตัวอย่าง
-    { id: 'report_1', title: 'รายงานการขายหุ้นใใหม่เป็นเงิน', icon: '🌸', category: 'normal', color: 'pink' },
+    { id: 'report_transfer', title: 'รายงานการขายหุ้น/โอนเปลี่ยนมือ', icon: '🌸', category: 'normal', color: 'pink' },
     { id: 'report_2', title: 'รายงานการขายหุ้นออกใหม่ใหม่', icon: '🌸', category: 'normal', color: 'pink' },
     { id: 'report_3', title: 'รายงานรูปแบบการโอนหุ้นประจำวันแยกตามประเภทหุ้นอื่น', icon: '🌸', category: 'normal', color: 'pink' },
     { id: 'report_4', title: 'รายงานข้อมูลอัตราเงินปันผล', icon: '🌸', category: 'normal', color: 'pink' },
@@ -37,13 +42,29 @@ export class ReportsComponent implements OnInit {
     { id: 'report_16', title: 'สถิติเกอร์รายข้อมูลหุ้นอื่น', icon: '🌸', category: 'normal', color: 'pink' },
   ];
 
-  constructor() { }
-
-  ngOnInit(): void {
-  }
+  constructor(
+    private readonly cd: ChangeDetectorRef
+  ) { }
 
   onReportClick(report: ReportItem): void {
+    this.main = false;
+    this.report = true;
+    console.log("Report", report);
+    this.setActive(report.id);
+    console.log("Act", this.actView);
   }
+
+  setActive(act: string) {
+    this.actView = act;
+    this.cd.detectChanges();
+  }
+
+  getHeader(name: any) {
+    this.headerReport = name;
+    console.log(name);
+    this.cd.detectChanges();
+  }
+
 
   get normalReports(): ReportItem[] {
     return this.reports.filter(report => report.category === 'normal');
