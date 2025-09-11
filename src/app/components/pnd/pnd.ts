@@ -103,7 +103,13 @@ export class PndComponent implements OnInit {
       });
 
     } catch (err) {
+      this.isLoading = false;
+      Swal.fire({
+        icon: 'error',
+        text: `${err}`
+      })
       console.error('Error checking files:', err);
+      this.cd.detectChanges();
     }
 
     this.isLoading = false;
