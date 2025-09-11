@@ -34,12 +34,19 @@ import { Pnd53old } from './components/dashboard-admin/pnd-system/pnd53old/pnd53
 import { SaleStockComponent } from './components/dashboard-admin/sale-stock/sale-stock';
 import { AnnualdividendcalculatorComponent } from './components/dashboard-admin/annualdividendcalculator/annualdividendcalculator';
 
+
 // Dashboard System Routes
 import { DashboardSystemComponent } from './components/dashbord-system/dashbord-system';
 import { SetConditionsSystemComponent } from './components/dashbord-system/set-conditions-system/set-conditions-system';
 import { SignatureComponent } from './components/dashbord-system/signature/signature';
 import { StockTypeComponent } from './components/dashbord-system/stock-type/stock-type';
 import { ShareholderGroupComponent } from './components/dashbord-system/sharelder-group/sharelder-group';
+import { SharelderType } from './components/dashbord-system/sharelder-type/sharelder-type';
+import { DividendType } from './components/dashbord-system/dividend-type/dividend-type';
+import { Title } from './components/dashbord-system/title/title';
+import { TitleTest } from './components/dashbord-system/title-test/title-test';
+import { Province } from './components/dashbord-system/province/province';
+
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -100,11 +107,11 @@ export const routes: Routes = [
       { path: 'signature', component: SignatureComponent },
       { path: 'stock-type', component: StockTypeComponent },
       { path: 'shareholder-group', component: ShareholderGroupComponent },
-      { path: 'shareholder-type', component: HomeComponent },
-      { path: 'dividend-type', component: HomeComponent },
-      { path: 'title', component: HomeComponent },
-      { path: 'title-test', component: HomeComponent },
-      { path: 'province', component: HomeComponent }
+      { path: 'shareholder-type', component: SharelderType },
+      { path: 'dividend-type', component: DividendType },
+      { path: 'title', component: Title },
+      { path: 'title-test', component: TitleTest },
+      { path: 'province', component: Province }
     ]
   },
 
