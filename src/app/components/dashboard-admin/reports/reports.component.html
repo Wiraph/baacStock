@@ -56,18 +56,27 @@
     <p>{{headerReport}}</p>
   </div>
   <div *ngIf="actView == 'report_transfer'">
-    <app-reporttransfer (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''"></app-reporttransfer>
+    <app-reporttransfer (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-reporttransfer>
   </div>
   <div *ngIf="actView == 'report_newstock'">
-    <app-report-newstock (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''"></app-report-newstock>
+    <app-report-newstock (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-newstock>
   </div>
   <div *ngIf="actView == 'report_daily_transfer_by_type'">
-    <app-report-daily-transfer-by-type (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''"></app-report-daily-transfer-by-type>
+    <app-report-daily-transfer-by-type (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-daily-transfer-by-type>
   </div>
   <div *ngIf="actView == 'report_dividend_rate'">
-    <app-report-dividend-rate (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''"></app-report-dividend-rate>
+    <app-report-dividend-rate (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-dividend-rate>
   </div>
   <div *ngIf="actView == 'report_shareholder_ratio'">
-    <app-report-shareholder-ratio (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''"></app-report-shareholder-ratio>
+    <app-report-shareholder-ratio (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-shareholder-ratio>
+  </div>
+  <div *ngIf="actView == 'report_shareholder_ranking'">
+    <app-report-shareholder-ranking (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-shareholder-ranking>
+  </div>
+  <div *ngIf="actView == 'report_balance_by_type'">
+    <app-report-balance-by-type (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-balance-by-type>
+  </div>
+  <div *ngIf="actView == 'report_shareholder_register'">
+    <app-report-shareholder-register (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-shareholder-register>
   </div>
 </div>
