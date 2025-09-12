@@ -3,7 +3,7 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { Observable } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { EncryptionService } from './encryption.service';
-import { environment } from '../../environments/environments';
+import { environment } from '../../environments/environment';
 
 export interface PendingTransfer {
   rowNumber: number;

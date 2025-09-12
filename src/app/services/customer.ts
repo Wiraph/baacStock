@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { EncryptionService } from './encryption.service';
-import { environment } from '../../environments/environments';
+import { environment } from '../../environments/environment';
 
 export interface CustomerSearchDto {
   cusId?: string;
