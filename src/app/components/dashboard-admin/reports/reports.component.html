@@ -67,4 +67,7 @@
   <div *ngIf="actView == 'report_dividend_rate'">
     <app-report-dividend-rate (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''"></app-report-dividend-rate>
   </div>
+  <div *ngIf="actView == 'report_shareholder_ratio'">
+    <app-report-shareholder-ratio (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''"></app-report-shareholder-ratio>
+  </div>
 </div>

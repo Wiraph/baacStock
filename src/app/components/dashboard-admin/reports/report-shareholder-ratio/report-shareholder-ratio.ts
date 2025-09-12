@@ -3,12 +3,12 @@ import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@ang
 
 @Component({
   standalone: true,
-  selector: 'app-report-dividend-rate',
+  selector: 'app-report-shareholder-ratio',
   imports: [CommonModule],
-  templateUrl: './report-dividend-rate.html',
-  styleUrl: './report-dividend-rate.css'
+  templateUrl: './report-shareholder-ratio.html',
+  styleUrl: './report-shareholder-ratio.css'
 })
-export class ReportDividendRate implements OnInit {
+export class ReportShareholderRatio implements OnInit {
   @Output() headerChange = new EventEmitter<string>();
   @Output() back = new EventEmitter<void>();
 
@@ -41,7 +41,7 @@ export class ReportDividendRate implements OnInit {
   }
 
   sendHead() {
-    this.headerChange.emit("รายงานข้อมูลอัตราเงินปันผล");
+    this.headerChange.emit("รายงานสัดส่วนผู้ถือหุ้น");
   }
 
   goBack(): void {

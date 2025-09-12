@@ -4,6 +4,7 @@ import { Reporttransfer } from './reporttransfer/reporttransfer';
 import { ReportNewstock } from './report-newstock/report-newstock';
 import { ReportDailyTransferByType } from './report-daily-transfer-by-type/report-daily-transfer-by-type';
 import { ReportDividendRate } from './report-dividend-rate/report-dividend-rate';
+import { ReportShareholderRatio } from './report-shareholder-ratio/report-shareholder-ratio';
 
 interface ReportItem {
   id: string;
@@ -16,7 +17,7 @@ interface ReportItem {
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, Reporttransfer, ReportNewstock, ReportDailyTransferByType, ReportDividendRate],
+  imports: [CommonModule, Reporttransfer, ReportNewstock, ReportDailyTransferByType, ReportDividendRate, ReportShareholderRatio],
   templateUrl: './reports.component.html'
 })
 export class ReportsComponent {
