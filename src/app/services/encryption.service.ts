@@ -1,12 +1,12 @@
 import * as CryptoJS from 'crypto-js';
 import { Injectable } from '@angular/core';
-import { environment } from '../../environments/environments';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EncryptionService {
-  private readonly encryptionKey = environment.encryptionKey ;
+  private readonly encryptionKey = environment.encryptionKey;
 
   encrypPayload(payload: any): { data: string; iv: string } {
       const iv = CryptoJS.lib.WordArray.random(16);

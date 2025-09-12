@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { EncryptionService } from './encryption.service';
-import { environment } from '../../environments/environments';
+import { environment } from '../../environments/environment';
 
 export interface AddressDto {
   cusiD: string,
