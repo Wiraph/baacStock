@@ -58,4 +58,13 @@
   <div *ngIf="actView == 'report_transfer'">
     <app-reporttransfer (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''"></app-reporttransfer>
   </div>
+  <div *ngIf="actView == 'report_newstock'">
+    <app-report-newstock (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''"></app-report-newstock>
+  </div>
+  <div *ngIf="actView == 'report_daily_transfer_by_type'">
+    <app-report-daily-transfer-by-type (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''"></app-report-daily-transfer-by-type>
+  </div>
+  <div *ngIf="actView == 'report_dividend_rate'">
+    <app-report-dividend-rate (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''"></app-report-dividend-rate>
+  </div>
 </div>

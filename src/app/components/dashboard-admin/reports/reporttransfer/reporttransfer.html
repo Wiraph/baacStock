@@ -1,13 +1,14 @@
 <div class="p-3">
-  <div class="max-w-3xl mx-auto bg-white rounded-lg  p-4">
+  <div class="max-w-3xl mx-auto rounded-lg p-4 bg-white shadow">
 
     <!-- Filters -->
     <div class="space-y-3">
+
       <!-- Row: ประเภทหุ้น -->
-      <div class="grid grid-cols-12 items-center gap-2">
-        <label class="col-span-3 text-sm text-gray-700">ประเภทหุ้น:</label>
+      <div class="grid grid-cols-12 items-center gap-2 border-b border-gray-200 pb-3 mb-3">
+        <label for="shareType" class="col-span-3 text-sm text-gray-700">ประเภทหุ้น:</label>
         <div class="col-span-9">
-          <select class="w-56 border rounded px-2 py-1.5 text-center text-sm">
+          <select id="shareType" class="w-56 border rounded px-2 py-1.5 text-center text-sm">
             <option value="">หุ้นสามัญ</option>
             <option value="">หุ้นบุริมสิทธิ</option>
           </select>
@@ -15,10 +16,10 @@
       </div>
 
       <!-- Row: ประเภทรายการ -->
-      <div class="grid grid-cols-12 items-center gap-2">
-        <label class="col-span-3 text-sm text-gray-700">ประเภทรายการ:</label>
+      <div class="grid grid-cols-12 items-center gap-2 border-b border-gray-200 pb-3 mb-3">
+        <label for="transactionType" class="col-span-3 text-sm text-gray-700">ประเภทรายการ:</label>
         <div class="col-span-9">
-          <select class="w-56 border rounded px-2 py-1.5 text-center text-sm">
+          <select id="transactionType" class="w-56 border rounded px-2 py-1.5 text-center text-sm">
             <option value="">ขายหุ้น</option>
             <option value="">โอนเปลี่ยนมือ</option>
           </select>
@@ -26,43 +27,43 @@
       </div>
 
       <!-- Row: สถานะหุ้น -->
-      <div class="grid grid-cols-12 items-center gap-2">
-        <label class="col-span-3 text-sm text-gray-700">สถานะหุ้น:</label>
+      <div class="grid grid-cols-12 items-center gap-2 border-b border-gray-200 pb-3 mb-3">
+        <label for="stockStatus" class="col-span-3 text-sm text-gray-700">สถานะหุ้น:</label>
         <div class="col-span-9">
-          <select class="w-56 border rounded px-2 py-1.5 text-center text-sm">
+          <select id="stockStatus" class="w-56 border rounded px-2 py-1.5 text-center text-sm">
             <option value="">ทั้งหมด</option>
           </select>
         </div>
       </div>
 
       <!-- Row: ประเภทลูกค้า -->
-      <div class="grid grid-cols-12 items-center gap-2">
-        <label class="col-span-3 text-sm text-gray-700">ประเภทลูกค้า:</label>
+      <div class="grid grid-cols-12 items-center gap-2 border-b border-gray-200 pb-3 mb-3">
+        <label for="customerType" class="col-span-3 text-sm text-gray-700">ประเภทลูกค้า:</label>
         <div class="col-span-9">
-          <select class="w-full max-w-md border rounded px-2 py-1.5 text-center text-sm">
+          <select id="customerType" class="w-full max-w-md border rounded px-2 py-1.5 text-center text-sm">
             <option value="">-- เลือกประเภทลูกค้า --</option>
           </select>
         </div>
       </div>
 
       <!-- Row: เงื่อนไขสาขา + สนจ. + สาขา -->
-      <div class="grid grid-cols-12 items-center gap-2">
-        <label class="col-span-3 text-sm text-gray-700">เงื่อนไขสาขา:</label>
+      <div class="grid grid-cols-12 items-center gap-2 border-b border-gray-200 pb-3 mb-3">
+        <label for="branchCondition" class="col-span-3 text-sm text-gray-700">เงื่อนไขสาขา:</label>
         <div class="col-span-9 grid grid-cols-12 gap-2 items-center">
           <div class="col-span-4">
-            <select class="w-full border rounded px-2 py-1.5 text-center text-sm">
+            <select id="branchCondition" class="w-full border rounded px-2 py-1.5 text-center text-sm">
               <option value="">-- เลือก --</option>
             </select>
           </div>
-          <label class="col-span-2 text-sm text-gray-700 text-right">สนจ.</label>
+          <label for="branchOffice" class="col-span-2 text-sm text-gray-700 text-right">สนจ.</label>
           <div class="col-span-3">
-            <select class="w-full border rounded px-2 py-1.5 text-center text-sm">
+            <select id="branchOffice" class="w-full border rounded px-2 py-1.5 text-center text-sm">
               <option value=""></option>
             </select>
           </div>
-          <label class="col-span-1 text-sm text-gray-700 text-right">สาขา</label>
+          <label for="branch" class="col-span-1 text-sm text-gray-700 text-right">สาขา</label>
           <div class="col-span-2">
-            <select class="w-full border rounded px-2 py-1.5 text-center text-sm">
+            <select id="branch" class="w-full border rounded px-2 py-1.5 text-center text-sm">
               <option value=""></option>
             </select>
           </div>
@@ -70,99 +71,99 @@
       </div>
 
       <!-- Row: วันที่ (วิทยุเลือกโหมด และ จาก/ถึง แบบ วัน/เดือน/ปี) -->
-      <div class="grid grid-cols-12 gap-2 items-start">
-        <div class="col-span-3 pt-2">
-          <label class="inline-flex items-center space-x-2">
-            <input type="radio" name="dateMode" class="accent-blue-600" checked>
-            <span class="text-sm text-gray-700">วันขึ้นทะเบียน</span>
-          </label>
-        </div>
-        <div class="col-span-9">
-          <div class="flex items-center gap-2 flex-nowrap overflow-x-auto">
-            <span class="min-w-fit text-sm text-gray-600">จาก</span>
-            <select class="w-20 border rounded px-2 py-1.5 text-center text-sm">
-              <option value="">วัน</option>
-              <option *ngFor="let d of days" [value]="d">{{ d }}</option>
-            </select>
-            <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
-              <option value="">เดือน</option>
-              <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
-            </select>
-            <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
-              <option value="">ปี</option>
-              <option *ngFor="let y of years" [value]="y">{{ y }}</option>
-            </select>
-            <span class="min-w-fit ml-2 text-sm text-gray-600">ถึง</span>
-            <select class="w-20 border rounded px-2 py-1.5 text-center text-sm">
-              <option value="">วัน</option>
-              <option *ngFor="let d of days" [value]="d">{{ d }}</option>
-            </select>
-            <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
-              <option value="">เดือน</option>
-              <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
-            </select>
-            <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
-              <option value="">ปี</option>
-              <option *ngFor="let y of years" [value]="y">{{ y }}</option>
-            </select>
+      <div class="space-y-3 border-b border-gray-200 pb-3 mb-3">
+        <div class="grid grid-cols-12 gap-2 items-start">
+          <div class="col-span-3 pt-2">
+            <label class="inline-flex items-center space-x-2">
+              <input type="radio" name="dateMode" class="accent-blue-600" checked>
+              <span class="text-sm text-gray-700">วันขึ้นทะเบียน</span>
+            </label>
+          </div>
+          <div class="col-span-9">
+            <div class="flex items-center gap-2 flex-nowrap overflow-x-auto">
+              <span class="min-w-fit text-sm text-gray-600">จาก</span>
+              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm">
+                <option value="">วัน</option>
+                <option *ngFor="let d of days" [value]="d">{{ d }}</option>
+              </select>
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+                <option value="">เดือน</option>
+                <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+              </select>
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+                <option value="">ปี</option>
+                <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+              </select>
+              <span class="min-w-fit ml-2 text-sm text-gray-600">ถึง</span>
+              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm">
+                <option value="">วัน</option>
+                <option *ngFor="let d of days" [value]="d">{{ d }}</option>
+              </select>
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+                <option value="">เดือน</option>
+                <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+              </select>
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+                <option value="">ปี</option>
+                <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+              </select>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="grid grid-cols-12 gap-2 items-start">
-        <div class="col-span-3 pt-2">
-          <label class="inline-flex items-center space-x-2">
-            <input type="radio" name="dateMode" class="accent-blue-600">
-            <span class="text-sm text-gray-700">วันขาย</span>
-          </label>
-        </div>
-        <div class="col-span-9">
-          <div class="flex items-center gap-2 flex-nowrap overflow-x-auto">
-            <span class="min-w-fit text-sm text-gray-600">จาก</span>
-            <select class="w-20 border rounded px-2 py-1.5 text-center text-sm">
-              <option value="">วัน</option>
-              <option *ngFor="let d of days" [value]="d">{{ d }}</option>
-            </select>
-            <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
-              <option value="">เดือน</option>
-              <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
-            </select>
-            <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
-              <option value="">ปี</option>
-              <option *ngFor="let y of years" [value]="y">{{ y }}</option>
-            </select>
-            <span class="min-w-fit ml-2 text-sm text-gray-600">ถึง</span>
-            <select class="w-20 border rounded px-2 py-1.5 text-center text-sm">
-              <option value="">วัน</option>
-              <option *ngFor="let d of days" [value]="d">{{ d }}</option>
-            </select>
-            <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
-              <option value="">เดือน</option>
-              <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
-            </select>
-            <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
-              <option value="">ปี</option>
-              <option *ngFor="let y of years" [value]="y">{{ y }}</option>
-            </select>
+        <div class="grid grid-cols-12 gap-2 items-start">
+          <div class="col-span-3 pt-2">
+            <label class="inline-flex items-center space-x-2">
+              <input type="radio" name="dateMode" class="accent-blue-600">
+              <span class="text-sm text-gray-700">วันขาย</span>
+            </label>
+          </div>
+          <div class="col-span-9">
+            <div class="flex items-center gap-2 flex-nowrap overflow-x-auto">
+              <span class="min-w-fit text-sm text-gray-600">จาก</span>
+              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm">
+                <option value="">วัน</option>
+                <option *ngFor="let d of days" [value]="d">{{ d }}</option>
+              </select>
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+                <option value="">เดือน</option>
+                <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+              </select>
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+                <option value="">ปี</option>
+                <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+              </select>
+              <span class="min-w-fit ml-2 text-sm text-gray-600">ถึง</span>
+              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm">
+                <option value="">วัน</option>
+                <option *ngFor="let d of days" [value]="d">{{ d }}</option>
+              </select>
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+                <option value="">เดือน</option>
+                <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+              </select>
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+                <option value="">ปี</option>
+                <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Actions -->
-      <div class="flex items-center justify-center space-x-3 pt-2">
-        <button type="button" class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">แสดงรายงานpdf</button>
-        <button type="button" class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">แสดงรายงานexcel</button>
+      <div class="flex items-center justify-center space-x-3">
+        <button type="button" class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">แสดงรายงาน pdf</button>
+        <button type="button" class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">แสดงรายงาน excel</button>
       </div>
 
-      <!-- Document Preview Area -->
-      <div class="mt-3 border rounded bg-white overflow-auto" style="height: 500px;"></div>
-
-      <!-- Back Button -->
-      <div class="flex justify-center mt-4">
-        <button type="button" (click)="goBack()" class="px-5 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600">กลับ</button>
-      </div>
     </div>
   </div>
+  <!-- Document Preview Area -->
+  <div class="mt-3 border rounded bg-gray-50 overflow-auto" style="height: 500px;"></div>
+
+  <!-- Back Button -->
+  <div class="flex justify-center mt-4">
+    <button type="button" (click)="goBack()" class="px-5 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600">กลับ</button>
+  </div>
 </div>
-
-

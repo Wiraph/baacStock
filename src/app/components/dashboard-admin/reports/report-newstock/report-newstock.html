@@ -1,0 +1,94 @@
+<div class="p-4 space-y-4">
+    <div class="max-w-3xl mx-auto rounded-lg p-4 bg-white shadow">
+  
+      <!-- ประเภทรายการ -->
+      <div class="grid grid-cols-12 items-center gap-3 border-b border-gray-200 pb-4 mb-4">
+        <label for="trxType" class="col-span-3 text-sm text-gray-700">
+          ประเภทรายการ :
+        </label>
+        <div id="trxType" class="col-span-9 flex flex-wrap items-center gap-x-6 gap-y-2">
+          <label class="inline-flex items-center gap-2">
+            <input type="checkbox" [(ngModel)]="filters.types.transfer" />
+            <span>โอนเปลี่ยนมือ</span>
+          </label>
+          <label class="inline-flex items-center gap-2">
+            <input type="checkbox" [(ngModel)]="filters.types.damaged" />
+            <span>ใบหุ้นชำรุด</span>
+          </label>
+          <label class="inline-flex items-center gap-2">
+            <input type="checkbox" [(ngModel)]="filters.types.nameChange" />
+            <span>เปลี่ยนแปลงชื่อ-สกุล</span>
+          </label>
+          <label class="inline-flex items-center gap-2">
+            <input type="checkbox" [(ngModel)]="filters.types.lost" />
+            <span>ใบหุ้นสูญหาย</span>
+          </label>
+        </div>
+      </div>
+  
+      <!-- วันที่เริ่มต้น -->
+      <div class="grid grid-cols-12 items-center gap-3 border-b border-gray-200 pb-4 mb-4">
+        <label for="fromDate" class="col-span-3 text-sm text-gray-700">
+          ตั้งแต่วันที่ :
+        </label>
+        <div class="col-span-9">
+          <div class="relative w-56">
+            <input id="fromDate"
+                   type="text"
+                   [value]="formatThaiDate(selectedDateFrom)"
+                   (focus)="showCalendarFrom = true"
+                   readonly
+                   class="w-full border rounded px-3 py-2 text-sm bg-white cursor-pointer" />
+            <div *ngIf="showCalendarFrom" class="absolute z-50 top-full left-0 mt-1">
+              <app-calendar-popup
+                [(selected)]="selectedDateFrom"
+                (dateSelected)="onDateFromSelected($event)"
+                (closed)="showCalendarFrom = false">
+              </app-calendar-popup>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- วันที่สิ้นสุด -->
+      <div class="grid grid-cols-12 items-center gap-3 border-b border-gray-200 pb-4 mb-4">
+        <label for="toDate" class="col-span-3 text-sm text-gray-700">
+          ถึงวันที่ :
+        </label>
+        <div class="col-span-9">
+          <div class="relative w-56">
+            <input id="toDate"
+                   type="text"
+                   [value]="formatThaiDate(selectedDateTo)"
+                   (focus)="showCalendarTo = true"
+                   readonly
+                   class="w-full border rounded px-3 py-2 text-sm bg-white cursor-pointer" />
+            <div *ngIf="showCalendarTo" class="absolute z-50 top-full left-0 mt-1">
+              <app-calendar-popup
+                [(selected)]="selectedDateTo"
+                (dateSelected)="onDateToSelected($event)"
+                (closed)="showCalendarTo = false">
+              </app-calendar-popup>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- ปุ่มค้นหา -->
+      <div class="flex justify-center pt-2">
+        <button type="button"
+                (click)="onSearch()"
+                class="px-5 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
+          ค้นหารายงาน
+        </button>
+      </div>
+    </div>
+    <!-- Document Preview Area -->
+    <div class="mt-3 border rounded bg-white overflow-auto" style="height: 500px;"></div>
+
+    <!-- Back Button -->
+    <div class="flex justify-center mt-4">
+        <button type="button" (click)="goBack()" class="px-5 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600">กลับ</button>
+    </div>
+  </div>
+  
