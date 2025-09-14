@@ -29,4 +29,10 @@ export class CustomerMetadata {
       withCredentials: true
     });
   }
+
+  custypeg(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/cuscodeg`, {
+      withCredentials: true
+    });
+  }
 }
