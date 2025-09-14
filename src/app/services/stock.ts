@@ -78,6 +78,16 @@ export class StockService {
     const encodePayload = this.encrypt.encrypPayload(requestPayload);
     return this.http.post<any[]>(`${this.apiUrl}/approvedetail`, encodePayload, { withCredentials: true });
   }
+
+  GenPdfStockReport(requestPayload: any): Observable<Blob> {
+    const encodePayload = this.encrypt.encrypPayload(requestPayload);
+    return this.http.post(`${this.apiUrl}/pdf`, encodePayload, {withCredentials: true, responseType: 'blob'});
+  }
+
+  GenExcelStockReport(requestPayload: any): Observable<Blob> {
+    const encodePayload = this.encrypt.encrypPayload(requestPayload);
+    return this.http.post(`${this.apiUrl}/excel`, encodePayload, {withCredentials: true, responseType: 'blob'});
+  }
 }
 
 

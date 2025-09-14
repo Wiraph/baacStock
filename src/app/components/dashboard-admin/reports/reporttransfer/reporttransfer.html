@@ -8,9 +8,8 @@
       <div class="grid grid-cols-12 items-center gap-2 border-b border-gray-200 pb-3 mb-3">
         <label for="shareType" class="col-span-3 text-sm text-gray-700">ประเภทหุ้น:</label>
         <div class="col-span-9">
-          <select id="shareType" class="w-56 border rounded px-2 py-1.5 text-center text-sm">
-            <option value="">หุ้นสามัญ</option>
-            <option value="">หุ้นบุริมสิทธิ</option>
+          <select id="shareType" class="w-56 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="stkType">
+            <option *ngFor="let item of stockType;" [value]="item.stkType">{{item.stkDesc}}</option>
           </select>
         </div>
       </div>
@@ -19,9 +18,9 @@
       <div class="grid grid-cols-12 items-center gap-2 border-b border-gray-200 pb-3 mb-3">
         <label for="transactionType" class="col-span-3 text-sm text-gray-700">ประเภทรายการ:</label>
         <div class="col-span-9">
-          <select id="transactionType" class="w-56 border rounded px-2 py-1.5 text-center text-sm">
-            <option value="">ขายหุ้น</option>
-            <option value="">โอนเปลี่ยนมือ</option>
+          <select id="transactionType" class="w-56 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="saleBy">
+            <option [value]="0">ขายหุ้น</option>
+            <option [value]="1">โอนเปลี่ยนมือ</option>
           </select>
         </div>
       </div>
@@ -30,13 +29,13 @@
       <div class="grid grid-cols-12 items-center gap-2 border-b border-gray-200 pb-3 mb-3">
         <label for="stockStatus" class="col-span-3 text-sm text-gray-700">สถานะหุ้น:</label>
         <div class="col-span-9">
-          <select id="stockStatus" class="w-56 border rounded px-2 py-1.5 text-center text-sm">
-            <option value="">ทั้งหมด</option>
-            <option value="">รอสาขาอนุมัติ</option>
-            <option value="">รอสนญ.อนุมัติ</option>
-            <option value="">รอสาขาอนุมัติ และรอสนญ.อนุมัติ</option>
-            <option value="">อนุมัติ</option>
-            <option value="">ไม่อนุมัติ</option>
+          <select id="stockStatus" class="w-56 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="ApproveFlg">
+            <option [value]="0">ทั้งหมด</option>
+            <option [value]="2">รอสาขาอนุมัติ</option>
+            <option [value]="3">รอสนญ.อนุมัติใบหุ้น</option>
+            <option [value]="4">รอสาขาอนุมัติ และ รอสนญ.อนุมัติใบหุ้น</option>
+            <option [value]="1">อนุมัติ</option>
+            <option [value]="-1">ไม่อนุมัติ</option>
           </select>
         </div>
       </div>
@@ -45,8 +44,10 @@
       <div class="grid grid-cols-12 items-center gap-2 border-b border-gray-200 pb-3 mb-3">
         <label for="customerType" class="col-span-3 text-sm text-gray-700">ประเภทลูกค้า:</label>
         <div class="col-span-9">
-          <select id="customerType" class="w-full max-w-md border rounded px-2 py-1.5 text-center text-sm">
-            <option value="">-- เลือกประเภทลูกค้า --</option>
+          <select id="customerType" class="w-full max-w-md border rounded px-2 py-1.5 text-center text-sm"
+            [(ngModel)]="CusType">
+            <option value="0">-- เลือกประเภทลูกค้า --</option>
+            <option *ngFor="let item of custypeg" [value]="item.cusCodeg">{{item.cusDescg}}</option>
           </select>
         </div>
       </div>
@@ -55,60 +56,67 @@
       <div class="grid grid-cols-12 items-center gap-2 border-b border-gray-200 pb-3 mb-3">
         <label for="branchCondition" class="col-span-3 text-sm text-gray-700">เงื่อนไขสาขา:</label>
         <div class="col-span-9 grid grid-cols-12 gap-2 items-center">
+          <!-- Division -->
           <div class="col-span-4">
-            <select id="branchCondition" class="w-full border rounded px-2 py-1.5 text-center text-sm">
-              <option value="">-- เลือก --</option>
+            <select [(ngModel)]="selectedDivision" (change)="onDivisionChange()" id="branchOffice"
+              class="w-full border rounded px-2 py-1.5 text-center text-sm">
+              <option *ngFor="let div of division" [ngValue]="div.brDIV">{{div.brName}}</option>
             </select>
           </div>
+          <!-- Province -->
           <label for="branchOffice" class="col-span-2 text-sm text-gray-700 text-right">สนจ.</label>
           <div class="col-span-3">
-            <select id="branchOffice" class="w-full border rounded px-2 py-1.5 text-center text-sm">
-              <option value=""></option>
+            <select [(ngModel)]="selectedProvince" (change)="onProvinceChange()" id="branchOffice"
+              class="w-full border rounded px-2 py-1.5 text-center text-sm">
+              <option *ngFor="let prv of province" [value]="prv.brPRV">{{prv.brName}}</option>
             </select>
           </div>
+          <!-- Branch -->
           <label for="branch" class="col-span-1 text-sm text-gray-700 text-right">สาขา</label>
           <div class="col-span-2">
-            <select id="branch" class="w-full border rounded px-2 py-1.5 text-center text-sm">
-              <option value=""></option>
+            <select [(ngModel)]="selectedBranch" id="branch"
+              class="w-full border rounded px-2 py-1.5 text-center text-sm">
+              <option *ngFor="let brn of branch" [value]="brn.brCode">{{brn.brName}}</option>
             </select>
           </div>
         </div>
       </div>
+
 
       <!-- Row: วันที่ (วิทยุเลือกโหมด และ จาก/ถึง แบบ วัน/เดือน/ปี) -->
       <div class="space-y-3 border-b border-gray-200 pb-3 mb-3">
         <div class="grid grid-cols-12 gap-2 items-start">
           <div class="col-span-3 pt-2">
             <label class="inline-flex items-center space-x-2">
-              <input type="radio" name="dateMode" class="accent-blue-600" checked>
-              <span class="text-sm text-gray-700">วันขึ้นทะเบียน</span>
+              <input type="radio" name="dateMode" class="accent-blue-600" value="1" [(ngModel)]="dateMode">
+              <span class="text-sm text-gray-700">วันที่อนุมัติ</span>
             </label>
           </div>
           <div class="col-span-9">
             <div class="flex items-center gap-2 flex-nowrap overflow-x-auto">
               <span class="min-w-fit text-sm text-gray-600">จาก</span>
-              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm">
+              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="issdateSt">
                 <option value="">วัน</option>
                 <option *ngFor="let d of days" [value]="d">{{ d }}</option>
               </select>
-              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="issmonthSt">
                 <option value="">เดือน</option>
                 <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
               </select>
-              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="issyearSt">
                 <option value="">ปี</option>
                 <option *ngFor="let y of years" [value]="y">{{ y }}</option>
               </select>
               <span class="min-w-fit ml-2 text-sm text-gray-600">ถึง</span>
-              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm">
+              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="issdateEn">
                 <option value="">วัน</option>
                 <option *ngFor="let d of days" [value]="d">{{ d }}</option>
               </select>
-              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="issmonthEn">
                 <option value="">เดือน</option>
                 <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
               </select>
-              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="issyearEn">
                 <option value="">ปี</option>
                 <option *ngFor="let y of years" [value]="y">{{ y }}</option>
               </select>
@@ -119,35 +127,35 @@
         <div class="grid grid-cols-12 gap-2 items-start">
           <div class="col-span-3 pt-2">
             <label class="inline-flex items-center space-x-2">
-              <input type="radio" name="dateMode" class="accent-blue-600">
+              <input type="radio" name="dateMode" value="2" class="accent-blue-600" [(ngModel)]="dateMode">
               <span class="text-sm text-gray-700">วันขาย</span>
             </label>
           </div>
           <div class="col-span-9">
             <div class="flex items-center gap-2 flex-nowrap overflow-x-auto">
               <span class="min-w-fit text-sm text-gray-600">จาก</span>
-              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm">
+              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="effdateSt">
                 <option value="">วัน</option>
                 <option *ngFor="let d of days" [value]="d">{{ d }}</option>
               </select>
-              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="effmonthSt">
                 <option value="">เดือน</option>
                 <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
               </select>
-              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="effyearSt">
                 <option value="">ปี</option>
                 <option *ngFor="let y of years" [value]="y">{{ y }}</option>
               </select>
               <span class="min-w-fit ml-2 text-sm text-gray-600">ถึง</span>
-              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm">
+              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="effdateEn">
                 <option value="">วัน</option>
                 <option *ngFor="let d of days" [value]="d">{{ d }}</option>
               </select>
-              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="effmonthEn">
                 <option value="">เดือน</option>
                 <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
               </select>
-              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="effyearEn">
                 <option value="">ปี</option>
                 <option *ngFor="let y of years" [value]="y">{{ y }}</option>
               </select>
@@ -158,17 +166,39 @@
 
       <!-- Actions -->
       <div class="flex items-center justify-center space-x-3">
-        <button type="button" class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">ค้นหา PDF</button>
-        <button type="button" class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">ค้นหา EXCEL</button>
+        <button (click)="genPdf('PDF')" type="button"
+          class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">แสดงรายงาน
+          pdf</button>
+        <button (click)="genPdf('XLS')" type="button" class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">แสดงรายงาน
+          excel</button>
       </div>
 
     </div>
   </div>
   <!-- Document Preview Area -->
-  <div class="mt-3 border rounded bg-gray-50 overflow-auto" style="height: 500px;"></div>
+  <div class="mt-3 border rounded bg-gray-50 overflow-auto" style="height: 500px;">
+    <iframe *ngIf="pdfSrc" [src]="pdfSrc" width="100%" height="100%" style="border:none;"
+      title="Preview PDF รายงานหุ้น">
+    </iframe>
+  </div>
 
   <!-- Back Button -->
   <div class="flex justify-center mt-4">
-    <button type="button" (click)="goBack()" class="px-5 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600">กลับ</button>
+    <button type="button" (click)="goBack()"
+      class="px-5 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600">กลับ</button>
+  </div>
+</div>
+
+<!-- ✅ Loading Overlay แบบโปร่งใส + มองทะลุ + เบลอ -->
+<div *ngIf="loading"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-40 backdrop-blur-sm"
+  style="background-color: rgba(128, 128, 128, 0.7);">
+  <div class="text-center">
+    <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+      viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+    </svg>
+    <p class="text-lg text-white font-medium">🔄 กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
   </div>
 </div>
