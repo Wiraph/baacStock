@@ -79,4 +79,88 @@
   <div *ngIf="actView == 'report_shareholder_register'">
     <app-report-shareholder-register (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-shareholder-register>
   </div>
+  <div *ngIf="actView == 'report_shareholder_detail'">
+    <app-report-shareholder-detail (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-shareholder-detail>
+  </div>
+  <div *ngIf="actView == 'report_balance_confirm_letter'">
+    <app-report-balance-confirm-letter (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-balance-confirm-letter>
+  </div>
+  <div *ngIf="actView == 'report_confirm_letter_preparation'">
+    <app-report-confirm-letter-preparation (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-confirm-letter-preparation>
+  </div>
+  <div *ngIf="actView == 'report_transfer_common_by_type'">
+    <app-report-transfer-common-by-type (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-transfer-common-by-type>
+  </div>
+  <div *ngIf="actView == 'report_certificate_history'">
+    <app-report-certificate-history (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-certificate-history>
+  </div>
+  <div *ngIf="actView == 'report_certificate_delivery_letter'">
+    <app-report-certificate-delivery-letter (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-certificate-delivery-letter>
+  </div>
+  <div *ngIf="actView == 'report_certificate_delivery_envelope'">
+    <app-report-certificate-delivery-envelope (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-certificate-delivery-envelope>
+  </div>
+  <div *ngIf="actView == 'report_shareholder_sticker'">
+    <app-report-shareholder-sticker (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-shareholder-sticker>
+  </div>
+  <div *ngIf="actView == 'report_daily_sales_pre_approve'">
+    <app-report-daily-sales-pre-approve (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-daily-sales-pre-approve>
+  </div>
+  <div *ngIf="actView == 'report_daily_sales_post_approve'">
+    <app-report-daily-sales-post-approve (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-daily-sales-post-approve>
+  </div>
+  <div *ngIf="actView == 'report_sales_new_only'">
+    <app-report-sales-new-only (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-sales-new-only>
+  </div>
+  <div *ngIf="actView == 'report_dividend_unpaid_notice'">
+    <app-report-dividend-unpaid-notice (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-dividend-unpaid-notice>
+  </div>
+  <div *ngIf="actView == 'report_dividend_annual_summary'">
+    <app-report-dividend-annual-summary (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-dividend-annual-summary>
+  </div>
+  <div *ngIf="actView == 'report_dividend_payment'">
+    <app-report-dividend-payment (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-dividend-payment>
+  </div>
+  <div *ngIf="actView == 'report_dividend_daily'">
+    <app-report-dividend-daily (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-dividend-daily>
+  </div>
+  <div *ngIf="actView == 'report_dividend_monthly'">
+    <app-report-dividend-monthly (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-dividend-monthly>
+  </div>
+  <div *ngIf="actView == 'report_dividend_unpaid'">
+    <app-report-dividend-unpaid (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-dividend-unpaid>
+  </div>
+  <div *ngIf="actView == 'report_pnd2_attachment'">
+    <app-report-pnd2-attachment (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-pnd2-attachment>
+  </div>
+  <div *ngIf="actView == 'report_pnd2k_attachment'">
+    <app-report-pnd2k-attachment (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-pnd2k-attachment>
+  </div>
+  <div *ngIf="actView == 'report_payment_voucher'">
+    <app-report-payment-voucher (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-payment-voucher>
+  </div>
+  <div *ngIf="actView == 'report_dividend_payment_notice'">
+    <app-report-dividend-payment-notice (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-dividend-payment-notice>
+  </div>
+  <div *ngIf="actView == 'report_dividend_notice_tax_cert'">
+    <app-report-dividend-notice-tax-cert (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-dividend-notice-tax-cert>
+  </div>
+  <div *ngIf="actView == 'report_wht_cert_old'">
+    <app-report-wht-cert-old (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-wht-cert-old>
+  </div>
+  <div *ngIf="actView == 'report_wht_cert_by_name'">
+    <app-report-wht-cert-by-name (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-wht-cert-by-name>
+  </div>
+  <div *ngIf="actView == 'report_wht_cert'">
+    <app-report-wht-cert (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-wht-cert>
+  </div>
+  <div *ngIf="actView == 'report_movement'">
+    <app-report-movement (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-movement>
+  </div>
+  <div *ngIf="actView == 'report_movement_updated'">
+    <app-report-movement-updated (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-movement-updated>
+  </div>
+  <div *ngIf="actView == 'report_average_shares_by_fiscal_year'">
+    <app-report-average-shares-by-fiscal-year (headerChange)="getHeader($event)" (back)="main = true; report = false; actView = ''; scrollToTop()"></app-report-average-shares-by-fiscal-year>
+  </div>
 </div>
