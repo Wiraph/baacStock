@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { ThaiCalendarComponent } from '../../../thai-calendar-component/thai-calendar-component';
@@ -55,8 +55,7 @@ export class Report2Newstock implements OnInit {
   };
 
   constructor(
-    private readonly reportService: Reports,
-    private readonly cd: ChangeDetectorRef
+    private readonly reportService: Reports
   ) { }
 
   ngOnInit(): void {
@@ -100,12 +99,32 @@ export class Report2Newstock implements OnInit {
   }
 
   onSearch(): void {
-    // ตัวอย่าง payload
+    // ตรวจสอบการเลือกประเภทรายการ
+    const selectedTypes = [];
+    if (this.filters.types.nameChange) selectedTypes.push('LOS0040');
+    if (this.filters.types.lost) selectedTypes.push('LOS0021');
+    if (this.filters.types.damaged) selectedTypes.push('LOS0020');
+    if (this.filters.types.transfer) selectedTypes.push('TRN');
+
+    if (selectedTypes.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        text: 'กรุณาเลือกประเภทรายการอย่างน้อยหนึ่งรายการ'
+      });
+      return;
+    }
+
+    // สร้าง payload 
     const payload = {
-      DateSTA: "", // 25570101 YYYYMMDD (พ.ศ.)
-      DateSTP: "", // YYYYMMDD (พ.ศ.)
-      RemCode: "",     // "LOS0040|LOS0021|LOS0020|TRN"
+      DateSTA: this.filters.from, // YYYYMMDD (พ.ศ.) 
+      DateSTP: this.filters.to,   // YYYYMMDD (พ.ศ.) 
+      RemCode: selectedTypes.join('|') // "TRN|LOS0020|LOS0040|LOS0021" 
     };
+
+    console.log('DateSTA (DSTA):', payload.DateSTA);
+    console.log('DateSTP (DSTP):', payload.DateSTP);
+    console.log('RemCode (REMc):', payload.RemCode);
+
     this.reportService.downloadApproveReport(payload).subscribe({
       next: (blob) => {
         // สร้าง link สำหรับดาวน์โหลดไฟล์
@@ -115,6 +134,11 @@ export class Report2Newstock implements OnInit {
         a.download = `rep_STKapprove_${this.getCurrentDateTimeBE()}.xlsx`;
         a.click();
         window.URL.revokeObjectURL(url);
+        
+        Swal.fire({
+          icon: 'success',
+          text: 'ดาวน์โหลดรายงานสำเร็จ'
+        });
       },
       error: (err) => {
         Swal.fire({

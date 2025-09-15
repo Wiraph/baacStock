@@ -120,7 +120,4 @@ export class ReportsComponent {
     return this.reports.filter(report => report.category === 'normal');
   }
 
-  get specialReports(): ReportItem[] {
-    return this.reports.filter(report => report.category === 'special');
-  }
 } 
