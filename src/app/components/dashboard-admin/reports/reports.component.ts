@@ -1,19 +1,20 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Reporttransfer } from './reporttransfer/reporttransfer';
-import { ReportNewstock } from './report-newstock/report-newstock';
-import { ReportDailyTransferByType } from './report-daily-transfer-by-type/report-daily-transfer-by-type';
-import { ReportDividendRate } from './report-dividend-rate/report-dividend-rate';
-import { ReportShareholderRatio } from './report-shareholder-ratio/report-shareholder-ratio';
-import { ReportShareholderRanking } from './report-shareholder-ranking/report-shareholder-ranking';
-import { ReportBalanceByType } from './report-balance-by-type/report-balance-by-type';
-import { ReportShareholderRegister } from './report-shareholder-register/report-shareholder-register';
-import { ReportShareholderDetail } from './report-shareholder-detail/report-shareholder-detail';
-import { ReportBalanceConfirmLetter } from './report-balance-confirm-letter/report-balance-confirm-letter';
-import { ReportConfirmLetterPreparation } from './report-confirm-letter-preparation/report-confirm-letter-preparation';
-import { ReportTransferCommonByType } from './report-transfer-common-by-type/report-transfer-common-by-type';
-import { ReportCertificateHistory } from './report-certificate-history/report-certificate-history';
-import { ReportCertificateDeliveryLetter } from './report-certificate-delivery-letter/report-certificate-delivery-letter';
+import { Report1Transfer } from './report-1-transfer/report-1-transfer';
+import { Report2Newstock } from './report-2-newstock/report-newstock';
+import { Report3DailyTransferByType } from './report-3-daily-transfer-by-type/report-daily-transfer-by-type';
+import { Report4DividendRate } from './report-4-dividend-rate/report-dividend-rate';
+import { Report5ShareholderRatio } from './report-5-shareholder-ratio/report-shareholder-ratio';
+import { Report6ShareholderRanking } from './report-6-shareholder-ranking/report-shareholder-ranking';
+import { Report7BalanceByType } from './report-7-balance-by-type/report-balance-by-type';
+import { Report8ShareholderRegister } from './report-8-shareholder-register/report-shareholder-register';
+import { Report9ShareholderDetail } from './report-9-shareholder-detail/report-shareholder-detail';
+import { Report10BalanceConfirmLetter } from './report-10-balance-confirm-letter/report-balance-confirm-letter';
+import { Report11ConfirmLetterPreparation } from './report-11-confirm-letter-preparation/report-confirm-letter-preparation';
+import { Report12TransferCommonByType } from './report-12-transfer-common-by-type/report-transfer-common-by-type';
+import { Report13CertificateHistory } from './report-13-certificate-history/report-certificate-history';
+import { Report14CertificateDeliveryLetter } from './report-14-certificate-delivery-letter/report-certificate-delivery-letter';
+
 interface ReportItem {
   id: string;
   title: string;
@@ -25,20 +26,20 @@ interface ReportItem {
   selector: 'app-reports',
   standalone: true,
   imports: [CommonModule, 
-    Reporttransfer, 
-    ReportNewstock, 
-    ReportDailyTransferByType, 
-    ReportDividendRate, 
-    ReportShareholderRatio, 
-    ReportShareholderRanking,
-    ReportBalanceByType,
-    ReportShareholderRegister,
-    ReportShareholderDetail,
-    ReportBalanceConfirmLetter,
-    ReportConfirmLetterPreparation,
-    ReportTransferCommonByType,
-    ReportCertificateHistory,
-    ReportCertificateDeliveryLetter,
+    Report1Transfer, 
+    Report2Newstock, 
+    Report3DailyTransferByType, 
+    Report4DividendRate, 
+    Report5ShareholderRatio, 
+    Report6ShareholderRanking,
+    Report7BalanceByType,
+    Report8ShareholderRegister,
+    Report9ShareholderDetail,
+    Report10BalanceConfirmLetter,
+    Report11ConfirmLetterPreparation,
+    Report12TransferCommonByType,
+    Report13CertificateHistory,
+    Report14CertificateDeliveryLetter,
   ],
   templateUrl: './reports.component.html'
 })
@@ -62,7 +63,7 @@ export class ReportsComponent {
     { id: 'report_confirm_letter_preparation', title: 'รายงานการจัดทำหนังสือยืนยันยอดหุ้น', icon: '🌸', category: 'normal' },
     { id: 'report_transfer_common_by_type', title: 'รายงานสรุปการขาย/โอนหุ้นสามัญแยกตามประเภทผู้ถือหุ้น', icon: '🌸', category: 'normal' },
     { id: 'report_certificate_history', title: 'ประวัติใบหุ้น', icon: '🌸', category: 'normal' },
-    { id: 'report_certificate_delivery_letter', title: 'หนังสือส่งมอบใบหุ้น', icon: '❌', category: 'normal' },
+    { id: 'report_certificate_delivery_letter', title: 'หนังสือส่งมอบใบหุ้น', icon: '🌸', category: 'normal' },
     { id: 'report_certificate_delivery_envelope', title: 'หน้าซองนำส่งใบหุ้น', icon: '❌', category: 'normal' },
     { id: 'report_shareholder_sticker', title: 'สติ๊กเกอร์รายชื่อผู้ถือหุ้น', icon: '❌', category: 'normal' },
     { id: 'report_daily_sales_pre_approve', title: 'รายงานขายประจำวัน (ก่อนอนุมัติ)', icon: '❌', category: 'normal' },
