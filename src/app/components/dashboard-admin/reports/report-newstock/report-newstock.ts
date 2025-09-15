@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { ThaiCalendarComponent } from '../../../thai-calendar-component/thai-calendar-component';
 import { Thaidateadapter } from '../../../thaidateadapter/thaidateadapter';
+import { Reports } from '../../../../services/reports';
+import Swal from 'sweetalert2';
 
 export const THAI_DATE_FORMATS = {
   parse: { dateInput: 'DD/MM/YYYY' },
@@ -52,6 +54,11 @@ export class ReportNewstock implements OnInit {
     to: '',
   };
 
+  constructor(
+    private readonly reportService: Reports,
+    private readonly cd: ChangeDetectorRef
+  ) { }
+
   ngOnInit(): void {
     this.headerChange.emit('รายงานการอนุมัติออกใบหุ้นใหม่');
     // ค่าเริ่มต้น: วันนี้
@@ -95,14 +102,44 @@ export class ReportNewstock implements OnInit {
   onSearch(): void {
     // ตัวอย่าง payload
     const payload = {
-      types: this.filters.types,
-      from: this.filters.from, // YYYYMMDD (พ.ศ.)
-      to: this.filters.to,     // YYYYMMDD (พ.ศ.)
+      DateSTA: "", // 25570101 YYYYMMDD (พ.ศ.)
+      DateSTP: "", // YYYYMMDD (พ.ศ.)
+      RemCode: "",     // "LOS0040|LOS0021|LOS0020|TRN"
     };
-    console.log('Search payload:', payload);
+    this.reportService.downloadApproveReport(payload).subscribe({
+      next: (blob) => {
+        // สร้าง link สำหรับดาวน์โหลดไฟล์
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `rep_STKapprove_${this.getCurrentDateTimeBE()}.xlsx`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        Swal.fire({
+          icon: 'error',
+          text: 'ไม่พบข้อมูลตามวันที่ระบุ'
+        });
+        console.log("Error", err);
+      }
+    });
   }
 
   goBack(): void {
     this.back.emit();
+  }
+
+  getCurrentDateTimeBE(): string {
+    const now = new Date();
+
+    const yearBE = now.getFullYear() + 543; // พ.ศ.
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // เดือน 01-12
+    const day = String(now.getDate()).padStart(2, '0');       // วัน 01-31
+    const hours = String(now.getHours()).padStart(2, '0');     // ชั่วโมง 00-23
+    const minutes = String(now.getMinutes()).padStart(2, '0'); // นาที 00-59
+    const seconds = String(now.getSeconds()).padStart(2, '0'); // วินาที 00-59
+
+    return `${yearBE}${month}${day}-${hours}${minutes}${seconds}`;
   }
 }
