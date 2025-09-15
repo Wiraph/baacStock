@@ -3,12 +3,12 @@
   <div class="rounded-xl bg-white shadow-xl space-y-6 border border-gray-200">
 
     <!-- Header -->
-    <div class="bg-green-600 p-5 rounded-t-xl text-center shadow-md">
+    <div *ngIf="!hideHeader" class="bg-green-600 p-5 rounded-t-xl text-center shadow-md">
       <h2 class="text-xl font-semibold text-white">📄 รายการใบหุ้น</h2>
     </div>
 
     <!-- ปุ่มกลับ -->
-    <div class="px-6">
+    <div class="px-6 pt-4">
       <button type="button"
         class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition duration-150 ease-in-out"
         (click)="goBack()">

@@ -1,0 +1,61 @@
+<div class="p-3">
+    <div class="max-w-3xl mx-auto rounded-lg p-4 bg-white shadow">
+  
+      <!-- Filters -->
+      <div class="space-y-4">
+        <!-- Row: เลือกดูข้อมูล ณ วันที่ -->
+        <div class="border-b border-gray-200 pb-4">
+          <div class="flex justify-center">
+            <div class="text-center">
+              <label for="date" class="text-sm font-medium text-gray-700 mb-3 block">เลือกดูข้อมูล ณ วันที่</label>
+              <div class="flex items-center justify-center gap-2">
+                <select class="w-20 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center" [(ngModel)]="selectedDay">
+                  <option value="">วัน</option>
+                  <option *ngFor="let d of days" [value]="d">{{ d }}</option>
+                </select>
+                <select class="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center" [(ngModel)]="selectedMonth">
+                  <option value="">เดือน</option>
+                  <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+                </select>
+                <select class="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center" [(ngModel)]="selectedYear">
+                  <option value="">ปี</option>
+                  <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Actions -->
+        <div class="flex items-center justify-center space-x-3">
+          <button (click)="genPdf('PDF')" type="button" class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">แสดงรายงาน PDF</button>
+          <button (click)="genPdf('XLS')" type="button" class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">แสดงรายงาน EXCEL</button>
+        </div>
+  
+      </div>
+    </div>
+    <!-- Document Preview Area -->
+    <div class="mt-3 border rounded bg-gray-50 overflow-auto" style="height: 500px;">
+      <iframe *ngIf="pdfSrc" [src]="pdfSrc" width="100%" height="100%" style="border:none;"
+        title="Preview PDF รายงานหุ้น">
+      </iframe>
+    </div>
+  
+    <!-- Back Button -->
+    <div class="flex justify-center mt-4">
+      <button type="button" (click)="goBack()"
+        class="px-5 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600">กลับ</button>
+    </div>
+  </div>
+  
+  <!-- ✅ Loading Overlay แบบโปร่งใส + มองทะลุ + เบลอ -->
+  <div *ngIf="loading" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-40 backdrop-blur-sm" style="background-color: rgba(128, 128, 128, 0.7);">
+    <div class="text-center">
+      <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+        viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+      </svg>
+      <p class="text-lg text-white font-medium">🔄 กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
+    </div>
+  </div>

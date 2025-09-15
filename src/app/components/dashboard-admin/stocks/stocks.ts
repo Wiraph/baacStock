@@ -12,6 +12,7 @@ import { CustomerService } from '../../../services/customer';
 })
 export class StocksComponent implements OnInit {
   @Input() cusId: string = '';
+  @Input() hideHeader: boolean = false;
   @Output() back = new EventEmitter<string>();
 
 

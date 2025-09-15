@@ -11,7 +11,9 @@ import { ReportShareholderRegister } from './report-shareholder-register/report-
 import { ReportShareholderDetail } from './report-shareholder-detail/report-shareholder-detail';
 import { ReportBalanceConfirmLetter } from './report-balance-confirm-letter/report-balance-confirm-letter';
 import { ReportConfirmLetterPreparation } from './report-confirm-letter-preparation/report-confirm-letter-preparation';
-
+import { ReportTransferCommonByType } from './report-transfer-common-by-type/report-transfer-common-by-type';
+import { ReportCertificateHistory } from './report-certificate-history/report-certificate-history';
+import { ReportCertificateDeliveryLetter } from './report-certificate-delivery-letter/report-certificate-delivery-letter';
 interface ReportItem {
   id: string;
   title: string;
@@ -33,7 +35,10 @@ interface ReportItem {
     ReportShareholderRegister,
     ReportShareholderDetail,
     ReportBalanceConfirmLetter,
-    ReportConfirmLetterPreparation
+    ReportConfirmLetterPreparation,
+    ReportTransferCommonByType,
+    ReportCertificateHistory,
+    ReportCertificateDeliveryLetter,
   ],
   templateUrl: './reports.component.html'
 })
@@ -55,8 +60,8 @@ export class ReportsComponent {
     { id: 'report_shareholder_detail', title: 'รายงานรายละเอียดผู้ถือหุ้น', icon: '🌸', category: 'normal' },
     { id: 'report_balance_confirm_letter', title: 'หนังสือยืนยันยอดหุ้น', icon: '🌸', category: 'normal' },
     { id: 'report_confirm_letter_preparation', title: 'รายงานการจัดทำหนังสือยืนยันยอดหุ้น', icon: '🌸', category: 'normal' },
-    { id: 'report_transfer_common_by_type', title: 'รายงานสรุปการขาย/โอนหุ้นสามัญแยกตามประเภทผู้ถือหุ้น', icon: '❌', category: 'normal' },
-    { id: 'report_certificate_history', title: 'ประวัติใบหุ้น', icon: '❌', category: 'normal' },
+    { id: 'report_transfer_common_by_type', title: 'รายงานสรุปการขาย/โอนหุ้นสามัญแยกตามประเภทผู้ถือหุ้น', icon: '🌸', category: 'normal' },
+    { id: 'report_certificate_history', title: 'ประวัติใบหุ้น', icon: '🌸', category: 'normal' },
     { id: 'report_certificate_delivery_letter', title: 'หนังสือส่งมอบใบหุ้น', icon: '❌', category: 'normal' },
     { id: 'report_certificate_delivery_envelope', title: 'หน้าซองนำส่งใบหุ้น', icon: '❌', category: 'normal' },
     { id: 'report_shareholder_sticker', title: 'สติ๊กเกอร์รายชื่อผู้ถือหุ้น', icon: '❌', category: 'normal' },

@@ -3,18 +3,18 @@
   
       <!-- Filters -->
       <div class="space-y-4">
-        <!-- ค้นหา -->
+        <!-- เงื่อนไขลูกค้า -->
         <div class="border-b border-gray-200 pb-4">
           <div class="flex gap-4 items-end">
             <!-- ค้นหาโดย -->
             <div class="flex-1">
-              <label for="searchBy" class="text-sm font-medium text-gray-700 mb-1 block">ค้นหาโดย</label>
+              <label for="searchBy" class="text-sm font-medium text-gray-700 mb-1 block">เงื่อนไขลูกค้า</label>
               <select (change)="onCustomerTypeChange($event)" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="cus-group">กลุ่มประเภทผู้ถือหุ้น</option>
-                 <option value="cusName">ชื่อ-นามสกุล</option>
-                 <option value="cusID">เลขบัตรประชาชน/ผู้เสียภาษี</option>
-               </select>
-             </div>
+                <option value="cusName">ชื่อ-นามสกุล</option>
+                <option value="cusID">เลขบัตรประชาชน/ผู้เสียภาษี</option>
+              </select>
+            </div>
             
             <!-- กลุ่ม -->
             <div class="flex-1" *ngIf="selectedCustomerType === 'cus-group'">
@@ -58,18 +58,18 @@
                   <option value="savings-coop">สหกรณ์ออมทรัพย์, ชุมนุมสหกรณ์</option>
                   <option value="community-finance">สถาบันการเงินชุมชน</option>
                 </ng-container>
-                
-                <!-- กระทรวงการคลัง -->
+
+                <!-- Treasury -->
                 <ng-container *ngIf="selectedGroup === 'treasury'">
                   <option value="government">รัฐบาล (กระทรวงการคลัง)</option>
                 </ng-container>
-                
-                <!-- เกษตรกร -->
+
+                <!-- Farmer -->
                 <ng-container *ngIf="selectedGroup === 'farmer'">
                   <option value="farmer">เกษตรกร</option>
                 </ng-container>
-                
-                <!-- สถาบันเกษตรกร -->
+
+                <!-- Farmer Institute -->
                 <ng-container *ngIf="selectedGroup === 'farmer-institute'">
                   <option value="">ทั้งหมด</option>
                   <option value="discontinued-coop">ยกเลิก สหกรณ์นอกภาคการเกษตร (สหกรณ์นิคม)</option>
@@ -81,24 +81,24 @@
                   <option value="farmer-group">กลุ่มเกษตรกร</option>
                   <option value="savings-coop">สหกรณ์ออมทรัพย์, ชุมนุมสหกรณ์</option>
                 </ng-container>
-                
-                <!-- สถาบันการเงิน -->
+
+                <!-- Bank -->
                 <ng-container *ngIf="selectedGroup === 'bank'">
                   <option value="bank">ธนาคารและสถาบันการเงินอื่นในประเทศ</option>
                 </ng-container>
-                
-                <!-- บุคคลธรรมดา -->
+
+                <!-- Individual -->
                 <ng-container *ngIf="selectedGroup === 'individual'">
                   <option value="individual">บุคคลธรรมดา</option>
                   <option value="individual-no-interest">บุคคลธรรมดาซึ่งไม่ประสงค์รับดอกเบี้ย</option>
                 </ng-container>
-                
-                <!-- พนักงาน ธ.ก.ส. -->
+
+                <!-- Staff -->
                 <ng-container *ngIf="selectedGroup === 'staff'">
                   <option value="baac-staff">พนักงาน ธ.ก.ส.</option>
                 </ng-container>
-                
-                <!-- บุคคลธรรมดา (รวมนิติบุคคล) -->
+
+                <!-- Individual All -->
                 <ng-container *ngIf="selectedGroup === 'individual-all'">
                   <option value="">ทั้งหมด</option>
                   <option value="individual">บุคคลธรรมดา</option>
@@ -109,82 +109,115 @@
                 </ng-container>
               </select>
             </div>
-            
-            <!-- input fields สำหรับชื่อ-นามสกุล -->
-            <div *ngIf="selectedCustomerType === 'cusName'" class="flex gap-2">
-                <div class="flex-1">
-                    <label for="firstName" class="text-sm font-medium text-gray-700 mb-1 block">ชื่อ</label>
-                    <input type="text" id="firstName" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="flex-1">
-                    <label for="lastName" class="text-sm font-medium text-gray-700 mb-1 block">นามสกุล</label>
-                    <input type="text" id="lastName" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
+          </div>
+        </div>
+
+        <!-- input fields สำหรับชื่อ-นามสกุล -->
+        <div *ngIf="selectedCustomerType === 'cusName'" class="border-b border-gray-200 pb-4">
+          <div class="flex gap-2">
+            <div class="flex-1">
+              <label for="firstName" class="text-sm font-medium text-gray-700 mb-1 block">ชื่อ</label>
+              <input type="text" id="firstName" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
-              
-              <!-- input field สำหรับเลขประชาชน/ผู้เสียภาษี -->
-            <div class="flex-1" *ngIf="selectedCustomerType === 'cusID'">
+            <div class="flex-1">
+              <label for="lastName" class="text-sm font-medium text-gray-700 mb-1 block">นามสกุล</label>
+              <input type="text" id="lastName" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+        </div>
+          
+        <!-- input field สำหรับเลขประชาชน/ผู้เสียภาษี -->
+        <div *ngIf="selectedCustomerType === 'cusID'" class="pb-4">
+          <div class="flex gap-4 items-end">
+            <div class="flex-1">
               <label for="customerID" class="text-sm font-medium text-gray-700 mb-1 block">เลขบัตรประชาชน/ผู้เสียภาษี</label>
               <input type="text" placeholder="ค้นหาเลขบัตรประชาชน/ผู้เสียภาษี" maxlength="13" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
           </div>
         </div>
 
-        <!-- วันที่ยืนยัน -->
-        <div class="border-b border-gray-200 pb-4">
-          <div class="flex gap-4 items-end">
-            <div class="flex-1">
-              <label for="confirmDate" class="text-sm font-medium text-gray-700 mb-1 block">วันที่ยืนยัน</label>
-              <div class="relative">
-                <input 
-                  id="confirmDate"
-                  type="text" 
-                  [value]="formatThaiDate(selectedConfirmDate)"
-                  (focus)="showConfirmDate = true"
-                  readonly
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
-                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                  </svg>
-                </div>
-                <div *ngIf="showConfirmDate" class="absolute z-50 top-full left-0 mt-1">
-                  <app-calendar-popup
-                    [(selected)]="selectedConfirmDate"
-                    (dateSelected)="onConfirmDateSelected($event)"
-                    (closed)="showConfirmDate = false">
-                  </app-calendar-popup>
-                </div>
-              </div>
+    <!-- วันที่ยืนยัน -->
+    <div class="border-b border-gray-200 pb-4">
+      <div class="flex gap-4 items-end">
+        <div class="flex-1">
+          <label for="confirmDate" class="text-sm font-medium text-gray-700 mb-1 block">วันที่ยืนยัน</label>
+          <div class="relative">
+            <input 
+              id="confirmDate"
+              type="text" 
+              [value]="formatThaiDate(selectedConfirmDate)"
+              (focus)="showConfirmDate = true"
+              readonly
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
             </div>
-            
-            <div class="flex-1">
-              <label for="signatory" class="text-sm font-medium text-gray-700 mb-1 block">ผู้ลงนาม</label>
-              <input 
-                type="text" 
-                id="signatory"
-                [(ngModel)]="signatory"
-                placeholder="กรอกชื่อผู้ลงนาม"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div *ngIf="showConfirmDate" class="absolute z-50 top-full left-0 mt-1">
+              <app-calendar-popup
+                [(selected)]="selectedConfirmDate"
+                (dateSelected)="onConfirmDateSelected($event)"
+                (closed)="showConfirmDate = false">
+              </app-calendar-popup>
             </div>
           </div>
         </div>
-
-        <!-- Actions -->
-        <div class="flex items-center justify-center space-x-4 pt-4">
-          <button type="button" class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">ค้นหา</button>
+        
+        <div class="flex-1">
+          <label for="toDate" class="text-sm font-medium text-gray-700 mb-1 block">ถึงวันที่</label>
+          <div class="relative">
+            <input 
+              id="toDate"
+              type="text" 
+              [value]="formatThaiDate(selectedToDate)"
+              (focus)="showToDate = true"
+              readonly
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            <div *ngIf="showToDate" class="absolute z-50 top-full left-0 mt-1">
+              <app-calendar-popup
+                [(selected)]="selectedToDate"
+                (dateSelected)="onToDateSelected($event)"
+                (closed)="showToDate = false">
+              </app-calendar-popup>
+            </div>
+          </div>
         </div>
-
       </div>
     </div>
-    <!-- Document Preview Area -->
-    <div class="mt-3 border rounded bg-gray-50 overflow-auto" style="height: 500px;"></div>
-  
-    <!-- Back Button -->
-    <div class="flex justify-center mt-4">
-      <button type="button" (click)="goBack()" class="px-5 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600">กลับ</button>
-    </div>
-  </div>
-  
 
-  
+    <!-- ผู้ลงนาม -->
+    <div class="border-b border-gray-200 pb-4">
+      <div class="flex gap-4 items-end">
+        <div class="flex-1">
+          <label for="signatory" class="text-sm font-medium text-gray-700 mb-1 block">ผู้ลงนาม</label>
+          <select 
+            id="signatory"
+            [(ngModel)]="signatory"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">-- เลือกผู้ลงนาม --</option>
+            <option *ngFor="let option of signatoryOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-center space-x-3">
+          <button type="button" class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">แสดงรายงาน PDF</button>
+          <button type="button" class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">แสดงรายงาน EXCEL</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="flex justify-center mt-4 mb-8">
+      <button type="button" (click)="goBack()"
+        class="px-5 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600">กลับ</button>
+    </div>
+</div>
