@@ -145,7 +145,7 @@ export class Report1Transfer implements OnInit {
     })
     setTimeout(() => {
       this.loading = false;
-    }, 0)
+    }, 100)
   }
 
   onProvinceChange() {
@@ -164,7 +164,7 @@ export class Report1Transfer implements OnInit {
     })
     setTimeout(() => {
       this.loading = false;
-    }, 0)
+    }, 100)
   }
 
   genPdf(TypeReport: string) {
