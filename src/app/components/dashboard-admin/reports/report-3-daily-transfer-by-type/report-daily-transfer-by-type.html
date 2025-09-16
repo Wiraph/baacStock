@@ -49,20 +49,23 @@
             <label for="branchCondition" class="col-span-3 text-sm text-gray-700">เงื่อนไขสาขา:</label>
             <div class="col-span-9 grid grid-cols-12 gap-2 items-center">
             <div class="col-span-4">
-                <select id="branchCondition" class="w-full border rounded px-2 py-1.5 text-center text-sm">
-                <option value="">-- เลือก --</option>
+                <select [(ngModel)]="selectedDivision" (change)="onDivisionChange()"
+                id="branchCondition" class="w-full border rounded px-2 py-1.5 text-center text-sm">
+                <option *ngFor="let div of division" [ngValue]="div.brDIV">{{div.brName}}</option>
                 </select>
             </div>
             <label for="branchOffice" class="col-span-2 text-sm text-gray-700 text-right">สนจ.</label>
             <div class="col-span-3">
-                <select id="branchOffice" class="w-full border rounded px-2 py-1.5 text-center text-sm">
-                <option value=""></option>
+                <select [(ngModel)]="selectedProvince" (change)="onProvinceChange()" 
+                id="branchOffice" class="w-full border rounded px-2 py-1.5 text-center text-sm">
+                <option *ngFor="let prv of province" [value]="prv.brPRV">{{prv.brName}}</option>
                 </select>
             </div>
             <label for="branch" class="col-span-1 text-sm text-gray-700 text-right">สาขา</label>
             <div class="col-span-2">
-                <select id="branch" class="w-full border rounded px-2 py-1.5 text-center text-sm">
-                <option value=""></option>
+                <select [(ngModel)]="selectedBranch" id="branch"
+                id="branch" class="w-full border rounded px-2 py-1.5 text-center text-sm">
+                <option *ngFor="let brn of branch" [value]="brn.brCode">{{brn.brName}}</option>
                 </select>
             </div>
             </div>
@@ -84,4 +87,18 @@
       <button type="button" (click)="goBack()" class="px-5 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600">กลับ</button>
     </div>
   </div>
+
+  <!-- ✅ Loading Overlay แบบโปร่งใส + มองทะลุ + เบลอ -->
+<div *ngIf="loading"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-40 backdrop-blur-sm"
+  style="background-color: rgba(128, 128, 128, 0.7);">
+  <div class="text-center">
+    <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+      viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+    </svg>
+    <p class="text-lg text-white font-medium">🔄 กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
+  </div>
+</div>
   
