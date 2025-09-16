@@ -19,7 +19,7 @@ import { StockService } from '../../../../services/stock';
 export class Report1Transfer implements OnInit {
   @Output() headerChange = new EventEmitter<string>();
   @Output() back = new EventEmitter<void>();
-  form: FormGroup = new FormGroup({});;
+  form: FormGroup = new FormGroup({});
   custypeg: any;
   stockType: any[] = [];
   division: any[] = [];
@@ -109,7 +109,6 @@ export class Report1Transfer implements OnInit {
         this.province = result.branch.province;
         this.branch = result.branch.branch;
         this.stockType = result.stockType;
-        console.log("StockType", this.stockType);
         this.cd.detectChanges();
       },
       error: (err: any) => {
