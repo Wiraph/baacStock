@@ -1,0 +1,260 @@
+<div class="p-3">
+    <div class="max-w-4xl mx-auto rounded-lg p-4 bg-white shadow">
+      
+      <!-- Form Fields -->
+      <div class="space-y-4">
+        <!-- แถวที่ 1: ประเภทข้อมูล -->
+        <div class="flex gap-4 border-b border-gray-200 pb-4">
+          <div class="flex-1">
+            <label for="dataType" class="block text-sm font-medium text-gray-700 mb-2">ประเภทข้อมูล:</label>
+            <select
+              id="dataType"
+              [(ngModel)]="dataType"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option *ngFor="let option of dataTypeOptions" [value]="option.value">{{ option.label }}</option>
+            </select>
+          </div>
+        </div>
+  
+         <!-- แถวที่ 2: เงื่อนไขลูกค้า -->
+         <div class="flex gap-4 border-b border-gray-200 pb-4">
+           <div class="flex-1">
+             <label for="customerCondition" class="block text-sm font-medium text-gray-700 mb-2">เงื่อนไขลูกค้า:</label>
+             <select
+               id="customerCondition"
+               [(ngModel)]="customerCondition"
+               (change)="onCustomerConditionChange()"
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+               <option *ngFor="let option of customerConditionOptions" [value]="option.value">{{ option.label }}</option>
+             </select>
+           </div>
+           
+           <!-- แสดงช่องตามเงื่อนไขลูกค้าที่เลือก -->
+           <div class="flex-1" *ngIf="customerCondition">
+             <!-- แสดงเมื่อเลือก "ประเภทลูกค้า" -->
+             <div *ngIf="customerCondition === 'customer_type'">
+               <label for="customerTypeDetail" class="block text-sm font-medium text-gray-700 mb-2">ประเภทลูกค้า:</label>
+               <select
+                 id="customerTypeDetail"
+                 [(ngModel)]="customerTypeDetail"
+                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                 <option *ngFor="let option of customerTypeDetailOptions" [value]="option.value">{{ option.label }}</option>
+               </select>
+             </div>
+  
+             <!-- แสดงเมื่อเลือก "ชื่อ(ไม่ต้องใส่คำนำหน้า)" -->
+             <div *ngIf="customerCondition === 'name'">
+               <label for="customerName" class="block text-sm font-medium text-gray-700 mb-2">ชื่อ(ไม่ต้องใส่คำนำหน้า):</label>
+               <input
+                 id="customerName"
+                 type="text"
+                 [(ngModel)]="customerName"
+                 placeholder="กรอกชื่อ"
+                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+             </div>
+  
+             <!-- แสดงเมื่อเลือก "เลขประชาชน/ผู้เสียภาษี" -->
+             <div *ngIf="customerCondition === 'id_card'">
+               <label for="customerIdCard" class="block text-sm font-medium text-gray-700 mb-2">เลขประชาชน/ผู้เสียภาษี:</label>
+               <input
+                 id="customerIdCard"
+                 type="text"
+                 [(ngModel)]="customerIdCard"
+                 placeholder="กรอกเลขประชาชน/ผู้เสียภาษี"
+                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+             </div>
+           </div>
+         </div>
+  
+        <!-- แถวที่ 3: เงื่อนไขเวลา -->
+        <div class="flex gap-4 border-b border-gray-200 pb-4">
+          <div class="flex-1">
+            <label for="timeCondition" class="block text-sm font-medium text-gray-700 mb-2">เงื่อนไขเวลา:</label>
+            <select
+              id="timeCondition"
+              [(ngModel)]="timeCondition"
+              (change)="onTimeConditionChange()"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option *ngFor="let option of timeConditionOptions" [value]="option.value">{{ option.label }}</option>
+            </select>
+          </div>
+          
+          <!-- แสดงช่องเลือกตามเงื่อนไขเวลา -->
+          <div class="flex-1" *ngIf="timeCondition">
+            <!-- แสดงเมื่อเลือก "ปี" -->
+            <div *ngIf="timeCondition === 'year'">
+              <label for="selectedYear" class="block text-sm font-medium text-gray-700 mb-2">ปี:</label>
+              <select
+                id="selectedYear"
+                [(ngModel)]="selectedYear"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">ปี</option>
+                <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+              </select>
+            </div>
+  
+            <!-- แสดงเมื่อเลือก "ช่วงวันที่" -->
+            <div *ngIf="timeCondition === 'date_range'">
+              <div class="space-y-3">
+                <div>
+                  <label for="fromDate" class="text-sm text-gray-600 mb-1 block">ตั้งแต่วันที่</label>
+                  <div class="flex items-center gap-2">
+                    <select id="fromDate" class="w-20 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center" [(ngModel)]="selectedFromDay">
+                      <option value="">วัน</option>
+                      <option *ngFor="let d of days" [value]="d">{{ d }}</option>
+                    </select>
+                    <select class="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center" [(ngModel)]="selectedFromMonth">
+                      <option value="">เดือน</option>
+                      <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+                    </select>
+                    <select class="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center" [(ngModel)]="selectedFromYear">
+                      <option value="">ปี</option>
+                      <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div>
+                  <label for="toDate" class="text-sm text-gray-600 mb-1 block">ถึงวันที่</label>
+                  <div class="flex items-center gap-2">
+                    <select id="toDate" class="w-20 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center" [(ngModel)]="selectedToDay">
+                      <option value="">วัน</option>
+                      <option *ngFor="let d of days" [value]="d">{{ d }}</option>
+                    </select>
+                    <select class="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center" [(ngModel)]="selectedToMonth">
+                      <option value="">เดือน</option>
+                      <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+                    </select>
+                    <select class="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center" [(ngModel)]="selectedToYear">
+                      <option value="">ปี</option>
+                      <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+  
+            <!-- แสดงเมื่อเลือก "วันที่" -->
+            <div *ngIf="timeCondition === 'date'">
+              <label for="specificDate" class="block text-sm font-medium text-gray-700 mb-2">วันที่:</label>
+              <div class="flex items-center gap-2">
+                <select id="specificDate" class="w-20 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center" [(ngModel)]="selectedSpecificDay">
+                  <option value="">วัน</option>
+                  <option *ngFor="let d of days" [value]="d">{{ d }}</option>
+                </select>
+                <select class="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center" [(ngModel)]="selectedSpecificMonth">
+                  <option value="">เดือน</option>
+                  <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+                </select>
+                <select class="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center" [(ngModel)]="selectedSpecificYear">
+                  <option value="">ปี</option>
+                  <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- แถวที่ 4: หุ้น และ วิธีจ่าย -->
+        <div class="flex gap-4 border-b border-gray-200 pb-4">
+          <div class="flex-1">
+            <label for="stockType" class="block text-sm font-medium text-gray-700 mb-2">หุ้น:</label>
+            <select
+              id="stockType"
+              [(ngModel)]="stockType"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option *ngFor="let option of stockTypeOptions" [value]="option.value">{{ option.label }}</option>
+            </select>
+          </div>
+          <div class="flex-1">
+            <label for="paymentMethod" class="block text-sm font-medium text-gray-700 mb-2">วิธีจ่าย:</label>
+            <select
+              id="paymentMethod"
+              [(ngModel)]="paymentMethod"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option *ngFor="let option of paymentMethodOptions" [value]="option.value">{{ option.label }}</option>
+            </select>
+          </div>
+        </div>
+  
+        <!-- แถวที่ 5: ฐานภาษี และ สถานะปันผล -->
+        <div class="flex gap-4 border-b border-gray-200 pb-4">
+          <div class="flex-1">
+            <label for="taxBase" class="block text-sm font-medium text-gray-700 mb-2">ฐานภาษี:</label>
+            <select
+              id="taxBase"
+              [(ngModel)]="taxBase"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option *ngFor="let option of taxBaseOptions" [value]="option.value">{{ option.label }}</option>
+            </select>
+          </div>
+          <div class="flex-1">
+            <label for="dividendStatus" class="block text-sm font-medium text-gray-700 mb-2">สถานะปันผล:</label>
+            <select
+              id="dividendStatus"
+              [(ngModel)]="dividendStatus"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option *ngFor="let option of dividendStatusOptions" [value]="option.value">{{ option.label }}</option>
+            </select>
+          </div>
+        </div>
+  
+        <!-- แถวที่ 6: เงื่อนไขสาขา -->
+        <div class="flex gap-4">
+          <div class="flex-1">
+            <label for="branchCondition" class="block text-sm font-medium text-gray-700 mb-2">เงื่อนไขสาขา:</label>
+            <select
+              id="branchCondition"
+              [(ngModel)]="branchCondition"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option *ngFor="let option of branchConditionOptions" [value]="option.value">{{ option.label }}</option>
+            </select>
+          </div>
+          <div class="w-32">
+            <label for="branchCode" class="block text-sm font-medium text-gray-700 mb-2">สนจ:</label>
+            <select
+              id="branchCode"
+              [(ngModel)]="branchCode"
+              [disabled]="branchCondition === 'national' || branchCondition === 'head_office'"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
+              <option value=""></option>
+              <option value="001">001</option>
+              <option value="002">002</option>
+              <option value="003">003</option>
+            </select>
+          </div>
+          <div class="flex-1">
+            <label for="selectedBranch" class="block text-sm font-medium text-gray-700 mb-2">สาขา:</label>
+            <select
+              id="selectedBranch"
+              [(ngModel)]="selectedBranch"
+              [disabled]="branchCondition === 'national' || branchCondition === 'head_office'"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
+              <option value=""></option>
+            </select>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Action Buttons -->
+      <div class="flex justify-center mt-8 space-x-4">
+        <button type="button" (click)="onSearch()"
+          class="px-5 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+          ค้นหา
+        </button>
+      </div>
+    </div>
+    
+    <!-- Document Preview Area -->
+    <div class="mt-3 border rounded bg-gray-50 overflow-auto" style="height: 500px;">
+      <iframe *ngIf="pdfSrc" [src]="pdfSrc" width="100%" height="100%" style="border:none;"
+        title="Preview PDF รายงานหุ้น">
+      </iframe>
+    </div>
+  
+    <!-- Back Button -->
+    <div class="flex justify-center mt-4 mb-8">
+      <button type="button" (click)="goBack()"
+        class="px-5 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600">กลับ</button>
+    </div>
+  </div>

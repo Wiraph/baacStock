@@ -1,0 +1,129 @@
+<div class="p-3">
+  <div class="max-w-3xl mx-auto rounded-lg p-4 bg-white shadow">
+    
+    <!-- Form Fields -->
+    <div class="space-y-6">
+      <!-- สาขา -->
+      <div class="flex items-center gap-4">
+        <div class="text-sm font-medium text-gray-700 w-20">สาขา:</div>
+        <div class="flex-1">
+          <select
+            id="branchSelect"
+            [(ngModel)]="selectedBranch"
+            [disabled]="selectAllBranches"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100">
+            <option *ngFor="let option of branchOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </div>
+        <div class="flex items-center">
+          <input 
+            type="checkbox" 
+            id="selectAllBranches"
+            [(ngModel)]="selectAllBranches"
+            class="mr-2">
+          <label for="selectAllBranches" class="text-sm text-gray-700">เลือกทุกสาขา</label>
+        </div>
+      </div>
+
+      <!-- ตั้งแต่วันที่ และ ถึงวันที่ -->
+      <div class="flex items-center gap-8">
+        <!-- ตั้งแต่วันที่ -->
+        <div class="flex items-center gap-4 flex-1">
+          <div class="text-sm font-medium text-gray-700 w-20">ตั้งแต่วันที่:</div>
+          <div class="flex-1">
+            <div class="relative">
+              <input 
+                id="fromDate"
+                type="text" 
+                [value]="formatThaiDate(selectedFromDate)"
+                (focus)="showFromCalendar = true"
+                readonly
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+              <div *ngIf="showFromCalendar" class="absolute z-50 top-full left-0 mt-1">
+                <app-calendar-popup
+                  [(selected)]="selectedFromDate"
+                  (dateSelected)="onFromDateSelected($event)"
+                  (closed)="showFromCalendar = false">
+                </app-calendar-popup>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ถึงวันที่ -->
+        <div class="flex items-center gap-4 flex-1">
+          <div class="text-sm font-medium text-gray-700 w-20">ถึงวันที่:</div>
+          <div class="flex-1">
+            <div class="relative">
+              <input 
+                id="toDate"
+                type="text" 
+                [value]="formatThaiDate(selectedToDate)"
+                (focus)="showToCalendar = true"
+                readonly
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+              <div *ngIf="showToCalendar" class="absolute z-50 top-full left-0 mt-1">
+                <app-calendar-popup
+                  [(selected)]="selectedToDate"
+                  (dateSelected)="onToDateSelected($event)"
+                  (closed)="showToCalendar = false">
+                </app-calendar-popup>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ชื่อผู้ถือหุ้น และ นามสกุล -->
+      <div class="flex items-center gap-8">
+        <!-- ชื่อผู้ถือหุ้น -->
+        <div class="flex items-center gap-4 flex-1">
+          <div class="text-sm font-medium text-gray-700 w-20">ชื่อผู้ถือหุ้น:</div>
+          <div class="flex-1">
+            <input 
+              id="shareholderName"
+              type="text" 
+              [(ngModel)]="shareholderName"
+              placeholder="ระบุชื่อผู้ถือหุ้น"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+
+        <!-- นามสกุล -->
+        <div class="flex items-center gap-4 flex-1">
+          <div class="text-sm font-medium text-gray-700 w-20">นามสกุล:</div>
+          <div class="flex-1">
+            <input 
+              id="shareholderLastName"
+              type="text" 
+              [(ngModel)]="shareholderLastName"
+              placeholder="ระบุนามสกุล"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-center mt-8 space-x-4">
+      <button type="button" (click)="onSearch()"
+        class="px-5 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+        ค้นหา
+      </button>
+      <button type="button" (click)="goBack()"
+        class="px-5 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+        กลับ
+      </button>
+    </div>
+  </div>
+</div>

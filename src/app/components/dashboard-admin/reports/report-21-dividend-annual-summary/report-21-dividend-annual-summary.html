@@ -1,0 +1,48 @@
+<div class="p-3">
+  <div class="max-w-2xl mx-auto rounded-lg p-4 bg-white shadow">
+    
+    <!-- Form Fields -->
+    <div class="space-y-6">
+      <!-- ปีบัญชี และ ตัวเลือกการจัดกลุ่ม -->
+      <div class="flex items-center justify-center gap-8">
+        <!-- ปีบัญชี -->
+        <div class="flex items-center gap-4">
+          <label for="yearSelect" class="text-sm font-medium text-gray-700 w-20">ปีบัญชี:</label>
+          <div class="w-32">
+            <select
+              id="yearSelect"
+              [(ngModel)]="selectedYear"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option *ngFor="let year of years" [ngValue]="year">{{ year }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ตัวเลือกการจัดกลุ่ม -->
+        <div class="flex-1 space-y-3">
+          <div class="flex items-center" *ngFor="let option of groupingOptions">
+            <input 
+              type="radio" 
+              [id]="option.value"
+              [value]="option.value"
+              [(ngModel)]="groupingOption"
+              class="mr-3">
+            <label [for]="option.value" class="text-sm text-gray-700">{{ option.label }}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-center mt-8 space-x-4">
+      <button type="button" (click)="onSearch()"
+        class="px-5 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+        ค้นหา
+      </button>
+      <button type="button" (click)="goBack()"
+        class="px-5 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+        กลับ
+      </button>
+    </div>
+  </div>
+</div>

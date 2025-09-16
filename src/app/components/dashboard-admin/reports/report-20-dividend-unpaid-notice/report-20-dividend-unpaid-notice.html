@@ -1,0 +1,176 @@
+<div class="p-3">
+  <div class="max-w-4xl mx-auto rounded-lg p-4 bg-white shadow">
+    
+    <!-- Form Fields -->
+    <div class="space-y-6">
+      <!-- เลขที่หนังสือ -->
+      <div class="flex items-center gap-4">
+        <label for="documentNumber" class="text-sm font-medium text-gray-700 w-32">เลขที่หนังสือ:</label>
+        <div class="flex-1">
+          <input 
+            id="documentNumber"
+            type="text" 
+            [(ngModel)]="documentNumber"
+            placeholder="ระบุตัวหนังสือ/ตัวเลข เช่น บง.พิเศษ50"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+      </div>
+
+      <!-- วันที่หนังสือ -->
+      <div class="flex items-center gap-4">
+        <label for="documentDate" class="text-sm font-medium text-gray-700 w-32">วันที่หนังสือ:</label>
+        <div class="flex-1">
+          <div class="relative">
+            <input 
+              id="documentDate"
+              type="text" 
+              [value]="formatThaiDate(selectedDate)"
+              (focus)="showCalendar = true"
+              readonly
+              [disabled]="hideDocumentDate"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            <div *ngIf="showCalendar" class="absolute z-50 top-full left-0 mt-1">
+              <app-calendar-popup
+                [(selected)]="selectedDate"
+                (dateSelected)="onDateSelected($event)"
+                (closed)="showCalendar = false">
+              </app-calendar-popup>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <input 
+            type="checkbox" 
+            id="hideDocumentDate"
+            [(ngModel)]="hideDocumentDate"
+            class="mr-2">
+          <label for="hideDocumentDate" class="text-sm text-gray-700">เลือกเพื่อไม่แสดงวันที่หนังสือ</label>
+        </div>
+      </div>
+
+      <!-- ผู้ลงนาม -->
+      <div class="flex items-center gap-4">
+        <label for="signatory" class="text-sm font-medium text-gray-700 w-32">ผู้ลงนาม*:</label>
+        <div class="flex-1">
+          <select 
+            id="signatory"
+            [(ngModel)]="signatory"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">-- เลือกผู้ลงนาม --</option>
+            <option *ngFor="let option of signatoryOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- หมายเหตุ -->
+      <div class="flex items-start gap-4">
+        <label for="remarks" class="text-sm font-medium text-gray-700 w-32 pt-2">หมายเหตุ*:</label>
+        <div class="flex-1">
+          <textarea 
+            id="remarks"
+            [(ngModel)]="remarks"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="border-b border-gray-200 pb-4"></div>
+
+      <!-- เลขที่บัตรแสดงตน -->
+      <div class="flex items-center gap-4">
+        <label for="idCardNumber" class="text-sm font-medium text-gray-700 w-32">เลขที่บัตรแสดงตน:</label>
+        <div class="flex-1">
+          <input 
+            id="idCardNumber"
+            type="text" 
+            [(ngModel)]="idCardNumber"
+            placeholder="ระบุเลขที่บัตรประชาชน"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+      </div>
+
+      <!-- ชื่อ -->
+      <div class="flex items-center gap-4">
+        <label for="firstName" class="text-sm font-medium text-gray-700 w-32">ชื่อ:</label>
+        <div class="flex-1">
+          <input 
+            id="firstName"
+            type="text" 
+            [(ngModel)]="firstName"
+            placeholder="ระบุชื่อ"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+      </div>
+
+      <!-- นามสกุล -->
+      <div class="flex items-center gap-4">
+        <label for="lastName" class="text-sm font-medium text-gray-700 w-32">นามสกุล:</label>
+        <div class="flex-1">
+          <input 
+            id="lastName"
+            type="text" 
+            [(ngModel)]="lastName"
+            placeholder="ระบุนามสกุล"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+      </div>
+
+      <!-- ประเภทลูกค้า -->
+      <div class="flex items-center gap-4">
+        <label for="customerType" class="text-sm font-medium text-gray-700 w-32">ประเภทลูกค้า:</label>
+        <div class="flex-1">
+          <select 
+            id="customerType"
+            [(ngModel)]="customerType"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">-- เลือกประเภทลูกค้า --</option>
+            <option *ngFor="let option of customerTypeOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- เงื่อนไขการรับเงินปันผล -->
+      <div class="flex items-start gap-4">
+        <label for="dividendPaymentCash" class="text-sm font-medium text-gray-700 w-32 pt-2">เงื่อนไขการรับเงินปันผล:</label>
+        <div class="flex-1 space-y-2">
+          <div class="flex items-center">
+            <input 
+              type="checkbox" 
+              id="dividendPaymentCash"
+              [(ngModel)]="dividendPaymentCash"
+              class="mr-2">
+            <label for="dividendPaymentCash" class="text-sm text-gray-700">เงินสด</label>
+          </div>
+          <div class="flex items-center">
+            <input 
+              type="checkbox" 
+              id="dividendPaymentTransfer"
+              [(ngModel)]="dividendPaymentTransfer"
+              class="mr-2">
+            <label for="dividendPaymentTransfer" class="text-sm text-gray-700">โอนเข้าบัญชีเงินฝาก</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="border-b border-gray-200 pb-4 mt-6"></div>
+
+    <!-- Actions -->
+    <div class="flex items-center justify-center space-x-3 mt-4">
+      <button type="button" class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">ค้นหา PDF</button>
+      <button type="button" class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">ค้นหา EXCEL</button>
+    </div>
+  </div>
+
+  <!-- Back Button -->
+  <div class="flex justify-center mt-4 mb-8">
+    <button type="button" (click)="goBack()"
+      class="px-5 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600">กลับ</button>
+  </div>
+</div>

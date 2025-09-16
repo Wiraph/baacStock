@@ -1,0 +1,91 @@
+<div class="p-3">
+    <div class="max-w-4xl mx-auto rounded-lg p-4 bg-white shadow">
+      
+      <!-- Form Fields -->
+      <div class="space-y-6">
+        <!-- ณ วันที่ และ เลขที่บัตรแสดงตน -->
+        <div class="flex gap-4 items-end">
+          <div class="flex-1">
+            <label for="asOfDate" class="text-sm font-medium text-gray-700 mb-1 block">ณ วันที่</label>
+            <div class="relative">
+              <input 
+                id="asOfDate"
+                type="text" 
+                [value]="formatThaiDate(selectedDate)"
+                (focus)="showCalendar = true"
+                readonly
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+              <div *ngIf="showCalendar" class="absolute z-50 top-full left-0 mt-1">
+                <app-calendar-popup
+                  [(selected)]="selectedDate"
+                  (dateSelected)="onDateSelected($event)"
+                  (closed)="showCalendar = false">
+                </app-calendar-popup>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex-1">
+            <label for="idCardNumber" class="text-sm font-medium text-gray-700 mb-1 block">เลขที่บัตรแสดงตน</label>
+            <input 
+              id="idCardNumber"
+              type="text" 
+              [(ngModel)]="idCardNumber"
+              placeholder="กรอกเลขที่บัตรแสดงตน"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+  
+        <!-- ชื่อผู้ถือหุ้น และ นามสกุล -->
+        <div class="flex gap-4 items-end">
+          <div class="flex-1">
+            <label for="shareholderName" class="text-sm font-medium text-gray-700 mb-1 block">ชื่อ</label>
+            <input 
+              id="shareholderName"
+              type="text" 
+              [(ngModel)]="shareholderName"
+              placeholder="กรอกชื่อผู้ถือหุ้น"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          
+          <div class="flex-1">
+            <label for="lastName" class="text-sm font-medium text-gray-700 mb-1 block">นามสกุล</label>
+            <input 
+              id="lastName"
+              type="text" 
+              [(ngModel)]="lastName"
+              placeholder="กรอกนามสกุล"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+      </div>
+  
+      <!-- Divider -->
+      <div class="border-b border-gray-200 pb-4 mt-6"></div>
+  
+      <!-- Actions -->
+      <div class="flex items-center justify-center space-x-3 mt-4">
+        <button (click)="genPdf('PDF')" type="button" class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">แสดงรายงาน PDF</button>
+        <button (click)="genPdf('XLS')" type="button" class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">แสดงรายงาน EXCEL</button>
+      </div>
+    </div>
+  
+    <!-- Document Preview Area -->
+    <div class="mt-3 border rounded bg-gray-50 overflow-auto" style="height: 500px;">
+      <iframe *ngIf="pdfSrc" [src]="pdfSrc" width="100%" height="100%" style="border:none;"
+        title="Preview PDF รายงานหุ้น">
+      </iframe>
+    </div>
+  
+    <!-- Back Button -->
+    <div class="flex justify-center mt-4 mb-8">
+      <button type="button" (click)="goBack()"
+        class="px-5 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600">กลับ</button>
+    </div>
+  </div>
+  

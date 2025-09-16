@@ -14,6 +14,16 @@ import { Report11ConfirmLetterPreparation } from './report-11-confirm-letter-pre
 import { Report12TransferCommonByType } from './report-12-transfer-common-by-type/report-transfer-common-by-type';
 import { Report13CertificateHistory } from './report-13-certificate-history/report-certificate-history';
 import { Report14CertificateDeliveryLetter } from './report-14-certificate-delivery-letter/report-certificate-delivery-letter';
+import { Report15CertificateDeliveryEnvelope } from './report-15-certificate-delivery-envelope/report-15-certificate-delivery-envelope';
+import { Report16ShareholderSticker } from './report-16-shareholder-sticker/report-16-shareholder-sticker';
+import { Report17DailySalesPreApprove } from './report-17-daily-sales-pre-approve/report-17-daily-sales-pre-approve';
+import { Report18DailySalesPostApprove } from './report-18-daily-sales-post-approve/report-18-daily-sales-post-approve';
+import { Report19SalesNewOnly } from './report-19-sales-new-only/report-19-sales-new-only';
+import { Report20DividendUnpaidNotice } from './report-20-dividend-unpaid-notice/report-20-dividend-unpaid-notice';
+import { Report21DividendAnnualSummary } from './report-21-dividend-annual-summary/report-21-dividend-annual-summary';
+import { Report22DividendPayment } from './report-22-dividend-payment/report-22-dividend-payment';
+import { Report23DividendDaily } from './report-23-dividend-daily/report-23-dividend-daily';
+import { Report24DividendMonthly } from './report-24-dividend-monthly/report-24-dividend-monthly'; 
 
 interface ReportItem {
   id: string;
@@ -40,6 +50,16 @@ interface ReportItem {
     Report12TransferCommonByType,
     Report13CertificateHistory,
     Report14CertificateDeliveryLetter,
+    Report15CertificateDeliveryEnvelope,
+    Report16ShareholderSticker,
+    Report17DailySalesPreApprove,
+    Report18DailySalesPostApprove,
+    Report19SalesNewOnly,
+    Report20DividendUnpaidNotice,
+    Report21DividendAnnualSummary,
+    Report22DividendPayment,
+    Report23DividendDaily,
+    Report24DividendMonthly,
   ],
   templateUrl: './reports.component.html'
 })
@@ -64,16 +84,16 @@ export class ReportsComponent {
     { id: 'report_transfer_common_by_type', title: 'รายงานสรุปการขาย/โอนหุ้นสามัญแยกตามประเภทผู้ถือหุ้น', icon: '🌸', category: 'normal' },
     { id: 'report_certificate_history', title: 'ประวัติใบหุ้น', icon: '🌸', category: 'normal' },
     { id: 'report_certificate_delivery_letter', title: 'หนังสือส่งมอบใบหุ้น', icon: '🌸', category: 'normal' },
-    { id: 'report_certificate_delivery_envelope', title: 'หน้าซองนำส่งใบหุ้น', icon: '❌', category: 'normal' },
-    { id: 'report_shareholder_sticker', title: 'สติ๊กเกอร์รายชื่อผู้ถือหุ้น', icon: '❌', category: 'normal' },
-    { id: 'report_daily_sales_pre_approve', title: 'รายงานขายประจำวัน (ก่อนอนุมัติ)', icon: '❌', category: 'normal' },
-    { id: 'report_daily_sales_post_approve', title: 'รายงานขายประจำวัน (หลังอนุมัติ)', icon: '❌', category: 'normal' },
-    { id: 'report_sales_new_only', title: 'รายงานการขายหุ้นสามัญ (เฉพาะรายใหม่)', icon: '❌', category: 'normal' },
-    { id: 'report_dividend_unpaid_notice', title: 'หนังสือแจ้งเงินปันผลค้างจ่าย', icon: '❌', category: 'normal' },
-    { id: 'report_dividend_annual_summary', title: 'สรุปการจ่ายเงินปันผลหุ้นสามัญประจำปี', icon: '❌', category: 'normal' },
-    { id: 'report_dividend_payment', title: 'รายงานการจ่ายเงินปันผล', icon: '❌', category: 'normal' },
-    { id: 'report_dividend_daily', title: 'รายงานการจ่ายเงินปันผลประจำวัน', icon: '❌', category: 'normal' },
-    { id: 'report_dividend_monthly', title: 'รายงานการจ่ายเงินปันผลประจำเดือน', icon: '❌', category: 'normal' },
+    { id: 'report_certificate_delivery_envelope', title: 'หน้าซองนำส่งใบหุ้น', icon: '🌸', category: 'normal' },
+    { id: 'report_shareholder_sticker', title: 'สติ๊กเกอร์รายชื่อผู้ถือหุ้น', icon: '🌸', category: 'normal' },
+    { id: 'report_daily_sales_pre_approve', title: 'รายงานขายประจำวัน (ก่อนอนุมัติ)', icon: '⚠️', category: 'normal' },
+    { id: 'report_daily_sales_post_approve', title: 'รายงานขายประจำวัน (หลังอนุมัติ)', icon: '⚠️', category: 'normal' },
+    { id: 'report_sales_new_only', title: 'รายงานการขายหุ้นสามัญ (เฉพาะรายใหม่)', icon: '⚠️', category: 'normal' },
+    { id: 'report_dividend_unpaid_notice', title: 'หนังสือแจ้งเงินปันผลค้างจ่าย', icon: '🌸', category: 'normal' },
+    { id: 'report_dividend_annual_summary', title: 'สรุปการจ่ายเงินปันผลหุ้นสามัญประจำปี', icon: '🌸', category: 'normal' },
+    { id: 'report_dividend_payment', title: 'รายงานการจ่ายเงินปันผล', icon: '🌸', category: 'normal' },
+    { id: 'report_dividend_daily', title: 'รายงานการจ่ายเงินปันผลประจำวัน', icon: '⚠️', category: 'normal' },
+    { id: 'report_dividend_monthly', title: 'รายงานการจ่ายเงินปันผลประจำเดือน', icon: '⚠️', category: 'normal' },
     { id: 'report_dividend_unpaid', title: 'รายงานเงินปันผลค้างจ่าย', icon: '❌', category: 'normal' },
     { id: 'report_pnd2_attachment', title: 'ใบแนบ ภ.ง.ด. 2', icon: '❌', category: 'normal' },
     { id: 'report_pnd2k_attachment', title: 'ใบแนบ ภ.ง.ด. 2ก', icon: '❌', category: 'normal' },
