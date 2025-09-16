@@ -51,7 +51,7 @@
             <div class="col-span-4">
                 <select [(ngModel)]="selectedDivision" (change)="onDivisionChange()"
                 id="branchCondition" class="w-full border rounded px-2 py-1.5 text-center text-sm">
-                <option *ngFor="let div of division" [ngValue]="div.brDIV">{{div.brName}}</option>
+                <option *ngFor="let div of division" [ngValue]="div.brCode">{{div.brName}}</option>
                 </select>
             </div>
             <label for="branchOffice" class="col-span-2 text-sm text-gray-700 text-right">สนจ.</label>
