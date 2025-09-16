@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Reports } from '../../../../services/reports';
+import Swal from 'sweetalert2';
 
 @Component({
   standalone: true,
@@ -33,7 +35,8 @@ export class Report6ShareholderRanking implements OnInit {
   years: number[] = Array.from({ length: 2568 - 2554 + 1 }, (_, index) => 2568 - index);
 
   constructor(
-    private readonly cd: ChangeDetectorRef
+    private readonly cd: ChangeDetectorRef,
+    private readonly reportService: Reports
   ) {}
 
   ngOnInit(): void {
@@ -42,6 +45,30 @@ export class Report6ShareholderRanking implements OnInit {
 
   sendHead() {
     this.headerChange.emit("รายงานการจัดลำดับผู้ถือหุ้น");
+  }
+
+  loadFile() {
+    const payload = {
+      Custype: "", // cuscode กรณีเลือกทั้งหมดให้ส่งค่า ""
+      Top: 10 // จำนวน
+    }
+
+    this.reportService.LoadFileMenu6(payload).subscribe({
+      next: (res:any) => {
+
+      }, error: (err:any) => {
+        Swal.fire({
+          icon: 'error',
+          text: `${err.message}`
+        })
+        console.log("Error", err);
+      }
+    })
+    // {
+    // "message": "Report generated successfully",
+    // "filePath": "wwwroot\\Reps\\STK220_25680916-205456.xlsx",
+    // "fileUrl": "https://localhost:7089/Reps/STK220_25680916-205456.xlsx"
+    // }
   }
 
   goBack(): void {
