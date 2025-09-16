@@ -18,7 +18,7 @@ export interface StockReportDto  {
 })
 export class Reportservice {
 
-  private readonly apiUrl = `${environment.dotnetApiUrl}/report`;
+  private readonly apiUrl = `${environment.dotnetApiUrl}/api/Report`;
   constructor(
     private readonly http: HttpClient,
     private readonly encryption: EncryptionService

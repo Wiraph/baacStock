@@ -118,6 +118,8 @@ export class ReportsComponent {
     console.log("Report", report);
     this.setActive(report.id);
     console.log("Act", this.actView);
+    // เลื่อนหน้าขึ้นไปบนสุด
+    this.scrollToTop();
   }
 
   setActive(act: string) {
