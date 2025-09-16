@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Reports, StockReportDto } from '../../../../services/reports';
 
 @Component({
   standalone: true,
@@ -33,7 +34,8 @@ export class Report4DividendRate implements OnInit {
   years: number[] = Array.from({ length: 2568 - 2554 + 1 }, (_, index) => 2568 - index);
 
   constructor(
-    private readonly cd: ChangeDetectorRef
+    private readonly cd: ChangeDetectorRef,
+    private readonly reportService: Reports
   ) {}
 
   ngOnInit(): void {
@@ -42,6 +44,27 @@ export class Report4DividendRate implements OnInit {
 
   sendHead() {
     this.headerChange.emit("รายงานข้อมูลอัตราเงินปันผล");
+  }
+
+  loadFile() {
+    const payload: StockReportDto = {
+      Division: "", // ปล่อยว่าง
+      Prov: "", // ปล่อยว่าง
+      Br: "", // ปล่อยว่าง
+      DateStart: "", // YYYYY
+      DateEnd: "", // YYYYY
+      TypeExport: "" // PDF || EXCEL
+    }
+    this.reportService.LoadFileMenu4(payload).subscribe({
+
+    })
+
+    // ตัวอย่างผลลัพธ์
+    // {
+    // "message": "Report generated successfully",
+    // "filePath": "wwwroot\\Reps\\รายงานข้อมูลอัตราเงินปันผล_25680916-122505.xlsx",
+    // "fileUrl": "https://localhost:7089/Reps/รายงานข้อมูลอัตราเงินปันผล_25680916-122505.xlsx"
+    // }
   }
 
   goBack(): void {

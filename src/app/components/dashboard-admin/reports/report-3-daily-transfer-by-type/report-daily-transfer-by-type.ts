@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { SystemMetadata } from '../../../../services/Metadata/system-metadata';
 import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
-import { Reportservice, StockReportDto } from '../../../../services/reportservice';
+import { Reports, StockReportDto } from '../../../../services/reports';
 
 @Component({
   standalone: true,
@@ -47,7 +47,7 @@ export class Report3DailyTransferByType implements OnInit {
     private readonly cd: ChangeDetectorRef,
     private readonly systemMetadata: SystemMetadata,
     private readonly fb: FormBuilder,
-    private readonly reportService: Reportservice
+    private readonly reportService: Reports
   ) {
     this.form = this.fb.group({
       division: [null],
@@ -141,7 +141,7 @@ export class Report3DailyTransferByType implements OnInit {
       //     "fileUrl": "https://localhost:7089/Reps/STK110_รายงานโอนหุ้น_25680916-094105.xlsx"
     //      }
     this.reportService.LoadFileMenu3(payload).subscribe({
-      
+
     })
   }
 
