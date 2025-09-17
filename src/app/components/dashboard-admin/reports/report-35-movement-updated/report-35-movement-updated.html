@@ -1,0 +1,87 @@
+<div class="p-3">
+    <div class="max-w-3xl mx-auto rounded-lg p-4 bg-white shadow">
+      
+      <!-- Form Fields -->
+      <div class="space-y-4">
+        <!-- แถวที่ 1: ประเภท -->
+        <div class="flex gap-4 border-b border-gray-200 pb-4">
+          <div class="w-32">
+            <label for="selectedType" class="block text-sm font-medium text-gray-700 mb-2">ประเภท:</label>
+          </div>
+          <div class="flex-1">
+            <select
+              id="selectedType"
+              [(ngModel)]="selectedType"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option *ngFor="let option of typeOptions" [value]="option.value">{{ option.label }}</option>
+            </select>
+          </div>
+          <div class="flex-1"></div>
+        </div>
+  
+        <!-- แถวที่ 2: ข้อมูลระหว่างวันที่ -->
+        <div class="flex gap-4 border-b border-gray-200 pb-4">
+          <div class="w-32">
+            <label for="dateRange" class="block text-sm font-medium text-gray-700 mb-2">ข้อมูลระหว่างวันที่:</label>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-3">
+              <!-- ตั้งแต่วันที่ -->
+              <select [(ngModel)]="selectedFromDay" class="w-16 border border-gray-300 rounded px-2 py-1 text-xs text-center focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <option *ngFor="let d of days" [value]="d">{{ d }}</option>
+              </select>
+              <select [(ngModel)]="selectedFromMonth" class="w-16 border border-gray-300 rounded px-2 py-1 text-xs text-center focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+              </select>
+              <select [(ngModel)]="selectedFromYear" class="w-20 border border-gray-300 rounded px-2 py-1 text-xs text-center focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+              </select>
+              
+              <!-- ถึง -->
+              <span class="text-sm text-gray-700 mx-3">ถึง</span>
+              
+              <!-- ถึงวันที่ -->
+              <select [(ngModel)]="selectedToDay" class="w-16 border border-gray-300 rounded px-2 py-1 text-xs text-center focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <option *ngFor="let d of days" [value]="d">{{ d }}</option>
+              </select>
+              <select [(ngModel)]="selectedToMonth" class="w-16 border border-gray-300 rounded px-2 py-1 text-xs text-center focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+              </select>
+              <select [(ngModel)]="selectedToYear" class="w-20 border border-gray-300 rounded px-2 py-1 text-xs text-center focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex-1"></div>
+        </div>
+      </div>
+      
+      <!-- Actions -->
+      <div class="flex items-center justify-center space-x-6 mt-6">
+        <button type="button" (click)="loadFile('PDF')" class="px-6 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+          แสดงรายงาน PDF
+        </button>
+        <button type="button" (click)="loadFile('EXCEL')" class="px-6 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+          แสดงรายงาน EXCEL
+        </button>
+      </div>
+    </div>
+  
+    <!-- Document Preview Area -->
+    <div class="mt-3 border rounded bg-gray-50 overflow-auto" style="height: 500px;">
+      <iframe *ngIf="pdfSrc" [src]="pdfSrc" width="100%" height="100%" style="border:none;"
+        title="Preview PDF รายงานหุ้น">
+      </iframe>
+    </div>
+  
+    <!-- Back Button -->
+    <div class="flex justify-center mt-6">
+      <button
+        type="button"
+        (click)="goBack()"
+        class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200">
+        กลับ
+      </button>
+    </div>
+  </div>
+  

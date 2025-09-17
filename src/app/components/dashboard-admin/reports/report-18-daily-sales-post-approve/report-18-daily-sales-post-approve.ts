@@ -16,7 +16,7 @@ export class Report18DailySalesPostApprove implements OnInit {
   }
 
   sendHead() {
-    this.headerChange.emit("รายงานการขายหุ้นประจำวันหลังอนุมัติ");
+    this.headerChange.emit("รายงานขายประจำวัน (หลังอนุมัติ)");
   }
 
   goBack(): void {

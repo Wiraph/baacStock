@@ -65,7 +65,7 @@ export class Report15CertificateDeliveryEnvelope implements OnInit {
   }
 
   sendHead() {
-    this.headerChange.emit("ซองส่งมอบใบหุ้น");
+    this.headerChange.emit("หน้าซองนำส่งใบหุ้น");
   }
 
   onSearchTypeChange() {

@@ -2,7 +2,6 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ThaiCalendarComponent } from '../../../thai-calendar-component/thai-calendar-component';
 import { Thaidateadapter } from '../../../thaidateadapter/thaidateadapter';
 
@@ -17,7 +16,7 @@ export const THAI_DATE_FORMATS = {
 };
 
 @Component({
-  selector: 'app-report-16-shareholder-sticker',
+  selector: 'app-report-28-payment-voucher',
   standalone: true,
   imports: [CommonModule, FormsModule, ThaiCalendarComponent],
   providers: [
@@ -25,41 +24,45 @@ export const THAI_DATE_FORMATS = {
     { provide: MAT_DATE_FORMATS, useValue: THAI_DATE_FORMATS },
     { provide: MAT_DATE_LOCALE, useValue: 'th-TH' },
   ],
-  templateUrl: './report-16-shareholder-sticker.html',
-  styleUrl: './report-16-shareholder-sticker.css'
+  templateUrl: './report-28-payment-voucher.html',
+  styleUrl: './report-28-payment-voucher.css'
 })
-export class Report16ShareholderSticker implements OnInit {
+export class Report28PaymentVoucher implements OnInit {
   @Output() headerChange = new EventEmitter<string>();
   @Output() back = new EventEmitter<void>();
 
-  loading: boolean = false;
-  pdfSrc: SafeResourceUrl | null = null;
-
   // Form fields
-  selectedDate: Date | null = null;
-  showCalendar: boolean = false;
-  idCardNumber: string = '';
+  selectedBranch: string = '';
+  selectAllBranches: boolean = false;
+  selectedFromDate: Date | null = null;
+  selectedToDate: Date | null = null;
+  showFromCalendar: boolean = false;
+  showToCalendar: boolean = false;
   shareholderName: string = '';
-  lastName: string = '';
-
-  constructor(private readonly sanitizer: DomSanitizer) {}
+  shareholderLastName: string = '';
 
   ngOnInit(): void {
     setTimeout(() => this.sendHead());
-    // Set default date to current date
-    this.selectedDate = new Date();
+    // Set default dates to current date
+    this.selectedFromDate = new Date();
+    this.selectedToDate = new Date();
   }
 
   sendHead() {
-    this.headerChange.emit("สติ๊กเกอร์รายชื่อผู้ถือหุ้น");
+    this.headerChange.emit("ใบสำคัญจ่าย");
   }
 
-  onDateSelected(date: Date): void {
-    this.selectedDate = date;
-    this.showCalendar = false;
+  onFromDateSelected(date: Date): void {
+    this.selectedFromDate = date;
+    this.showFromCalendar = false;
   }
 
-  // แสดงผลไทย เช่น 15 ก.ย. 2568
+  onToDateSelected(date: Date): void {
+    this.selectedToDate = date;
+    this.showToCalendar = false;
+  }
+
+  // แสดงผลไทย เช่น 16 ก.ย. 2568
   formatThaiDate(date: Date | null): string {
     if (!date) return '';
     const months = [
@@ -72,12 +75,13 @@ export class Report16ShareholderSticker implements OnInit {
     return `${d} ${m} ${y}`;
   }
 
-  genPdf(type: string) {
-    console.log('Generating report:', type);
-    console.log('As of Date:', this.formatThaiDate(this.selectedDate));
-    console.log('ID Card Number:', this.idCardNumber);
-    console.log('Shareholder Name:', this.shareholderName);
-    console.log('Last Name:', this.lastName);
+  onSearch(): void {
+    console.log('Search with:', {
+      fromDate: this.selectedFromDate,
+      toDate: this.selectedToDate,
+      shareholderName: this.shareholderName,
+      shareholderLastName: this.shareholderLastName
+    });
   }
 
   goBack(): void {

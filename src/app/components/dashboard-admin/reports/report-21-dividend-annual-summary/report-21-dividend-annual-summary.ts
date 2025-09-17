@@ -33,7 +33,7 @@ export class Report21DividendAnnualSummary implements OnInit {
   }
 
   sendHead() {
-    this.headerChange.emit("สรุปการจ่ายเงินปันผลหุ้นสามัญประจำปีบัญชี");
+    this.headerChange.emit("สรุปการจ่ายเงินปันผลหุ้นสามัญประจำปี");
   }
 
   generateYears(): void {

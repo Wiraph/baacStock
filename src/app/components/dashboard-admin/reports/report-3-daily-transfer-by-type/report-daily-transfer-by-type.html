@@ -3,38 +3,80 @@
   
       <!-- Filters -->
       <div class="space-y-3">
-        <!-- Row: วันที่ (วิทยุเลือกโหมด และ จาก/ถึง แบบ วัน/เดือน/ปี) -->
+        <!-- Row: วันที่ (Responsive) -->
         <div class="space-y-3 border-b border-gray-200 pb-3 mb-3">
-          <div class="grid grid-cols-12 gap-2 items-start">
+          <!-- Desktop Layout -->
+          <div class="hidden md:grid grid-cols-12 gap-2 items-start">
             <div class="col-span-3 pt-2">
-              <label for="dateMode" class="inline-flex items-center space-x-2">
-                <span class="text-sm text-gray-700">ระหว่างวันที่</span>
-              </label>
+              <div class="text-sm text-gray-700">ระหว่างวันที่</div>
             </div>
             <div class="col-span-9">
               <div class="flex items-center gap-2 flex-nowrap overflow-x-auto">
-                <select class="w-20 border rounded px-2 py-1.5 text-center text-sm">
+                <select [(ngModel)]="startDay" class="w-20 border rounded px-2 py-1.5 text-center text-sm">
                   <option value="">วัน</option>
                   <option *ngFor="let d of days" [value]="d">{{ d }}</option>
                 </select>
-                <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+                <select [(ngModel)]="startMonth" class="w-24 border rounded px-2 py-1.5 text-center text-sm">
                   <option value="">เดือน</option>
                   <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
                 </select>
-                <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+                <select [(ngModel)]="startYear" class="w-24 border rounded px-2 py-1.5 text-center text-sm">
                   <option value="">ปี</option>
                   <option *ngFor="let y of years" [value]="y">{{ y }}</option>
                 </select>
                 <span class="min-w-fit ml-2 text-sm text-gray-600">ถึง</span>
-                <select class="w-20 border rounded px-2 py-1.5 text-center text-sm">
+                <select [(ngModel)]="endDay" class="w-20 border rounded px-2 py-1.5 text-center text-sm">
                   <option value="">วัน</option>
                   <option *ngFor="let d of days" [value]="d">{{ d }}</option>
                 </select>
-                <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+                <select [(ngModel)]="endMonth" class="w-24 border rounded px-2 py-1.5 text-center text-sm">
                   <option value="">เดือน</option>
                   <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
                 </select>
-                <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+                <select [(ngModel)]="endYear" class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+                  <option value="">ปี</option>
+                  <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mobile Layout -->
+          <div class="md:hidden space-y-3">
+            <div class="text-sm text-gray-700 font-medium">ระหว่างวันที่</div>
+            
+            <!-- วันที่เริ่มต้น -->
+            <div class="space-y-2">
+              <div class="text-xs text-gray-600">วันที่เริ่มต้น</div>
+              <div class="grid grid-cols-3 gap-2">
+                <select [(ngModel)]="startDay" class="w-full border rounded px-2 py-2 text-center text-sm">
+                  <option value="">วัน</option>
+                  <option *ngFor="let d of days" [value]="d">{{ d }}</option>
+                </select>
+                <select [(ngModel)]="startMonth" class="w-full border rounded px-2 py-2 text-center text-sm">
+                  <option value="">เดือน</option>
+                  <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+                </select>
+                <select [(ngModel)]="startYear" class="w-full border rounded px-2 py-2 text-center text-sm">
+                  <option value="">ปี</option>
+                  <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- วันที่สิ้นสุด -->
+            <div class="space-y-2">
+              <div class="text-xs text-gray-600">วันที่สิ้นสุด</div>
+              <div class="grid grid-cols-3 gap-2">
+                <select [(ngModel)]="endDay" class="w-full border rounded px-2 py-2 text-center text-sm">
+                  <option value="">วัน</option>
+                  <option *ngFor="let d of days" [value]="d">{{ d }}</option>
+                </select>
+                <select [(ngModel)]="endMonth" class="w-full border rounded px-2 py-2 text-center text-sm">
+                  <option value="">เดือน</option>
+                  <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+                </select>
+                <select [(ngModel)]="endYear" class="w-full border rounded px-2 py-2 text-center text-sm">
                   <option value="">ปี</option>
                   <option *ngFor="let y of years" [value]="y">{{ y }}</option>
                 </select>
@@ -72,14 +114,17 @@
   
         <!-- Actions -->
         <div class="flex items-center justify-center space-x-3">
-          <button type="button" class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">ค้นหา PDF</button>
-          <button type="button" class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">ค้นหา EXCEL</button>
+          <button type="button" (click)="loadFile('PDF')" class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">ค้นหา PDF</button>
+          <button type="button" (click)="loadFile('EXCEL')" class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">ค้นหา EXCEL</button>
         </div>
-  
       </div>
     </div>
+
     <!-- Document Preview Area -->
-    <div class="mt-3 border rounded bg-gray-50 overflow-auto" style="height: 500px;"></div>
+    <div class="mt-3 border rounded bg-gray-50 overflow-auto" style="height: 500px;">
+      <iframe *ngIf="pdfSrc" [src]="pdfSrc" width="100%" height="100%" style="border:none;" title="Preview PDF รายงานโอนหุ้น"></iframe>
+      <div *ngIf="!pdfSrc" class="flex items-center justify-center h-full text-gray-500"></div>
+    </div>
   
     <!-- Back Button -->
     <div class="flex justify-center mt-4">

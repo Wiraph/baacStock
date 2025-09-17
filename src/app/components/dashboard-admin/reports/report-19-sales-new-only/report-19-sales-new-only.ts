@@ -16,7 +16,7 @@ export class Report19SalesNewOnly implements OnInit {
   }
 
   sendHead() {
-    this.headerChange.emit("รายงานการขายหุ้นใหม่เท่านั้น");
+    this.headerChange.emit("รายงานการขายหุ้นสามัญ (เฉพาะรายใหม่)");
   }
 
   goBack(): void {

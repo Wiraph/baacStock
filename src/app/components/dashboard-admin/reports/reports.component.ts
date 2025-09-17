@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Report1Transfer } from './report-1-transfer/report-1-transfer';
 import { Report2Newstock } from './report-2-newstock/report-newstock';
 import { Report3DailyTransferByType } from './report-3-daily-transfer-by-type/report-daily-transfer-by-type';
@@ -24,6 +25,18 @@ import { Report21DividendAnnualSummary } from './report-21-dividend-annual-summa
 import { Report22DividendPayment } from './report-22-dividend-payment/report-22-dividend-payment';
 import { Report23DividendDaily } from './report-23-dividend-daily/report-23-dividend-daily';
 import { Report24DividendMonthly } from './report-24-dividend-monthly/report-24-dividend-monthly'; 
+import { Report25DividendUnpaid } from './report-25-dividend-unpaid/report-25-dividend-unpaid';
+import { Report26Pnd2 } from './report-26-pnd2/report-26-pnd2';
+import { Report27Pnd2a } from './report-27-pnd2a/report-27-pnd2a';
+import { Report28PaymentVoucher } from './report-28-payment-voucher/report-28-payment-voucher';
+import { Report29DividendPaymentNotice } from './report-29-dividend-payment-notice/report-29-dividend-payment-notice';
+import { Report30DividendNoticeTaxCert } from './report-30-dividend-notice-tax-cert/report-30-dividend-notice-tax-cert';
+import { Report31WhtCertOld } from './report-31-wht-cert-old/report-31-wht-cert-old';
+import { Report32WhtCertByName } from './report-32-wht-cert-by-name/report-32-wht-cert-by-name';
+import { Report33WhtCert } from './report-33-wht-cert/report-33-wht-cert';
+import { Report34Movement } from './report-34-movement/report-34-movement';
+import { Report35MovementUpdated } from './report-35-movement-updated/report-35-movement-updated';
+import { Report36AverageSharesByFiscalYear } from './report-36-average-shares-by-fiscal-year/report-36-average-shares-by-fiscal-year';
 
 interface ReportItem {
   id: string;
@@ -35,7 +48,7 @@ interface ReportItem {
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, 
+  imports: [CommonModule, FormsModule, 
     Report1Transfer, 
     Report2Newstock, 
     Report3DailyTransferByType, 
@@ -60,6 +73,18 @@ interface ReportItem {
     Report22DividendPayment,
     Report23DividendDaily,
     Report24DividendMonthly,
+    Report25DividendUnpaid,
+    Report26Pnd2,
+    Report27Pnd2a,
+    Report28PaymentVoucher,
+    Report29DividendPaymentNotice,
+    Report30DividendNoticeTaxCert,
+    Report31WhtCertOld,
+    Report32WhtCertByName,
+    Report33WhtCert,
+    Report34Movement,
+    Report35MovementUpdated,
+    Report36AverageSharesByFiscalYear,
   ],
   templateUrl: './reports.component.html'
 })
@@ -68,6 +93,11 @@ export class ReportsComponent {
   report: boolean = false;
   actView: string = '';
   headerReport: string = '';
+  
+  // Search and filter properties
+  searchTerm: string = '';
+  selectedCategory: string = 'all';
+  showFavorites: boolean = false;
 
   reports: ReportItem[] = [
     { id: 'report_transfer', title: 'รายงานการขายหุ้น/โอนเปลี่ยนมือ', icon: '🌸', category: 'normal' },
@@ -94,18 +124,18 @@ export class ReportsComponent {
     { id: 'report_dividend_payment', title: 'รายงานการจ่ายเงินปันผล', icon: '🌸', category: 'normal' },
     { id: 'report_dividend_daily', title: 'รายงานการจ่ายเงินปันผลประจำวัน', icon: '⚠️', category: 'normal' },
     { id: 'report_dividend_monthly', title: 'รายงานการจ่ายเงินปันผลประจำเดือน', icon: '⚠️', category: 'normal' },
-    { id: 'report_dividend_unpaid', title: 'รายงานเงินปันผลค้างจ่าย', icon: '❌', category: 'normal' },
-    { id: 'report_pnd2_attachment', title: 'ใบแนบ ภ.ง.ด. 2', icon: '❌', category: 'normal' },
-    { id: 'report_pnd2k_attachment', title: 'ใบแนบ ภ.ง.ด. 2ก', icon: '❌', category: 'normal' },
-    { id: 'report_payment_voucher', title: 'ใบสำคัญจ่าย', icon: '❌', category: 'normal' },
-    { id: 'report_dividend_payment_notice', title: 'หนังสือแจ้งการจ่ายปันผลหุ้นสามัญ', icon: '❌', category: 'normal' },
-    { id: 'report_dividend_notice_tax_cert', title: 'หนังสือแจ้งการจ่ายปันผลหุ้นสามัญ / หนังสือรับรองการหักภาษี', icon: '❌', category: 'normal' },
-    { id: 'report_wht_cert_old', title: 'หนังสือรับรองการหักภาษี ณ ที่จ่าย (ฟอร์มเดิม)', icon: '❌', category: 'normal' },
-    { id: 'report_wht_cert_by_name', title: 'หนังสือรับรองการหักภาษี ณ ที่จ่าย (เรียงตามชื่อ)', icon: '❌', category: 'normal' },
-    { id: 'report_wht_cert', title: 'หนังสือรับรองการหักภาษี ณ ที่จ่าย', icon: '❌', category: 'normal' },
-    { id: 'report_movement', title: 'รายงานการเคลื่อนไหว', icon: '❌', category: 'normal' },
-    { id: 'report_movement_updated', title: 'รายงานการเคลื่อนไหว (ปรับปรุง)', icon: '❌', category: 'normal' },
-    { id: 'report_average_shares_by_fiscal_year', title: 'รายละเอียดจำนวนหุ้นสามัญและหุ้นบุริมสิทธิถัวเฉลี่ย ประจำปีบัญชี', icon: '❌', category: 'normal' }
+    { id: 'report_dividend_unpaid', title: 'รายงานเงินปันผลค้างจ่าย', icon: '🌸', category: 'normal' },
+    { id: 'report_pnd2', title: 'ใบแนบ ภ.ง.ด. 2', icon: '🌸', category: 'normal' },
+    { id: 'report_pnd2a', title: 'ใบแนบ ภ.ง.ด. 2ก', icon: '🌸', category: 'normal' },
+    { id: 'report_payment_voucher', title: 'ใบสำคัญจ่าย', icon: '🌸', category: 'normal' },
+    { id: 'report_dividend_payment_notice', title: 'รายงานแจ้งเตือนการจ่ายเงินปันผล', icon: '🌸', category: 'normal' },
+    { id: 'report_dividend_notice_tax_cert', title: 'หนังสือแจ้งการจ่ายปันผลหุ้นสามัญ / หนังสือรับรองการหักภาษี', icon: '🌸', category: 'normal' },
+    { id: 'report_wht_cert_old', title: 'หนังสือรับรองการหักภาษี ณ ที่จ่าย (ฟอร์มเดิม)', icon: '⚠️', category: 'normal' },
+    { id: 'report_wht_cert_by_name', title: 'หนังสือรับรองการหักภาษี ณ ที่จ่าย (เรียงตามชื่อ)', icon: '🌸', category: 'normal' },
+    { id: 'report_wht_cert', title: 'หนังสือรับรองการหักภาษี ณ ที่จ่าย', icon: '🌸', category: 'normal' },
+    { id: 'report_movement', title: 'รายงานการเคลื่อนไหว', icon: '🌸', category: 'normal' },
+    { id: 'report_movement_updated', title: 'รายงานการเคลื่อนไหว (ปรับปรุง)', icon: '🌸', category: 'normal' },
+    { id: 'report_average_shares_by_fiscal_year', title: 'รายละเอียดจำนวนหุ้นสามัญและหุ้นบุริมสิทธิถัวเฉลี่ย ประจำปีบัญชี', icon: '🌸', category: 'normal' }
   ];
 
   constructor(
@@ -140,6 +170,45 @@ export class ReportsComponent {
 
   get normalReports(): ReportItem[] {
     return this.reports.filter(report => report.category === 'normal');
+  }
+
+  get filteredReports(): ReportItem[] {
+    let filtered = this.normalReports;
+
+    // Filter by search term
+    if (this.searchTerm.trim()) {
+      filtered = filtered.filter(report => 
+        report.title.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by category
+    if (this.selectedCategory !== 'all') {
+      filtered = filtered.filter(report => report.category === this.selectedCategory);
+    }
+
+    return filtered;
+  }
+
+  get categories() {
+    return [
+      { value: 'all', label: 'ทั้งหมด' },
+      { value: 'normal', label: 'รายงานปกติ' },
+      { value: 'special', label: 'รายงานพิเศษ' }
+    ];
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+  }
+
+  onSearchChange(): void {
+    // Search is handled by the getter
+  }
+
+  getSelectedCategoryLabel(): string {
+    const category = this.categories.find(c => c.value === this.selectedCategory);
+    return category ? category.label : '';
   }
 
 } 

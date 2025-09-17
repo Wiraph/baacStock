@@ -2,7 +2,6 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ThaiCalendarComponent } from '../../../thai-calendar-component/thai-calendar-component';
 import { Thaidateadapter } from '../../../thaidateadapter/thaidateadapter';
 
@@ -17,7 +16,7 @@ export const THAI_DATE_FORMATS = {
 };
 
 @Component({
-  selector: 'app-report-16-shareholder-sticker',
+  selector: 'app-report-29-dividend-payment-notice',
   standalone: true,
   imports: [CommonModule, FormsModule, ThaiCalendarComponent],
   providers: [
@@ -25,41 +24,51 @@ export const THAI_DATE_FORMATS = {
     { provide: MAT_DATE_FORMATS, useValue: THAI_DATE_FORMATS },
     { provide: MAT_DATE_LOCALE, useValue: 'th-TH' },
   ],
-  templateUrl: './report-16-shareholder-sticker.html',
-  styleUrl: './report-16-shareholder-sticker.css'
+  templateUrl: './report-29-dividend-payment-notice.html',
+  styleUrl: './report-29-dividend-payment-notice.css'
 })
-export class Report16ShareholderSticker implements OnInit {
+export class Report29DividendPaymentNotice implements OnInit {
   @Output() headerChange = new EventEmitter<string>();
   @Output() back = new EventEmitter<void>();
 
-  loading: boolean = false;
-  pdfSrc: SafeResourceUrl | null = null;
-
   // Form fields
-  selectedDate: Date | null = null;
-  showCalendar: boolean = false;
   idCardNumber: string = '';
-  shareholderName: string = '';
+  firstName: string = '';
   lastName: string = '';
+  selectedYear: string = '2568';
+  selectedDate: Date | null = null;
+  showDateCalendar: boolean = false;
+  selectedSignatory: string = 'นางสาววนิดา น้อยเสนา';
+  pdfSrc: string | null = null;
 
-  constructor(private readonly sanitizer: DomSanitizer) {}
+  // Options
+  years: number[] = Array.from({ length: 2568 - 2554 + 1 }, (_, index) => 2568 - index);
+  
+  yearOptions = this.years.map(year => ({
+    value: year.toString(),
+    label: year.toString()
+  }));
+
+  signatoryOptions = [
+    { value: 'นางสาววนิดา น้อยเสนา', label: 'นางสาววนิดา น้อยเสนา' },
+    { value: 'นายสมชาย ใจดี', label: 'นายสมชาย ใจดี' },
+    { value: 'นางสมหญิง รักงาน', label: 'นางสมหญิง รักงาน' }
+  ];
 
   ngOnInit(): void {
     setTimeout(() => this.sendHead());
-    // Set default date to current date
     this.selectedDate = new Date();
   }
 
-  sendHead() {
-    this.headerChange.emit("สติ๊กเกอร์รายชื่อผู้ถือหุ้น");
+  sendHead(): void {
+    this.headerChange.emit("รายงานแจ้งเตือนการจ่ายเงินปันผล");
   }
 
   onDateSelected(date: Date): void {
     this.selectedDate = date;
-    this.showCalendar = false;
+    this.showDateCalendar = false;
   }
 
-  // แสดงผลไทย เช่น 15 ก.ย. 2568
   formatThaiDate(date: Date | null): string {
     if (!date) return '';
     const months = [
@@ -72,12 +81,20 @@ export class Report16ShareholderSticker implements OnInit {
     return `${d} ${m} ${y}`;
   }
 
-  genPdf(type: string) {
-    console.log('Generating report:', type);
-    console.log('As of Date:', this.formatThaiDate(this.selectedDate));
-    console.log('ID Card Number:', this.idCardNumber);
-    console.log('Shareholder Name:', this.shareholderName);
-    console.log('Last Name:', this.lastName);
+  onConfirm(): void {
+    console.log('Confirm with:', {
+      idCardNumber: this.idCardNumber,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      year: this.selectedYear,
+      date: this.selectedDate,
+      signatory: this.selectedSignatory
+    });
+    alert('ดำเนินการสำเร็จ');
+  }
+
+  onCancel(): void {
+    this.goBack();
   }
 
   goBack(): void {

@@ -191,7 +191,7 @@ export class Report24DividendMonthly implements OnInit {
   }
 
   sendHead() {
-    this.headerChange.emit("รายงานการจ่ายเงินปันผลประจำวัน");
+    this.headerChange.emit("รายงานการจ่ายเงินปันผลประจำเดือน");
   }
 
   generateYears(): void {
