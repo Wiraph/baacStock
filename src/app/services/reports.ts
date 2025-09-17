@@ -52,4 +52,14 @@ export class Reports {
     const encrypPayload = this.encrypt.encrypPayload(payload);
     return this.http.post<any>(`${this.apiUrl}/stock-report-menu7`, encrypPayload, { withCredentials: true });
   }
+
+  LoadFileMenu8(payload: any): Observable<any>{
+    const encrypPayload = this.encrypt.encrypPayload(payload);
+    return this.http.post<any>(`${this.apiUrl}/stock-report-menu8`, encrypPayload, { withCredentials: true });
+  }
+
+  StockHolder(payload: any): Observable<any>{
+    const encrypPayload = this.encrypt.encrypPayload(payload);
+    return this.http.post<any>(`${this.apiUrl}/stockholder`, encrypPayload, { withCredentials: true });
+  }
 }

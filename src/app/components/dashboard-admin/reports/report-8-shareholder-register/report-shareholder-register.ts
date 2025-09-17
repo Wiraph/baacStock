@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Reports } from '../../../../services/reports';
+import Swal from 'sweetalert2';
 
 @Component({
   standalone: true,
@@ -36,7 +38,8 @@ export class Report8ShareholderRegister implements OnInit {
   selectedCustomerType: string = 'cus-type';
 
   constructor(
-    private readonly cd: ChangeDetectorRef
+    private readonly cd: ChangeDetectorRef,
+    private readonly reportService: Reports
   ) {}
 
   ngOnInit(): void {
@@ -45,6 +48,42 @@ export class Report8ShareholderRegister implements OnInit {
 
   sendHead() {
     this.headerChange.emit("รายงานทะเบียนผู้ถือหุ้น");
+  }
+
+  onLoadCustomer() {
+    const payload = {
+      DateRep: "", // yyyymmdd
+      CusType: "", // cuscode
+      CusFname: "", // fname
+      CusLname: "", // lname
+      CusCardno: "" // cusid
+    }
+    this.reportService.StockHolder(payload).subscribe({
+      next: (res:any) => {
+
+      }, error: (err) => {
+        console.log(err);
+      }
+    })
+  }
+
+  loadFile() {
+    const payload = {
+      DateRep: "", // YYYYMMDD
+      CusCardno: "", // Cusid
+      TypeExport: "" // PDF || EXCEL
+    }
+
+    this.reportService.LoadFileMenu8(payload).subscribe({
+      next: (res:any) => {
+
+      }, error: (err) => {
+        Swal.fire({
+          icon: 'error',
+          text: `${err.message}`
+        })
+      }
+    })
   }
 
   // เพิ่ม method สำหรับจัดการการเปลี่ยนประเภทลูกค้า
