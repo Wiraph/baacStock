@@ -47,4 +47,9 @@ export class Reports {
     const encrypPayload = this.encrypt.encrypPayload(payload);
     return this.http.post<any>(`${this.apiUrl}/stock-report-menu6`, encrypPayload, { withCredentials: true });
   }
+
+  LoadFileMenu7(payload: any): Observable<any>{
+    const encrypPayload = this.encrypt.encrypPayload(payload);
+    return this.http.post<any>(`${this.apiUrl}/stock-report-menu7`, encrypPayload, { withCredentials: true });
+  }
 }
