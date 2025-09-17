@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Reports, StockReportDto } from '../../../../services/reports';
+import Swal from 'sweetalert2';
 
 @Component({
   standalone: true,
@@ -33,7 +35,8 @@ export class Report5ShareholderRatio implements OnInit {
   years: number[] = Array.from({ length: 2568 - 2554 + 1 }, (_, index) => 2568 - index);
 
   constructor(
-    private readonly cd: ChangeDetectorRef
+    private readonly cd: ChangeDetectorRef,
+    private readonly reportService: Reports
   ) {}
 
   ngOnInit(): void {
@@ -42,6 +45,33 @@ export class Report5ShareholderRatio implements OnInit {
 
   sendHead() {
     this.headerChange.emit("รายงานสัดส่วนผู้ถือหุ้น");
+  }
+
+  loadFile() {
+    const payload: StockReportDto = {
+      Division: "",
+      Prov: "",
+      Br: "",
+      DateStart: "", // YYYYMMDD
+      DateEnd: "",
+      TypeExport: "" // PDF || ECEL
+    }
+
+    this.reportService.LoadFileMenu5(payload).subscribe({
+      next: (res:any) => {
+
+      }, error: (err:any) => {
+        Swal.fire({
+          icon: 'error',
+          text: `${err.message}`
+        })
+      }
+    })
+    // {
+    // "message": "Report generated successfully",
+    // "filePath": "wwwroot\\Reps\\รายงานสัดส่วนผู้ถือหุ้น_25680916-160227.xlsx",
+    // "fileUrl": "https://localhost:7089/Reps/รายงานสัดส่วนผู้ถือหุ้น_25680916-160227.xlsx"
+    // }
   }
 
   goBack(): void {

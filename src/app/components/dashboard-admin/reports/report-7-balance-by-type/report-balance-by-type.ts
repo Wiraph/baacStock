@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Reports } from '../../../../services/reports';
+import Swal from 'sweetalert2';
 
 @Component({
   standalone: true,
@@ -33,7 +35,8 @@ export class Report7BalanceByType implements OnInit {
   years: number[] = Array.from({ length: 2568 - 2500 + 1 }, (_, index) => 2568 - index);
 
   constructor(
-    private readonly cd: ChangeDetectorRef
+    private readonly cd: ChangeDetectorRef,
+    private readonly reportService: Reports
   ) {}
 
   ngOnInit(): void {
@@ -42,6 +45,25 @@ export class Report7BalanceByType implements OnInit {
 
   sendHead() {
     this.headerChange.emit("รายงานสรุปยอดคงเหลือแยกตามประเภทผู้ถือหุ้น");
+  }
+
+  loadFile() {
+    const payload = {
+      StkType: "", // A || B
+      DateStart: "", // yyyymmdd พ.ศ.
+      TypeExport: "" // PDF || EXCEL
+    }
+
+    this.reportService.LoadFileMenu7(payload).subscribe({
+      next: (res) => {
+
+      },error: (err:any) => {
+        Swal.fire({
+          icon: 'error',
+          text: `${err.message}`
+        })
+      }
+    })
   }
 
   goBack(): void {
