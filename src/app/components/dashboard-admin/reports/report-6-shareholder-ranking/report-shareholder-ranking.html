@@ -7,25 +7,36 @@
         <div class="border-b border-gray-200 pb-4 mb-4">
           <div class="flex items-center justify-center gap-4">
             <label for="rankingCount" class="text-sm font-medium text-gray-700">จำนวนอันดับ :</label>
-            <input type="number" class="w-24 border border-gray-300 rounded-lg px-3 py-2 text-center text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" min="1" step="1">
+            <input 
+              type="number" 
+              id="rankingCount"
+              [(ngModel)]="rankingCount"
+              class="w-24 border border-gray-300 rounded-lg px-3 py-2 text-center text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+              min="1" 
+              step="1">
           </div>
         </div>
 
         <!-- ประเภทลูกค้า -->
         <div class="border-b border-gray-200 pb-4 mb-4">
           <div class="flex items-center justify-center gap-4">
-            <label for="customerType" class="text-sm font-medium text-gray-700">ประเภทลูกค้า:</label>
-            <select 
-              id="customerType" 
-              class="w-32 border border-gray-300 rounded-lg px-3 py-2 text-center text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <option value="">ทั้งหมด</option>
-            </select>
+               <label for="customerType" class="text-sm font-medium text-gray-700">ประเภทลูกค้า:</label>
+               <select 
+                 id="customerType" 
+                 [(ngModel)]="selectedCustype"
+                 class="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                 <option value="">ทั้งหมด</option>
+                 <option *ngFor="let custype of custypes" [value]="custype.cusCode">{{ custype.cusDesc }}</option>
+               </select>
           </div>
         </div>
   
         <!-- Actions -->
         <div class="flex items-center justify-center space-x-4 pt-4">
-          <button class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">DOWNLOAD</button>
+          <button 
+            type="button" 
+            (click)="downloadReport()"
+            class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">DOWNLOAD</button>
         </div>
       </div>
     </div>

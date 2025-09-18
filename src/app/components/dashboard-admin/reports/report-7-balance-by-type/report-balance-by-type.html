@@ -7,9 +7,12 @@
             <div class="grid grid-cols-12 items-center gap-2 border-b border-gray-200 pb-3 mb-3">
                 <label for="shareType" class="col-span-3 text-sm text-gray-700">ประเภทหุ้น :</label>
                 <div class="col-span-9">
-                <select id="shareType" class="w-56 border rounded px-2 py-1.5 text-center text-sm">
-                    <option value="">หุ้นสามัญ</option>
-                    <option value="">หุ้นบุริมสิทธิ</option>
+                <select 
+                    id="shareType" 
+                    [(ngModel)]="selectedStkType"
+                    class="w-56 border rounded px-2 py-1.5 text-center text-sm">
+                    <option value="A">หุ้นสามัญ</option>
+                    <option value="B">หุ้นบุริมสิทธิ</option>
                 </select>
                 </div>
             </div>
@@ -25,15 +28,21 @@
             </div>
             <div class="col-span-9">
                 <div class="flex items-center gap-2 flex-nowrap overflow-x-auto">
-                <select class="w-20 border rounded px-2 py-1.5 text-center text-sm">
+                <select 
+                    [(ngModel)]="selectedDay"
+                    class="w-20 border rounded px-2 py-1.5 text-center text-sm">
                     <option value="">วัน</option>
                     <option *ngFor="let d of days" [value]="d">{{ d }}</option>
                 </select>
-                <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+                <select 
+                    [(ngModel)]="selectedMonth"
+                    class="w-24 border rounded px-2 py-1.5 text-center text-sm">
                     <option value="">เดือน</option>
                     <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
                 </select>
-                <select class="w-24 border rounded px-2 py-1.5 text-center text-sm">
+                <select 
+                    [(ngModel)]="selectedYear"
+                    class="w-24 border rounded px-2 py-1.5 text-center text-sm">
                     <option value="">ปี</option>
                     <option *ngFor="let y of years" [value]="y">{{ y }}</option>
                 </select>
@@ -44,14 +53,33 @@
 
         <!-- Actions -->
         <div class="flex items-center justify-center space-x-4 pt-4">
-            <button type="button" class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">ค้นหา PDF</button>
-            <button type="button" class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">ค้นหา EXCEL</button>
+            <button 
+                type="button" 
+                (click)="generatePDF()"
+                class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200">
+                สร้าง PDF
+            </button>
+            <button 
+                type="button" 
+                (click)="generateEXCEL()"
+                class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition duration-200">
+                สร้าง EXCEL
+            </button>
         </div>
         </div>
     </div>
 
     <!-- Document Preview Area -->
-    <div class="mt-3 border rounded bg-gray-50 overflow-auto" style="height: 500px;"></div>
+    <div class="mt-3 border rounded bg-gray-50 overflow-hidden" style="height: 500px;">
+        <div *ngIf="pdfSrc" class="w-full h-full">
+            <iframe 
+                [src]="pdfSrc" 
+                title="รายงานสรุปยอดคงเหลือแยกตามประเภทผู้ถือหุ้น"
+                class="w-full h-full border-0"
+                allowfullscreen>
+            </iframe>
+        </div>
+    </div>
     
     <!-- Back Button -->
     <div class="flex justify-center mt-4">

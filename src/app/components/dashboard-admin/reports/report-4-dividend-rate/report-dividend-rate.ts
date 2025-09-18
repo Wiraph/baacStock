@@ -1,17 +1,24 @@
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Reports, StockReportDto } from '../../../../services/reports';
 
 @Component({
   standalone: true,
   selector: 'app-report-4-dividend-rate',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './report-dividend-rate.html',
   styleUrl: './report-dividend-rate.css'
 })
 export class Report4DividendRate implements OnInit {
   @Output() headerChange = new EventEmitter<string>();
   @Output() back = new EventEmitter<void>();
+
+  // Form data
+  selectedYearFrom: string = '';
+  selectedYearTo: string = '';
+  pdfSrc: SafeResourceUrl | null = null;
 
   // Date select options
   days: number[] = Array.from({ length: 31 }, (_, index) => index + 1);
@@ -35,10 +42,15 @@ export class Report4DividendRate implements OnInit {
 
   constructor(
     private readonly cd: ChangeDetectorRef,
-    private readonly reportService: Reports
+    private readonly reportService: Reports,
+    private readonly sanitizer: DomSanitizer
   ) {}
 
   ngOnInit(): void {
+    const currentYear = new Date().getFullYear() + 543;
+    this.selectedYearFrom = currentYear.toString();
+    this.selectedYearTo = currentYear.toString();
+    
     setTimeout(() => this.sendHead());
   }
 
@@ -46,25 +58,72 @@ export class Report4DividendRate implements OnInit {
     this.headerChange.emit("รายงานข้อมูลอัตราเงินปันผล");
   }
 
-  loadFile() {
+  // Generate PDF Report
+  generatePDF() {
+    if (!this.selectedYearFrom || !this.selectedYearTo) {
+      return;
+    }
+
+    // Clear previous PDF
+    this.pdfSrc = null;
+    this.cd.detectChanges();
+
     const payload: StockReportDto = {
       Division: "", // ปล่อยว่าง
-      Prov: "", // ปล่อยว่าง
-      Br: "", // ปล่อยว่าง
-      DateStart: "", // YYYYY
-      DateEnd: "", // YYYYY
-      TypeExport: "" // PDF || EXCEL
-    }
+      Prov: "",     // ปล่อยว่าง
+      Br: "",       // ปล่อยว่าง
+      DateStart: this.selectedYearFrom,
+      DateEnd: this.selectedYearTo,
+      TypeExport: "PDF"
+    };
+
     this.reportService.LoadFileMenu4(payload).subscribe({
+      next: (response) => {
+        console.log('PDF Report Response:', response);
+        
+        if (response?.fileUrl) {
+          this.pdfSrc = this.sanitizer.bypassSecurityTrustResourceUrl(response.fileUrl);
+          console.log('PDF URL set:', response.fileUrl);
+          this.cd.detectChanges();
+        }
+      },
+      error: (error) => {
+        console.error('Error generating PDF:', error);
+      }
+    });
+  }
 
-    })
+  // Generate EXCEL Report
+  generateEXCEL() {
+    if (!this.selectedYearFrom || !this.selectedYearTo) {
+      return;
+    }
 
-    // ตัวอย่างผลลัพธ์
-    // {
-    // "message": "Report generated successfully",
-    // "filePath": "wwwroot\\Reps\\รายงานข้อมูลอัตราเงินปันผล_25680916-122505.xlsx",
-    // "fileUrl": "https://localhost:7089/Reps/รายงานข้อมูลอัตราเงินปันผล_25680916-122505.xlsx"
-    // }
+    const payload: StockReportDto = {
+      Division: "", // ปล่อยว่าง
+      Prov: "",     // ปล่อยว่าง
+      Br: "",       // ปล่อยว่าง
+      DateStart: this.selectedYearFrom,
+      DateEnd: this.selectedYearTo,
+      TypeExport: "EXCEL"
+    };
+
+    this.reportService.LoadFileMenu4(payload).subscribe({
+      next: (response) => {
+        console.log('EXCEL Report Response:', response);
+        
+        if (response.fileUrl) {
+          // Download EXCEL file
+          const link = document.createElement('a');
+          link.href = response.fileUrl;
+          link.download = `รายงานข้อมูลอัตราเงินปันผล_${this.selectedYearFrom}-${this.selectedYearTo}.xlsx`;
+          link.click();
+        }
+      },
+      error: (error) => {
+        console.error('Error generating EXCEL:', error);
+      }
+    });
   }
 
   goBack(): void {

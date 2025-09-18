@@ -1,18 +1,26 @@
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Reports, StockReportDto } from '../../../../services/reports';
 import Swal from 'sweetalert2';
 
 @Component({
   standalone: true,
   selector: 'app-report-5-shareholder-ratio',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './report-shareholder-ratio.html',
   styleUrl: './report-shareholder-ratio.css'
 })
 export class Report5ShareholderRatio implements OnInit {
   @Output() headerChange = new EventEmitter<string>();
   @Output() back = new EventEmitter<void>();
+
+  // Form data
+  selectedDay: string = '';
+  selectedMonth: string = '';
+  selectedYear: string = '';
+  pdfSrc: SafeResourceUrl | null = null;
 
   // Date select options
   days: number[] = Array.from({ length: 31 }, (_, index) => index + 1);
@@ -36,10 +44,17 @@ export class Report5ShareholderRatio implements OnInit {
 
   constructor(
     private readonly cd: ChangeDetectorRef,
-    private readonly reportService: Reports
+    private readonly reportService: Reports,
+    private readonly sanitizer: DomSanitizer
   ) {}
 
   ngOnInit(): void {
+    // Set default values
+    const currentDate = new Date();
+    this.selectedDay = currentDate.getDate().toString();
+    this.selectedMonth = (currentDate.getMonth() + 1).toString();
+    this.selectedYear = (currentDate.getFullYear() + 543).toString(); // Convert to Buddhist year
+    
     setTimeout(() => this.sendHead());
   }
 
@@ -47,31 +62,84 @@ export class Report5ShareholderRatio implements OnInit {
     this.headerChange.emit("รายงานสัดส่วนผู้ถือหุ้น");
   }
 
-  loadFile() {
+  // Generate PDF Report
+  generatePDF() {
+    if (!this.selectedDay || !this.selectedMonth || !this.selectedYear) {
+      return;
+    }
+
+    // Clear previous PDF
+    this.pdfSrc = null;
+    this.cd.detectChanges();
+
+    const dateString = `${this.selectedYear}${this.selectedMonth.padStart(2, '0')}${this.selectedDay.padStart(2, '0')}`;
+    
     const payload: StockReportDto = {
       Division: "",
       Prov: "",
       Br: "",
-      DateStart: "", // YYYYMMDD
-      DateEnd: "",
-      TypeExport: "" // PDF || ECEL
-    }
+      DateStart: dateString,
+      DateEnd: dateString,
+      TypeExport: "PDF"
+    };
 
     this.reportService.LoadFileMenu5(payload).subscribe({
-      next: (res:any) => {
-
-      }, error: (err:any) => {
+      next: (response) => {
+        console.log('PDF Report Response:', response);
+        
+        if (response?.fileUrl) {
+          this.pdfSrc = this.sanitizer.bypassSecurityTrustResourceUrl(response.fileUrl);
+          console.log('PDF URL set:', response.fileUrl);
+          this.cd.detectChanges();
+        }
+      },
+      error: (err: any) => {
+        console.error('Error generating PDF:', err);
         Swal.fire({
           icon: 'error',
           text: `${err.message}`
-        })
+        });
       }
-    })
-    // {
-    // "message": "Report generated successfully",
-    // "filePath": "wwwroot\\Reps\\รายงานสัดส่วนผู้ถือหุ้น_25680916-160227.xlsx",
-    // "fileUrl": "https://localhost:7089/Reps/รายงานสัดส่วนผู้ถือหุ้น_25680916-160227.xlsx"
-    // }
+    });
+  }
+
+  // Generate EXCEL Report
+  generateEXCEL() {
+    if (!this.selectedDay || !this.selectedMonth || !this.selectedYear) {
+      return;
+    }
+
+    const dateString = `${this.selectedYear}${this.selectedMonth.padStart(2, '0')}${this.selectedDay.padStart(2, '0')}`;
+    
+    const payload: StockReportDto = {
+      Division: "",
+      Prov: "",
+      Br: "",
+      DateStart: dateString,
+      DateEnd: dateString,
+      TypeExport: "EXCEL"
+    };
+
+    this.reportService.LoadFileMenu5(payload).subscribe({
+      next: (response) => {
+        console.log('EXCEL Report Response:', response);
+        
+        if (response?.fileUrl) {
+          // Download EXCEL file
+          const link = document.createElement('a');
+          link.href = response.fileUrl;
+          link.download = `รายงานสัดส่วนผู้ถือหุ้น_${dateString}.xlsx`;
+          link.click();
+        }
+      },
+      error: (err: any) => {
+        console.error('Error generating EXCEL:', err);
+        Swal.fire({
+          icon: 'error',
+          text: `${err.message}`
+        });
+      }
+    });
   }
 
   goBack(): void {
