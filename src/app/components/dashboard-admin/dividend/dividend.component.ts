@@ -128,37 +128,54 @@ export class DividendComponent implements OnInit {
       stkOWNiD: cusId
     }
     
+    console.log('💰 Loading dividend data for cusId:', cusId);
+    console.log('💰 Payload:', payload);
+    
     // เรียก API GetDividend2Pay เพื่อดึงข้อมูลเงินปันผล
     this.dividendService.getDividend2Pay(payload).subscribe({
       next: (response:any) => {
+        console.log('💰 API Response:', response);
+        console.log('💰 Response type:', typeof response);
+        console.log('💰 Response length:', response?.length);
         
         if (response && response.length > 0) {
+          // ตรวจสอบว่ามีข้อมูลที่ valid หรือไม่
+          const hasValidDividendData = response.some((item: any) => 
+            this.getValidValue(item.payBEFdvn) || 
+            this.getValidValue(item.payCURdvn) || 
+            this.getValidValue(item.stkNOTE)
+          );
 
           //กรณีที่ 1: มีข้อมูลเงินปันผล
-          this.systemStatus.hasDividendData = true;
+          this.systemStatus.hasDividendData = hasValidDividendData;
           
-          const dividendData = response;
+          // ใช้ข้อมูลจากรายการแรกเพื่อดึงข้อมูลลูกค้า
+          const firstItem = response[0];
+          console.log('💰 First item:', firstItem);
           
           // ตั้งค่าข้อมูลลูกค้า
            this.customerData = {
-             cusId: dividendData.cusiDuse || cusId,
-             fullName: dividendData.cusName || '-',
-             statusDesc: dividendData.cusSTDESC || '-',
-             brCode: dividendData.cusCODE || '',
-             brName: dividendData.cusCODEg || '',
-             taxRate: dividendData.cusTAX ? dividendData.cusTAX.toString() : '0.00',
-             taxId: dividendData.cusTAXidUSE || '-'
+             cusId: firstItem.cusiDuse || cusId,
+             fullName: firstItem.cusName || '-',
+             statusDesc: firstItem.cusSTDESC || '-',
+             brCode: firstItem.cusCODE || '',
+             brName: firstItem.cusCODEg || '',
+             taxRate: this.getValidValue(firstItem.cusTAX, '0.00'),
+             taxId: firstItem.cusTAXidUSE || '-'
            };
 
+          console.log('💰 Customer Data:', this.customerData);
+
           //กรณีที่ 2: ตรวจสอบเลขผู้เสียภาษี
-          if(dividendData.cusTAX && dividendData.cusTAX > 0) {
+          if(firstItem.cusTAX && firstItem.cusTAX > 0) {
             this.systemStatus.hasValidTaxId = false;
             this.systemStatus.warningMessage = 'หมายเลขผู้เสียภาษีไม่ถูกต้อง';
-            this.showWarningAlert('เลขผู้เสียภาษีไม่ถูกต้อง ไม่สามารถทำรายการจ่ายได้!!!\nกรุณาทำการแก้ไขข้อมูลให้ถูกต้องก่อนทำรายการจ่าย!');
           }
           
           // ตั้งค่าข้อมูลเงินปันผล
           this.dividendData = response;
+          console.log('💰 Dividend Data:', this.dividendData);
+          console.log('💰 Dividend Data length:', this.dividendData.length);
 
           //กรณีที่ 3: หุ้นบล็อค
           this.checkBlockedStocks();
@@ -168,6 +185,7 @@ export class DividendComponent implements OnInit {
           this.cd.detectChanges();
 
         } else {
+          console.log('💰 No dividend data found');
           this.systemStatus.hasDividendData = false;
           this.systemStatus.errorMessage = 'ไม่พบรายการเงินปันผลรอจ่าย';
           this.showErrorAlert('ไม่พบรายการเงินปันผลรอจ่าย');
@@ -219,52 +237,76 @@ export class DividendComponent implements OnInit {
     };
 
          this.dividendData.forEach((item: any) => {
-       if (item?.stkNOTE) {
-         // รวมข้อมูลทั้งหมด
-         this.dividendSummary.totalGrand.bef.dvn += (item.payBEFdvn || 0);
-         this.dividendSummary.totalGrand.bef.tax += (item.payBEFtax || 0);
-         this.dividendSummary.totalGrand.bef.net += (item.payBEFnet || 0);
-         this.dividendSummary.totalGrand.cur.dvn += (item.payCURdvn || 0);
-         this.dividendSummary.totalGrand.cur.tax += (item.payCURtax || 0);
-         this.dividendSummary.totalGrand.cur.net += (item.payCURnet || 0);
+       console.log('💰 Processing dividend item:', item);
+       
+       // ตรวจสอบว่ามีข้อมูลที่จำเป็นหรือไม่
+       const hasValidData = this.getValidValue(item.stkNOTE) || this.getValidValue(item.payBEFdvn) || this.getValidValue(item.payCURdvn);
+       
+       if (hasValidData) {
+         // รวมข้อมูลทั้งหมด - ใช้ helper method เพื่อจัดการ empty objects
+         const payBEFdvn = this.getValidValue(item.payBEFdvn, 0);
+         const payBEFtax = this.getValidValue(item.payBEFtax, 0);
+         const payBEFnet = this.getValidValue(item.payBEFnet, 0);
+         const payCURdvn = this.getValidValue(item.payCURdvn, 0);
+         const payCURtax = this.getValidValue(item.payCURtax, 0);
+         const payCURnet = this.getValidValue(item.payCURnet, 0);
+         
+         this.dividendSummary.totalGrand.bef.dvn += payBEFdvn;
+         this.dividendSummary.totalGrand.bef.tax += payBEFtax;
+         this.dividendSummary.totalGrand.bef.net += payBEFnet;
+         this.dividendSummary.totalGrand.cur.dvn += payCURdvn;
+         this.dividendSummary.totalGrand.cur.tax += payCURtax;
+         this.dividendSummary.totalGrand.cur.net += payCURnet;
 
-         // ตรวจสอบสถานะใบหุ้น
-         if (item.stCODE?.endsWith('S008')) {
+         // ตรวจสอบสถานะใบหุ้น - ใช้การตรวจสอบที่ปลอดภัย
+         const stCODE = this.getValidValue(item.stCODE, '');
+         const stkPayStat = this.getValidValue(item.stkPayStat, '');
+         
+         console.log('💰 stCODE:', stCODE, 'Type:', typeof stCODE);
+         console.log('💰 stkPayStat:', stkPayStat, 'Type:', typeof stkPayStat);
+         
+         if (stCODE && typeof stCODE === 'string' && stCODE.endsWith('S008')) {
            // รายการบล็อค
-           this.dividendSummary.block.bef.dvn += (item.payBEFdvn || 0);
-           this.dividendSummary.block.bef.tax += (item.payBEFtax || 0);
-           this.dividendSummary.block.bef.net += (item.payBEFnet || 0);
-           this.dividendSummary.block.cur.dvn += (item.payCURdvn || 0);
-           this.dividendSummary.block.cur.tax += (item.payCURtax || 0);
-           this.dividendSummary.block.cur.net += (item.payCURnet || 0);
+           console.log('💰 Processing blocked stock');
+           this.dividendSummary.block.bef.dvn += payBEFdvn;
+           this.dividendSummary.block.bef.tax += payBEFtax;
+           this.dividendSummary.block.bef.net += payBEFnet;
+           this.dividendSummary.block.cur.dvn += payCURdvn;
+           this.dividendSummary.block.cur.tax += payCURtax;
+           this.dividendSummary.block.cur.net += payCURnet;
 
-         } else if (item.stCODE?.endsWith('002')) {
+         } else if (stCODE && typeof stCODE === 'string' && stCODE.endsWith('002')) {
            // รายการชำรุด/สูญหาย
-           this.dividendSummary._002.bef.dvn += (item.payBEFdvn || 0);
-           this.dividendSummary._002.bef.tax += (item.payBEFtax || 0);
-           this.dividendSummary._002.bef.net += (item.payBEFnet || 0);
-           this.dividendSummary._002.cur.dvn += (item.payCURdvn || 0);
-           this.dividendSummary._002.cur.tax += (item.payCURtax || 0);
-           this.dividendSummary._002.cur.net += (item.payCURnet || 0);
+           console.log('💰 Processing damaged/lost stock');
+           this.dividendSummary._002.bef.dvn += payBEFdvn;
+           this.dividendSummary._002.bef.tax += payBEFtax;
+           this.dividendSummary._002.bef.net += payBEFnet;
+           this.dividendSummary._002.cur.dvn += payCURdvn;
+           this.dividendSummary._002.cur.tax += payCURtax;
+           this.dividendSummary._002.cur.net += payCURnet;
 
-         } else if (item.stkPayStat?.endsWith('0TR')) {
+         } else if (stkPayStat && typeof stkPayStat === 'string' && stkPayStat.endsWith('0TR')) {
            // รายการรอผลการโอนผ่านบัญชี
-           this.dividendSummary.spin0tr.bef.dvn += (item.payBEFdvn || 0);
-           this.dividendSummary.spin0tr.bef.tax += (item.payBEFtax || 0);
-           this.dividendSummary.spin0tr.bef.net += (item.payBEFnet || 0);
-           this.dividendSummary.spin0tr.cur.dvn += (item.payCURdvn || 0);
-           this.dividendSummary.spin0tr.cur.tax += (item.payCURtax || 0);
-           this.dividendSummary.spin0tr.cur.net += (item.payCURnet || 0);
+           console.log('💰 Processing transfer pending stock');
+           this.dividendSummary.spin0tr.bef.dvn += payBEFdvn;
+           this.dividendSummary.spin0tr.bef.tax += payBEFtax;
+           this.dividendSummary.spin0tr.bef.net += payBEFnet;
+           this.dividendSummary.spin0tr.cur.dvn += payCURdvn;
+           this.dividendSummary.spin0tr.cur.tax += payCURtax;
+           this.dividendSummary.spin0tr.cur.net += payCURnet;
 
          } else {
            // รายการปกติ - รวมใน totalSub
-           this.dividendSummary.totalSub.bef.dvn += (item.payBEFdvn || 0);
-           this.dividendSummary.totalSub.bef.tax += (item.payBEFtax || 0);
-           this.dividendSummary.totalSub.bef.net += (item.payBEFnet || 0);
-           this.dividendSummary.totalSub.cur.dvn += (item.payCURdvn || 0);
-           this.dividendSummary.totalSub.cur.tax += (item.payCURtax || 0);
-           this.dividendSummary.totalSub.cur.net += (item.payCURnet || 0);
+           console.log('💰 Processing normal stock');
+           this.dividendSummary.totalSub.bef.dvn += payBEFdvn;
+           this.dividendSummary.totalSub.bef.tax += payBEFtax;
+           this.dividendSummary.totalSub.bef.net += payBEFnet;
+           this.dividendSummary.totalSub.cur.dvn += payCURdvn;
+           this.dividendSummary.totalSub.cur.tax += payCURtax;
+           this.dividendSummary.totalSub.cur.net += payCURnet;
          }
+       } else {
+         console.log('💰 Skipping item without valid data:', item);
        }
      });
 
@@ -273,6 +315,9 @@ export class DividendComponent implements OnInit {
     this.paymentData.dividend = totalNet;
     this.paymentData.fraction = totalNet % this.paymentData.denominator;
     this.paymentData.unit = (totalNet - this.paymentData.fraction) / this.paymentData.denominator;
+    
+    console.log('💰 Dividend Summary calculated:', this.dividendSummary);
+    console.log('💰 Payment Data:', this.paymentData);
   }
 
   // แปลงตัวเลขเป็นข้อความภาษาไทย
@@ -316,7 +361,17 @@ export class DividendComponent implements OnInit {
 
   // Get blocked stocks
   get blockedStocks(): any[] {
-    return this.dividendData.filter(d => d.stCODE?.endsWith('S008'));
+    if (!this.dividendData || this.dividendData.length === 0) {
+      return [];
+    }
+    
+    return this.dividendData.filter(d => {
+      const stCODE = this.getValidValue(d.stCODE, '');
+      if (stCODE && typeof stCODE === 'string') {
+        return stCODE.endsWith('S008');
+      }
+      return false;
+    });
   }
 
   // Check if has blocked stocks
@@ -326,13 +381,32 @@ export class DividendComponent implements OnInit {
 
   // ตรวจสอบหุ้นบล็อก (กรณีที่ 3)
   checkBlockedStocks(): void {
+    console.log('💰 Checking blocked stocks...');
+    console.log('💰 Dividend data:', this.dividendData);
+    
     if (!this.dividendData || this.dividendData.length === 0) {
+      console.log('💰 No dividend data to check');
       return;
     }
     
-    const blockedStocks = this.dividendData.filter(d => 
-      d.stCODE?.endsWith('S008')
-    );
+    const blockedStocks = this.dividendData.filter(d => {
+      console.log('💰 Checking item:', d);
+      const stCODE = this.getValidValue(d.stCODE, '');
+      console.log('💰 stCODE:', stCODE, 'Type:', typeof stCODE);
+      
+      // ตรวจสอบว่า stCODE เป็น string และไม่เป็น null/undefined
+      if (stCODE && typeof stCODE === 'string') {
+        const isBlocked = stCODE.endsWith('S008');
+        console.log('💰 Is blocked:', isBlocked);
+        return isBlocked;
+      } else {
+        console.log('💰 stCODE is not a valid string, skipping');
+        return false;
+      }
+    });
+    
+    console.log('💰 Blocked stocks found:', blockedStocks.length);
+    console.log('💰 Blocked stocks:', blockedStocks);
     
     this.systemStatus.hasBlockedStocks = blockedStocks.length > 0;
     this.systemStatus.isAllStocksBlocked = blockedStocks.length === this.dividendData.length;
@@ -402,6 +476,31 @@ export class DividendComponent implements OnInit {
       errorMessage: '',
       warningMessage: ''
     };
+  }
+
+  // Helper method เพื่อจัดการกับ empty objects และค่าที่ไม่ถูกต้อง
+  getValidValue(value: any, defaultValue: any = 0): any {
+    // ตรวจสอบว่าเป็น empty object หรือไม่
+    if (value && typeof value === 'object' && Object.keys(value).length === 0) {
+      return defaultValue;
+    }
+    
+    // ตรวจสอบว่าเป็น null, undefined, หรือ empty string
+    if (value === null || value === undefined || value === '') {
+      return defaultValue;
+    }
+    
+    // ตรวจสอบว่าเป็น number ที่ valid
+    if (typeof value === 'number' && !isNaN(value)) {
+      return value;
+    }
+    
+    // ตรวจสอบว่าเป็น string ที่ valid
+    if (typeof value === 'string' && value.trim() !== '') {
+      return value;
+    }
+    
+    return defaultValue;
   }
 
 }

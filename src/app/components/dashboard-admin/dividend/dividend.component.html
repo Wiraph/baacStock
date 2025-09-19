@@ -5,8 +5,8 @@
 <div *ngIf="activeView === 'dividend'" class="p-4">
 
 
-  <!-- แสดงข้อมูลเฉพาะเมื่อมีข้อมูล -->
-  <div *ngIf="systemStatus.hasDividendData">
+  <!-- แสดงข้อมูลลูกค้าและตารางเงินปันผล -->
+  <div *ngIf="customerData">
     <!-- ข้อมูลลูกค้า -->
     <div class="w-full bg-white rounded-xl shadow-md">
     <div class="flex justify-start px-4 py-2">
@@ -20,46 +20,54 @@
     </div>
     
     <!-- ข้อมูลลูกค้า -->
-    <div class="w-1/3 mx-auto bg-white rounded-lg p-6">
+    <div class="w-1/2 mx-auto bg-white rounded-lg p-6">
       <div class="space-y-4">
         <!-- แถวที่ 1 -->
         <div class="flex justify-between items-center">
           <div class="flex items-center gap-2">
-            <span class="font-medium text-gray-700">บัตรแสดงตนเลขที่ :</span>
-            <span class="text-gray-900 font-semibold">{{ customerData?.cusId || '-' }}</span>
+            <span class="font-semibold text-gray-700">บัตรแสดงตนเลขที่ :</span>
+            <span class="text-gray-900">{{ customerData?.cusId || '-' }}</span>
           </div>
           <div class="flex items-center gap-2">
-            <span class="font-medium text-gray-700">สถานะ :</span>
-            <span class="text-gray-900 font-semibold">{{ customerData?.statusDesc || '-' }}</span>
+            <span class="font-semibold text-gray-700">สถานะ :</span>
+            <span class="text-gray-900">{{ customerData?.statusDesc || '-' }}</span>
           </div>
         </div>
         
         <!-- แถวที่ 2 -->
          <div class="flex justify-between items-center">
            <div class="flex items-center gap-2">
-             <span class="font-medium text-gray-700">ผู้เสียภาษีเลขที่ :</span>
-             <span class="text-gray-900 font-semibold">{{ customerData?.taxId || '-' }}</span>
+             <span class="font-semibold text-gray-700">ผู้เสียภาษีเลขที่ :</span>
+             <span class="text-gray-900">{{ customerData?.taxId || '-' }}</span>
            </div>
            <div class="flex items-center gap-2">
-             <span class="font-medium text-gray-700">อัตราภาษี (%) :</span>
-             <span class="text-gray-900 font-semibold">{{ customerData?.taxRate || '-' }}</span>
+             <span class="font-semibold text-gray-700">อัตราภาษี (%) :</span>
+             <span class="text-gray-900">{{ customerData?.taxRate || '-' }}</span>
            </div>
          </div>
         
         <!-- แถวที่ 3 -->
         <div class="flex justify-between items-center">
           <div class="flex items-center gap-2">
-            <span class="font-medium text-gray-700">ชื่อ - นามสกุล :</span>
-            <span class="text-gray-900 font-semibold">{{ customerData?.fullName || '-' }}</span>
+            <span class="font-semibold text-gray-700">ชื่อ - นามสกุล :</span>
+            <span class="text-gray-900">{{ customerData?.fullName || '-' }}</span>
           </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- แสดงข้อความเมื่อไม่มีข้อมูลเงินปันผล -->
+    <div *ngIf="!systemStatus.hasDividendData" class="p-4">
+      <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+        <div class="text-yellow-800">
+          <h3 class="text-lg font-semibold mb-2">⚠️ ไม่พบรายการเงินปันผลรอจ่าย</h3>
+          <p class="text-sm">สำหรับลูกค้ารายนี้ไม่มีข้อมูลเงินปันผลที่รอการจ่าย</p>
         </div>
       </div>
     </div>
 
     <!-- ตารางสรุปจำนวนเงินปันผลรอจ่ายและรายการบล็อค -->
-    <div class="p-4">
-
-
+    <div *ngIf="systemStatus.hasDividendData" class="p-4">
       <div class="w-full">
         <div class="overflow-x-auto">
           <table class="w-full border border-gray-400 text-sm">
@@ -161,7 +169,7 @@
   </div>
 
   <!-- จำนวนเงินที่จ่ายได้/รายละเอียด/รายการบล็อค -->
-  <div class="mt-8 flex flex-col lg:flex-row gap-8">
+  <div *ngIf="systemStatus.hasDividendData" class="mt-8 flex flex-col lg:flex-row gap-8">
     <!-- จำนวนเงินที่จ่ายได้  -->
     <div class="lg:w-1/4">
       <div class="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-xl p-6 shadow-lg h-full flex flex-col justify-center">

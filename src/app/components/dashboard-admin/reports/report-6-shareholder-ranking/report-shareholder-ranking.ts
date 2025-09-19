@@ -91,7 +91,6 @@ export class Report6ShareholderRanking implements OnInit {
           // Download file
           const link = document.createElement('a');
           link.href = response.fileUrl;
-          link.download = `รายงานการจัดลำดับผู้ถือหุ้น_${this.rankingCount}.xlsx`;
           link.click();
         }
       },

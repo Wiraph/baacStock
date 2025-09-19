@@ -116,7 +116,6 @@ export class Report4DividendRate implements OnInit {
           // Download EXCEL file
           const link = document.createElement('a');
           link.href = response.fileUrl;
-          link.download = `รายงานข้อมูลอัตราเงินปันผล_${this.selectedYearFrom}-${this.selectedYearTo}.xlsx`;
           link.click();
         }
       },

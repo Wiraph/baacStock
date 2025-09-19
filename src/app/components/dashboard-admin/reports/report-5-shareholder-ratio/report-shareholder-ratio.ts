@@ -128,7 +128,6 @@ export class Report5ShareholderRatio implements OnInit {
           // Download EXCEL file
           const link = document.createElement('a');
           link.href = response.fileUrl;
-          link.download = `รายงานสัดส่วนผู้ถือหุ้น_${dateString}.xlsx`;
           link.click();
         }
       },

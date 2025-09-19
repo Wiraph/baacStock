@@ -125,7 +125,6 @@ export class Report7BalanceByType implements OnInit {
           // Download EXCEL file
           const link = document.createElement('a');
           link.href = response.fileUrl;
-          link.download = `รายงานสรุปยอดคงเหลือแยกตามประเภทผู้ถือหุ้น_${this.selectedStkType}_${dateString}.xlsx`;
           link.click();
         }
       },

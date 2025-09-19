@@ -131,7 +131,6 @@ export class Report2Newstock implements OnInit {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `rep_STKapprove_${this.getCurrentDateTimeBE()}.xlsx`;
         a.click();
         window.URL.revokeObjectURL(url);
         
