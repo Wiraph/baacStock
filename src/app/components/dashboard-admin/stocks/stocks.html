@@ -16,23 +16,23 @@
       </button>
     </div>
 
-    <!-- ข้อมูลลูกค้า -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-6">
-      <div>
-        <label for="" class="block text-sm text-gray-500">บัตรแสดงตนเลขที่:</label>
-        <p class="text-base font-semibold text-gray-800 border-b py-1">{{ stockList[0]?.cusiD || '-' }}</p>
-      </div>
-      <div>
-        <label for="" class="block text-sm text-gray-500">สถานะ:</label>
-        <p class="text-base font-semibold text-gray-800 border-b py-1">{{ stockList[0]?.stDESC || '-' }}</p>
-      </div>
-      <div>
-        <label for="" class="block text-sm text-gray-500">ชื่อ - นามสกุล:</label>
-        <p class="text-base font-semibold text-gray-800 border-b py-1">{{ stockList[0]?.titleABBR || '' }}{{
-          stockList[0]?.cusFName || '' }} {{ stockList[0]?.cusLName || '-' }}
-        </p>
-      </div>
-    </div>
+     <!-- ข้อมูลลูกค้า -->
+     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-6">
+       <div>
+         <label for="" class="block text-sm text-gray-500">บัตรแสดงตนเลขที่:</label>
+         <p class="text-base font-semibold text-gray-800 border-b py-1">{{ customerInfo?.cusId || stockList[0]?.cusiD || '-' }}</p>
+       </div>
+       <div>
+         <label for="" class="block text-sm text-gray-500">สถานะ:</label>
+         <p class="text-base font-semibold text-gray-800 border-b py-1">{{ customerInfo?.statusDesc || stockList[0]?.stDESC || '-' }}</p>
+       </div>
+       <div>
+         <label for="" class="block text-sm text-gray-500">ชื่อ - นามสกุล:</label>
+         <p class="text-base font-semibold text-gray-800 border-b py-1">{{ customerInfo?.titleName || stockList[0]?.titleABBR || '' }}{{
+           customerInfo?.cusFName || stockList[0]?.cusFName || '' }} {{ customerInfo?.cusLName || stockList[0]?.cusLName || '-' }}
+         </p>
+       </div>
+     </div>
     <div>
       <!-- ตารางใบหุ้น -->
       <div class="overflow-x-auto mx-6 rounded-xl border border-gray-300 shadow-sm mb-4">
@@ -72,3 +72,4 @@
     </div>
   </div>
 </div>
+

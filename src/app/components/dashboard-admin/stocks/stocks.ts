@@ -20,6 +20,7 @@ export class StocksComponent implements OnInit {
   cusData: any = null;
   showTransferForm = false;
   selectedStock: StockItem | null = null;
+  customerInfo: any = null;
 
 
   constructor(
@@ -32,27 +33,28 @@ export class StocksComponent implements OnInit {
     if (this.cusId != '') {
       console.log("CudId ที่ถูกส่งมา ", this.cusId);
       this.loadCustomerStock(this.cusId);
+      this.loadCustomerInfo(this.cusId);
     }
   }
 
   loadCustomerStock(cusiD: string) {
+    // ใช้ payload เพื่อดึงข้อมูลทุกใบหุ้นทุกสถานะ
     const payload = {
-      GetDtl: "bySTK@byCUS",
-      StkNo: "",
-      CusId: cusiD,
-      CusFirstName: "",
-      CusLastName: "",
-      StkA: "1",
-      PageNumber: 1,
-      PageSize: 9999999
+      GetDTL: 'bySTK@byCUS',       
+      STKno: '',                  
+      CUSid: cusiD,               
+      CUSfn: '',                  
+      CUSln: '',                  
+      stkA: '',                   
+      PGNum: 1,                    
+      PGSize: 9999999              
     };
 
     this.customerService.searchCustomerStk(payload).subscribe({
       next: (res) => {
-        console.log('📊 ข้อมูลใบหุ้นที่ได้รับจาก API:', res);
         console.log('📋 จำนวนรายการ:', res?.length || 0);
-        if (res && res.length > 0) {
-          console.log('📄 ตัวอย่างข้อมูลรายการแรก:', res[0]);
+        if (res && res.length === 0) {
+          console.log('⚠️ ไม่มีข้อมูลใบหุ้น');
         }
         this.stockList = res || [];
         this.cd.detectChanges();
@@ -64,7 +66,23 @@ export class StocksComponent implements OnInit {
     })
   }
 
-  
+  // โหลดข้อมูลลูกค้า
+  loadCustomerInfo(cusiD: string) {
+    const cusPayload = {
+      cusId: cusiD
+    };
+
+    this.customerService.getCustomerDetail(cusPayload).subscribe({
+      next: (res: any) => {
+        this.customerInfo = res;
+        this.cd.detectChanges();
+      }, error: (err) => {
+        console.log("❌ Load customer info fail...", err);
+        this.customerInfo = null;
+        this.cd.detectChanges();
+      }
+    });
+  }
 
   formatThaiDateTime(datetimeup: string): string {
     if (!datetimeup?.includes('-')) return '-';
