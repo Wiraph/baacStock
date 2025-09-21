@@ -89,7 +89,7 @@ export class AdduserComponent implements OnInit {
         Swal.fire({
           icon: 'success',
           text: `${msg}`,
-          confirmButtonText: 'Yes',
+          confirmButtonText: 'OK',
           confirmButtonColor: "#50C878"
         }).then((result) => {
           if(result.isConfirmed) {
@@ -102,7 +102,7 @@ export class AdduserComponent implements OnInit {
           Swal.fire({
             icon: 'warning',
             text: `${err.error}`,
-            confirmButtonText: 'Yes',
+            confirmButtonText: 'OK',
             confirmButtonColor: "#50C878"
           });
         } else {

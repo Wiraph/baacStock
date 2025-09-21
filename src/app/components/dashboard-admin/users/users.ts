@@ -82,8 +82,8 @@ export class UsersComponent implements OnInit {
       icon: 'question',
       text: `ท่านต้องการ${msg} ${user.usrId} (${user.usrDesc}) ของ ${user.brDesc} (${user.usrBrc}) ${msgs} ใช่หรือไม่`,
       showCancelButton: true,
-      confirmButtonText: "Yes",
-      cancelButtonText: "No",
+      confirmButtonText: "ยืนยัน",
+      cancelButtonText: "ยกเลิก",
       cancelButtonColor: "#d33",
     }).then((result) => {
       if (result.isConfirmed) {
