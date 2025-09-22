@@ -1,19 +1,14 @@
-import {
-  Component,
-  AfterViewInit,
-  Inject,
-  PLATFORM_ID,
-  ChangeDetectorRef
-} from '@angular/core';
+import { Component, AfterViewInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { PdfService } from '../../../services/pdf';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DocumentKeyDetectComponent } from './document-key-detect';
+import { FormsModule } from "@angular/forms";
 
 @Component({
   standalone: true,
   selector: 'app-print-share-purchase-request',
-  imports: [CommonModule, DocumentKeyDetectComponent],
+  imports: [CommonModule, DocumentKeyDetectComponent, FormsModule],
   templateUrl: './print-share-purchase-request.html',
   styleUrls: ['./print-share-purchase-request.css']
 })

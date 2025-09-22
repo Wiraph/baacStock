@@ -411,32 +411,7 @@ export class DocumentKeyDetectComponent {
     this.documentApiService.uploadTemplate(this.selectedFile).subscribe({
       next: (response: UploadTemplateResponse) => {
         console.log('✅ อัปโหลดสำเร็จ! ตรวจพบ', response.keys.length, 'ช่องข้อมูล');
-        
-        // ใช้ ngZone.run() เพื่อให้แน่ใจว่า change detection ทำงาน
-        this.ngZone.run(() => {
-          // เซ็ตค่าก่อน
-          this.templateId = response.template_id;
-          this.detectedKeys = [...response.keys]; // สร้าง array ใหม่
-          this.uploadSuccess = true;
-          this.currentStep = 2;
-          this.isUploading = false;
-          
-          // สร้าง form data object สำหรับแต่ละ key
-          this.formData = {}; // รีเซ็ต form data
-          this.detectedKeys.forEach(key => {
-            this.formData[key] = '';
-          });
-          
-          // Force change detection
-          this.cdr.detectChanges();
-          
-          // ตรวจสอบอีกครั้งหลังจาก DOM อัปเดต
-          setTimeout(() => {
-            this.ngZone.run(() => {
-              this.cdr.detectChanges();
-            });
-          }, 100);
-        });
+        this.handleUploadSuccess(response);
       },
       error: (error) => {
         console.error('❌ อัปโหลดล้มเหลว');
@@ -464,35 +439,7 @@ export class DocumentKeyDetectComponent {
     this.documentApiService.generateDocument(this.templateId, this.formData).subscribe({
       next: (response: GenerateDocResponse) => {
         console.log('✅ สร้างเอกสารสำเร็จ!');
-        
-        // ใช้ ngZone.run() เพื่อให้แน่ใจว่า change detection ทำงาน
-        this.ngZone.run(() => {
-          this.generateSuccess = true;
-          this.currentStep = 3;
-          this.isGenerating = false;
-          
-          // เซ็ตข้อมูลสำหรับ Step 3
-          this.generatedDate = new Date().toLocaleString('th-TH');
-          this.generatedFileSize = 'กำลังคำนวณ...';
-          this.generatedDocxUrl = this.documentApiService.getDocxUrl(response);
-          const pdfUrl = this.documentApiService.getPdfUrl(response);
-          this.generatedPdfUrl = pdfUrl || '';
-          
-          // เซ็ต PDF Safe URL สำหรับ iframe
-          if (pdfUrl) {
-            this.generatedPdfSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(pdfUrl);
-          }
-          
-          // Force change detection
-          this.cdr.detectChanges();
-          
-          // ตรวจสอบอีกครั้งหลังจาก DOM อัปเดต
-          setTimeout(() => {
-            this.ngZone.run(() => {
-              this.cdr.detectChanges();
-            });
-          }, 200);
-        });
+        this.handleGenerateSuccess(response);
       },
       error: (error) => {
         console.error('❌ สร้างเอกสารล้มเหลว');
@@ -515,5 +462,57 @@ export class DocumentKeyDetectComponent {
     }
   }
   
+  private scheduleDetectChanges(delayMs: number): void {
+    setTimeout(() => {
+      this.ngZone.run(() => {
+        this.cdr.detectChanges();
+      });
+    }, delayMs);
+  }
+
+  private handleUploadSuccess(response: UploadTemplateResponse): void {
+    this.ngZone.run(() => {
+      // เซ็ตค่าก่อน
+      this.templateId = response.template_id;
+      this.detectedKeys = [...response.keys];
+      this.uploadSuccess = true;
+      this.currentStep = 2;
+      this.isUploading = false;
+
+      // สร้าง form data object สำหรับแต่ละ key
+      this.formData = {};
+      this.detectedKeys.forEach(key => {
+        this.formData[key] = '';
+      });
+
+      // Force change detection และตามด้วยตรวจซ้ำแบบหน่วงเวลาเล็กน้อย
+      this.cdr.detectChanges();
+      this.scheduleDetectChanges(100);
+    });
+  }
+
+  private handleGenerateSuccess(response: GenerateDocResponse): void {
+    this.ngZone.run(() => {
+      this.generateSuccess = true;
+      this.currentStep = 3;
+      this.isGenerating = false;
+
+      // เซ็ตข้อมูลสำหรับ Step 3
+      this.generatedDate = new Date().toLocaleString('th-TH');
+      this.generatedFileSize = 'กำลังคำนวณ...';
+      this.generatedDocxUrl = this.documentApiService.getDocxUrl(response);
+      const pdfUrl = this.documentApiService.getPdfUrl(response);
+      this.generatedPdfUrl = pdfUrl || '';
+
+      // เซ็ต PDF Safe URL สำหรับ iframe
+      if (pdfUrl) {
+        this.generatedPdfSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(pdfUrl);
+      }
+
+      this.cdr.detectChanges();
+      this.scheduleDetectChanges(200);
+    });
+  }
+
 
 } 
