@@ -41,7 +41,6 @@ export class AdminDashboardComponent implements OnInit {
   filteredMenus: MenuItem[] = [];
   
   // เพิ่ม properties สำหรับตรวจสอบ password status
-  isFirstTimeUser = false;
   isPasswordExpired = false;
   passwordExpiryDays = 0;
   passwordExpiryDate: string | null = null;
@@ -205,16 +204,10 @@ export class AdminDashboardComponent implements OnInit {
 
   // Filter menus ตามสิทธิ์
   private filterMenusByPermission(): void {
-    console.log('Filtering menus for user level:', this.currentUser.level);
-    console.log('Total menus before filtering:', this.menus.length);
-
     this.filteredMenus = this.permissionService.filterMenusByPermission(
       this.menus,
       this.currentUser.level
     );
-
-    console.log('Filtered menus count:', this.filteredMenus.length);
-    console.log('Filtered menus:', this.filteredMenus);
   }
 
   // ตรวจสอบสิทธิ์ใน component
@@ -224,20 +217,16 @@ export class AdminDashboardComponent implements OnInit {
 
   // ตรวจสอบสถานะรหัสผ่าน
   private checkPasswordStatus() {
-    console.log('Checking password status with currentUser:', this.currentUser);
-    
     // ใช้ PasswordStatusService
     const passwordStatus: PasswordStatus = this.passwordStatusService.checkPasswordStatus(this.currentUser);
     
     // อัปเดต properties จาก service
-    this.isFirstTimeUser = passwordStatus.isFirstTimeUser;
     this.isPasswordExpired = passwordStatus.isPasswordExpired;
     this.passwordExpiryDays = passwordStatus.passwordExpiryDays;
     this.passwordExpiryDate = passwordStatus.passwordExpiryDate;
     this.isDefaultPassword = passwordStatus.isDefaultPassword;
     this.isPasswordChangeRequired = passwordStatus.isPasswordChangeRequired;
     
-    console.log('Password Status in Dashboard:', passwordStatus);
   }
 
   // แสดงเฉพาะเมนูที่จำเป็นเมื่อต้องเปลี่ยนรหัสผ่าน
@@ -281,26 +270,18 @@ export class AdminDashboardComponent implements OnInit {
   ngOnInit(): void {
     // ใช้ UserService เพื่อดึงข้อมูลจาก sessionStorage
     this.currentUser = this.userService.getCurrentUser();
-    
-    console.log('Current user in ngOnInit:', this.currentUser);
 
     if (this.currentUser?.level) {
       // ตรวจสอบ password status
       this.checkPasswordStatus();
       
-      console.log('After checkPasswordStatus - isPasswordChangeRequired:', this.isPasswordChangeRequired);
-      
       // ถ้าต้องเปลี่ยนรหัสผ่าน ให้แสดงเฉพาะเมนูที่กำหนด
       if (this.isPasswordChangeRequired) {
-        console.log('Password change required, showing limited menus');
         this.showLimitedMenus();
       } else {
-        console.log('No password change required, filtering menus normally');
         this.filterMenusByPermission();
       }
     } else {
-      console.log('No user data or level found, redirecting to login');
-      console.log('Current user data:', this.currentUser);
       this.router.navigate(['/login']);
     }
   }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Login } from '../../services/login';
+import { UserService } from '../../services/user';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -23,7 +24,8 @@ export class LoginComponent {
   private readonly router = inject(Router);
   constructor(
     private readonly loginService: Login,
-    private readonly cd: ChangeDetectorRef
+    private readonly cd: ChangeDetectorRef,
+    private readonly userService: UserService
   ) { }
 
   resetForm() {
@@ -45,28 +47,9 @@ export class LoginComponent {
           console.log("Pass");
           console.log("Login response:", res);
           
-          // เก็บข้อมูลพื้นฐาน
-          sessionStorage.setItem('level', res.usr_LVL);
-          sessionStorage.setItem('lvlDesc', res.usr_DESC);
-          sessionStorage.setItem('username', res.usr_ID);
-          sessionStorage.setItem('fullname', res.usr_DESC);
-          sessionStorage.setItem('brCode', res.usr_BRC);
-          sessionStorage.setItem('brName', res.brName);
-          
-          // เก็บข้อมูลเพิ่มเติมสำหรับตรวจสอบ password status
-          const userData = {
-            datetimeup: res.datetimeup,
-            pwdExp: res.pwdExp,
-            usr_PWDExp: res.usr_PWDExp, // เพิ่ม usr_PWDExp
-            usrPWD: res.usr_PWD || this.password, // เก็บรหัสผ่านที่ใช้ login
-            currentPassword: this.password, // เก็บรหัสผ่านปัจจุบัน
-            level: res.usr_LVL,
-            username: res.usr_ID,
-            fullname: res.usr_DESC
-          };
-          
-          sessionStorage.setItem('userData', JSON.stringify(userData));
-          console.log("Stored userData:", userData);
+          // อัปเดต session ผ่าน service กลาง
+          this.userService.updateSessionFromAuthResponse(res);
+          console.log("Stored userData via service");
           
           this.router.navigate(['/dashboard-admin/']);
           this.cd.detectChanges();

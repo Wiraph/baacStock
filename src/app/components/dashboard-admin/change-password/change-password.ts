@@ -5,6 +5,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import Swal from 'sweetalert2';
 import { Login } from '../../../services/login';
 import { PasswordStatusService, PasswordStatus } from '../../../services/password-status.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-change-password',
@@ -26,7 +27,6 @@ export class ChangePasswordComponent implements OnInit {
   dataUser: any;
   
   // เพิ่ม properties สำหรับตรวจสอบ password status
-  isFirstTimeUser = false;
   isPasswordExpired = false;
   passwordExpiryDays = 0;
   passwordExpiryDate: string | null = null;
@@ -37,7 +37,8 @@ export class ChangePasswordComponent implements OnInit {
     @Inject(PLATFORM_ID) private readonly platformId: Object,
     private readonly cd: ChangeDetectorRef,
     private readonly loginService: Login,
-    private readonly passwordStatusService: PasswordStatusService
+    private readonly passwordStatusService: PasswordStatusService,
+    private readonly router: Router
   ) { }
 
   ngOnInit(): void {
@@ -50,13 +51,12 @@ export class ChangePasswordComponent implements OnInit {
         this.userName = currentUser.username;
         this.fullName = currentUser.fullname;
         
-        console.log('Change Password Component - Current User:', currentUser);
+        // keep UI minimal logs
         
         // ตรวจสอบ password status จากข้อมูลใน sessionStorage
         this.checkPasswordStatusFromSession();
         
         console.log('ngOnInit - After checkPasswordStatusFromSession - Properties:', {
-          isFirstTimeUser: this.isFirstTimeUser,
           isPasswordExpired: this.isPasswordExpired,
           isDefaultPassword: this.isDefaultPassword
         });
@@ -75,61 +75,43 @@ export class ChangePasswordComponent implements OnInit {
     const currentUser = this.userService.getCurrentUser();
     
     if (currentUser) {
-      console.log('checkPasswordStatusFromSession - Current User:', currentUser);
+      
       
       // ใช้ PasswordStatusService แทนการเขียน logic ซ้ำ
       const passwordStatus: PasswordStatus = this.passwordStatusService.checkPasswordStatus(currentUser);
       
-      console.log('checkPasswordStatusFromSession - Password Status:', passwordStatus);
+      
       
       // อัปเดต properties จาก service
-      this.isFirstTimeUser = passwordStatus.isFirstTimeUser;
       this.isPasswordExpired = passwordStatus.isPasswordExpired;
       this.passwordExpiryDays = passwordStatus.passwordExpiryDays;
       this.passwordExpiryDate = passwordStatus.passwordExpiryDate;
       this.isDefaultPassword = passwordStatus.isDefaultPassword;
       
-      console.log('checkPasswordStatusFromSession - Properties Updated:', {
-        isFirstTimeUser: this.isFirstTimeUser,
-        isPasswordExpired: this.isPasswordExpired,
-        isDefaultPassword: this.isDefaultPassword
-      });
+      
       
       // Force change detection
       this.cd.detectChanges();
       
-      // ตรวจสอบ template condition
-      const shouldShowWarning = this.isFirstTimeUser || this.isPasswordExpired || this.isDefaultPassword;
-      console.log('Template condition check:', {
-        condition: 'isFirstTimeUser || isPasswordExpired || isDefaultPassword',
-        result: shouldShowWarning,
-        values: {
-          isFirstTimeUser: this.isFirstTimeUser,
-          isPasswordExpired: this.isPasswordExpired,
-          isDefaultPassword: this.isDefaultPassword
-        }
-      });
+      // ตรวจสอบ template condition (no-op for logging removed)
+      
     }
   }
 
 
 
   loadUser() {
-    console.log('loadUser - Starting with userId:', this.userId);
+    
     
     this.userService.getUserById(this.userId).subscribe({
       next: (res: any) => {
         this.dataUser = res;
-        console.log('loadUser - API Response:', this.dataUser);
+        
         
         // ตรวจสอบ password status
         this.checkPasswordStatus();
         
-        console.log('loadUser - After checkPasswordStatus - Properties:', {
-          isFirstTimeUser: this.isFirstTimeUser,
-          isPasswordExpired: this.isPasswordExpired,
-          isDefaultPassword: this.isDefaultPassword
-        });
+        
         
         this.cd.detectChanges();
       },
@@ -143,28 +125,33 @@ export class ChangePasswordComponent implements OnInit {
   private checkPasswordStatus() {
     if (!this.dataUser) return;
 
-    // อัปเดตข้อมูลจาก API ถ้ามีข้อมูลใหม่
-    if (this.dataUser.datetimeup) {
-      this.isFirstTimeUser = false;
-      this.passwordExpiryDate = this.dataUser.datetimeup;
+    // รวมข้อมูลจาก session (เชื่อถือได้กว่า) กับข้อมูลจาก API
+    // ถ้า API ไม่มีค่าบางตัว (เช่น datetimeup = null) ให้ใช้ค่าจาก session เพื่อป้องกัน false positive
+    const sessionUser = this.userService.getCurrentUser() || {};
+    const effectiveUser = {
+      // กรณี API คืนค่า null/'' ให้ใช้ของ session แทน
+      datetimeup: (this.dataUser.datetimeup ?? sessionUser.datetimeup) || '',
+      // รองรับชื่อฟิลด์แตกต่างจาก API
+      pwdExp: this.dataUser.pwdExp ?? this.dataUser.usrPwdexp ?? sessionUser.pwdExp,
+      usr_PWDExp: this.dataUser.usr_PWDExp ?? sessionUser.usr_PWDExp,
+      usrPWD: this.dataUser.usrPWD ?? sessionUser.usrPWD
+    } as any;
+
+    if (effectiveUser.datetimeup) {
+      this.passwordExpiryDate = effectiveUser.datetimeup;
     }
-    
-    // ใช้ PasswordStatusService แทนการเขียน logic ซ้ำ
-    const passwordStatus: PasswordStatus = this.passwordStatusService.checkPasswordStatus(this.dataUser);
+
+    // ประเมินสถานะด้วยข้อมูลที่รวมแล้ว
+    const passwordStatus: PasswordStatus = this.passwordStatusService.checkPasswordStatus(effectiveUser);
     
     // อัปเดต properties จาก service
-    this.isFirstTimeUser = passwordStatus.isFirstTimeUser;
     this.isPasswordExpired = passwordStatus.isPasswordExpired;
     this.passwordExpiryDays = passwordStatus.passwordExpiryDays;
     this.passwordExpiryDate = passwordStatus.passwordExpiryDate;
     this.isDefaultPassword = passwordStatus.isDefaultPassword;
     
-    console.log('Password Status from API:', passwordStatus);
-    console.log('Change Password Component Properties After API Update:', {
-      isFirstTimeUser: this.isFirstTimeUser,
-      isPasswordExpired: this.isPasswordExpired,
-      isDefaultPassword: this.isDefaultPassword
-    });
+    
+    
     
     // Force change detection
     this.cd.detectChanges();
@@ -241,15 +228,14 @@ export class ChangePasswordComponent implements OnInit {
       next: (msg: string) => {
         this.loading = false;
         
+        // กำหนดว่าต้อง login ใหม่หรือไม่ ก่อนรีเซ็ตสถานะ
+        const shouldReLogin = this.isPasswordExpired || this.isDefaultPassword;
+        
         // อัปเดตสถานะหลังจากเปลี่ยนรหัสผ่านสำเร็จ
-        this.isFirstTimeUser = false;
         this.isPasswordExpired = false;
         this.isDefaultPassword = false;
         
-        // อัปเดต dataUser เพื่อให้ template แสดงผลถูกต้อง
-        if (this.dataUser) {
-          this.dataUser.datetimeup = new Date().toISOString();
-        }
+        // ไม่แก้ไข datetimeup ในฝั่ง client ปล่อยให้ backend อัปเดตและรีเฟรชเมื่อจำเป็น
         
         Swal.fire({
           icon: 'success',
@@ -258,12 +244,20 @@ export class ChangePasswordComponent implements OnInit {
           confirmButtonColor: "#50C878"
         }).then((result) => {
           if (result.isConfirmed) {
-            // ถ้าเป็น first time user, password expired หรือ default password ให้ login ใหม่
-            if (this.isFirstTimeUser || this.isPasswordExpired || this.isDefaultPassword) {
+            // ถ้ารหัสผ่านหมดอายุหรือเป็นรหัสผ่านเริ่มต้น ให้ login ใหม่
+            if (shouldReLogin) {
               this.loginService.login(this.userId, this.newPassword).subscribe({
                 next: (res: any) => {
                   sessionStorage.setItem('token', res.token);
-                  // Redirect ไปหน้า dashboard
+                  // อัปเดตข้อมูลผู้ใช้ใน sessionStorage ให้เมนูโหลดตามสิทธิ์ทันที
+                  try {
+                    // ใช้ service กลางในการอัปเดต session
+                    const responseWithToday = { ...res, datetimeup: this.getTodayBEDateString() };
+                    this.userService.updateSessionFromAuthResponse(responseWithToday);
+                  } catch (e) {
+                    console.error('Failed to update session userData after password change:', e);
+                  }
+                  // ทำ reload ทั้งหน้าเพื่อให้ AdminDashboard re-init และโหลดเมนูใหม่
                   window.location.href = '/dashboard-admin/home';
                 }, error: (err) => {
                   console.log('Error', err);
@@ -294,5 +288,14 @@ export class ChangePasswordComponent implements OnInit {
       }
     })
 
+  }
+
+  // Utility: วันที่ปัจจุบันรูปแบบ พ.ศ. YYYYMMDD
+  private getTodayBEDateString(): string {
+    const now = new Date();
+    const yearBE = now.getFullYear() + 543;
+    const mm = (now.getMonth() + 1).toString().padStart(2, '0');
+    const dd = now.getDate().toString().padStart(2, '0');
+    return `${yearBE}${mm}${dd}`;
   }
 }

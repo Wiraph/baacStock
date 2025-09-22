@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 
 export interface PasswordStatus {
-  isFirstTimeUser: boolean;
   isPasswordExpired: boolean;
   passwordExpiryDays: number;
   passwordExpiryDate: string | null;
@@ -19,7 +18,7 @@ export class PasswordStatusService {
   /**
    * ตรวจสอบสถานะรหัสผ่านจากข้อมูลผู้ใช้
    * @param userData ข้อมูลผู้ใช้จาก sessionStorage หรือ API
-   * @param userData.usr_PWDExp สถานะการหมดอายุรหัสผ่าน (0 = ไม่ต้องตรวจสอบ, >0 = ต้อง
+   * @param userData.usr_PWDExp สถานะการหมดอายุรหัสผ่าน (0 = ไม่ต้องตรวจสอบ, >0 = ต้องตรวจสอบ)
    * @param userData.datetimeup วันที่เปลี่ยนรหัสผ่านล่าสุด
    * @returns PasswordStatus object
    */
@@ -28,17 +27,14 @@ export class PasswordStatusService {
       return this.getDefaultPasswordStatus();
     }
 
-    // ตรวจสอบการใช้งานระบบครั้งแรก (DATETIMEUP เป็น null)
-    const isFirstTimeUser = !userData.datetimeup || userData.datetimeup === null;
-    
     let isPasswordExpired = false;
     let passwordExpiryDays = 0;
     let passwordExpiryDate: string | null = null;
+    const noPasswordChangeDate = !userData.datetimeup || userData.datetimeup === null || userData.datetimeup === '';
 
     // ตรวจสอบรหัสผ่านหมดอายุ
     if (userData.usr_PWDExp === 0) {
       // ถ้า usr_PWDExp = 0 ไม่ต้องตรวจสอบรหัสผ่านหมดอายุ
-      // ค่าเริ่มต้น isPasswordExpired = false และ passwordExpiryDays = 0 ใช้ได้แล้ว
     } else if (userData.usr_PWDExp > 0 && userData.pwdExp && userData.datetimeup) {
       // ถ้า usr_PWDExp > 0 ตรวจสอบรหัสผ่านหมดอายุ
       passwordExpiryDays = userData.pwdExp;
@@ -52,13 +48,13 @@ export class PasswordStatusService {
     }
     
     // ตรวจสอบรหัสผ่านเริ่มต้น (baac)
-    const isDefaultPassword = userData.currentPassword === 'baac' || userData.usrPWD === 'baac';
+    // ถ้าไม่มีวันที่เปลี่ยนรหัสผ่าน (datetimeup ว่าง) ให้ถือว่าใช้รหัสผ่านเริ่มต้น/ยังไม่เคยเปลี่ยน
+    const isDefaultPassword = userData.usrPWD === 'baac' || noPasswordChangeDate;
     
     // ตรวจสอบว่าต้องเปลี่ยนรหัสผ่านหรือไม่
-    const isPasswordChangeRequired = isFirstTimeUser || isPasswordExpired || isDefaultPassword;
+    const isPasswordChangeRequired = isPasswordExpired || isDefaultPassword;
     
     const result: PasswordStatus = {
-      isFirstTimeUser,
       isPasswordExpired,
       passwordExpiryDays,
       passwordExpiryDate,
@@ -66,11 +62,7 @@ export class PasswordStatusService {
       isPasswordChangeRequired
     };
 
-    console.log('Password Status:', {
-      usr_PWDExp: userData.usr_PWDExp,
-      isPasswordExpired,
-      isPasswordChangeRequired
-    });
+    
     
     return result;
   }
@@ -86,19 +78,18 @@ export class PasswordStatusService {
 
     try {
       if (datetimeup.length >= 8) {
-        const year = parseInt(datetimeup.substring(0, 4)) - 543; // แปลงจากปี พ.ศ. เป็น ค.ศ.
+        const yearBE = parseInt(datetimeup.substring(0, 4));
         const month = parseInt(datetimeup.substring(4, 6)) - 1; // เดือนเริ่มจาก 0
         const day = parseInt(datetimeup.substring(6, 8));
         
-        const lastPasswordChange = new Date(year, month, day);
-        const currentDate = new Date();
-        const daysDiff = Math.floor((currentDate.getTime() - lastPasswordChange.getTime()) / (1000 * 60 * 60 * 24));
+        // วันที่เปลี่ยนรหัสผ่าน (พ.ศ.)
+        const lastPasswordChangeBE = new Date(yearBE, month, day);
+        // วันที่ปัจจุบันใน พ.ศ. (แปลงปี ค.ศ. เป็น พ.ศ. โดย +543)
+        const currentCE = new Date();
+        const currentBE = new Date(currentCE.getFullYear() + 543, currentCE.getMonth(), currentCE.getDate());
+        const daysDiff = Math.floor((currentBE.getTime() - lastPasswordChangeBE.getTime()) / (1000 * 60 * 60 * 24));
         
-        console.log('Password Expiry:', {
-          daysDiff,
-          pwdExp,
-          isExpired: daysDiff > pwdExp
-        });
+        
         
         return daysDiff > pwdExp;
       }
@@ -114,7 +105,6 @@ export class PasswordStatusService {
    */
   private getDefaultPasswordStatus(): PasswordStatus {
     return {
-      isFirstTimeUser: false,
       isPasswordExpired: false,
       passwordExpiryDays: 30,
       passwordExpiryDate: null,
