@@ -1,7 +1,6 @@
 import { Component, ChangeDetectorRef, OnInit, Output, EventEmitter, Inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { CustomerStockService } from '../../../services/customer-stock-service';
 import { DataTransfer } from '../../../services/data-transfer';
 import { StocksComponent } from '../stocks/stocks';
 import { UserService } from '../../../services/user';
@@ -53,7 +52,6 @@ export class SearchEditComponent implements OnInit {
 
   constructor(
     private readonly cd: ChangeDetectorRef,
-    private readonly customerStockService: CustomerStockService,
     private readonly dataTrasfer: DataTransfer,
     private readonly userService: UserService,
     private readonly customerService: CustomerService,
@@ -129,20 +127,23 @@ export class SearchEditComponent implements OnInit {
       PGSize: PGSize
     }
     this.cd.detectChanges();
-    this.customerService.searchCustomerStk(requestPayload)
-      .subscribe({
-        next: data => {
-          this.customerStocks = data;
-          this.loading = false;
-          this.cd.detectChanges();
-        },
-        error: err => {
-          console.error('❌ เกิดข้อผิดพลาดจาก API:', err);
-          this.searched = true;
-          this.loading = false;
-          this.cd.detectChanges();
-        }
-      });
+    this.customerService.searchCustomerStk(requestPayload).subscribe({
+      next: data => {
+        this.customerStocks = data;
+        this.loading = false;
+        this.cd.detectChanges();
+      },
+      error: err => {
+        console.error('❌ เกิดข้อผิดพลาดจาก API:', err);
+        this.searched = true;
+        this.loading = false;
+        this.cd.detectChanges();
+      }
+    });
+
+    setTimeout(() => {
+
+    }, 0);
   }
 
   onloadStart() {
