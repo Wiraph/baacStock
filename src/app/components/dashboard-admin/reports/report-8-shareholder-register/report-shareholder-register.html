@@ -82,9 +82,8 @@
 
         <!-- Actions -->
         <div class="flex items-center justify-center space-x-4 pt-4">
-          <button type="button" (click)="onLoadCustomer()" [disabled]="loading" class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
-            <span *ngIf="loading">กำลังค้นหา...</span>
-            <span *ngIf="!loading">ค้นหา</span>
+          <button type="button" (click)="onLoadCustomer()" [disabled]="" class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+            <span *ngIf="">ค้นหา</span>
           </button>
         </div>
       </div>
@@ -113,12 +112,12 @@
               <td class="px-4 py-2 whitespace-nowrap text-xs">
                 <div class="flex space-x-1">
                   <button 
-                    (click)="generatePDF(shareholder)" 
+                    (click)="generateReport(shareholder, 'PDF')" 
                     class="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition duration-200">
                     PDF
                   </button>
                   <button 
-                    (click)="generateEXCEL(shareholder)" 
+                    (click)="generateReport(shareholder, 'EXCEL')" 
                     class="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition duration-200">
                     EXCEL
                   </button>
@@ -145,3 +144,14 @@
     </div>
   </div>
   
+  <!-- ✅ Loading Overlay แบบโปร่งใส + มองทะลุ + เบลอ -->
+  <div *ngIf="loading" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-40 backdrop-blur-sm" style="background-color: rgba(128, 128, 128, 0.7);">
+    <div class="text-center">
+      <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+        viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+      </svg>
+      <p class="text-lg text-white font-medium">🔄 กำลังโหลดข้อมูล กรุณารอสักครู่...</p>
+    </div>
+  </div>

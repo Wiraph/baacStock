@@ -21,40 +21,27 @@ export class Report8ShareholderRegister implements OnInit {
   days: number[] = Array.from({ length: 31 }, (_, index) => index + 1);
 
   months: { value: number; label: string }[] = [
-    { value: 1, label: 'ม.ค.' },
-    { value: 2, label: 'ก.พ.' },
-    { value: 3, label: 'มี.ค.' },
-    { value: 4, label: 'เม.ย.' },
-    { value: 5, label: 'พ.ค.' },
-    { value: 6, label: 'มิ.ย.' },
-    { value: 7, label: 'ก.ค.' },
-    { value: 8, label: 'ส.ค.' },
-    { value: 9, label: 'ก.ย.' },
-    { value: 10, label: 'ต.ค.' },
-    { value: 11, label: 'พ.ย.' },
-    { value: 12, label: 'ธ.ค.' }
+    { value: 1, label: 'ม.ค.' }, { value: 2, label: 'ก.พ.' }, { value: 3, label: 'มี.ค.' },
+    { value: 4, label: 'เม.ย.' }, { value: 5, label: 'พ.ค.' }, { value: 6, label: 'มิ.ย.' },
+    { value: 7, label: 'ก.ค.' }, { value: 8, label: 'ส.ค.' }, { value: 9, label: 'ก.ย.' },
+    { value: 10, label: 'ต.ค.' }, { value: 11, label: 'พ.ย.' }, { value: 12, label: 'ธ.ค.' }
   ];
-  
   years: number[] = Array.from({ length: 2568 - 2500 + 1 }, (_, index) => 2568 - index);
 
-  // เพิ่ม property สำหรับจัดการการแสดง input fields
+  // Filters state
   selectedCustomerType: string = 'cus-type';
-
-  // Form data properties
   selectedDay: string = '';
   selectedMonth: string = '';
   selectedYear: string = '';
   customerSearch: string = '';
   customerType: string = '';
 
-  // Table data
+  // Data state
   shareholders: any[] = [];
   loading: boolean = false;
-
-  // Customer types from API
   customerTypes: any[] = [];
 
-  // PDF display
+  // Preview
   pdfSrc: SafeResourceUrl | null = null;
   showTable: boolean = true;
 
@@ -66,160 +53,85 @@ export class Report8ShareholderRegister implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Set default values
-    const currentDate = new Date();
-    this.selectedDay = currentDate.getDate().toString();
-    this.selectedMonth = (currentDate.getMonth() + 1).toString();
-    this.selectedYear = (currentDate.getFullYear() + 543).toString(); // Buddhist year
-    
-    // Load customer types from API
+    const now = new Date();
+    this.selectedDay = now.getDate().toString();
+    this.selectedMonth = (now.getMonth() + 1).toString();
+    this.selectedYear = (now.getFullYear() + 543).toString();
     this.loadCustomerTypes();
-    
     setTimeout(() => this.sendHead());
   }
 
-  sendHead() {
-    this.headerChange.emit("รายงานทะเบียนผู้ถือหุ้น");
+  sendHead() { this.headerChange.emit('รายงานทะเบียนผู้ถือหุ้น'); }
+
+  private getDateString(): string {
+    return `${this.selectedYear}${this.selectedMonth.padStart(2, '0')}${this.selectedDay.padStart(2, '0')}`;
   }
 
   // Load customer types from API
   loadCustomerTypes() {
     this.customerMetadata.cusTypes().subscribe({
-      next: (types: any[]) => {
-        console.log('Customer types loaded:', types);
-        this.customerTypes = types || [];
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error loading customer types:', err);
-        // Fallback to empty array if API fails
-        this.customerTypes = [];
-      }
+      next: (types: any[]) => { this.customerTypes = types || []; this.cd.detectChanges(); },
+      error: () => { this.customerTypes = []; }
     });
   }
 
   onLoadCustomer() {
     this.loading = true;
-    
-    // Format date as YYYYMMDD
-    const dateString = `${this.selectedYear}${this.selectedMonth.padStart(2, '0')}${this.selectedDay.padStart(2, '0')}`;
-    
     const payload = {
-      DateRep: dateString, // yyyymmdd
-      CusType: this.customerType, // cuscode
-      CusFname: this.selectedCustomerType === 'cusFName' ? this.customerSearch : "", // fname
-      CusLname: this.selectedCustomerType === 'cusLName' ? this.customerSearch : "", // lname
-      CusCardno: this.selectedCustomerType === 'cusID' ? this.customerSearch : "" // cusid
-    }
-    
-    console.log('Search payload:', payload);
-    
+      DateRep: this.getDateString(),
+      CusType: this.customerType,
+      CusFname: this.selectedCustomerType === 'cusFName' ? this.customerSearch : '',
+      CusLname: this.selectedCustomerType === 'cusLName' ? this.customerSearch : '',
+      CusCardno: this.selectedCustomerType === 'cusID' ? this.customerSearch : ''
+    };
+
     this.reportService.StockHolder(payload).subscribe({
       next: (res: any) => {
-        console.log('StockHolder response:', res);
-        // Clear existing data first
-        this.shareholders = [];
-        this.cd.detectChanges();
-        
-        // Set new data
         this.shareholders = res || [];
         this.loading = false;
-        
-        // Force change detection
         this.cd.detectChanges();
-        
-        console.log('Shareholders updated:', this.shareholders.length, 'items');
-      }, 
+      },
       error: (err) => {
-        console.error('Error loading customers:', err);
         this.shareholders = [];
         this.loading = false;
         this.cd.detectChanges();
-        Swal.fire({
-          icon: 'error',
-          text: `${err.message}`
-        });
+        Swal.fire({ icon: 'error', text: `${err.message}` });
       }
-    })
+    });
   }
 
-  // Generate PDF for specific shareholder
-  generatePDF(shareholder: any) {
-    const dateString = `${this.selectedYear}${this.selectedMonth.padStart(2, '0')}${this.selectedDay.padStart(2, '0')}`;
-    
-    const payload = {
-      DateRep: dateString, // YYYYMMDD
-      CusCardno: shareholder.cusid, // Cusid
-      TypeExport: "PDF" // PDF
-    }
+  private download(url: string, filename?: string): void {
+    const a = document.createElement('a');
+    a.href = url;
+    if (filename) a.setAttribute('download', filename);
+    a.click();
+  }
 
-    console.log('PDF payload:', payload);
-
+  private generateReport(shareholder: any, type: 'PDF' | 'EXCEL'): void {
+    const payload = { DateRep: this.getDateString(), CusCardno: shareholder.cusid, TypeExport: type };
     this.reportService.LoadFileMenu8(payload).subscribe({
       next: (res: any) => {
-        console.log('PDF response:', res);
-        if (res?.fileUrl) {
-          // Display PDF in iframe
-          this.pdfSrc = this.sanitizer.bypassSecurityTrustResourceUrl(res.fileUrl);
-          this.showTable = false; // Hide table, show PDF
+        const url = res?.fileUrl;
+        if (!url) return;
+        if (type === 'PDF') {
+          this.pdfSrc = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+          this.showTable = false;
           this.cd.detectChanges();
+        } else {
+          this.download(url);
         }
-      }, 
+      },
       error: (err) => {
-        console.error('Error generating PDF:', err);
-        Swal.fire({
-          icon: 'error',
-          text: `${err.message}`
-        })
+        // avoid returning Promise from handler
+        Swal.fire({ icon: 'error', text: `${err.message}` });
       }
-    })
+    });
   }
 
-  // Generate EXCEL for specific shareholder
-  generateEXCEL(shareholder: any) {
-    const dateString = `${this.selectedYear}${this.selectedMonth.padStart(2, '0')}${this.selectedDay.padStart(2, '0')}`;
-    
-    const payload = {
-      DateRep: dateString, // YYYYMMDD
-      CusCardno: shareholder.cusid, // Cusid
-      TypeExport: "EXCEL" // EXCEL
-    }
 
-    console.log('EXCEL payload:', payload);
+  onCustomerTypeChange(event: any): void { this.selectedCustomerType = event.target.value; }
 
-    this.reportService.LoadFileMenu8(payload).subscribe({
-      next: (res: any) => {
-        console.log('EXCEL response:', res);
-        if (res?.fileUrl) {
-          // Download EXCEL file
-          const link = document.createElement('a');
-          link.href = res.fileUrl;
-          link.click();
-        }
-      }, 
-      error: (err) => {
-        console.error('Error generating EXCEL:', err);
-        Swal.fire({
-          icon: 'error',
-          text: `${err.message}`
-        })
-      }
-    })
-  }
+  showTableView(): void { this.showTable = true; this.pdfSrc = null; this.cd.detectChanges(); }
 
-  // เพิ่ม method สำหรับจัดการการเปลี่ยนประเภทลูกค้า
-  onCustomerTypeChange(event: any): void {
-    this.selectedCustomerType = event.target.value;
-  }
-
-  // Show table and hide PDF
-  showTableView(): void {
-    this.showTable = true;
-    this.pdfSrc = null;
-    this.cd.detectChanges();
-  }
-
-  goBack(): void {
-    this.back.emit();
-  }
+  goBack(): void { this.back.emit(); }
 }

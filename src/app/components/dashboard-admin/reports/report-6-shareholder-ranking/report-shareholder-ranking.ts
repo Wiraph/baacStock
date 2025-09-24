@@ -15,6 +15,7 @@ import Swal from 'sweetalert2';
 export class Report6ShareholderRanking implements OnInit {
   @Output() headerChange = new EventEmitter<string>();
   @Output() back = new EventEmitter<void>();
+  loading: boolean = false;
 
   // Form data
   rankingCount: number = 10;
@@ -83,8 +84,10 @@ export class Report6ShareholderRanking implements OnInit {
 
     console.log('Payload:', payload);
 
+    this.loading = true;
     this.reportService.LoadFileMenu6(payload).subscribe({
       next: (response) => {
+        this.loading = false;
         console.log('Report Response:', response);
         
         if (response?.fileUrl) {
@@ -95,6 +98,7 @@ export class Report6ShareholderRanking implements OnInit {
         }
       },
       error: (err: any) => {
+        this.loading = false;
         console.error('Error generating report:', err);
         Swal.fire({
           icon: 'error',

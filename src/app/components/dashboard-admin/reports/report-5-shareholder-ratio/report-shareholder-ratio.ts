@@ -15,6 +15,7 @@ import Swal from 'sweetalert2';
 export class Report5ShareholderRatio implements OnInit {
   @Output() headerChange = new EventEmitter<string>();
   @Output() back = new EventEmitter<void>();
+  loading: boolean = false;
 
   // Form data
   selectedDay: string = '';
@@ -70,6 +71,7 @@ export class Report5ShareholderRatio implements OnInit {
 
     // Clear previous PDF
     this.pdfSrc = null;
+    this.loading = true;
     this.cd.detectChanges();
 
     const dateString = `${this.selectedYear}${this.selectedMonth.padStart(2, '0')}${this.selectedDay.padStart(2, '0')}`;
@@ -85,6 +87,7 @@ export class Report5ShareholderRatio implements OnInit {
 
     this.reportService.LoadFileMenu5(payload).subscribe({
       next: (response) => {
+        this.loading = false;
         console.log('PDF Report Response:', response);
         
         if (response?.fileUrl) {
@@ -94,6 +97,7 @@ export class Report5ShareholderRatio implements OnInit {
         }
       },
       error: (err: any) => {
+        this.loading = false;
         console.error('Error generating PDF:', err);
         Swal.fire({
           icon: 'error',
@@ -109,6 +113,7 @@ export class Report5ShareholderRatio implements OnInit {
       return;
     }
 
+    this.loading = true;
     const dateString = `${this.selectedYear}${this.selectedMonth.padStart(2, '0')}${this.selectedDay.padStart(2, '0')}`;
     
     const payload: StockReportDto = {
@@ -122,6 +127,7 @@ export class Report5ShareholderRatio implements OnInit {
 
     this.reportService.LoadFileMenu5(payload).subscribe({
       next: (response) => {
+        this.loading = false;
         console.log('EXCEL Report Response:', response);
         
         if (response?.fileUrl) {
@@ -132,6 +138,7 @@ export class Report5ShareholderRatio implements OnInit {
         }
       },
       error: (err: any) => {
+        this.loading = false;
         console.error('Error generating EXCEL:', err);
         Swal.fire({
           icon: 'error',

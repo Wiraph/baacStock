@@ -14,6 +14,7 @@ import { Reports, StockReportDto } from '../../../../services/reports';
 export class Report4DividendRate implements OnInit {
   @Output() headerChange = new EventEmitter<string>();
   @Output() back = new EventEmitter<void>();
+  loading: boolean = false;
 
   // Form data
   selectedYearFrom: string = '';
@@ -66,6 +67,7 @@ export class Report4DividendRate implements OnInit {
 
     // Clear previous PDF
     this.pdfSrc = null;
+    this.loading = true;
     this.cd.detectChanges();
 
     const payload: StockReportDto = {
@@ -79,6 +81,7 @@ export class Report4DividendRate implements OnInit {
 
     this.reportService.LoadFileMenu4(payload).subscribe({
       next: (response) => {
+        this.loading = false;
         console.log('PDF Report Response:', response);
         
         if (response?.fileUrl) {
@@ -88,6 +91,7 @@ export class Report4DividendRate implements OnInit {
         }
       },
       error: (error) => {
+        this.loading = false;
         console.error('Error generating PDF:', error);
       }
     });
@@ -99,6 +103,7 @@ export class Report4DividendRate implements OnInit {
       return;
     }
 
+    this.loading = true;
     const payload: StockReportDto = {
       Division: "", // ปล่อยว่าง
       Prov: "",     // ปล่อยว่าง
@@ -110,6 +115,7 @@ export class Report4DividendRate implements OnInit {
 
     this.reportService.LoadFileMenu4(payload).subscribe({
       next: (response) => {
+        this.loading = false;
         console.log('EXCEL Report Response:', response);
         
         if (response.fileUrl) {
@@ -120,6 +126,7 @@ export class Report4DividendRate implements OnInit {
         }
       },
       error: (error) => {
+        this.loading = false;
         console.error('Error generating EXCEL:', error);
       }
     });

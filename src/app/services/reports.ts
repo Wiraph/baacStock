@@ -72,4 +72,30 @@ export class Reports {
     const encrypPayload = this.encrypt.encrypPayload(payload);
     return this.http.post<any>(`${this.apiUrl}/stockholder`, encrypPayload, { withCredentials: true });
   }
+
+  Stk310(payload: any): Observable<any>{
+    const encrypPayload = this.encrypt.encrypPayload(payload);
+    return this.http.post<any>(`${this.apiUrl}/stk310`, encrypPayload, { withCredentials: true });
+  }
+
+  LoadFileMenu11(payload: any): Observable<any>{
+    const encrypPayload = this.encrypt.encrypPayload(payload);
+    return this.http.post<any>(`${this.apiUrl}/stock-report-menu11`, encrypPayload, { withCredentials: true });
+  }
+
+  LoadFileMenu12(payload: any): Observable<any>{
+    const encrypPayload = this.encrypt.encrypPayload(payload);
+    return this.http.post<any>(`${this.apiUrl}/stock-report-menu12`, encrypPayload, { withCredentials: true });
+  }
+
+  List14(payload: any): Observable<any>{
+    const encrypPayload = this.encrypt.encrypPayload(payload);
+    return this.http.post<any>(`${this.apiUrl}/list14`, encrypPayload, { withCredentials: true });
+  }
+
+  LoadFileMenu14(payload: any): Observable<any>{
+    const encrypPayload = this.encrypt.encrypPayload(payload);
+    return this.http.post<any>(`${this.apiUrl}/stock-report-menu14`, encrypPayload, { withCredentials: true });
+  }
+
 }

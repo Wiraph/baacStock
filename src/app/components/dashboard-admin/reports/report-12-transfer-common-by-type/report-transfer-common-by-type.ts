@@ -3,7 +3,7 @@ import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@ang
 import Swal from 'sweetalert2';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { StockService } from '../../../../services/stock';
+import { Reports } from '../../../../services/reports';
 
 @Component({
   standalone: true,
@@ -41,12 +41,12 @@ export class Report12TransferCommonByType implements OnInit {
     { value: 12, label: 'ธ.ค.' }
   ];
 
-  years: number[] = Array.from({ length: 2568 - 2500 + 1 }, (_, index) => 2568 - index);
+  years: number[] = Array.from({ length: 2568 - 2554 + 1 }, (_, index) => 2568 - index);
 
   constructor(
     private readonly cd: ChangeDetectorRef,
     private readonly sanitizer: DomSanitizer,
-    private readonly stockService: StockService,
+    private readonly reports: Reports,
   ) {}
 
   ngOnInit(): void {
@@ -58,78 +58,51 @@ export class Report12TransferCommonByType implements OnInit {
   }
 
 
-  genPdf(TypeReport: string) {
+  // ฟังก์ชันรวมสำหรับสร้างรายงานทั้ง PDF/EXCEL
+  generate(type: 'PDF' | 'EXCEL'): void {
     // Validate date selection
     if (!this.selectedDay || !this.selectedMonth || !this.selectedYear) {
-      Swal.fire({
-        icon: 'warning',
-        text: "กรุณาเลือกวันที่ให้ครบ"
-      });
+      Swal.fire({ icon: 'warning', text: "กรุณาเลือกวันที่ให้ครบ" });
       return;
     }
 
     const selectedDate = `${this.selectedYear}${this.selectedMonth.padStart(2, '0')}${this.selectedDay.padStart(2, '0')}`;
-    
+
     this.loading = true;
-    const payload = {
-      "Date": selectedDate
-    }
+    const payload = { DateStart: selectedDate, TypeExport: type } as const;
 
-    if (TypeReport == "PDF") {
-      this.pdf(payload);
-    } else {
-      this.excel(payload);
-    }
-  }
-
-  pdf(payload: any) {
-    this.stockService.GenPdfStockReport(payload).subscribe({
-      next: (blob: Blob) => {
+    this.reports.LoadFileMenu12(payload).subscribe({
+      next: (res: any) => {
         this.loading = false;
-        if (!blob || blob.size === 0) {
-          Swal.fire({ icon: 'warning', text: 'ไม่พบข้อมูลสำหรับสร้างรายงาน' });
+        const url: string | undefined = res?.fileUrl || res?.url;
+        if (!url) {
+          Swal.fire({ icon: 'warning', text: 'ไม่พบลิงก์ไฟล์สำหรับดาวน์โหลด' });
+          this.cd.detectChanges();
           return;
         }
-        const url = window.URL.createObjectURL(blob);
-        this.pdfSrc = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+        if (type === 'PDF') {
+          this.pdfSrc = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+        } else {
+          const filename = url.split('/')?.pop() || 'StockReport.xlsx';
+          this.download(url, filename);
+        }
         this.cd.detectChanges();
       },
       error: (err) => {
         this.loading = false;
-        console.error('PDF Error', err);
-        Swal.fire({
-          icon: 'error',
-          title: 'ไม่สามารถสร้างรายงานได้',
-          text: err.message || 'เกิดข้อผิดพลาดจากระบบ'
-        });
+        console.error('Menu12 error:', err);
+        Swal.fire({ icon: 'error', title: 'ไม่สามารถสร้างรายงานได้', text: err?.message || 'เกิดข้อผิดพลาดจากระบบ' });
         this.cd.detectChanges();
       }
     });
   }
 
-  excel(payload: any) {
-    this.stockService.GenExcelStockReport(payload).subscribe({
-      next: (blob: Blob) => {
-        this.loading = false;
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'StockReport.xlsx';
-        a.click();
-        window.URL.revokeObjectURL(url);
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        this.loading = false;
-        console.error('EXCEL : Error', err);
-        Swal.fire({
-          icon: 'error',
-          title: 'ไม่สามารถสร้างรายงานได้',
-          text: err.message || 'เกิดข้อผิดพลาดจากระบบ'
-        });
-        this.cd.detectChanges();
-      }
-    })
+  private download(url: string, filename?: string): void {
+    const a = document.createElement('a');
+    a.href = url;
+    if (filename) a.setAttribute('download', filename);
+    a.click();
+    a.remove();
   }
 
   goBack(): void {
