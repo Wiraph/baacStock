@@ -1,7 +1,6 @@
 import { Component, EventEmitter, OnInit, Output, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CustomerMetadata } from '../../../../services/Metadata/customer-metadata';
 import { SignatureService } from '../../../../services/signature';
 import { Reports } from '../../../../services/reports';
@@ -18,7 +17,6 @@ export class Report14CertificateDeliveryLetter implements OnInit {
   @Output() back = new EventEmitter<void>();
 
   loading: boolean = false;
-  pdfSrc: SafeResourceUrl | null = null;
 
   selectedCustomerType: string = 'cus-group';
   selectedGroup: string = '';
@@ -239,8 +237,6 @@ export class Report14CertificateDeliveryLetter implements OnInit {
       }
     });
   }
-
-  // Helper: format display name for each row (supports multiple field shapes)
   formatDisplayName(row: any): string {
     if (!row) return '';
     const first = row.CusName ?? row.cusName ?? row.name ?? '';
@@ -251,7 +247,6 @@ export class Report14CertificateDeliveryLetter implements OnInit {
 
 
   constructor(
-    private readonly sanitizer: DomSanitizer,
     private readonly cd: ChangeDetectorRef,
     private readonly customerMetadata: CustomerMetadata,
     private readonly signatureService: SignatureService,
