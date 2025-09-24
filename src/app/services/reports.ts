@@ -68,16 +68,6 @@ export class Reports {
     return this.http.post<any>(`${this.apiUrl}/stock-report-menu10`, encrypPayload, { withCredentials: true });
   }
 
-  LoadFileMenu15(payload: any): Observable<any> {
-    const encrypPayload = this.encrypt.encrypPayload(payload);
-    return this.http.post<any>(`${this.apiUrl}/stock-report-menu15`, encrypPayload, { withCredentials: true });
-  }
-
-  LoadFileMenu16(payload: any): Observable<any> {
-    const encrypPayload = this.encrypt.encrypPayload(payload);
-    return this.http.post<any>(`${this.apiUrl}/stock-report-menu16`, encrypPayload, { withCredentials: true });
-  }
-
   StockHolder(payload: any): Observable<any> {
     const encrypPayload = this.encrypt.encrypPayload(payload);
     return this.http.post<any>(`${this.apiUrl}/stockholder`, encrypPayload, { withCredentials: true });
@@ -106,6 +96,16 @@ export class Reports {
   LoadFileMenu14(payload: any): Observable<any>{
     const encrypPayload = this.encrypt.encrypPayload(payload);
     return this.http.post<any>(`${this.apiUrl}/stock-report-menu14`, encrypPayload, { withCredentials: true });
+  }
+
+  LoadFileMenu15(payload: any): Observable<any> {
+    const encrypPayload = this.encrypt.encrypPayload(payload);
+    return this.http.post<any>(`${this.apiUrl}/stock-report-menu15`, encrypPayload, { withCredentials: true });
+  }
+
+  LoadFileMenu16(payload: any): Observable<any> {
+    const encrypPayload = this.encrypt.encrypPayload(payload);
+    return this.http.post<any>(`${this.apiUrl}/stock-report-menu16`, encrypPayload, { withCredentials: true });
   }
 
 }

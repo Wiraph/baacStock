@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { Reports } from '../../../../services/reports';
 import Swal from 'sweetalert2';
 
@@ -17,7 +17,6 @@ export class Report15CertificateDeliveryEnvelope implements OnInit {
   @Output() back = new EventEmitter<void>();
 
   loading: boolean = false;
-  pdfSrc: SafeResourceUrl | null = null;
 
   // Search type selection
   selectedSearchType: string = 'stockNumber';
