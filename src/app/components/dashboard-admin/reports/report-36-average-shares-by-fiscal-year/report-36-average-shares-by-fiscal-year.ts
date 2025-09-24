@@ -24,7 +24,7 @@ export class Report36AverageSharesByFiscalYear implements OnInit {
   ngOnInit(): void {
     // Set current year as default
     const currentYear = new Date().getFullYear() + 543; // Convert to Buddhist year
-    this.selectedYear = currentYear.toString();
+    this.selectedYear = Number(currentYear - 1).toString();
     
     setTimeout(() => this.sendHead());
   }

@@ -438,22 +438,15 @@ export class AnnualdividendcalculatorComponent implements OnInit {
   @ViewChild(forwardRef(() => VoucherComponent)) voucherComponent!: VoucherComponent;
 
   exportPDF(): void {
-    this.voucher = false;
-    this.cd.detectChanges();
-    
-    setTimeout(() => {
-      this.voucher = true;
-      this.cd.detectChanges();
-      
-      setTimeout(() => {
-        if (this.voucherComponent) {
-          this.voucherComponent.dataForm = this.dataForm;
-          this.voucherComponent.dividendDesc = this.dividendDesc;
-          this.voucherComponent.dividend = this.dividend;
-          this.voucherComponent.generatePDF();
-        }
-      }, 200);
-    }, 100);
+    this.dividendService.getVoucher().subscribe({
+      next: (blob) => {
+        const fileUrl = URL.createObjectURL(blob);
+        window.open(fileUrl, '_blank');
+        this.cd.detectChanges();
+      }, error: (err) => {
+        console.error('Error fetching voucher data:', err);
+      }
+    })
   }
 
   /**
@@ -585,7 +578,7 @@ export class DialogAnimationsExampleDialog {
 })
 export class VoucherComponent {
   @ViewChild('voucherDiv') voucherDiv!: ElementRef;
-  
+
   @Input() dataForm: any = { year: '', time: '' };
   @Input() dividendDesc: string = '';
   @Input() dividend: any = {
@@ -647,7 +640,7 @@ export class VoucherComponent {
 
       const timestamp = new Date().toISOString().split('T')[0];
       pdf.save(`Voucher_${timestamp}.pdf`);
-      
+
     } catch (error) {
       console.error('PDF generation failed:', error);
     }
