@@ -88,6 +88,11 @@ export class StockService {
     const encodePayload = this.encrypt.encrypPayload(requestPayload);
     return this.http.post(`${this.apiUrl}/excel`, encodePayload, {withCredentials: true, responseType: 'blob'});
   }
+
+  GetFileSaleStock(requestPayload: any): Observable<any[]> {
+    const encrypPayload = this.encrypt.encrypPayload(requestPayload);
+    return this.http.post<any[]>(`${this.apiUrl}/filestocksale`, encrypPayload, {withCredentials: true});
+  } 
 }
 
 
