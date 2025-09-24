@@ -15,6 +15,7 @@ import Swal from 'sweetalert2';
 export class Report7BalanceByType implements OnInit {
   @Output() headerChange = new EventEmitter<string>();
   @Output() back = new EventEmitter<void>();
+  loading: boolean = false;
 
   // Form data
   selectedStkType: string = 'A';
@@ -75,12 +76,14 @@ export class Report7BalanceByType implements OnInit {
       TypeExport: "PDF" // PDF || EXCEL
     };
 
-    // Clear previous PDF
+    // Clear previous PDF and set loading
     this.pdfSrc = null;
+    this.loading = true;
     this.cd.detectChanges();
 
     this.reportService.LoadFileMenu7(payload).subscribe({
       next: (response) => {
+        this.loading = false;
         console.log('PDF Report Response:', response);
         
         if (response?.fileUrl) {
@@ -90,6 +93,7 @@ export class Report7BalanceByType implements OnInit {
         }
       },
       error: (err: any) => {
+        this.loading = false;
         console.error('Error generating PDF:', err);
         Swal.fire({
           icon: 'error',
@@ -117,8 +121,10 @@ export class Report7BalanceByType implements OnInit {
       TypeExport: "EXCEL" // PDF || EXCEL
     };
 
+    this.loading = true;
     this.reportService.LoadFileMenu7(payload).subscribe({
       next: (response) => {
+        this.loading = false;
         console.log('EXCEL Report Response:', response);
         
         if (response?.fileUrl) {
@@ -129,6 +135,7 @@ export class Report7BalanceByType implements OnInit {
         }
       },
       error: (err: any) => {
+        this.loading = false;
         console.error('Error generating EXCEL:', err);
         Swal.fire({
           icon: 'error',

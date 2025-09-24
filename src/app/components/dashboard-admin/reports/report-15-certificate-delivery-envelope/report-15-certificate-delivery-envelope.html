@@ -47,19 +47,17 @@
               [(ngModel)]="selectedDateType"
               [disabled]="selectedSearchType !== 'date'"
               class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
-              <option value="">-- เลือกประเภทวันที่ --</option>
-              <option value="saleDate">วันที่ขาย</option>
-              <option value="issueDate">วันที่ออกเลขที่ใบหุ้น</option>
-              <option value="approvalDate">วันที่สาขาอนุมัติ</option>
+              <option value="stkDateIssue">วันที่ขาย</option>
+              <option value="stkDateEffect">วันที่ออกเลขที่ใบหุ้น</option>
+              <option value="stkDateApprove">วันที่สาขาอนุมัติ</option>
             </select>
             <select 
               [(ngModel)]="selectedDateMode"
               [disabled]="selectedSearchType !== 'date'"
               class="w-48 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
-              <option value="">-- เลือกระยะเวลา --</option>
-              <option value="year">ปี</option>
-              <option value="dateRange">ช่วงวันที่</option>
-              <option value="specificDate">วันที่</option>
+              <option value="date-year">ปี</option>
+              <option value="date-range">ช่วงวันที่</option>
+              <option value="date-day">วันที่</option>
             </select>
           </div>
         </div>
@@ -68,7 +66,7 @@
       <!-- เลือกระยะเวลา (แสดงเมื่อเลือกวันที่) -->
       <div *ngIf="selectedSearchType === 'date' && selectedDateMode" class="space-y-4">
         <!-- แสดงเมื่อเลือก "ปี" -->
-        <div *ngIf="selectedDateMode === 'year'" class="flex gap-4 items-end">
+        <div *ngIf="selectedDateMode === 'date-year'" class="flex gap-4 items-end">
           <div class="flex-1">
             <label for="yearSelect" class="text-sm font-medium text-gray-700 mb-1 block">ปี</label>
             <select 
@@ -82,7 +80,7 @@
         </div>
 
         <!-- แสดงเมื่อเลือก "ช่วงวันที่" -->
-        <div *ngIf="selectedDateMode === 'dateRange'" class="flex gap-4 items-end">
+        <div *ngIf="selectedDateMode === 'date-range'" class="flex gap-4 items-end">
           <div class="flex-1">
             <label for="fromDate" class="text-sm font-medium text-gray-700 mb-1 block">ตั้งแต่วันที่</label>
             <div class="flex items-center gap-2">
@@ -121,7 +119,7 @@
         </div>
 
         <!-- แสดงเมื่อเลือก "วันที่" -->
-        <div *ngIf="selectedDateMode === 'specificDate'" class="flex gap-4 items-end">
+        <div *ngIf="selectedDateMode === 'date-day'" class="flex gap-4 items-end">
           <div class="flex-1">
             <label for="specificDate" class="text-sm font-medium text-gray-700 mb-1 block">วันที่</label>
             <div class="flex items-center gap-2">
@@ -145,21 +143,11 @@
 
     <!-- Action Buttons -->
     <div class="flex justify-center mt-8 space-x-4">
-      <button (click)="genPdf('PDF')" type="button" class="px-6 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
-        แสดงรายงาน PDF
-      </button>
-      <button (click)="genPdf('XLS')" type="button" class="px-6 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
-        แสดงรายงาน EXCEL
+      <button (click)="genFile()" type="button" class="px-6 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+        {{ loadingReport ? 'กำลังโหลด...' : 'ค้นหา' }}
       </button>
     </div>
   </div>
-
-    <!-- Document Preview Area -->
-    <div class="mt-3 border rounded bg-gray-50 overflow-auto" style="height: 500px;">
-      <iframe *ngIf="pdfSrc" [src]="pdfSrc" width="100%" height="100%" style="border:none;"
-        title="Preview PDF รายงานหุ้น">
-      </iframe>
-    </div>
 
     <!-- Back Button -->
     <div class="flex justify-center mt-4 mb-8">

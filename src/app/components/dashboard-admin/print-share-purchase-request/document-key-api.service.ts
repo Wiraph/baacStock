@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 import { Observable } from 'rxjs';
 
 // ผลลัพธ์การอัปโหลดเอกสาร
@@ -26,7 +27,7 @@ export interface GenerateDocResponse {
   providedIn: 'root'
 })
 export class DocumentApiService {
-  private readonly baseUrl = 'http://localhost:8000';
+  private readonly baseUrl = environment.pythonApiUrl;
 
   constructor(private readonly http: HttpClient) {}
 

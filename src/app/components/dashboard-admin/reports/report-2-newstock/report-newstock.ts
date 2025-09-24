@@ -32,6 +32,7 @@ export const THAI_DATE_FORMATS = {
 export class Report2Newstock implements OnInit {
   @Output() headerChange = new EventEmitter<string>();
   @Output() back = new EventEmitter<void>();
+  loading: boolean = false;
 
   // แสดง/ซ่อน calendar
   showCalendarFrom = false;
@@ -99,6 +100,7 @@ export class Report2Newstock implements OnInit {
   }
 
   onSearch(): void {
+    this.loading = true;
     // ตรวจสอบการเลือกประเภทรายการ
     const selectedTypes = [];
     if (this.filters.types.nameChange) selectedTypes.push('LOS0040');
@@ -127,6 +129,7 @@ export class Report2Newstock implements OnInit {
 
     this.reportService.downloadApproveReport(payload).subscribe({
       next: (blob) => {
+        this.loading = false;
         // สร้าง link สำหรับดาวน์โหลดไฟล์
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -140,6 +143,7 @@ export class Report2Newstock implements OnInit {
         });
       },
       error: (err) => {
+        this.loading = false;
         Swal.fire({
           icon: 'error',
           text: 'ไม่พบข้อมูลตามวันที่ระบุ'

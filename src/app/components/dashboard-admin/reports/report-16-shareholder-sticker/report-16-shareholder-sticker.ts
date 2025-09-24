@@ -1,10 +1,12 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ThaiCalendarComponent } from '../../../thai-calendar-component/thai-calendar-component';
 import { Thaidateadapter } from '../../../thaidateadapter/thaidateadapter';
+import { Reports } from '../../../../services/reports';
+import Swal from 'sweetalert2';
 
 export const THAI_DATE_FORMATS = {
   parse: { dateInput: 'DD/MM/YYYY' },
@@ -41,8 +43,9 @@ export class Report16ShareholderSticker implements OnInit {
   idCardNumber: string = '';
   shareholderName: string = '';
   lastName: string = '';
+  loadingReport: boolean = false;
 
-  constructor(private readonly sanitizer: DomSanitizer) {}
+  constructor(private readonly sanitizer: DomSanitizer, private readonly reportService: Reports, private readonly cd: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     setTimeout(() => this.sendHead());
@@ -72,15 +75,48 @@ export class Report16ShareholderSticker implements OnInit {
     return `${d} ${m} ${y}`;
   }
 
-  genPdf(type: string) {
-    console.log('Generating report:', type);
-    console.log('As of Date:', this.formatThaiDate(this.selectedDate));
+  genFile() {
+    console.log('As of Date:', this.formatDateToYYYYMMDD(this.selectedDate));
     console.log('ID Card Number:', this.idCardNumber);
     console.log('Shareholder Name:', this.shareholderName);
     console.log('Last Name:', this.lastName);
+    const payload = {
+      DateTime: this.formatDateToYYYYMMDD(this.selectedDate),
+      Cusid: this.idCardNumber ?? "",
+      CusFname: this.shareholderName ?? "",
+      CusLname: this.lastName ?? "",
+    }
+
+    this.loadingReport = true;
+    this.reportService.LoadFileMenu16(payload).subscribe({
+      next: (res:any) => {
+        const Url = res.fileUrl;
+        const link = document.createElement('a');
+        link.href = Url;
+        link.download = Url.split('/').pop() || 'report.pdf';
+        link.click();
+        this.loadingReport = false;
+        this.cd.detectChanges();
+      }, error: (err:any) => {
+        Swal.fire({
+          icon: 'error',
+          text: `${err.message}`
+        })
+        console.log("error", err);
+      }
+    })
   }
 
   goBack(): void {
     this.back.emit();
+  }
+
+  formatDateToYYYYMMDD(date: Date | null): string {
+    if (!date) return '';
+    const d = new Date(date);
+    const year = d.getFullYear() + 543; // Convert to Thai year
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0'); 
+    return `${year}${month}${day}`;
   }
 }
