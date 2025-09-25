@@ -60,4 +60,10 @@ export class Divident {
       responseType: 'blob'
     });
   }
+
+  print() {
+    return this.http.get(`${this.apiUrl}/print`, {
+      responseType: 'blob'
+    });
+  }
 }

@@ -449,6 +449,19 @@ export class AnnualdividendcalculatorComponent implements OnInit {
     })
   }
 
+  printPDF(): void {
+    this.dividendService.print().subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const pdfWindow = window.open(url);
+        pdfWindow?.print();
+        this.cd.detectChanges();
+      }, error: (err) => {
+        console.error('Error fetching print data:', err);
+      }
+    })
+  }
+
   /**
   * แปลงเลขวันที่แบบ YYYYMMDD (พ.ศ.) เป็น Date object
   * @param thaiDateNumber เช่น 25680815
