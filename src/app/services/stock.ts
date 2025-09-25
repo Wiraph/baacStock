@@ -93,6 +93,11 @@ export class StockService {
     const encrypPayload = this.encrypt.encrypPayload(requestPayload);
     return this.http.post<any[]>(`${this.apiUrl}/filestocksale`, encrypPayload, {withCredentials: true});
   } 
+
+  stkpay(payload: any): Observable<any[]> {
+    const encrypPayload = this.encrypt.encrypPayload(payload);
+    return this.http.post<any[]>(`${this.apiUrl}/stkpay`, encrypPayload, {withCredentials: true});
+  }
 }
 
 
