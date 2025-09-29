@@ -63,10 +63,8 @@ export class SpinFilesComponent implements OnInit {
             time: datePart
           };
         });
-        console.log(this.files);
         this.cd.detectChanges();
       }, error: (err) => {
-        console.log("Error", err);
       }
     });
   }

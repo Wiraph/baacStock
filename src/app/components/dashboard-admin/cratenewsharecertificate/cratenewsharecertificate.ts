@@ -14,12 +14,16 @@ import { SystemMetadata } from '../../../services/Metadata/system-metadata';
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule, // ✅ เพิ่มตัวนี้เพื่อใช้ Reactive Forms
+    ReactiveFormsModule,
     SearchEditComponent,
   ],
   templateUrl: './cratenewsharecertificate.html',
   styleUrl: './cratenewsharecertificate.css'
 })
+/**
+ * ออกใบหุ้นใหม่ทดแทนใบหุ้นชำรุด/สูญหาย (Create New Share Certificate)
+ * ฟลว์: รับผลการค้นหาจาก Search → โหลดรายการชำรุด/สูญหาย → เลือกใบหุ้น → เลือกเหตุผล → ยืนยันและบันทึก
+ */
 export class CratenewsharecertificateComponent implements OnInit {
   @Input() inputShareCertificate!: string;
   internalViewName = "create-new-share-certificate";
@@ -31,7 +35,7 @@ export class CratenewsharecertificateComponent implements OnInit {
   stockDetail: any = '';
   loading = false;
 
-  reasonForm!: FormGroup; // ✅ ใช้ FormGroup
+  reasonForm!: FormGroup;
   remCodes: {
     remCode: string;
     remList: string;
@@ -53,18 +57,20 @@ export class CratenewsharecertificateComponent implements OnInit {
     this.cd.detectChanges();
   }
 
+  /** รับข้อมูลจาก SearchEdit → เปลี่ยนมุมมองและโหลดรายการใบหุ้นชำรุด/สูญหาย */
   onShowdetail(stock: any) {
-    console.log("ค่าที่ได้รับกลับมา: ", stock);
     this.setView(stock.view);
     this.onLoadStkLostList(stock.cusId);
     this.cd.detectChanges();
   }
 
   onLoadStkDetail(stkNote: string) {
-
+    // reserved for future use (โหลดรายละเอียดใบหุ้นเพิ่มเติม)
   }
 
+  /** โหลดรายการใบหุ้นชำรุด/สูญหายของลูกค้า พร้อมข้อมูลลูกค้า */
   onLoadStkLostList(cusiD: string) {
+    this.loading = true;
     const payloadSearch = {
       GetDTL: 'bySTK@bySTK-LOS',
       STKno: '',
@@ -78,24 +84,24 @@ export class CratenewsharecertificateComponent implements OnInit {
 
     this.customerService.searchCustomerStk(payloadSearch).subscribe({
       next: (res) => {
-        this.stkLostList = res;
-        console.log("res", res);
+        this.stkLostList = Array.isArray(res) ? res : [];
+      }, error: () => {
+        Swal.fire({ icon: 'error', title: 'ดึงรายการใบหุ้นไม่สำเร็จ', text: 'โปรดลองใหม่' });
+      }, complete: () => {
         this.cd.detectChanges();
-      }, error: (err) => {
-        console.log("Errors", err);
       }
     })
 
-    const payloadCustomer = {
-      cusId: cusiD
-    }
+    const payloadCustomer = { cusId: cusiD };
 
     this.customerService.getCustomerDetail(payloadCustomer).subscribe({
       next: (res) => {
         this.customerData = res;
+      }, error: () => {
+        Swal.fire({ icon: 'error', title: 'ดึงข้อมูลลูกค้าไม่สำเร็จ', text: 'โปรดลองใหม่' });
+      }, complete: () => {
+        this.loading = false;
         this.cd.detectChanges();
-      }, error: (err) => {
-        console.log("Error", err);
       }
     })
   }
@@ -104,79 +110,78 @@ export class CratenewsharecertificateComponent implements OnInit {
     this.activeView = view;
   }
 
-
+  /** เลือกใบหุ้น → โหลดรายละเอียด และโหลดเหตุผล (remCode) ที่อนุญาต */
   handleNewStockRequest(stkNote: string) {
     this.loading = true;
     this.activeView = "select";
-    const payload = {
-      stkNote: stkNote
-    };
+    const payload = { stkNote };
     this.stockService.getStockDetail(payload).subscribe({
       next: (res) => {
-        this.loading = false;
         this.stockDetail = res;
+      }, error: () => {
+        Swal.fire({ icon: 'error', title: 'ดึงรายละเอียดใบหุ้นไม่สำเร็จ', text: 'โปรดลองใหม่' });
+      }, complete: () => {
+        this.loading = false;
         this.cd.detectChanges();
-      }, error: (err) => {
-        console.log("Error", err);
       }
     })
+
     this.systemMedataaService.remCode().subscribe({
       next: (res) => {
-        const allowCode = ["0020", "0021"];
-        this.remCodes = res.filter((item: any) => allowCode.includes(item.remCode));
-
-        // ✅ สร้างฟอร์มใหม่พร้อมค่า default
-        this.reasonForm = this.fb.group({
-          remCode: [this.remCodes[0]?.remCode || '', Validators.required]
-        });
-
-        this.cd.detectChanges(); // เผื่อ view ยังไม่อัปเดต
+        const allowCode = ["0020", "0021"]; // เฉพาะเหตุผลที่อนุญาต
+        this.remCodes = (Array.isArray(res) ? res : []).filter((item: any) => allowCode.includes(item.remCode));
+        // สร้างฟอร์มใหม่พร้อมค่า default
+        this.reasonForm = this.fb.group({ remCode: [this.remCodes[0]?.remCode || '', Validators.required] });
+        this.cd.detectChanges();
+      }, error: () => {
+        Swal.fire({ icon: 'error', title: 'โหลดเหตุผลไม่สำเร็จ', text: 'โปรดลองใหม่' });
       }
     });
   }
 
+  /** บันทึกเหตุผลการออกใบหุ้นใหม่ (UPDATE) */
   onSubmitReason() {
-    if (this.reasonForm.valid) {
-      const selectedCode = this.reasonForm.value.remCode;
-      const payloadNewLost = {
-        StkRemCode: selectedCode,
-        StkNOTE: this.stockDetail.stkNote,
-        Act: 'UPDATE'
-      }
-      Swal.fire({
-        icon: 'question',
-        text: 'ยืนยัน ต้องการออกใบหุ้นใหม่ทดแทนใบหุ้นชำรุด/สูญหาย',
-        confirmButtonText: "ตกลง",
-        cancelButtonText: "ยกเลิก",
-        showCancelButton: true
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.stockService.stockLost(payloadNewLost).subscribe({
-            next: (res: any) => {
-              console.log("Res", res);
-              Swal.fire({
-                icon: 'success',
-                text: 'บันทึกเรียบร้อยแล้ว',
-                timer: 3000,
-                timerProgressBar: true,
-              })
-              this.activeView = 'search';
-              this.customerData = '';
-              this.cd.detectChanges();
-            }, error: (err) => {
-              console.log("เกิดข้อผิดพลาด", err);
-            }
-          })
+    if (!this.reasonForm?.valid) {
+      Swal.fire({ icon: 'warning', text: 'กรุณาเลือกเหตุผลก่อนบันทึก' });
+      return;
+    }
+    const selectedCode = this.reasonForm.value.remCode;
+    const payloadNewLost = {
+      StkRemCode: selectedCode,
+      StkNOTE: this.stockDetail.stkNote,
+      Act: 'UPDATE'
+    };
+    Swal.fire({
+      icon: 'question',
+      text: 'ยืนยัน ต้องการออกใบหุ้นใหม่ทดแทนใบหุ้นชำรุด/สูญหาย',
+      confirmButtonText: 'ตกลง',
+      cancelButtonText: 'ยกเลิก',
+      showCancelButton: true
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+      this.loading = true;
+      this.stockService.stockLost(payloadNewLost).subscribe({
+        next: () => {
+          Swal.fire({ icon: 'success', text: 'บันทึกเรียบร้อยแล้ว', timer: 3000, timerProgressBar: true });
+          this.activeView = 'search';
+          this.customerData = '';
+          this.cd.detectChanges();
+        }, error: () => {
+          Swal.fire({ icon: 'error', title: 'บันทึกไม่สำเร็จ', text: 'โปรดลองใหม่' });
+        }, complete: () => {
+          this.loading = false;
+          this.cd.detectChanges();
         }
       })
-    }
+    })
   }
 
   onCancelReason() {
     this.reasonForm.reset();
-    this.activeView = 'search'; // หรือเปลี่ยนกลับหน้าเดิม
+    this.activeView = 'search';
   }
 
+  /** แปลง DATETIME (25680724-103534) เป็นรูปแบบไทยอ่านง่าย */
   formatThaiDateTime(datetimeup: string): string {
     if (!datetimeup) return '-';
 
@@ -190,14 +195,9 @@ export class CratenewsharecertificateComponent implements OnInit {
     const minute = +timePart.substring(2, 4);
     const second = +timePart.substring(4, 6);
 
-    // ✅ ตรวจว่าปีเป็น พ.ศ. อยู่แล้วหรือไม่
-    if (year > 2500) {
-      year = year - 543; // แปลงกลับเป็น ค.ศ.
-    }
+    if (year > 2500) year = year - 543; // แปลง พ.ศ. → ค.ศ.
 
-    const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
-      'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-
+    const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
     const pad = (n: number) => n < 10 ? '0' + n : n.toString();
 
     return `${day} ${thaiMonths[month]} ${year + 543} ${pad(hour)}:${pad(minute)}:${pad(second)} น.`;

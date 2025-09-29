@@ -2,6 +2,8 @@ import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectorRef } fro
 import { CommonModule } from '@angular/common';
 import { StockService, StockItem } from '../../../services/stock';
 import { CustomerService } from '../../../services/customer';
+import Swal from 'sweetalert2';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-stocks',
@@ -10,18 +12,20 @@ import { CustomerService } from '../../../services/customer';
   templateUrl: './stocks.html',
   // styleUrl: ['./stocks.css'],
 })
+/**
+ * แสดงรายการใบหุ้นทั้งหมดของลูกค้าตาม `cusId` พร้อมข้อมูลลูกค้าแบบสรุป
+ */
 export class StocksComponent implements OnInit {
   @Input() cusId: string = '';
   @Input() hideHeader: boolean = false;
   @Output() back = new EventEmitter<string>();
-
 
   stockList: any[] = [];
   cusData: any = null;
   showTransferForm = false;
   selectedStock: StockItem | null = null;
   customerInfo: any = null;
-
+  isLoading = false;
 
   constructor(
     private readonly stockService: StockService,
@@ -29,61 +33,74 @@ export class StocksComponent implements OnInit {
     private readonly cd: ChangeDetectorRef,
   ) { }
 
+  /** โหลดข้อมูลใบหุ้นและข้อมูลลูกค้า เมื่อรับ `cusId` */
   ngOnInit(): void {
     if (this.cusId != '') {
-      console.log("CudId ที่ถูกส่งมา ", this.cusId);
       this.loadCustomerStock(this.cusId);
       this.loadCustomerInfo(this.cusId);
     }
   }
 
+  /**
+   * โหลดใบหุ้นทุกสถานะของลูกค้า ให้ได้รายการครบสำหรับแสดงผล
+   */
   loadCustomerStock(cusiD: string) {
-    // ใช้ payload เพื่อดึงข้อมูลทุกใบหุ้นทุกสถานะ
+    this.isLoading = true;
     const payload = {
-      GetDTL: 'bySTK@byCUS',       
-      STKno: '',                  
-      CUSid: cusiD,               
-      CUSfn: '',                  
-      CUSln: '',                  
-      stkA: '',                   
-      PGNum: 1,                    
-      PGSize: 9999999              
+      GetDTL: 'bySTK@byCUS',
+      STKno: '',
+      CUSid: cusiD,
+      CUSfn: '',
+      CUSln: '',
+      StkA: '',
+      PGNum: 1,
+      PGSize: 9999999
     };
 
-    this.customerService.searchCustomerStk(payload).subscribe({
-      next: (res) => {
-        console.log('📋 จำนวนรายการ:', res?.length || 0);
-        if (res && res.length === 0) {
-          console.log('⚠️ ไม่มีข้อมูลใบหุ้น');
+    this.cd.detectChanges();
+    this.customerService.searchCustomerStk(payload)
+      .pipe(finalize(() => {
+        this.isLoading = false;
+        this.cd.detectChanges();
+      }))
+      .subscribe({
+        next: (res) => {
+          this.stockList = Array.isArray(res) ? res : [];
+          this.cd.detectChanges();
+        },
+        error: () => {
+          this.stockList = [];
+          this.cd.detectChanges();
+          Swal.fire({ icon: 'error', title: 'โหลดรายการใบหุ้นไม่สำเร็จ', text: 'โปรดลองใหม่' });
         }
-        this.stockList = res || [];
-        this.cd.detectChanges();
-      }, error: (err) => {
-        console.log("❌ Load data fail...", err);
-        this.stockList = [];
-        this.cd.detectChanges();
-      }
-    })
+      });
   }
 
-  // โหลดข้อมูลลูกค้า
+  /** โหลดข้อมูลลูกค้าแบบสรุปสำหรับแสดงหัวตาราง/รายละเอียด */
   loadCustomerInfo(cusiD: string) {
-    const cusPayload = {
-      cusId: cusiD
-    };
+    this.isLoading = true;
+    const cusPayload = { cusId: cusiD };
 
-    this.customerService.getCustomerDetail(cusPayload).subscribe({
-      next: (res: any) => {
-        this.customerInfo = res;
+    this.cd.detectChanges();
+    this.customerService.getCustomerDetail(cusPayload)
+      .pipe(finalize(() => {
+        this.isLoading = false;
         this.cd.detectChanges();
-      }, error: (err) => {
-        console.log("❌ Load customer info fail...", err);
-        this.customerInfo = null;
-        this.cd.detectChanges();
-      }
-    });
+      }))
+      .subscribe({
+        next: (res: any) => {
+          this.customerInfo = res ?? null;
+          this.cd.detectChanges();
+        },
+        error: () => {
+          this.customerInfo = null;
+          this.cd.detectChanges();
+          Swal.fire({ icon: 'error', title: 'โหลดข้อมูลลูกค้าไม่สำเร็จ', text: 'โปรดลองใหม่' });
+        }
+      });
   }
 
+  /** แปลงวันที่ DATETIMEUP: YYYYMMDD-HHMMSS เป็นข้อความไทย */
   formatThaiDateTime(datetimeup: string): string {
     if (!datetimeup?.includes('-')) return '-';
 
@@ -105,22 +122,24 @@ export class StocksComponent implements OnInit {
     return `${day} ${thaiMonths[month]} ${year} ${pad(hour)}:${pad(minute)}:${pad(second)} น.`;
   }
 
-
+  /** แก้ไขใบหุ้น (placeholder) */
   onEditStock() {
-    console.log('📝 ฟังก์ชันแก้ไขใบหุ้น (ยังไม่ทำ)');
+    Swal.fire({ icon: 'info', title: 'อยู่ระหว่างพัฒนา', text: 'ฟังก์ชันแก้ไขใบหุ้นยังไม่พร้อมใช้งาน' });
   }
 
+  /** เปิดฟอร์มโอนใบหุ้น */
   onTransfer(stock: StockItem) {
     this.selectedStock = stock;
     this.showTransferForm = true;
   }
 
+  /** ยกเลิกการโอน */
   cancelTransfer() {
     this.showTransferForm = false;
     this.selectedStock = null;
   }
 
-
+  /** กลับหน้าค้นหา */
   goBack() {
     this.back.emit('search');
   }

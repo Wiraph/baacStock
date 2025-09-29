@@ -148,7 +148,6 @@ export class DividendComponent implements OnInit {
   }
 
   onHandle(event: any) {
-    console.log('💰 onHandle called with event:', event);
     
     if (event.view === 'dividend') {
       // เมื่อกดปุ่ม "จ่ายเงินปันผล" จาก search-edit
@@ -191,10 +190,7 @@ export class DividendComponent implements OnInit {
   }
 
   // Handle dividend selection from SearchEditComponent
-  onDividendSelected(data: any): void {
-    console.log('💰 เลือกข้อมูลสำหรับเงินปันผล:', data);
-    this.onViewStock(data);
-  }
+  onDividendSelected(data: any): void { this.onViewStock(data); }
 
   // Load customer data from API like other systems
   loadCustomerDataFromAPI(cusId: string) {
@@ -203,17 +199,13 @@ export class DividendComponent implements OnInit {
       stkOWNiD: cusId
     }
     
-    console.log('💰 Loading dividend data for cusId:', cusId);
-    console.log('💰 Payload:', payload);
+    // โหลดข้อมูลเงินปันผลสำหรับ cusId ที่เลือก
     
     // เรียก API GetDividend2Pay เพื่อดึงข้อมูลเงินปันผล
     this.dividendService.getDividend2Pay(payload)
       .pipe(finalize(() => { this.loading = false; this.cd.detectChanges(); }))
       .subscribe({
       next: (response:any) => {
-        console.log('💰 API Response:', response);
-        console.log('💰 Response type:', typeof response);
-        console.log('💰 Response length:', response?.length);
         
         if (response && response.length > 0) {
           // ตรวจสอบว่ามีข้อมูลที่ valid หรือไม่
@@ -228,7 +220,7 @@ export class DividendComponent implements OnInit {
           
           // ใช้ข้อมูลจากรายการแรกเพื่อดึงข้อมูลลูกค้า
           const firstItem = response[0];
-          console.log('💰 First item:', firstItem);
+          // ใช้รายการแรกเป็นข้อมูลลูกค้าอ้างอิง
           
           // ตั้งค่าข้อมูลลูกค้า
           this.customerData = {
@@ -242,7 +234,7 @@ export class DividendComponent implements OnInit {
             taxId: firstItem.cusTAXidUSE || '-'
            };
 
-          console.log('💰 Customer Data:', this.customerData);
+          // จัดเก็บข้อมูลลูกค้า
 
           //กรณีที่ 2: ตรวจสอบเลขผู้เสียภาษี
           if(firstItem.cusTAX && firstItem.cusTAX > 0) {
@@ -252,8 +244,7 @@ export class DividendComponent implements OnInit {
           
           // ตั้งค่าข้อมูลเงินปันผล
           this.dividendData = response;
-          console.log('💰 Dividend Data:', this.dividendData);
-          console.log('💰 Dividend Data length:', this.dividendData.length);
+          // จัดเก็บข้อมูลเงินปันผล
 
           //กรณีที่ 3: หุ้นบล็อค
           this.checkBlockedStocks();
@@ -265,7 +256,7 @@ export class DividendComponent implements OnInit {
           this.loadBlockedStocks(this.customerData.cusId);
 
         } else {
-          console.log('💰 No dividend data found');
+          // กรณีไม่พบรายการ
           this.systemStatus.hasDividendData = false;
           this.systemStatus.errorMessage = 'ไม่พบรายการเงินปันผลรอจ่าย';
           this.showErrorAlert('ไม่พบรายการเงินปันผลรอจ่าย');
@@ -285,7 +276,7 @@ export class DividendComponent implements OnInit {
         }
       },
       error: (error: any) => {
-        console.error('💰 Error loading dividend data:', error);
+        Swal.fire({ icon: 'error', title: 'ไม่สามารถโหลดข้อมูลเงินปันผลได้', text: 'กรุณาลองใหม่' });
         
         Swal.fire({
           icon: 'error',
@@ -318,7 +309,7 @@ export class DividendComponent implements OnInit {
     };
 
          this.dividendData.forEach((item: any) => {
-       console.log('💰 Processing dividend item:', item);
+       // รวมยอดตามสถานะและปี
        
        // ตรวจสอบว่ามีข้อมูลที่จำเป็นหรือไม่
        const hasValidData = this.getValidValue(item.stkNOTE) || this.getValidValue(item.payBEFdvn) || this.getValidValue(item.payCURdvn);
@@ -346,7 +337,7 @@ export class DividendComponent implements OnInit {
           payBEFdvn, payBEFtax, payBEFnet, payCURdvn, payCURtax, payCURnet
         });
        } else {
-         console.log('💰 Skipping item without valid data:', item);
+         // ข้ามแถวที่ไม่มีข้อมูลจำเป็น
        }
      });
 
@@ -356,8 +347,7 @@ export class DividendComponent implements OnInit {
     this.paymentData.fraction = totalNet % this.paymentData.denominator;
     this.paymentData.unit = (totalNet - this.paymentData.fraction) / this.paymentData.denominator;
     
-    console.log('💰 Dividend Summary calculated:', this.dividendSummary);
-    console.log('💰 Payment Data:', this.paymentData);
+    // สรุปยอดและค่า default สำหรับช่องจ่าย
     // ตั้งค่า default สำหรับกล่องชำระ
     this.cashPayAmount = this.paymentData.dividend;
     this.ktbPayAmount = this.paymentData.dividend;
@@ -525,9 +515,9 @@ export class DividendComponent implements OnInit {
     }).then(result => {
       if (!result.isConfirmed) { return; }
       this.loading = true;
-      console.log('💰 Frontend request payload:', payload);
+      // ส่งคำขอไป backend
       if (!this.stockService || typeof (this.stockService as any).stkpay !== 'function') {
-        console.error('💥 StockService is undefined or has no stkpay method');
+        Swal.fire({ icon: 'error', title: 'ไม่พบบริการ stkpay', text: 'กรุณาตรวจสอบการตั้งค่า' });
         const req = this.escapeHtml(JSON.stringify(payload, null, 2));
         Swal.fire({ icon: 'error', title: 'ไม่พบบริการ stkpay', html: `<pre style='text-align:left;white-space:pre-wrap'>${req}</pre>`, width: 800, confirmButtonText: 'ปิด' });
         this.loading = false;
@@ -535,13 +525,11 @@ export class DividendComponent implements OnInit {
       }
       this.stockService.stkpay(payload).subscribe({
       next: (response) => {
-        console.log('💰 Backend response:', response);
         const message = (response as any)?.message ?? 'ดำเนินการสำเร็จ';
         Swal.fire({ icon: 'success', title: message, confirmButtonText: 'ตกลง' });
         this.loading = false;
       },
       error: (err) => {
-        console.error('💰 Backend error:', err);
         const req = this.escapeHtml(JSON.stringify(payload, null, 2));
         const res = this.escapeHtml(JSON.stringify(err?.error || err, null, 2));
         const html = `<div style='text-align:left'>

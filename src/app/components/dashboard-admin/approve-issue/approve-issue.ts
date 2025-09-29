@@ -14,6 +14,12 @@ import { ApproveService } from '../../../services/approve';
   templateUrl: './approve-issue.html',
   styleUrl: './approve-issue.css'
 })
+/**
+ * หน้ารออนุมัติออกใบหุ้น (Approve Issue)
+ * - โหลดรายการออกใบหุ้นที่รออนุมัติแบบแบ่งหน้า
+ * - เปิดป๊อปอัพเพื่ออนุมัติ/ยกเลิกรายการ
+ * - แสดงสถานะโหลดและจับ error อย่างเหมาะสม
+ */
 export class ApproveIssue implements OnInit {
 
   constructor(
@@ -33,8 +39,8 @@ export class ApproveIssue implements OnInit {
   pageNumber = 1;
   pageSize = 20;
 
-
   ngOnInit(): void {
+    // อ่านชื่อสาขาจาก cookie (หากอยู่ใน browser)
     if ( typeof document !== "undefined") {
       const rawBrName = this.getCookie("BrName");
       this.brName = rawBrName ? decodeURIComponent(rawBrName) : null;
@@ -43,6 +49,7 @@ export class ApproveIssue implements OnInit {
     this.onsearch(1, 20);
   }
 
+  /** อ่านค่า cookie ตามชื่อ */
   getCookie(name: string): string | null {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -54,6 +61,7 @@ export class ApproveIssue implements OnInit {
     this.activeView = view;
   }
 
+  /** ไปหน้าถัดไป หากมีข้อมูลครบจำนวน pageSize */
   nextPage() {
     if (this.issueList.length == this.pageSize) {
       this.pageNumber++;
@@ -63,6 +71,7 @@ export class ApproveIssue implements OnInit {
     }
   }
 
+  /** ย้อนหน้าก่อนหน้า หาก pageNumber > 1 */
   prevPage() {
     if (this.pageNumber > 1) {
       this.pageNumber--;
@@ -72,6 +81,7 @@ export class ApproveIssue implements OnInit {
     }
   }
 
+  /** ค้นหารายการรออนุมัติออกใบหุ้นแบบแบ่งหน้า */
   onsearch(pageNumber: number, pageSize: number) {
     const payload = {
       ACT: 'iSSUE',
@@ -81,25 +91,22 @@ export class ApproveIssue implements OnInit {
 
     this.approveService.getStockApprove(payload).subscribe({
       next: (res) => {
-        this.issueList = res;
-        this.loading = false;
-        this.cd.detectChanges();
+        this.issueList = Array.isArray(res) ? res : [];
       }, error: () => {
-        Swal.fire({
-          title: "Error",
-          text: "โปรดติดต่อผู้พัฒนา",
-          icon: 'error'
-        })
+        Swal.fire({ title: "Error", text: "โปรดติดต่อผู้พัฒนา", icon: 'error' });
+      }, complete: () => {
         this.loading = false;
         this.cd.detectChanges();
       }
     })
   }
 
+  /** เปิดหน้าต่างรายละเอียด/ยืนยัน การอนุมัติออกใบหุ้น */
   showPopup(stkNote: string, stkStatus: string) {
     this.openPopup(stkNote, stkStatus, "iSSUE")
   }
 
+  /** เปิด Dialog รายละเอียดพร้อม action */
   openPopup(stkNote: string, stkStatus: string, action: string) {
     const dialogRef = this.dialog.open(PopupDetail, {
       width: '300px',
@@ -114,11 +121,6 @@ export class ApproveIssue implements OnInit {
       if (result == "PASS") {
         this.onsearch(1, 20);
         this.cd.detectChanges();
-      }
-      if (result) {
-        console.log('กดตกลง');
-      } else {
-        console.log('ยกเลิก');
       }
     });
   }

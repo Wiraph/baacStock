@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, Inject, PLATFORM_ID, inject, ElementRef, ViewChild, forwardRef, Input } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, Inject, PLATFORM_ID, inject } from '@angular/core';
 import { Divident } from '../../../services/divident';
 import Swal from 'sweetalert2';
 import { Thaidateadapter } from '../../thaidateadapter/thaidateadapter';
@@ -24,9 +24,6 @@ import { saveAs } from 'file-saver';
 import * as ExcelJS from 'exceljs';
 import { lastValueFrom } from 'rxjs';
 import { NgxPrintModule } from 'ngx-print';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-
 
 interface DividendRequest {
   setAct: number;
@@ -63,8 +60,7 @@ export const THAI_DATE_FORMATS = {
     MatPaginatorModule,
     MatButtonModule,
     MatTooltipModule,
-    NgxPrintModule,
-    forwardRef(() => VoucherComponent)
+    NgxPrintModule
   ],
   templateUrl: './annualdividendcalculator.html',
   styleUrls: ['./annualdividendcalculator.css'], // แก้เป็น styleUrls
@@ -80,9 +76,7 @@ export const THAI_DATE_FORMATS = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnnualdividendcalculatorComponent implements OnInit {
-  @ViewChild('voucherDiv') voucherDiv!: ElementRef;
   readonly dialog = inject(MatDialog);
-  pdfMake: any;
   dividend: any = '';
   dividendList: any[] = [];
   dividendOwner: any[] = [];
@@ -157,8 +151,13 @@ export class AnnualdividendcalculatorComponent implements OnInit {
     this.showCalendarPaid = false;
   }
 
+  /**
+   * จัดการคำสั่งหลักของหน้าจอ (คำนวณ/คำนวณใหม่/อนุมัติ)
+   * - DOCAL: ตรวจสอบข้อมูลฟอร์มแล้วเตรียม payload คำนวณ
+   * - RECAL: ลบข้อมูลเดิมแล้วโหลดใหม่
+   * - APPRV: เตรียม payload อนุมัติ
+   */
   submit(doACT: string): void {
-    console.log(doACT);
     let setact: number | null = null;
     switch (doACT) {
       case 'DOCAL': setact = 2; break;
@@ -208,7 +207,6 @@ export class AnnualdividendcalculatorComponent implements OnInit {
         dateMeet: this.formatDatetoString(this.selectedDateMeet),
         datePaid: this.formatDatetoString(this.selectedDatePaid),
       };
-      console.log("Payload", payload);
     }
     if (doACT == 'APPRV') {
       payload = {
@@ -234,11 +232,10 @@ export class AnnualdividendcalculatorComponent implements OnInit {
         this.cd.detectChanges();
         if (doACT === 'RECAL') {
           this.dividendService.deleteDividendLST().subscribe({
-            next: (res: any) => {
-              console.log(res.message);
+            next: () => {
               this.ngOnInit();
             }, error: (err) => {
-              console.log("Err", err);
+              Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err?.message || 'กรุณาลองใหม่' });
             }
           })
         }
@@ -249,12 +246,15 @@ export class AnnualdividendcalculatorComponent implements OnInit {
     })
   }
 
+  /**
+   * โหลด/คำนวณข้อมูลเงินปันผลตาม action และ payload ที่ส่งมา
+   * ตั้งค่า state สำหรับการแสดงผลในหน้า
+   */
   calDividend(doact: string = "", payload: any = {}) {
     this.loading = true;
     this.dividendService.getAllDividend(payload).subscribe({
       next: (res: any) => {
         this.dividend = res;
-        console.log("Dividend", this.dividend);
         this.selectedDateMeet = this.thaiNumberToDate(this.dividend?.dateMEET);
         this.selectedDatePaid = this.thaiNumberToDate(this.dividend?.datePAiD);
         this.dataForm.year = this.dividend.stkYEARc;
@@ -302,7 +302,7 @@ export class AnnualdividendcalculatorComponent implements OnInit {
         this.loading = false;
         this.cd.detectChanges();
       }, error: (err) => {
-        console.log("Err", err);
+        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err?.message || 'กรุณาลองใหม่' });
       }
     })
   }
@@ -435,8 +435,7 @@ export class AnnualdividendcalculatorComponent implements OnInit {
     saveAs(new Blob([buffer]), `Dividend_${year}.xlsx`);
   }
 
-  @ViewChild(forwardRef(() => VoucherComponent)) voucherComponent!: VoucherComponent;
-
+  /** ดาวน์โหลด Voucher PDF จาก backend และเปิดในหน้าต่างใหม่ */
   exportPDF(): void {
     this.dividendService.getVoucher().subscribe({
       next: (blob) => {
@@ -444,11 +443,12 @@ export class AnnualdividendcalculatorComponent implements OnInit {
         window.open(fileUrl, '_blank');
         this.cd.detectChanges();
       }, error: (err) => {
-        console.error('Error fetching voucher data:', err);
+        Swal.fire({ icon: 'error', title: 'ดาวน์โหลดไม่สำเร็จ', text: err?.message || 'กรุณาลองใหม่' });
       }
     })
   }
 
+  /** ดาวน์โหลดไฟล์สำหรับพิมพ์จาก backend แล้วสั่งพิมพ์ */
   printPDF(): void {
     this.dividendService.print().subscribe({
       next: (blob) => {
@@ -457,7 +457,7 @@ export class AnnualdividendcalculatorComponent implements OnInit {
         pdfWindow?.print();
         this.cd.detectChanges();
       }, error: (err) => {
-        console.error('Error fetching print data:', err);
+        Swal.fire({ icon: 'error', title: 'พิมพ์ไม่สำเร็จ', text: err?.message || 'กรุณาลองใหม่' });
       }
     })
   }
@@ -467,11 +467,9 @@ export class AnnualdividendcalculatorComponent implements OnInit {
   * @param thaiDateNumber เช่น 25680815
   * @returns Date object
   */
+  /** แปลงเลขวันที่ (พ.ศ. YYYYMMDD) เป็น Date object */
   thaiNumberToDate(thaiDateNumber?: number): Date | null {
-    if (thaiDateNumber === null || thaiDateNumber === undefined) {
-      console.error("thaiDateNumber is null/undefined");
-      return null;
-    }
+    if (thaiDateNumber === null || thaiDateNumber === undefined) return null;
 
     const str = thaiDateNumber.toString();
     if (str.length !== 8) {
@@ -579,93 +577,7 @@ export class DialogAnimationsExampleDialog {
   }
 
   onRowKeyDown(event: KeyboardEvent, row: any) {
-    console.log('Key pressed:', event.key, row);
-  }
-}
-
-@Component({
-  selector: 'voucher-component',
-  templateUrl: './voucher.html',
-  styleUrls: ['./annualdividendcalculator.css'],
-  imports: [CommonModule],
-})
-export class VoucherComponent {
-  @ViewChild('voucherDiv') voucherDiv!: ElementRef;
-
-  @Input() dataForm: any = { year: '', time: '' };
-  @Input() dividendDesc: string = '';
-  @Input() dividend: any = {
-    datePAiD: '',
-    stkRATE: 0,
-    stkCUSTs: 0,
-    stkUNiTs: 0,
-    stkDVNs: 0
-  };
-
-  formatDateNew(date: string): string {
-    if (!date) return '';
-    const d = new Date(date);
-    return d.toLocaleDateString('th-TH');
-  }
-
-  async generatePDF(): Promise<void> {
-    if (!this.voucherDiv) {
-      console.error('Voucher element not found');
-      return;
-    }
-
-    try {
-      await this.waitForFontLoad();
-
-      const canvas = await html2canvas(this.voucherDiv.nativeElement, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        width: this.voucherDiv.nativeElement.offsetWidth,
-        height: this.voucherDiv.nativeElement.offsetHeight
-      });
-
-      const imgWidth = 210;
-      const pageHeight = 297;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const contentDataURL = canvas.toDataURL('image/png', 1.0);
-
-      const pdf = new jsPDF('p', 'mm', 'a4');
-
-      const marginTop = 20;
-      let heightLeft = imgHeight;
-      let position = marginTop;
-
-      if (imgHeight < pageHeight - marginTop) {
-        pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
-      } else {
-        while (heightLeft > 0) {
-          pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= (pageHeight - marginTop);
-          if (heightLeft > 0) {
-            pdf.addPage();
-            position = marginTop - heightLeft + (pageHeight - marginTop);
-          }
-        }
-      }
-
-      const timestamp = new Date().toISOString().split('T')[0];
-      pdf.save(`Voucher_${timestamp}.pdf`);
-
-    } catch (error) {
-      console.error('PDF generation failed:', error);
-    }
-  }
-
-
-
-  private waitForFontLoad(): Promise<void> {
-    return new Promise((resolve) => {
-      // รอให้ font โหลดเสร็จ
-      setTimeout(resolve, 2000);
-    });
+    // ใช้สำหรับรองรับการกดคีย์บอร์ดบนแถวข้อมูล (เช่น เปิดรายละเอียด)
   }
 }
 

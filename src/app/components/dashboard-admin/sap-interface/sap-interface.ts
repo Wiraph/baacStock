@@ -3,9 +3,10 @@ import { Sap } from '../../../services/sap';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 
+/** รายการไฟล์สำหรับ SAP Interface */
 interface TextFile {
-  fileName: string[];
-  fileSize: number[];
+  fileName: string;
+  fileSize: number;
 }
 
 
@@ -15,6 +16,9 @@ interface TextFile {
   templateUrl: './sap-interface.html',
   styleUrl: './sap-interface.css'
 })
+/**
+ * SAP Interface: โหลดรายการไฟล์ .txt, สร้างไฟล์ใหม่จาก backend และดาวน์โหลดไฟล์/รายงานความเคลื่อนไหวหุ้น
+ */
 export class SapInterface implements OnInit {
   isLoading: boolean = false;
   textfile: TextFile[] = [];
@@ -28,91 +32,82 @@ export class SapInterface implements OnInit {
     this.loadTextFile();
   }
 
+  /** โหลดรายการไฟล์ .txt จาก backend */
   loadTextFile(): void {
     this.isLoading = true;
     this.sapService.getlist().subscribe({
       next: (res: any[]) => {
         // map เพื่อเอา .txt ออก และรวม fileName/fileSize เป็น object
-        this.textfile = res.map(f => ({
-          fileName: f.fileName.replace(/\.txt$/i, ''),
-          fileSize: f.fileSize
+        this.textfile = (res || []).map(f => ({
+          fileName: (f?.fileName || '').toString().replace(/\.txt$/i, ''),
+          fileSize: Number(f?.fileSize) || 0
         }));
-
-        console.log("Textfile", this.textfile);
         this.isLoading = false;
         this.cd.detectChanges();
       },
-      error: (err) => {
-        console.log("Load Error", err);
+      error: () => {
         this.isLoading = false;
+        this.cd.detectChanges();
+        Swal.fire({ icon: 'error', title: 'โหลดรายการไฟล์ไม่สำเร็จ', text: 'โปรดลองใหม่' });
       }
     });
   }
 
+  /** สร้างไฟล์ .txt ใหม่จาก backend และรีเฟรชรายการ */
   createTextFile(): void {
     this.isLoading = true;
     this.sapService.generate().subscribe({
       next: () => {
         this.isLoading = false;
         this.cd.detectChanges();
-        Swal.fire({
-          icon: 'success',
-          text: 'สร้างไฟล์สำเร็จ'
-        }).then((result) => {
+        Swal.fire({ icon: 'success', text: 'สร้างไฟล์สำเร็จ' }).then((result) => {
           if (result.isConfirmed) {
-            this.ngZone.run(() => {
-              this.loadTextFile();
-            })
+            this.ngZone.run(() => { this.loadTextFile(); })
           }
         })
-      }, error: (err) => {
-        console.log("Generate Error", err);
+      }, error: () => {
+        this.isLoading = false;
+        this.cd.detectChanges();
+        Swal.fire({ icon: 'error', title: 'สร้างไฟล์ไม่สำเร็จ', text: 'โปรดลองใหม่' });
       }
     })
   }
 
+  /** ดาวน์โหลดไฟล์ .txt ตามชื่อ */
   dowloadTextFile(fileName: string): void {
     this.isLoading = true;
     const fileNameTxt = `${fileName}.txt`;
-    console.log("Filename:", fileNameTxt);
-    const payload = {
-      fileName: fileNameTxt
-    };
+    const payload = { fileName: fileNameTxt };
     this.sapService.download(payload).subscribe({
       next: (blob: Blob) => {
         const link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);
         link.download = fileName; // ตั้งชื่อไฟล์
         link.click();
-        // ล้าง URL object หลังใช้
         window.URL.revokeObjectURL(link.href);
         this.isLoading = false;
         this.cd.detectChanges();
       },
-      error: (err) => {
+      error: () => {
         this.isLoading = false;
-        console.log("Download Error", err);
         this.cd.detectChanges();
+        Swal.fire({ icon: 'error', title: 'ดาวน์โหลดไฟล์ไม่สำเร็จ', text: 'โปรดลองใหม่' });
       }
     })
   }
 
+  /** ดาวน์โหลดไฟล์ Stock Movement (Excel) จากวันที่ที่ระบุในชื่อไฟล์ */
   downloadStockMovement(fileName: string) {
     this.isLoading = true;
     this.cd.detectChanges();
     const file = fileName
-    // 1. ดึงเลข 25680828 ออกมา
     const regex = /(\d{8})$/;
     const match = regex.exec(file);
     let datePart = match ? match[1] : "";
-    // 2. แปลงเป็น number และทำจาก พ.ศ. -> ค.ศ.
     let num = Number(datePart);
     let converted = num - 5430000;
-    // 3. แปลงกลับเป็น string
     let result = converted.toString();
-    const payload = {
-      dateArg: result
-    }
+    const payload = { dateArg: result }
 
     this.sapService.downloadExcel(payload).subscribe({
       next: (res) => {
@@ -124,12 +119,18 @@ export class SapInterface implements OnInit {
         this.cd.detectChanges();
       }, error: (err) => {
         this.isLoading = false;
-        console.error("Download Error", err);
-        // debug ถ้า server ส่งข้อความ error เป็น Blob
-        if (err.error instanceof Blob) {
+        // แสดงรายละเอียดจาก server ถ้าส่ง Blob มาด้วย
+        if (err?.error instanceof Blob) {
           const reader = new FileReader();
-          reader.onload = () => console.log("Server says:", reader.result);
+          reader.onload = () => {
+            const resultText = typeof reader.result === 'string' && reader.result.trim().length > 0
+              ? reader.result
+              : 'โปรดลองใหม่';
+            Swal.fire({ icon: 'error', title: 'ดาวน์โหลดรายงานไม่สำเร็จ', text: resultText });
+          };
           reader.readAsText(err.error);
+        } else {
+          Swal.fire({ icon: 'error', title: 'ดาวน์โหลดรายงานไม่สำเร็จ', text: 'โปรดลองใหม่' });
         }
         this.cd.detectChanges();
       }

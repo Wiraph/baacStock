@@ -16,6 +16,11 @@ import { MatButtonModule } from '@angular/material/button';
   templateUrl: './approve-item.html',
   styleUrl: './approve-item.css'
 })
+/**
+ * หน้ารายการคำขอที่ต้องอนุมัติ (Approve Item)
+ * - โหลดรายการคำขอแบบแบ่งหน้า
+ * - เปิดรายละเอียด/ยืนยันบน PopupDetail
+ */
 export class ApproveItemComponent implements OnInit {
   brName: any;
   searchText = '';
@@ -36,6 +41,7 @@ export class ApproveItemComponent implements OnInit {
   stockList: string[] = [];
 
   ngOnInit(): void {
+    // อ่านชื่อสาขาจาก cookie
     if (typeof document !== 'undefined') {
       const rowBrName = this.getCookie('BrName');
       this.brName = rowBrName ? decodeURIComponent(rowBrName) : null;
@@ -45,6 +51,7 @@ export class ApproveItemComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  /** อ่านค่า cookie ตามชื่อ */
   getCookie(name: string): string | null {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -52,6 +59,7 @@ export class ApproveItemComponent implements OnInit {
     return null;
   }
 
+  /** กำหนดหัวข้อรายละเอียดแสดงในรายการ */
   setTitleDetail(item: any): string {
     // สร้างสำเนาของ item เพื่อไม่ให้แก้ไข original object
     const itemCopy = { ...item };
@@ -65,6 +73,7 @@ export class ApproveItemComponent implements OnInit {
     return `${itemCopy.stDESCs}${itemCopy.remList || ''}`;
   }
 
+  /** ค้นหารายการคำขอแบบแบ่งหน้า */
   onSearch(pageNumber: number, pageSize: number) {
     const payload = {
       ACT: 'APPROVE',
@@ -74,21 +83,17 @@ export class ApproveItemComponent implements OnInit {
 
     this.approveService.getStockApprove(payload).subscribe({
       next: (res) => {
-        this.requestList = res;
-        this.loading = false;
-        this.cdr.detectChanges();
+        this.requestList = Array.isArray(res) ? res : [];
       }, error: () => {
-        Swal.fire({
-          title: "Error",
-          text: "โปรดติดต่อผู้พัฒนา",
-          icon: 'error'
-        })
+        Swal.fire({ title: "Error", text: "โปรดติดต่อผู้พัฒนา", icon: 'error' });
+      }, complete: () => {
         this.loading = false;
         this.cdr.detectChanges();
       }
     })
   }
 
+  /** ไปหน้าถัดไป */
   nextPage() {
     if (this.requestList.length == this.pageSize) {
       this.pageNumber++;
@@ -98,6 +103,7 @@ export class ApproveItemComponent implements OnInit {
     }
   }
 
+  /** กลับหน้าก่อนหน้า */
   prevPage() {
     if (this.pageNumber > 1) {
       this.pageNumber--;
@@ -107,11 +113,13 @@ export class ApproveItemComponent implements OnInit {
     }
   }
 
+  /** เปิดป๊อปอัพรายละเอียด เพื่ออนุมัติรายการ */
   approveDetail(stkNote: string, stkStatus: string) {
     this.openPopup(stkNote, stkStatus);
     this.cdr.detectChanges();
   }
 
+  /** เปิด Dialog แล้วรีเฟรชเมื่ออนุมัติสำเร็จ */
   openPopup(stkNote: string, stkStatus: string) {
     const dialogRef = this.dialog.open(PopupDetail, {
       width: '300px',
@@ -126,11 +134,6 @@ export class ApproveItemComponent implements OnInit {
       if (result == "PASS") {
         this.onSearch(1, 20);
         this.cdr.detectChanges();
-      }
-      if (result) {
-        console.log('กดตกลง');
-      } else {
-        console.log('ยกเลิก');
       }
     });
   }
