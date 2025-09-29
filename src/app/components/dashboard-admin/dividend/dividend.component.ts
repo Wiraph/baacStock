@@ -14,6 +14,10 @@ type PaymentMethodKey = 'CSH' | 'KTB' | 'CHQ' | 'STK';
 type PayActionKey = 'payCSH' | 'payKTB' | 'payCHQ' | 'paySTK';
 type DividendMenuKey = PaymentMethodKey | 'DETAILS' | 'BLOCKS';
 
+// Reusable constants
+const TABS_FOR_MINISTRY: DividendMenuKey[] = ['CSH', 'KTB', 'CHQ', 'STK', 'DETAILS', 'BLOCKS'];
+const TABS_FOR_OPERATOR: DividendMenuKey[] = ['CSH', 'DETAILS', 'BLOCKS'];
+
 @Component({
   selector: 'app-dividend',
   standalone: true,
@@ -413,11 +417,9 @@ export class DividendComponent implements OnInit {
   private updatePermissionsAndTabs(): void {
     this.isMinistry = (this.customerData?.cusCODE || '') === '0100';
 
-    if (this.isLevel80Plus && this.isMinistry) {
-      this.visibleTabKeys = ['CSH', 'KTB', 'CHQ', 'STK', 'DETAILS', 'BLOCKS'];
-    } else {
-      this.visibleTabKeys = ['CSH', 'DETAILS', 'BLOCKS'];
-    }
+    this.visibleTabKeys = (this.isLevel80Plus && this.isMinistry)
+      ? TABS_FOR_MINISTRY
+      : TABS_FOR_OPERATOR;
 
     if (!this.visibleTabKeys.includes(this.selectedMenu)) {
       this.selectedMenu = 'CSH';
@@ -477,12 +479,10 @@ export class DividendComponent implements OnInit {
   }
 
   onPay(method: PaymentMethodKey | PayActionKey): void {
-    // ไม่ต้องคำนวณค่าแสดงผลที่นี่ เพราะจะใช้แสดงในผลลัพธ์จาก backend แทน
     const payload = this.buildPayPayload(method);
     // ยืนยันก่อนส่ง
-    const payType = this.mapPayType(method);
-    const methodKey: PaymentMethodKey = payType === 'paySTK' ? 'STK' : payType === 'payCSH' ? 'CSH' : payType === 'payKTB' ? 'KTB' : 'CHQ';
-    const methodLabel = (this.menuTabs.find(t => t.key === methodKey)?.label) || methodKey;
+    const { payType, key } = this.mapPayTypeAndKey(method);
+    const methodLabel = this.getMethodLabel(key);
     const amountText = payType === 'paySTK'
       ? `${this.formatNumber(payload.StkUnit, 0)} หุ้น`
       : `${this.formatNumber(payload.StkValue, 2)} บาท`;
@@ -571,16 +571,13 @@ export class DividendComponent implements OnInit {
     const num = Number(normalized);
     let value = isNaN(num) ? 0 : num;
     if (method === 'STK') {
-      const maxUnit = Math.max(0, Math.floor(this.paymentData.unit || 0));
-      value = Math.min(Math.max(0, Math.floor(value)), maxUnit);
-      this.sharePayAmount = value;
+      this.sharePayAmount = this.clampUnit(value, this.paymentData.unit || 0);
       return;
     }
-    const maxAmount = Math.max(0, Number(this.paymentData.dividend || 0));
-    value = Math.min(Math.max(0, value), maxAmount);
-    if (method === 'CSH') this.cashPayAmount = value;
-    else if (method === 'KTB') this.ktbPayAmount = value;
-    else if (method === 'CHQ') this.chequePayAmount = value;
+    const clamped = this.clampAmount(value, Number(this.paymentData.dividend || 0));
+    if (method === 'CSH') this.cashPayAmount = clamped;
+    else if (method === 'KTB') this.ktbPayAmount = clamped;
+    else if (method === 'CHQ') this.chequePayAmount = clamped;
   }
 
   // === Thai number reading helpers (extracted to reduce complexity in numberToThaiText) ===
@@ -661,24 +658,8 @@ export class DividendComponent implements OnInit {
 
   // ตรวจสอบหุ้นบล็อก (กรณีที่ 3)
   checkBlockedStocks(): void {
-    console.log('💰 Checking blocked stocks...');
-    console.log('💰 Dividend data:', this.dividendData);
-    
-    if (!this.dividendData || this.dividendData.length === 0) {
-      console.log('💰 No dividend data to check');
-      return;
-    }
-    
-    const blockedStocks = this.dividendData.filter(d => {
-      const stCODE = this.getValidValue(d.stCODE, '');
-      console.log('💰 stCODE:', stCODE, 'Type:', typeof stCODE);
-      
-      // ตรวจสอบว่า stCODE เป็น string และไม่เป็น null/undefined
-      if (stCODE && typeof stCODE === 'string') {
-        const isBlocked = stCODE.endsWith('S008');
-        return isBlocked;
-      } else { return false; }
-    });
+    if (!this.dividendData || this.dividendData.length === 0) return;
+    const blockedStocks = this.blockedStocks;
     
     this.systemStatus.hasBlockedStocks = blockedStocks.length > 0;
     this.systemStatus.isAllStocksBlocked = blockedStocks.length === this.dividendData.length;
@@ -693,44 +674,12 @@ export class DividendComponent implements OnInit {
 
   // แสดง Warning Alert
   showWarningAlert(message: string): void {
-    Swal.fire({
-      icon: 'warning',
-      title: 'คำเตือน',
-      text: message,
-      confirmButtonText: 'ตกลง',
-      confirmButtonColor: '#3085d6',
-      allowOutsideClick: false,
-      backdrop: true,
-      didOpen: () => {
-        const container: any = Swal.getContainer();
-        if (container) {
-          container.style.background = 'rgba(0,0,0,0.5)';
-          container.style.backdropFilter = 'blur(2px)';
-          container.style.webkitBackdropFilter = 'blur(2px)';
-        }
-      }
-    });
+    this.showAlert('warning', 'คำเตือน', message);
   }
 
   // แสดง Error Alert
   showErrorAlert(message: string): void {
-    Swal.fire({
-      icon: 'error',
-      title: 'ข้อผิดพลาด',
-      text: message,
-      confirmButtonText: 'ตกลง',
-      confirmButtonColor: '#d33',
-      allowOutsideClick: false,
-      backdrop: true,
-      didOpen: () => {
-        const container: any = Swal.getContainer();
-        if (container) {
-          container.style.background = 'rgba(0,0,0,0.5)';
-          container.style.backdropFilter = 'blur(2px)';
-          container.style.webkitBackdropFilter = 'blur(2px)';
-        }
-      }
-    });
+    this.showAlert('error', 'ข้อผิดพลาด', message);
   }
 
   // —
@@ -757,5 +706,49 @@ export class DividendComponent implements OnInit {
       return value;
     }
     return defaultValue;
+  }
+
+  // ====== Small helpers to reduce duplication ======
+  private mapPayTypeAndKey(method: PaymentMethodKey | PayActionKey): { payType: PayActionKey, key: PaymentMethodKey } {
+    const payType = this.mapPayType(method);
+    let key: PaymentMethodKey;
+    if (payType === 'paySTK') key = 'STK';
+    else if (payType === 'payCSH') key = 'CSH';
+    else if (payType === 'payKTB') key = 'KTB';
+    else key = 'CHQ';
+    return { payType, key };
+  }
+
+  private getMethodLabel(key: PaymentMethodKey): string {
+    return this.menuTabs.find(t => t.key === key)?.label || key;
+  }
+
+  private clampAmount(value: number, max: number): number {
+    const n = isNaN(value) ? 0 : value;
+    return Math.min(Math.max(0, n), Math.max(0, max));
+  }
+
+  private clampUnit(value: number, maxUnits: number): number {
+    const n = Math.floor(isNaN(value) ? 0 : value);
+    return Math.min(Math.max(0, n), Math.max(0, Math.floor(maxUnits)));
+  }
+
+  private showAlert(icon: 'warning' | 'error' | 'success' | 'info' | 'question', title: string, text: string): void {
+    Swal.fire({
+      icon,
+      title,
+      text,
+      confirmButtonText: 'ตกลง',
+      allowOutsideClick: false,
+      backdrop: true,
+      didOpen: () => {
+        const container: any = Swal.getContainer();
+        if (container) {
+          container.style.background = 'rgba(0,0,0,0.5)';
+          container.style.backdropFilter = 'blur(2px)';
+          container.style.webkitBackdropFilter = 'blur(2px)';
+        }
+      }
+    });
   }
 }
