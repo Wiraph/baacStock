@@ -94,8 +94,7 @@
                         class="bg-lime-500 text-white w-40 py-2 rounded hover:outline-amber-600 hover:outline-2 cursor-pointer">อนุมัติ</button>
                 </div>
                 <div class="flex gap-3 justify-center" *ngIf="dividend?.dateAPPROVE != ''">
-                    <button printSectionId="print-section" ngxPrint [useExistingCss]="true"
-                        class="bg-lime-500 text-white w-40 py-2 rounded hover:outline-amber-600 hover:outline-2 cursor-pointer">พิมพ์</button>
+                    <button (click)="printPDF()" matTooltip="พิมพ์" class="bg-lime-500 text-white w-40 py-2 rounded hover:outline-amber-600 hover:outline-2 cursor-pointer">พิมพ์</button>
                     <button (click)="exportPDF()" matTooltip="คำนวณใหม่"
                         class="bg-lime-500 text-white w-40 py-2 rounded hover:outline-amber-600 hover:outline-2 cursor-pointer">Voucher</button>
                     <button matTooltip="แสดงรายละเอียด" (click)="showDetail()"

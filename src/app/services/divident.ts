@@ -54,4 +54,16 @@ export class Divident {
       withCredentials: true
     });
   }
+
+  getVoucher() {
+    return this.http.get(`${this.apiUrl}/voucher`, {
+      responseType: 'blob'
+    });
+  }
+
+  print() {
+    return this.http.get(`${this.apiUrl}/print`, {
+      responseType: 'blob'
+    });
+  }
 }
