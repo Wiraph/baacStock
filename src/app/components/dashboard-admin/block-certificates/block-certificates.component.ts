@@ -172,6 +172,14 @@ export class BlockCertificatesComponent implements OnInit {
 
 
   // Utility Methods
+  getStatus(row: any): string {
+    const code = (row?.stCODEs ?? row?.stCODE ?? '').toString();
+    if (code && typeof code === 'string') {
+      if (code.endsWith('S008')) return 'บล็อค';
+      if (code.endsWith('S000')) return 'ปกติ';
+    }
+    return row?.stDESC || '-';
+  }
   formatThaiDateTime(dateTimeStr: string): string {
     if (!dateTimeStr || dateTimeStr.length !== 15 || !dateTimeStr.includes('-')) return '-';
 

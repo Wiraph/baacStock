@@ -301,7 +301,7 @@
                 </tr>
               </thead>
                 <tbody class="bg-white">
-                 <tr *ngFor="let item of dividendData; let i = index" class="duration-200 border-b border-gray-300">
+                  <tr *ngFor="let item of detailsRows; let i = index" class="duration-200 border-b border-gray-300">
                    <td class="border border-gray-400 px-3 py-3 text-center font-medium text-gray-700">{{ item.ROWi || i + 1 }}</td>
                    <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">{{ item.stkNOTE || '-' }}</td>
                    <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">{{ formatNumber(item.payBEFdvn || 0) }}</td>
@@ -312,18 +312,18 @@
                    <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">{{ formatNumber(item.payCURnet || 0) }}</td>
                    <td class="border border-gray-400 px-3 py-3 text-center text-gray-600">{{ formatNumber(item.payDVNnet || 0) }}</td>
                  </tr>
-                 <tr *ngIf="dividendData.length === 0" class="duration-200 border-b border-gray-300">
+                  <tr *ngIf="detailsRows.length === 0" class="duration-200 border-b border-gray-300">
                    <td class="border border-gray-400 px-3 py-3 text-center text-gray-600" colspan="9">ไม่พบรายการเงินปันผล</td>
                  </tr>
                  <tr class="bg-blue-100 border-b border-gray-300">
                    <td class="border border-gray-400 px-3 py-3 text-center font-bold text-blue-900" colspan="2">รวม</td>
-                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(dividendSummary.totalSub.bef.dvn) }}</td>
-                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(dividendSummary.totalSub.bef.tax) }}</td>
-                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(dividendSummary.totalSub.bef.net) }}</td>
-                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(dividendSummary.totalSub.cur.dvn) }}</td>
-                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(dividendSummary.totalSub.cur.tax) }}</td>
-                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(dividendSummary.totalSub.cur.net) }}</td>
-                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(paymentData.dividend) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(detailsTotals.bef.dvn) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(detailsTotals.bef.tax) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(detailsTotals.bef.net) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(detailsTotals.cur.dvn) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(detailsTotals.cur.tax) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(detailsTotals.cur.net) }}</td>
+                   <td class="border border-gray-400 px-3 py-3 text-center font-semibold text-blue-600">{{ formatNumber(detailsTotals.net) }}</td>
                  </tr>
               </tbody>
             </table>

@@ -43,7 +43,7 @@
               <td class="px-4 py-2">{{ item.stkNOStart }} - {{ item.stkNOStop }}</td>
               <td class="px-4 py-2 text-right">{{ item.stkUNiT | number:'1.0-0' }}</td>
               <td class="px-4 py-2 text-right">{{ item.stkVALUE | number:'1.0-0'}}</td>
-              <td class="px-4 py-2 text-center">{{ item.stDESC }}</td>
+              <td class="px-4 py-2 text-center">{{ getStatus(item) }}</td>
               <td class="px-4 py-2 text-center">{{ formatThaiDateTime(item.datetimeup) || '-' }}</td>
               <td class="px-4 py-2 text-center">
                 <button *ngIf="item.stCODEs == 'S000'"

@@ -7,6 +7,7 @@ import { DataTransfer } from '../../../services/data-transfer';
 import { UserService } from '../../../services/user';
 import { Divident } from '../../../services/divident';
 import { StockService } from '../../../services/stock';
+import { CustomerService } from '../../../services/customer';
 import Swal from 'sweetalert2';
 
 // Type aliases for menu keys to satisfy lint rule S4323
@@ -50,6 +51,43 @@ export class DividendComponent implements OnInit {
     fraction: 0,
     denominator: 100 // ราคาหุ้นต่อหน่วย
   }
+
+  // โหลดรายการใบหุ้นบล็อคแบบเต็มจากบริการลูกค้า (ใช้ endpoint เดียวกับหน้า บล็อคใบหุ้น)
+  private loadBlockedStocks(cusId: string): void {
+    if (!cusId) { this.blockedStocksData = []; return; }
+    const payload = {
+      GetDTL: 'bySTK@bySTK-BLK',
+      STKno: '',
+      CUSid: cusId,
+      CUSfn: '',
+      CUSln: '',
+      stkA: '1',
+      PGNum: 1,
+      PGSize: 9999999
+    };
+    this.customerService.searchCustomerStk(payload)
+      .pipe(finalize(() => { this.cd.detectChanges(); }))
+      .subscribe({
+        next: (res: any) => {
+          let rows: any[] = [];
+          if (Array.isArray(res)) {
+            rows = res;
+          } else if (res) {
+            rows = [res];
+          }
+          this.allStocksData = rows.map((r: any) => ({
+            stkNOTE: r?.stkNOTE ?? '-',
+            stCODE: (r?.stCODEs ?? r?.stCODE ?? '-').toString(),
+            stkDateApprove: r?.stkDateApprove ?? r?.datetimeup ?? '-'
+          }));
+          this.blockedStocksData = this.allStocksData.filter((r: any) => {
+            const code = (r?.stCODE ?? '').toString();
+            return typeof code === 'string' && code.endsWith('S008');
+          });
+        },
+        error: () => { this.blockedStocksData = []; this.allStocksData = []; }
+      });
+  }
   // เมนู 6 ช่อง
   menuTabs: { key: DividendMenuKey, label: string }[] = [
     { key: 'CSH', label: 'จ่ายเป็นเงินสด' },
@@ -75,6 +113,9 @@ export class DividendComponent implements OnInit {
 
   loading: boolean = false;
 
+  private blockedStocksData: any[] = [];
+  private allStocksData: any[] = [];
+
   // ข้อมูลสถานะระบบ
   systemStatus: any = {
     hasDividendData: false,
@@ -89,7 +130,8 @@ export class DividendComponent implements OnInit {
     private readonly dataTransfer: DataTransfer,
     private readonly cd: ChangeDetectorRef,
     private readonly dividendService: Divident,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly customerService: CustomerService
   ) { }
 
   // ใช้ inject() เพื่อให้แน่ใจว่าได้อินสแตนซ์ของ StockService เสมอ แม้ DI ของ constructor จะไม่ทำงานจาก HMR
@@ -127,40 +169,25 @@ export class DividendComponent implements OnInit {
     this.dividendService.getAllDividend()
       .pipe(finalize(() => { this.loading = false; this.cd.detectChanges(); }))
       .subscribe({
-        next: (res) => {
-          this.dividendData = res;
-        }, error: () =>{
-          Swal.fire({
-            icon: 'error',
-            title: "เกิดข้อผิดพลาด",
-            text: 'โปรดติดต่อผู้พัฒนา'
-          })
-        }
-      })
+      next: (res) => {
+        this.dividendData = res;
+      }, error: () =>{
+        Swal.fire({
+          icon: 'error',
+          title: "เกิดข้อผิดพลาด",
+          text: 'โปรดติดต่อผู้พัฒนา'
+        })
+      }
+    })
   }
 
   // Handle search result from SearchEditComponent
   onViewStock(data: any): void {
-    console.log('💰 ข้อมูลที่ได้จากการค้นหาเงินปันผล:', data);
-    
-    // Store customer data
-    this.customerData = {
-      cusId: data.cusId || '',
-      fullName: data.fullName || '',
-      statusDesc: data.statusDesc || 'ไม่ระบุ',
-      brCode: data.brCode || this.brCode,
-      brName: data.brName || this.brName,
-      cusCODE: data.cusCODE || '',
-      taxRate: ''
-    };
-
-    // Switch to dividend view
+    // เข้าหน้าจ่ายเงินปันผล และเรียกโหลดข้อมูลจาก API ตาม cusId ที่เลือก
     this.activeView = 'dividend';
-    
-    console.log('💰 onViewStock called');
-    console.log('💰 activeView set to:', this.activeView);
-    console.log('💰 customerData set to:', this.customerData);
-    this.updatePermissionsAndTabs();
+    if (data?.cusId) {
+      this.loadCustomerDataFromAPI(data.cusId);
+    }
   }
 
   // Handle dividend selection from SearchEditComponent
@@ -230,11 +257,12 @@ export class DividendComponent implements OnInit {
 
           //กรณีที่ 3: หุ้นบล็อค
           this.checkBlockedStocks();
-          
           // คำนวณข้อมูลสรุปเงินปันผล
           this.calculateDividendSummary();
           // อัปเดตสิทธิ์เมนูหลังทราบข้อมูลลูกค้า
           this.updatePermissionsAndTabs();
+          // โหลดรายการใบหุ้นบล็อคทั้งหมดของลูกค้า
+          this.loadBlockedStocks(this.customerData.cusId);
 
         } else {
           console.log('💰 No dividend data found');
@@ -253,6 +281,7 @@ export class DividendComponent implements OnInit {
             taxId: '-'
           };
           this.updatePermissionsAndTabs();
+          this.blockedStocksData = [];
         }
       },
       error: (error: any) => {
@@ -638,17 +667,70 @@ export class DividendComponent implements OnInit {
 
   // Get blocked stocks
   get blockedStocks(): any[] {
-    if (!this.dividendData || this.dividendData.length === 0) {
-      return [];
+    if (this.blockedStocksData && this.blockedStocksData.length > 0) {
+      return this.blockedStocksData;
     }
-    
+    if (!this.dividendData || this.dividendData.length === 0) return [];
     return this.dividendData.filter(d => {
-      const stCODE = this.getValidValue(d.stCODE, '');
-      if (stCODE && typeof stCODE === 'string') {
-        return stCODE.endsWith('S008');
-      }
-      return false;
+      const code = (d?.stCODE ?? '').toString();
+      return typeof code === 'string' && code.endsWith('S008');
     });
+  }
+
+  // แถวตาราง "รายละเอียด": ใช้รายการหุ้นทั้งหมด หากมี แล้วผสานยอดตาม stkNOTE
+  get detailsRows(): any[] {
+    const stocks = Array.isArray(this.allStocksData) ? this.allStocksData : [];
+    if (stocks.length === 0) {
+      // fallback เดิม
+      if (!this.dividendData || this.dividendData.length === 0) return [];
+    return this.dividendData.filter(d => {
+        const code = (d?.stCODE ?? '').toString();
+        return !(typeof code === 'string' && code.endsWith('S008'));
+      });
+    }
+
+    const byNote = new Map<string, any>();
+    (Array.isArray(this.dividendData) ? this.dividendData : []).forEach((d: any) => {
+      const key = (d?.stkNOTE ?? '').toString();
+      if (key) byNote.set(key, d);
+    });
+
+    return stocks.map((s: any, idx: number) => {
+      const key = (s?.stkNOTE ?? '').toString();
+      const d = byNote.get(key) || {};
+      return {
+        ROWi: idx + 1,
+        stkNOTE: key,
+        payBEFdvn: Number(d.payBEFdvn || 0),
+        payBEFtax: Number(d.payBEFtax || 0),
+        payBEFnet: Number(d.payBEFnet || 0),
+        payCURdvn: Number(d.payCURdvn || 0),
+        payCURtax: Number(d.payCURtax || 0),
+        payCURnet: Number(d.payCURnet || 0),
+        payDVNnet: Number(d.payDVNnet || 0)
+      };
+    });
+  }
+
+  // รวมยอดสำหรับตารางรายละเอียดตามแถวที่แสดงจริง
+  get detailsTotals() {
+    const totals = {
+      bef: { dvn: 0, tax: 0, net: 0 },
+      cur: { dvn: 0, tax: 0, net: 0 },
+      net: 0
+    };
+    const rows = this.detailsRows;
+    rows.forEach((r: any) => {
+      totals.bef.dvn += Number(r?.payBEFdvn || 0);
+      totals.bef.tax += Number(r?.payBEFtax || 0);
+      totals.bef.net += Number(r?.payBEFnet || 0);
+      totals.cur.dvn += Number(r?.payCURdvn || 0);
+      totals.cur.tax += Number(r?.payCURtax || 0);
+      totals.cur.net += Number(r?.payCURnet || 0);
+      const net = (r?.payDVNnet != null) ? Number(r.payDVNnet) : (Number(r?.payBEFnet || 0) + Number(r?.payCURnet || 0));
+      totals.net += net;
+    });
+    return totals;
   }
 
   // Check if has blocked stocks
