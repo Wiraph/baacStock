@@ -544,7 +544,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
           this.cd.detectChanges();
         }, 0);
       },
-      error: () => Swal.fire({ icon: 'error', title: 'โหลดอำเภอไม่สำเร็จ', text: 'โปรดลองใหม่' })
+      error: () => { Swal.fire({ icon: 'error', title: 'โหลดอำเภอไม่สำเร็จ', text: 'โปรดลองใหม่' }); }
     });
   }
 
@@ -585,7 +585,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
           this.cd.detectChanges();
         }, 0);
       },
-      error: () => Swal.fire({ icon: 'error', title: 'โหลดตำบลไม่สำเร็จ', text: 'โปรดลองใหม่' })
+      error: () => { Swal.fire({ icon: 'error', title: 'โหลดตำบลไม่สำเร็จ', text: 'โปรดลองใหม่' }); }
     });
   }
 
@@ -611,7 +611,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
           this.cd.detectChanges();
         }, 0);
       },
-      error: () => Swal.fire({ icon: 'error', title: 'โหลดอำเภอไม่สำเร็จ', text: 'โปรดลองใหม่' })
+      error: () => { Swal.fire({ icon: 'error', title: 'โหลดอำเภอไม่สำเร็จ', text: 'โปรดลองใหม่' }); }
     });
   }
 
@@ -635,7 +635,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
           this.cd.detectChanges();
         }, 0);
       },
-      error: () => Swal.fire({ icon: 'error', title: 'โหลดตำบลไม่สำเร็จ', text: 'โปรดลองใหม่' })
+      error: () => { Swal.fire({ icon: 'error', title: 'โหลดตำบลไม่สำเร็จ', text: 'โปรดลองใหม่' }); }
     });
   }
 
@@ -663,7 +663,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
     const ampCode = this.customerForm.get('homeAddress.ampCODE')?.value;
 
     if (prvCode && ampCode) {
-      const zip = this.onZipcodeChangeHome(prvCode, ampCode, tmbCode);
+      this.onZipcodeChangeHome(prvCode, ampCode, tmbCode);
       // Zipcode calculated (Home)
     }
   }
@@ -676,7 +676,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
     const ampCode = this.customerForm.get('currentAddress.ampCODE')?.value;
 
     if (prvCode && ampCode) {
-      const zip = this.onZipcodeChangeCurrent(prvCode, ampCode, tmbCode);
+      this.onZipcodeChangeCurrent(prvCode, ampCode, tmbCode);
       // Zipcode calculated (Current)
     }
   }

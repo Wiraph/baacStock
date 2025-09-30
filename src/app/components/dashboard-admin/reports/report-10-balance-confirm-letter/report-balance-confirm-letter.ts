@@ -32,6 +32,11 @@ export const THAI_DATE_FORMATS = {
   templateUrl: './report-balance-confirm-letter.html',
   styleUrl: './report-balance-confirm-letter.css'
 })
+/**
+ * หนังสือยืนยันยอดหุ้น (Report 10)
+ * - โหลดตัวเลือกกลุ่ม/ประเภทผู้ถือหุ้นและผู้ลงนาม
+ * - ค้นหารายการตามเงื่อนไข และสั่งสร้างเอกสารรายบุคคล
+ */
 export class Report10BalanceConfirmLetter implements OnInit {
   @Output() headerChange = new EventEmitter<string>();
   @Output() back = new EventEmitter<void>();
@@ -180,9 +185,6 @@ export class Report10BalanceConfirmLetter implements OnInit {
   private loadSignatoryOptions(): void {
     this.signatureService.getSignatures().subscribe({
       next: (response: any) => {
-        // DEBUG: ตรวจสอบรูปแบบข้อมูลจาก API
-        console.log('Signatures response:', response);
-
         let list: any[] = [];
         if (Array.isArray(response)) {
           list = response;
@@ -204,7 +206,6 @@ export class Report10BalanceConfirmLetter implements OnInit {
         this.cd.detectChanges();
       },
       error: (err) => {
-        console.error('Failed to load signatures:', err);
         this.signatoryOptions = [];
       }
     });
@@ -238,9 +239,6 @@ export class Report10BalanceConfirmLetter implements OnInit {
       ForceReceive: !!this.auditorOnly                 // boolean
     };
 
-    // DEBUG: แสดง payload ที่ส่งไป
-    console.log('STK310 payload:', payload);
-
     // ค้นหารายการ → API จะส่งกลับเป็นรายการ (Results Table)
     this.loading = true;
     this.results = [];
@@ -248,8 +246,6 @@ export class Report10BalanceConfirmLetter implements OnInit {
 
     this.reportService.Stk310(payload).subscribe({
       next: (res: any) => {
-        // DEBUG: ตรวจสอบ response จาก API
-        console.log('STK310 response:', res);
         this.loading = false;
         // รองรับ res เป็น array หรือ { data: [] }
         let list: any[] = [];
@@ -259,7 +255,6 @@ export class Report10BalanceConfirmLetter implements OnInit {
         this.cd.detectChanges();
       },
       error: (err: any) => {
-        console.error('STK310 error:', err);
         this.loading = false;
         Swal.fire({ icon: 'error', text: err?.message || 'ไม่สามารถดึงข้อมูลได้' });
       }
@@ -283,14 +278,11 @@ export class Report10BalanceConfirmLetter implements OnInit {
       TypeExport: type,
       ForceReceive: !!this.auditorOnly
     };
-    console.log('LoadFileMenu10 payload:', payload);
-
     this.isGenerating = true;
     this.cd.detectChanges();
 
     this.reportService.LoadFileMenu10(payload).subscribe({
       next: (res: any) => {
-        console.log('LoadFileMenu10 response:', res);
         this.isGenerating = false;
         const fileUrl: string | undefined = res?.fileUrl;
         if (!fileUrl) { Swal.fire({ icon: 'info', text: res?.message || 'ไม่พบไฟล์'}); return; }

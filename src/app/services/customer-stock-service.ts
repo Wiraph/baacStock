@@ -2,12 +2,13 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { EncryptionService } from './encryption.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CustomerStockService {
-  private readonly apiUrl = 'https://localhost:7089/api/CustomerStock';
+  private readonly apiUrl = `${environment.dotnetApiUrl}/api/CustomerStock`;
 
   constructor(
     private readonly http: HttpClient,
