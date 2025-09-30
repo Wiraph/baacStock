@@ -11,6 +11,7 @@ import { PermissionService } from '../../services/permission.service';
   templateUrl: './dashbord-system.html',
   styleUrls: ['./dashbord-system.css']
 })
+/** แผงควบคุมระบบ (System Dashboard): แสดงเมนูระบบตามสิทธิ์ และนำทางไปยังหน้าต่างๆ */
 export class DashboardSystemComponent implements OnInit {
 
   currentUser: any;
@@ -23,16 +24,18 @@ export class DashboardSystemComponent implements OnInit {
     private readonly permissionService: PermissionService
   ) { }
 
+  /** โหลดผู้ใช้ปัจจุบันและเมนูระบบเมื่อเริ่มต้น */
   ngOnInit(): void {
     this.loadCurrentUser();
     this.loadMenus();
   }
 
+  /** อ่านข้อมูลผู้ใช้จาก session */
   loadCurrentUser(): void {
     this.currentUser = this.userService.getCurrentUser();
-    console.log('Current User in Dashboard System:', this.currentUser);
   }
 
+  /** กำหนดและกรองเมนูสำหรับ System Control Dashboard ตามสิทธิ์ผู้ใช้ */
   loadMenus(): void {
     // กำหนดเมนูสำหรับ System Control Dashboard
     const systemMenus = [
@@ -79,10 +82,9 @@ export class DashboardSystemComponent implements OnInit {
     } else {
       this.filteredMenus = systemMenus;
     }
-
-    console.log('Filtered Menus for System Dashboard:', this.filteredMenus);
   }
 
+  /** เปิด/ปิดเมนูย่อยของหมวดที่ระบุ */
   openMenu(menuKey: string): void {
     const menu = this.filteredMenus.find(m => m.key === menuKey);
     if (menu) {
@@ -90,16 +92,19 @@ export class DashboardSystemComponent implements OnInit {
     }
   }
 
+  /** ตรวจสอบสิทธิ์การแสดงเมนูย่อย/หน้าเมนู */
   canView(key: string): boolean {
     if (!this.currentUser?.level) return true;
     return this.permissionService.hasActionPermission(key, this.currentUser.level);
   }
 
+  /** คืนอักษรย่อจากชื่อเต็ม (2 ตัวอักษร) */
   getUserInitials(fullname: string): string {
     if (!fullname) return 'U';
     return fullname.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
   }
 
+  /** กลับไปยังแดชบอร์ดหลักของผู้ดูแล */
   goBackToMain(): void {
     // กลับไปยังเมนูหลัก (dashboard-admin)
     this.router.navigate(['/dashboard-admin']);

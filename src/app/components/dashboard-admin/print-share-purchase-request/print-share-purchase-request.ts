@@ -31,6 +31,11 @@ export const THAI_DATE_FORMATS = {
     { provide: MAT_DATE_LOCALE, useValue: 'th-TH' },
   ]
 })
+/**
+ * พิมพ์คำขอซื้อหุ้น (Share Purchase Request)
+ * - ตรวจความครบถ้วนของแบบฟอร์ม → เรียก API สร้างไฟล์ → ดาวน์โหลด
+ * - โหลด/แสดงตัวอย่าง PDF พร้อม timeout กันค้าง
+ */
 export class PrintSharePurchaseRequestComponent implements AfterViewInit {
   // PDF display
   pdfUrl: SafeResourceUrl | null = null;
@@ -121,10 +126,8 @@ export class PrintSharePurchaseRequestComponent implements AfterViewInit {
       DvnBranch: this.branchName2,
     }
 
-    console.log('📝 Print payload:', payload);
     this.stockService.GetFileSaleStock(payload).subscribe({
       next: (res: any) => {
-        console.log(res);
         const URL = res.fileUrl;
         const link = document.createElement('a');
         link.href = URL;
@@ -132,7 +135,7 @@ export class PrintSharePurchaseRequestComponent implements AfterViewInit {
         link.click();
         this.cdr.detectChanges();
       }, error: (err) => {
-        console.error('❌ Error fetching file:', err);
+        Swal.fire({ icon: 'error', title: 'สร้างไฟล์ไม่สำเร็จ', text: 'โปรดลองใหม่' });
       }
     })
   }
@@ -195,20 +198,18 @@ export class PrintSharePurchaseRequestComponent implements AfterViewInit {
 
 
   public loadPdf(): void {
-    console.log('🔁 loadPdf called');
     this.loading = true;
     this.loadFailed = false;
     this.pdfUrl = null;
 
+    // ตัวจับเวลาเพื่อ feedback ภายใน 30 วิ
     let second = 0;
     const interval = setInterval(() => {
       second++;
-      console.log(`⏳ ผ่านไป ${second} วินาที`);
       if (second >= 30) clearInterval(interval);
     }, 1000);
 
     this.timeoutHandle = setTimeout(() => {
-      console.log('❌ Timeout reached');
       this.loading = false;
       this.loadFailed = true;
       clearInterval(interval);
@@ -222,7 +223,6 @@ export class PrintSharePurchaseRequestComponent implements AfterViewInit {
 
     this.pdfService.getShareRequestPdf(payload).subscribe({
       next: (blob) => {
-        console.log('✅ PDF loaded');
         clearTimeout(this.timeoutHandle);
         clearInterval(interval);
 
@@ -233,11 +233,11 @@ export class PrintSharePurchaseRequestComponent implements AfterViewInit {
         this.cdr.detectChanges();
       },
       error: () => {
-        console.log('🚫 Error loading PDF');
         clearTimeout(this.timeoutHandle);
         clearInterval(interval);
         this.loading = false;
         this.loadFailed = true;
+        Swal.fire({ icon: 'error', title: 'โหลดตัวอย่างเอกสารไม่สำเร็จ', text: 'โปรดลองใหม่' });
       }
     });
   }

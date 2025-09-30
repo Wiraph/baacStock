@@ -14,6 +14,12 @@ import { Router } from '@angular/router';
   templateUrl: './change-password.html',
   styleUrls: ['./change-password.css']
 })
+/**
+ * เปลี่ยนรหัสผ่านผู้ใช้
+ * - โหลดข้อมูลผู้ใช้ปัจจุบันและประเมินสถานะรหัสผ่าน (หมดอายุ/รหัสผ่านเริ่มต้น)
+ * - ตรวจสอบความถูกต้องของแบบฟอร์ม และเรียก API เปลี่ยนรหัสผ่าน
+ * - หากรหัสหมดอายุ/ใช้รหัสเริ่มต้น จะ re-login อัตโนมัติหลังเปลี่ยนสำเร็จ
+ */
 export class ChangePasswordComponent implements OnInit {
   oldPassword = '';
   newPassword = '';
@@ -26,11 +32,11 @@ export class ChangePasswordComponent implements OnInit {
   successMessage = '';
   dataUser: any;
   
-  // เพิ่ม properties สำหรับตรวจสอบ password status
+  // สถานะรหัสผ่าน
   isPasswordExpired = false;
   passwordExpiryDays = 0;
   passwordExpiryDate: string | null = null;
-  isDefaultPassword = false; // เพิ่มการตรวจสอบรหัสผ่านเริ่มต้น
+  isDefaultPassword = false;
 
   constructor(
     private readonly userService: UserService,
@@ -43,80 +49,46 @@ export class ChangePasswordComponent implements OnInit {
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      // ใช้ UserService เพื่อดึงข้อมูลผู้ใช้ปัจจุบันแทนการ decode token
       const currentUser = this.userService.getCurrentUser();
-      
-      if (currentUser.username) {
+      if (currentUser?.username) {
         this.userId = currentUser.username;
         this.userName = currentUser.username;
         this.fullName = currentUser.fullname;
-        
-        // keep UI minimal logs
-        
-        // ตรวจสอบ password status จากข้อมูลใน sessionStorage
+        // ประเมินสถานะรหัสผ่านจาก session
         this.checkPasswordStatusFromSession();
-        
-        console.log('ngOnInit - After checkPasswordStatusFromSession - Properties:', {
-          isPasswordExpired: this.isPasswordExpired,
-          isDefaultPassword: this.isDefaultPassword
-        });
-        
         // โหลดข้อมูลผู้ใช้จาก API
         this.loadUser();
       } else {
-        console.error("User data not found in sessionStorage");
+        Swal.fire({ icon: 'warning', title: 'ไม่พบข้อมูลผู้ใช้', text: 'กรุณาเข้าสู่ระบบใหม่' })
+          .then(() => this.router.navigate(['/login']));
         return;
       }
     }
   }
 
-    // ตรวจสอบ password status
+  /** ประเมินสถานะรหัสผ่านจากข้อมูล session */
   private checkPasswordStatusFromSession() {
     const currentUser = this.userService.getCurrentUser();
-    
     if (currentUser) {
-      
-      
-      // ใช้ PasswordStatusService แทนการเขียน logic ซ้ำ
       const passwordStatus: PasswordStatus = this.passwordStatusService.checkPasswordStatus(currentUser);
-      
-      
-      
-      // อัปเดต properties จาก service
       this.isPasswordExpired = passwordStatus.isPasswordExpired;
       this.passwordExpiryDays = passwordStatus.passwordExpiryDays;
       this.passwordExpiryDate = passwordStatus.passwordExpiryDate;
       this.isDefaultPassword = passwordStatus.isDefaultPassword;
-      
-      
-      
-      // Force change detection
       this.cd.detectChanges();
-      
-      // ตรวจสอบ template condition (no-op for logging removed)
-      
     }
   }
 
-
-
+  /** โหลดข้อมูลผู้ใช้จาก API แล้วทบทวนสถานะรหัสผ่านอีกครั้ง */
   loadUser() {
-    
-    
     this.userService.getUserById(this.userId).subscribe({
       next: (res: any) => {
         this.dataUser = res;
-        
-        
-        // ตรวจสอบ password status
         this.checkPasswordStatus();
-        
-        
-        
         this.cd.detectChanges();
       },
-      error: (err: any) => {
-        console.error('loadUser - API Error:', err);
+      error: () => {
+        Swal.fire({ icon: 'error', title: 'โหลดข้อมูลผู้ใช้ไม่สำเร็จ', text: 'โปรดลองใหม่' });
       }
     })
   }
@@ -126,34 +98,21 @@ export class ChangePasswordComponent implements OnInit {
     if (!this.dataUser) return;
 
     // รวมข้อมูลจาก session (เชื่อถือได้กว่า) กับข้อมูลจาก API
-    // ถ้า API ไม่มีค่าบางตัว (เช่น datetimeup = null) ให้ใช้ค่าจาก session เพื่อป้องกัน false positive
     const sessionUser = this.userService.getCurrentUser() || {};
     const effectiveUser = {
-      // กรณี API คืนค่า null/'' ให้ใช้ของ session แทน
       datetimeup: (this.dataUser.datetimeup ?? sessionUser.datetimeup) || '',
-      // รองรับชื่อฟิลด์แตกต่างจาก API
       pwdExp: this.dataUser.pwdExp ?? this.dataUser.usrPwdexp ?? sessionUser.pwdExp,
       usr_PWDExp: this.dataUser.usr_PWDExp ?? sessionUser.usr_PWDExp,
       usrPWD: this.dataUser.usrPWD ?? sessionUser.usrPWD
     } as any;
 
-    if (effectiveUser.datetimeup) {
-      this.passwordExpiryDate = effectiveUser.datetimeup;
-    }
+    if (effectiveUser.datetimeup) this.passwordExpiryDate = effectiveUser.datetimeup;
 
-    // ประเมินสถานะด้วยข้อมูลที่รวมแล้ว
     const passwordStatus: PasswordStatus = this.passwordStatusService.checkPasswordStatus(effectiveUser);
-    
-    // อัปเดต properties จาก service
     this.isPasswordExpired = passwordStatus.isPasswordExpired;
     this.passwordExpiryDays = passwordStatus.passwordExpiryDays;
     this.passwordExpiryDate = passwordStatus.passwordExpiryDate;
     this.isDefaultPassword = passwordStatus.isDefaultPassword;
-    
-    
-    
-    
-    // Force change detection
     this.cd.detectChanges();
   }
 
@@ -164,56 +123,38 @@ export class ChangePasswordComponent implements OnInit {
     this.cd.detectChanges();
   }
 
+  /** ตรวจสอบฟอร์มและเรียก API เปลี่ยนรหัสผ่าน */
   onChangePassword(): void {
     this.loading = true;
 
     // ตรวจสอบข้อมูลที่จำเป็น
     if (this.oldPassword == '' || this.newPassword == '' || this.confirmPassword == '') {
       this.loading = false;
-      Swal.fire({
-        icon: 'error',
-        text: "กรุณากรอกข้อมูลให้ครบถ้วน",
-      });
+      Swal.fire({ icon: 'error', text: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
       return;
     }
-    
     // ตรวจสอบรหัสผ่านใหม่ตรงกัน
     if (this.newPassword !== this.confirmPassword) {
       this.loading = false;
-      Swal.fire({
-        icon: 'error',
-        text: "รหัสผ่านใหม่ไม่ตรงกัน",
-      });
+      Swal.fire({ icon: 'error', text: 'รหัสผ่านใหม่ไม่ตรงกัน' });
       return;
     }
-    
-    // ตรวจสอบรหัสผ่านใหม่ไม่ซ้ำกับรหัสผ่านเดิม
+    // ตรวจสอบรหัสผ่านใหม่ไม่ซ้ำกับเดิม
     if (this.oldPassword === this.newPassword) {
       this.loading = false;
-      Swal.fire({
-        icon: 'error',
-        text: "รหัสผ่านใหม่ต้องไม่ซ้ำกับรหัสผ่านเดิม กรุณาบันทึกใหม่",
-      });
+      Swal.fire({ icon: 'error', text: 'รหัสผ่านใหม่ต้องไม่ซ้ำกับรหัสผ่านเดิม กรุณาบันทึกใหม่' });
       return;
     }
-    
-    // ตรวจสอบความยาวรหัสผ่านใหม่ (ขั้นต่ำ 8 ตัวอักษร)
+    // ความยาวขั้นต่ำ
     if (this.newPassword.length < 8) {
       this.loading = false;
-      Swal.fire({
-        icon: 'error',
-        text: "รหัสผ่านใหม่ต้องมีอย่างน้อย 8 ตัวอักษร",
-      });
+      Swal.fire({ icon: 'error', text: 'รหัสผ่านใหม่ต้องมีอย่างน้อย 8 ตัวอักษร' });
       return;
     }
-    
-    // ตรวจสอบรหัสผ่านใหม่ไม่ใช่รหัสผ่านเริ่มต้น (baac)
+    // ไม่ใช้รหัสผ่านเริ่มต้น
     if (this.newPassword === 'baac') {
       this.loading = false;
-      Swal.fire({
-        icon: 'error',
-        text: "รหัสผ่านใหม่ต้องไม่ใช่รหัสผ่านเริ่มต้น 'baac' กรุณาบันทึกใหม่",
-      });
+      Swal.fire({ icon: 'error', text: "รหัสผ่านใหม่ต้องไม่ใช่รหัสผ่านเริ่มต้น 'baac' กรุณาบันทึกใหม่" });
       return;
     }
 
@@ -227,64 +168,42 @@ export class ChangePasswordComponent implements OnInit {
     this.userService.changePassword(payload).subscribe({
       next: (msg: string) => {
         this.loading = false;
-        
-        // กำหนดว่าต้อง login ใหม่หรือไม่ ก่อนรีเซ็ตสถานะ
         const shouldReLogin = this.isPasswordExpired || this.isDefaultPassword;
-        
-        // อัปเดตสถานะหลังจากเปลี่ยนรหัสผ่านสำเร็จ
         this.isPasswordExpired = false;
         this.isDefaultPassword = false;
-        
-        // ไม่แก้ไข datetimeup ในฝั่ง client ปล่อยให้ backend อัปเดตและรีเฟรชเมื่อจำเป็น
-        
-        Swal.fire({
-          icon: 'success',
-          text: `${msg}`,
-          confirmButtonText: 'ตกลง',
-          confirmButtonColor: "#50C878"
-        }).then((result) => {
-          if (result.isConfirmed) {
-            // ถ้ารหัสผ่านหมดอายุหรือเป็นรหัสผ่านเริ่มต้น ให้ login ใหม่
-            if (shouldReLogin) {
-              this.loginService.login(this.userId, this.newPassword).subscribe({
-                next: (res: any) => {
-                  sessionStorage.setItem('token', res.token);
-                  // อัปเดตข้อมูลผู้ใช้ใน sessionStorage ให้เมนูโหลดตามสิทธิ์ทันที
-                  try {
-                    // ใช้ service กลางในการอัปเดต session
-                    const responseWithToday = { ...res, datetimeup: this.getTodayBEDateString() };
-                    this.userService.updateSessionFromAuthResponse(responseWithToday);
-                  } catch (e) {
-                    console.error('Failed to update session userData after password change:', e);
+        Swal.fire({ icon: 'success', text: `${msg}`, confirmButtonText: 'ตกลง', confirmButtonColor: '#50C878' })
+          .then((result) => {
+            if (result.isConfirmed) {
+              if (shouldReLogin) {
+                this.loginService.login(this.userId, this.newPassword).subscribe({
+                  next: (res: any) => {
+                    sessionStorage.setItem('token', res.token);
+                    try {
+                      const responseWithToday = { ...res, datetimeup: this.getTodayBEDateString() };
+                      this.userService.updateSessionFromAuthResponse(responseWithToday);
+                    } catch {
+                      // no-op
+                    }
+                    window.location.href = '/dashboard-admin/home';
+                  }, error: () => {
+                    Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบใหม่ไม่สำเร็จ', text: 'โปรดลองใหม่' });
+                    this.onClear();
                   }
-                  // ทำ reload ทั้งหน้าเพื่อให้ AdminDashboard re-init และโหลดเมนูใหม่
-                  window.location.href = '/dashboard-admin/home';
-                }, error: (err) => {
-                  console.log('Error', err);
-                  // ถ้า login ไม่สำเร็จ ให้ clear form
-                  this.onClear();
-                }
-              });
-            } else {
-              // ถ้าเปลี่ยนรหัสผ่านปกติ ให้ clear form
-              this.onClear();
+                });
+              } else {
+                this.onClear();
+              }
             }
-          }
-        });
+          });
         this.cd.detectChanges();
       }, error: (err: any) => {
+        this.loading = false;
         if (err.status === 409) {
-          this.loading = false
-          Swal.fire({
-            icon: 'warning',
-            text: `${err.error}`,
-            confirmButtonText: 'Yes',
-            confirmButtonColor: "#50C878"
-          });
-          this.cd.detectChanges();
+          Swal.fire({ icon: 'warning', text: `${err.error}`, confirmButtonText: 'Yes', confirmButtonColor: '#50C878' });
         } else {
-          console.log("Error", err);
+          Swal.fire({ icon: 'error', title: 'เปลี่ยนรหัสผ่านไม่สำเร็จ', text: err?.message || 'โปรดลองใหม่' });
         }
+        this.cd.detectChanges();
       }
     })
 

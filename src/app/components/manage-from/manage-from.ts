@@ -20,6 +20,7 @@ import { AddressMetadata } from '../../services/Metadata/address-metadata';
 import { StockMetadata } from '../../services/Metadata/stock-metadata';
 import { CustomerMetadata } from '../../services/Metadata/customer-metadata';
 import { ThaiCalendarComponent } from '../thai-calendar-component/thai-calendar-component';
+import Swal from 'sweetalert2';
 
 export const THAI_DATE_FORMATS = {
   parse: {
@@ -143,12 +144,16 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
     return null;
   }
 
+  /**
+   * โหลดข้อมูลทั้งหมดจาก cusId: customer, address, dividend, metadata และเติมลงฟอร์ม
+   * - จัดการสถานะโหลดด้วย loading + finalize
+   * - ป้องกัน null/undefined ด้วยค่าเริ่มต้น
+   */
+
   ngOnInit(): void {
     this.loading = true;
-    console.log("Mode", this.mode);
     // ตรวจสอบว่าอยู่ใน browser environment หรือไม่
     if (isPlatformBrowser(this.platformId)) {
-      console.log("All cookies:", document.cookie);
       const rawBrName = this.getCookie('BrName');
       this.branch = rawBrName ? decodeURIComponent(rawBrName) : null;
     }
@@ -240,22 +245,16 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
     // ✅ โหลด system config
     this.systemMetadataService.sysCfg().subscribe({
       next: (res: any) => {
-        console.log('🔍 System config response:', res);
         this.sysCfg = res;  // เก็บ response ทั้งหมด
-        console.log('🔍 pricePerUnit assigned:', this.sysCfg);
         this.cd.detectChanges();
-      }, error: (err) => {
-        console.log("Loading fail...", err);
+      }, error: () => {
+        Swal.fire({ icon: 'error', title: 'โหลดข้อมูลระบบไม่สำเร็จ', text: 'โปรดลองใหม่' });
       }
     });
 
     // ✅ ตรวจสอบ cusId ตั้งแต่เริ่มต้น (fallback)
     setTimeout(() => {
-      console.log('🔍 Initial cusId check:', this.cusId);
-      console.log('🔍 this.cusId type:', typeof this.cusId);
-      console.log('🔍 this.cusId length:', this.cusId ? this.cusId.length : 'undefined');
       if (this.cusId && this.customerForm) {
-        console.log('🔍 Loading data with initial cusId');
         this.handleData({ view: 'stksale', cusId: this.cusId });
       }
     }, 200);
@@ -265,15 +264,12 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
   ngOnChanges(changes: SimpleChanges): void {
     // ✅ เรียก updateFieldEditability เมื่อ mode เปลี่ยนแปลง
     if (changes['mode'] && this.customerForm) {
-      console.log('🔍 mode changed to:', changes['mode'].currentValue);
       this.updateFieldEditability();
       this.cd.detectChanges();
     }
 
     // ✅ เรียก handleData เมื่อ cusId เปลี่ยนแปลง
     if (changes['cusId'].currentValue && this.customerForm) {
-      console.log('🔍 cusId changed to:', changes['cusId'].currentValue);
-      console.log('🔍 this.cusId after change:', this.cusId);
       setTimeout(() => {
         this.handleData({ view: 'stksale', cusId: changes['cusId'].currentValue });
       }, 100);
@@ -307,9 +303,6 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   handleData(event: { view: string; cusId: string }) {
-    console.log('🔍 handleData called with event:', event);
-    console.log('🔍 this.cusId in handleData:', this.cusId);
-
     this.homeAddress = this.addressService.getDefaultAddress();
     this.currentAddress = this.addressService.getDefaultAddress();
     this.zipCodeHome = '';
@@ -317,22 +310,20 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
     this.loading = true;
 
     if (!this.cusId) {
-      console.warn('⚠️ cusId is empty in handleData');
+      this.loading = false;
+      this.cd.detectChanges();
       return;
     }
 
     const requestPayload = { cusId: this.cusId };
-    console.log('🔍 requestPayload:', requestPayload);
 
     // โหลดข้อมูลหลักทั้งหมด
     forkJoin({
       customer: this.customerService.getCustomer(requestPayload).pipe(
         map(customerData => {
-          console.log("Raw customer service response:", customerData);
           return customerData;
         }),
         catchError(err => {
-          console.error("Customer service error:", err);
           return of(null);
         })
       ),
@@ -341,7 +332,6 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
           return addressData;
         }),
         catchError(err => {
-          console.error("Address service error:", err);
           return of({ homeAddress: null, currentAddress: null });
         })
       ),
@@ -382,9 +372,6 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
           this.actypeList = res.acctypes;
           this.stkTypeList = res.stktypes;
 
-          console.log("custypeList", this.custypeList);
-          console.log("doctypeList", this.doctypeList);
-
           // Populate ข้อมูลลูกค้าและที่อยู่ลงใน form
           this.populateCustomerForm();
           this.populateAddressForm();
@@ -404,13 +391,12 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
       )
       .subscribe({
         next: () => {
-          console.log("ข้อมูลทั้งหมดโหลดเรียบร้อย");
+          // no-op
+        },
+        error: () => {
           this.loading = false;
           this.cd.detectChanges();
-        },
-        error: (err) => {
-          console.error("โหลดข้อมูลผิดพลาด", err);
-          this.loading = false;
+          Swal.fire({ icon: 'error', title: 'โหลดข้อมูลไม่สำเร็จ', text: 'โปรดลองใหม่' });
         }
       });
   }
@@ -440,10 +426,6 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
         this.mode = 'stksale';
       }
 
-      console.log('🔍 customerFormData:', customerFormData);
-      console.log('🔍 this.cusId:', this.cusId);
-      console.log('🔍 this.customer.cusiD:', this.customer.cusiD);
-
       this.customerForm.patchValue({
         customer: customerFormData,
         dividend: {
@@ -454,10 +436,6 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
           stkACCtype: this.dividendData?.stkACCtype || '001'  // ตั้งค่า fallback เป็น '001'
         }
       });
-
-      console.log('🔍 Form values after patch:', this.customerForm.value);
-      console.log('🔍 cusiD value after patch:', this.customerForm.get('customer.cusiD')?.value);
-      console.log('🔍 cusiDnew value after patch:', this.customerForm.get('customer.cusiDnew')?.value);
 
       // ✅ เรียกใช้: จัดการ editable state ตาม mode
       setTimeout(() => {
@@ -477,7 +455,6 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
 
   populateAddressForm() {
     if (!this.homeAddress && !this.currentAddress) {
-      console.warn("No address data available to populate");
       return;
     }
 
@@ -546,12 +523,12 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   onProvinceChangeHome(prvCode: string) {
-    console.log('🔍 Province changed (Home):', prvCode);
+    // Province changed (Home)
     if (!prvCode) return;
 
     this.addressMetadataService.getAumphor(prvCode).subscribe({
       next: (res) => {
-        console.log('🔍 Amphur data loaded (Home):', res);
+        // Amphur data loaded (Home)
         setTimeout(() => {
           this.ampDataHome = res;
           this.tumbonDataHome = [];
@@ -567,7 +544,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
           this.cd.detectChanges();
         }, 0);
       },
-      error: (err) => console.error('Error loading amphur (Home):', err)
+      error: () => { Swal.fire({ icon: 'error', title: 'โหลดอำเภอไม่สำเร็จ', text: 'โปรดลองใหม่' }); }
     });
   }
 
@@ -589,12 +566,12 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
 
 
   onAumphorChangeHome(prvCode: string, ampCode: string) {
-    console.log('🔍 Amphur changed (Home):', prvCode, ampCode);
+    // Amphur changed (Home)
     if (!prvCode || !ampCode) return;
 
     this.addressMetadataService.getTumbon(prvCode, ampCode).subscribe({
       next: (res) => {
-        console.log('🔍 Tumbon data loaded (Home):', res);
+        // Tumbon data loaded (Home)
         setTimeout(() => {
           this.tumbonDataHome = res;
           // Reset form values
@@ -608,17 +585,17 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
           this.cd.detectChanges();
         }, 0);
       },
-      error: (err) => console.error('Error loading tumbon (Home):', err)
+      error: () => { Swal.fire({ icon: 'error', title: 'โหลดตำบลไม่สำเร็จ', text: 'โปรดลองใหม่' }); }
     });
   }
 
   onProvinceChangeCurrent(prvCode: string) {
-    console.log('🔍 Province changed (Current):', prvCode);
+    // Province changed (Current)
     if (!prvCode) return;
 
     this.addressMetadataService.getAumphor(prvCode).subscribe({
       next: (res) => {
-        console.log('🔍 Amphur data loaded (Current):', res);
+        // Amphur data loaded (Current)
         setTimeout(() => {
           this.ampDataCurrent = res;
           this.tumbonDataCurrent = [];
@@ -634,17 +611,17 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
           this.cd.detectChanges();
         }, 0);
       },
-      error: (err) => console.error('Error loading amphur (Current):', err)
+      error: () => { Swal.fire({ icon: 'error', title: 'โหลดอำเภอไม่สำเร็จ', text: 'โปรดลองใหม่' }); }
     });
   }
 
   onAumphorChangeCurrent(prvCode: string, ampCode: string) {
-    console.log('🔍 Amphur changed (Current):', prvCode, ampCode);
+    // Amphur changed (Current)
     if (!prvCode || !ampCode) return;
 
     this.addressMetadataService.getTumbon(prvCode, ampCode).subscribe({
       next: (res) => {
-        console.log('🔍 Tumbon data loaded (Current):', res);
+        // Tumbon data loaded (Current)
         setTimeout(() => {
           this.tumbonDataCurrent = res;
           // Reset form values
@@ -658,7 +635,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
           this.cd.detectChanges();
         }, 0);
       },
-      error: (err) => console.error('Error loading tumbon (Current):', err)
+      error: () => { Swal.fire({ icon: 'error', title: 'โหลดตำบลไม่สำเร็จ', text: 'โปรดลองใหม่' }); }
     });
   }
 
@@ -679,28 +656,28 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   onTumbonChangeHome(tmbCode: string) {
-    console.log('🔍 Tumbon changed (Home):', tmbCode);
+    // Tumbon changed (Home)
     if (!tmbCode) return;
 
     const prvCode = this.customerForm.get('homeAddress.prvCODE')?.value;
     const ampCode = this.customerForm.get('homeAddress.ampCODE')?.value;
 
     if (prvCode && ampCode) {
-      const zip = this.onZipcodeChangeHome(prvCode, ampCode, tmbCode);
-      console.log('🔍 Zipcode calculated (Home):', zip);
+      this.onZipcodeChangeHome(prvCode, ampCode, tmbCode);
+      // Zipcode calculated (Home)
     }
   }
 
   onTumbonChangeCurrent(tmbCode: string) {
-    console.log('🔍 Tumbon changed (Current):', tmbCode);
+    // Tumbon changed (Current)
     if (!tmbCode) return;
 
     const prvCode = this.customerForm.get('currentAddress.prvCODE')?.value;
     const ampCode = this.customerForm.get('currentAddress.ampCODE')?.value;
 
     if (prvCode && ampCode) {
-      const zip = this.onZipcodeChangeCurrent(prvCode, ampCode, tmbCode);
-      console.log('🔍 Zipcode calculated (Current):', zip);
+      this.onZipcodeChangeCurrent(prvCode, ampCode, tmbCode);
+      // Zipcode calculated (Current)
     }
   }
 
@@ -792,10 +769,10 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
 
 
   reloadCustomerData() {
-    console.log("=== Reloading customer data ===");
+    // Reloading customer data
 
     if (!this.cusId) {
-      console.warn("No customer ID available for reload");
+      // No customer ID available for reload
       return;
     }
 
@@ -820,7 +797,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
 
   onUnitInput(event: Event) {
     const input = event.target as HTMLInputElement;
-    console.log('🔍 onUnitInput called, pricePerUnit:', this.sysCfg);
+    // onUnitInput
 
     // ดึงเฉพาะตัวเลข
     let numericString = input.value.replace(/\D/g, '');
@@ -851,10 +828,10 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
 
     // ตรวจสอบว่า pricePerUnit มีค่าหรือไม่
     const pricePerShare = this.sysCfg?.stkBv || this.sysCfg || 0;
-    console.log('🔍 pricePerShare:', pricePerShare);
+    // pricePerShare
 
     if (!pricePerShare) {
-      console.warn('⚠️ pricePerShare is 0 or undefined');
+      // pricePerShare is 0 or undefined
       this.unitText = '';
       this.valueText = '';
       return;
@@ -862,7 +839,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
 
     // คำนวณมูลค่า
     const stkValue = numericValue * pricePerShare;
-    console.log('🔍 Calculation:', numericValue, '*', pricePerShare, '=', stkValue);
+    // Calculation display
 
     // อัปเดตฟอร์ม โดยแสดง comma ในช่องมูลค่า
     this.customerForm.patchValue({
@@ -873,8 +850,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
     this.valueText = ThaiBahtText(stkValue.toString());
     this.unitText = ThaiBahtText(numericValue.toString()).replace('บาทถ้วน', 'หุ้น');
 
-    console.log('🔍 unitText:', this.unitText);
-    console.log('🔍 valueText:', this.valueText);
+    // unitText/valueText
 
     this.cd.detectChanges();
   }
@@ -970,7 +946,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
 
   // ✅ เพิ่ม: จัดการ editable state ของฟิลด์ต่างๆ
   private updateFieldEditability() {
-    console.log('🔍 updateFieldEditability called, mode:', this.mode);
+    // updateFieldEditability called
 
     if (this.mode === 'editcus') {
       // ฟิลด์ที่แก้ไขได้ - enable
@@ -1017,7 +993,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
       this.customerForm.get('dividend.stkACCno')?.enable();
       this.customerForm.get('dividend.stkACCname')?.enable();
 
-      console.log('✅ All fields enabled for editcus mode');
+      // All fields enabled for editcus mode
 
     } else if (this.mode === 'stksale') {
       this.titleView = 'ขายหุ้น';
@@ -1156,7 +1132,7 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
       this.customerForm.get('dividend.stkACCno')?.disable();
       this.customerForm.get('dividend.stkACCname')?.disable();
 
-      console.log('✅ All fields disabled for non-editcus mode');
+      // All fields disabled for non-editcus mode
     }
 
     // ฟิลด์ที่ห้ามแก้ไขเสมอ
@@ -1168,21 +1144,17 @@ export class ManageFormComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   onSubmit(act: string) {
-    console.log('🔍 ManageForm onSubmit called with action:', act);
-    console.log('🔍 cusiD value in onSubmit:', this.customerForm.get('customer.cusiD')?.value);
-    console.log('🔍 cusiDnew value in onSubmit:', this.customerForm.get('customer.cusiDnew')?.value);
     if (!this.customerForm) {
-      console.error('❌ customerForm ยังไม่ถูกสร้าง');
+      Swal.fire({ icon: 'error', title: 'ไม่สามารถส่งข้อมูลได้', text: 'ฟอร์มยังไม่ถูกสร้าง' });
       return;
     }
     const payload = this.customerForm.getRawValue();
 
     // ตรวจสอบความถูกต้องของฟอร์ม
     if (this.customerForm.valid) {
-      console.log('✅ ฟอร์มถูกต้อง สามารถส่งข้อมูลได้');
       this.payload.emit([payload, act]);
     } else {
-      console.warn('⚠️ ฟอร์มไม่ถูกต้อง กรุณาตรวจสอบข้อมูล');
+      Swal.fire({ icon: 'warning', title: 'ฟอร์มไม่ถูกต้อง', text: 'กรุณาตรวจสอบข้อมูล' });
       // แสดง error ในฟอร์ม
       this.markFormGroupTouched(this.customerForm);
     }

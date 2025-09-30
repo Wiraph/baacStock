@@ -13,6 +13,7 @@ import Swal from 'sweetalert2';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
+/** ฟอร์มเข้าสู่ระบบ: ตรวจสอบและตั้งค่า session จากผลลัพธ์ */
 export class LoginComponent {
 
   username = '';
@@ -20,7 +21,6 @@ export class LoginComponent {
   errorMessage = '';
   loading = false;
 
-  
   private readonly router = inject(Router);
   constructor(
     private readonly loginService: Login,
@@ -28,44 +28,37 @@ export class LoginComponent {
     private readonly userService: UserService
   ) { }
 
+  /** ล้างค่าในฟอร์ม */
   resetForm() {
     this.username = '';
     this.password = '';
     this.errorMessage = '';
   }
 
+  /** ส่งฟอร์มเข้าสู่ระบบ และอัปเดต session เมื่อสำเร็จ */
   onSubmit(): void {
     this.loading = true;
     this.errorMessage = '';
+    this.cd.detectChanges();
+
     this.loginService.login(this.username, this.password).subscribe({
       next: (res: any) => {
-        console.log(res);
         this.loading = false;
         this.cd.detectChanges();
 
         if (res.siGNonALLOW === 1) {
-          console.log("Pass");
-          console.log("Login response:", res);
-          
           // อัปเดต session ผ่าน service กลาง
           this.userService.updateSessionFromAuthResponse(res);
-          console.log("Stored userData via service");
-          
           this.router.navigate(['/dashboard-admin/']);
           this.cd.detectChanges();
         } else {
-          Swal.fire({
-            icon: 'error',
-            text: `${res.siGNonMSG}`
-          })
+          Swal.fire({ icon: 'error', text: `${res.siGNonMSG}` });
         }
       },
-      error: (err: any) => {
-        if (err) {
-          alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ โปรดติดต่อผู้ดูแลระบบ');
-          this.loading = false;
-          this.cd.detectChanges(); // ⬅️ บังคับให้ UI รู้
-        }
+      error: () => {
+        this.loading = false;
+        this.cd.detectChanges();
+        Swal.fire({ icon: 'error', title: 'เชื่อมต่อไม่สำเร็จ', text: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ โปรดติดต่อผู้ดูแลระบบ' });
       }
     });
   }

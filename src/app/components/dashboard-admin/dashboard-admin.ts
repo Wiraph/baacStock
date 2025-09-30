@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
-import {
-  trigger, transition, style, animate
-} from '@angular/animations';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { UserService } from '../../services/user';
 import { PermissionService } from '../../services/permission.service';
 import { Login } from '../../services/login';
 import { PasswordStatusService, PasswordStatus } from '../../services/password-status.service';
+import Swal from 'sweetalert2';
 
+/** โครงสร้างเมนูในแผงควบคุมผู้ดูแล */
 interface MenuItem {
   key: string;
   label: string;
@@ -35,6 +35,7 @@ interface MenuItem {
     ])
   ],
 })
+/** หน้าหลักแผงควบคุมผู้ดูแลระบบ: แสดงเมนูตามสิทธิ์ผู้ใช้ และจัดการการนำทาง */
 export class AdminDashboardComponent implements OnInit {
   sidebarCollapsed = false;
   currentUser: any = {};
@@ -82,7 +83,7 @@ export class AdminDashboardComponent implements OnInit {
       open: false,
       children: [
         { key: 'dividend', icon: '💰', label: 'เงินปันผล', route: '/dashboard-admin/dividend' },
-        { key: 'annualdividendcalculator', icon: '😵‍💫', label: 'คำนวณเงินปันผลประจำปี', route: '/dashboard-admin/AnnualDividendCalculatorComponent' },
+        { key: 'annualdividendcalculator', icon: '📋', label: 'คำนวณเงินปันผลประจำปี', route: '/dashboard-admin/AnnualDividendCalculatorComponent' },
       ]
     },
     {
@@ -162,10 +163,12 @@ export class AdminDashboardComponent implements OnInit {
     private readonly passwordStatusService: PasswordStatusService
   ) { }
 
+  /** พับ/ขยายแถบเมนูด้านข้าง */
   toggleSidebar() {
     this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
+  /** เปิด/ปิดหมวดเมนู และอัปเดตรายการแสดงผลตามสิทธิ์ */
   openMenu(key: string) {
     // อัพเดท state ใน menus
     this.menus = this.menus.map(menu => {
@@ -183,18 +186,28 @@ export class AdminDashboardComponent implements OnInit {
     );
   }
 
-
+  /** ออกจากระบบและกลับไปหน้าเข้าสู่ระบบ (ยืนยันก่อน) */
   logout() {
-    sessionStorage.clear();
-    this.router.navigate(['/login']);
+    Swal.fire({
+      icon: 'question',
+      title: 'ยืนยันที่จะออกจากระบบ?',
+      showCancelButton: true,
+      confirmButtonText: 'ยืนยัน',
+      cancelButtonText: 'ยกเลิก',
+      confirmButtonColor: '#d33'
+    }).then(result => {
+      if (!result.isConfirmed) return;
+      sessionStorage.clear();
+      this.router.navigate(['/login']);
+    });
   }
 
-  // ดึงชื่อ level จาก lvlDesc
+  /** แปลงรหัสระดับผู้ใช้เป็นชื่อแสดงผล */
   getUserLevelName(levelCode: string): string {
     return this.userService.getUserLevelName(levelCode);
   }
 
-  // ดึงตัวอักษรแรกของชื่อ
+  /** คืนตัวอักษรย่อจากชื่อ-นามสกุล */
   getUserInitials(fullname: string): string {
     if (!fullname || fullname.trim() === '') {
       return 'U'; // Default initial
@@ -202,7 +215,7 @@ export class AdminDashboardComponent implements OnInit {
     return this.userService.getInitials(fullname);
   }
 
-  // Filter menus ตามสิทธิ์
+  /** กรองเมนูตามสิทธิ์ผู้ใช้ปัจจุบัน */
   private filterMenusByPermission(): void {
     this.filteredMenus = this.permissionService.filterMenusByPermission(
       this.menus,
@@ -210,12 +223,12 @@ export class AdminDashboardComponent implements OnInit {
     );
   }
 
-  // ตรวจสอบสิทธิ์ใน component
+  /** ตรวจสอบสิทธิ์การเข้าถึงเมนู/การกระทำ */
   canView(menuId: string): boolean {
     return this.permissionService.hasActionPermission(menuId, this.currentUser.level);
   }
 
-  // ตรวจสอบสถานะรหัสผ่าน
+  /** ตรวจสอบสถานะรหัสผ่านของผู้ใช้ และตั้งค่าสถานะที่เกี่ยวข้อง */
   private checkPasswordStatus() {
     // ใช้ PasswordStatusService
     const passwordStatus: PasswordStatus = this.passwordStatusService.checkPasswordStatus(this.currentUser);
@@ -229,7 +242,7 @@ export class AdminDashboardComponent implements OnInit {
     
   }
 
-  // แสดงเฉพาะเมนูที่จำเป็นเมื่อต้องเปลี่ยนรหัสผ่าน
+  /** แสดงเมนูขั้นต่ำเมื่อผู้ใช้จำเป็นต้องเปลี่ยนรหัสผ่าน พร้อม redirect */
   private showLimitedMenus() {
     this.filteredMenus = [
       {
@@ -267,6 +280,7 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
+  /** โหลดข้อมูลผู้ใช้จาก session, ตรวจสอบรหัสผ่าน และกรองเมนูตามสิทธิ์ */
   ngOnInit(): void {
     // ใช้ UserService เพื่อดึงข้อมูลจาก sessionStorage
     this.currentUser = this.userService.getCurrentUser();

@@ -15,6 +15,10 @@ import { StockService } from '../../../services/stock';
   imports: [CommonModule, SearchEditComponent, FormsModule],
   templateUrl: './block-certificates.component.html',
 })
+/**
+ * จัดการ "บล็อค/ปลดบล็อค" ใบหุ้นของลูกค้า
+ * จาก SearchEdit → โหลดรายการใบหุ้นและข้อมูลลูกค้า → แสดงตาราง + ปุ่มบล็อค/ปลดบล็อค → ยืนยัน → เรียก API → รีเฟรช
+ */
 export class BlockCertificatesComponent implements OnInit {
 
   @Input() InputblockCertificates!: string;
@@ -73,6 +77,7 @@ export class BlockCertificatesComponent implements OnInit {
     this.cdRef.detectChanges();
   }
 
+  /** โหลดรายการใบหุ้นของลูกค้า (สำหรับแสดงสถานะบล็อค) และรายละเอียดลูกค้า */
   onLoadBlockList(cusiD: string) {
     const payload = {
       GetDTL: 'bySTK@bySTK-BLK',
@@ -86,32 +91,31 @@ export class BlockCertificatesComponent implements OnInit {
     };
     this.customerService.searchCustomerStk(payload).subscribe({
       next: (res) => {
-        this.stkBlockList = res;
-        console.log("stkBlockList", this.stkBlockList);
+        this.stkBlockList = Array.isArray(res) ? res : [];
+      }, error: () => {
+        Swal.fire({ icon: 'error', title: 'ดึงรายการใบหุ้นไม่สำเร็จ', text: 'โปรดลองใหม่' });
+      }, complete: () => {
         this.cdRef.detectChanges();
-      }, error: (err) => {
-        console.log("Errors", err);
       }
     })
 
-    const payload2 = {
-      cusId: cusiD
-    }
+    const payload2 = { cusId: cusiD };
 
     this.customerService.getCustomerDetail(payload2).subscribe({
       next: (res) => {
         this.customerData = res;
+      }, error: () => {
+        Swal.fire({ icon: 'error', title: 'ดึงข้อมูลลูกค้าไม่สำเร็จ', text: 'โปรดลองใหม่' });
+      }, complete: () => {
         this.loading = false;
         this.cdRef.detectChanges();
-      }, error: (err) => {
-        console.log("Error", err);
       }
     })
   }
 
+  /** เปิดยืนยันบล็อค/ปลดบล็อคตาม stCode ของใบหุ้น */
   onBlock(stkNote: string, stCode: string) {
-    console.log(stkNote, stCode);
-    if (stCode == "S000") {
+    if (stCode == 'S000') {
       Swal.fire({
         icon: 'question',
         text: `ท่านต้องการบล็อคใบหุ้นเลขที่ ${stkNote} ใช่หรือไม่`,
@@ -119,12 +123,10 @@ export class BlockCertificatesComponent implements OnInit {
         confirmButtonText: 'ตกลง',
         cancelButtonText: 'ยกเลิก',
         confirmButtonColor: '#04AA6D'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.onLoadBlock(stkNote);
-        }
-      })
-    } else if (stCode == "S008") {
+      }).then((result) => { if (result.isConfirmed) this.onLoadBlock(stkNote); })
+      return;
+    }
+    if (stCode == 'S008') {
       Swal.fire({
         icon: 'question',
         text: `ท่านต้องการปลดบล็อคใบหุ้นเลขที่ ${stkNote} ใช่หรือไม่`,
@@ -132,25 +134,15 @@ export class BlockCertificatesComponent implements OnInit {
         confirmButtonText: 'ตกลง',
         cancelButtonText: 'ยกเลิก',
         confirmButtonColor: '#04AA6D'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.onLoadBlock(stkNote);
-        }
-      })
-    } else {
-      Swal.fire({
-        icon: 'question',
-        text: `ใบหุ้นนี้ไม่สามารถดำเนินการได้`,
-        confirmButtonText: 'ตกลง',
-        confirmButtonColor: '#04AA6D'
-      })
+      }).then((result) => { if (result.isConfirmed) this.onLoadBlock(stkNote); })
+      return;
     }
+    Swal.fire({ icon: 'info', text: 'ใบหุ้นนี้ไม่สามารถดำเนินการได้', confirmButtonText: 'ตกลง', confirmButtonColor: '#04AA6D' })
   }
 
+  /** เรียก API บล็อค/ปลดบล็อค แล้วรีโหลดรายการของลูกค้าคนเดิม */
   onLoadBlock(stkNote: string) {
-    const payload = {
-      stkNote: stkNote
-    };
+    const payload = { stkNote };
     this.stockService.blockStock(payload).subscribe({
       next: (res: any) => {
         Swal.fire({
@@ -162,16 +154,16 @@ export class BlockCertificatesComponent implements OnInit {
           timerProgressBar: true,
         })
         this.onLoadBlockList(this.cusId);
+      }, error: () => {
+        Swal.fire({ icon: 'error', title: 'ดำเนินการไม่สำเร็จ', text: 'โปรดลองใหม่' });
+      }, complete: () => {
         this.cdRef.detectChanges();
-      }, error: (err) => {
-        console.log("Error", err);
       }
     })
-
   }
 
-
   // Utility Methods
+  /** แปลงรหัสสถานะจากแถวข้อมูลเป็นคำไทยสั้น ๆ */
   getStatus(row: any): string {
     const code = (row?.stCODEs ?? row?.stCODE ?? '').toString();
     if (code && typeof code === 'string') {
@@ -180,28 +172,23 @@ export class BlockCertificatesComponent implements OnInit {
     }
     return row?.stDESC || '-';
   }
+
+  /** แปลง DATETIME (เช่น 25680724-103534) เป็นรูปแบบไทยอ่านง่าย */
   formatThaiDateTime(dateTimeStr: string): string {
     if (!dateTimeStr || dateTimeStr.length !== 15 || !dateTimeStr.includes('-')) return '-';
-
-    const datePart = dateTimeStr.substring(0, 8); // 20250704
-    const timePart = dateTimeStr.substring(9);   // 152035
-
+    const datePart = dateTimeStr.substring(0, 8);
+    const timePart = dateTimeStr.substring(9);
     const year = parseInt(datePart.substring(0, 4), 10);
     const month = parseInt(datePart.substring(4, 6), 10);
     const day = parseInt(datePart.substring(6, 8), 10);
-
     const hour = timePart.substring(0, 2);
     const minute = timePart.substring(2, 4);
     const second = timePart.substring(4, 6);
-
-    const thaiMonths = [
-      '', 'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
-      'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
-    ];
-
+    const thaiMonths = ['', 'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
     const buddhistYear = year;
-
     return `${day} ${thaiMonths[month]} ${buddhistYear} เวลา ${hour}:${minute}:${second} น.`;
   }
 
+  /** ช่วยเรนเดอร์รายการ (ลด re-render) */
+  trackByStk(_: number, row: any) { return row?.stkNOTE || row?.roWi || _; }
 } 

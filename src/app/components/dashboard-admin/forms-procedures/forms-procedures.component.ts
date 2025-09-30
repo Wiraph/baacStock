@@ -19,6 +19,11 @@ interface Document {
   imports: [CommonModule],
   templateUrl: './forms-procedures.component.html'
 })
+/**
+ * แสดง/ดาวน์โหลดเอกสารแบบฟอร์มและระเบียบปฏิบัติ
+ * - โหลดรายการเอกสารจาก backend
+ * - ดาวน์โหลดไฟล์ที่เลือก
+ */
 export class FormsProceduresComponent implements OnInit {
 
   documents: any[] = [];
@@ -36,26 +41,32 @@ export class FormsProceduresComponent implements OnInit {
   // Load Documents จาก API - แบบเรียบง่ายเหมือน upload component
   private loadDocuments() {
     this.loading = true;
-    this.cd.markForCheck(); // Force UI update
+    this.cd.markForCheck();
     
     this.fileService.getFiles().subscribe({
       next: (files) => {
-        this.documents = files || [];
-        this.loading = false;
-        this.cd.markForCheck(); // Force UI update after data loaded
+        let normalized: any[] = [];
+        if (Array.isArray(files)) {
+          normalized = files;
+        } else if (files) {
+          normalized = [files];
+        }
+        this.documents = normalized;
       },
-      error: (error) => {
+      error: () => {
         this.documents = [];
-        this.loading = false;
-        this.cd.markForCheck(); // Force UI update on error
         Swal.fire('ผิดพลาด', 'ไม่สามารถโหลดเอกสารได้', 'error');
+      },
+      complete: () => {
+        this.loading = false;
+        this.cd.markForCheck();
       }
     });
   }
 
   // Download Document
   downloadDocument(doc: any): void {
-    if (!doc.fileName) {
+    if (!doc?.fileName) {
       Swal.fire('ไม่มีชื่อไฟล์', 'กรุณาเลือกไฟล์ที่ต้องการดาวน์โหลด', 'warning');
       return;
     }
@@ -68,11 +79,9 @@ export class FormsProceduresComponent implements OnInit {
         link.download = doc.fileName;
         link.click();
         window.URL.revokeObjectURL(url);
-        
         Swal.fire('สำเร็จ', `ดาวน์โหลด ${doc.fileName} เรียบร้อยแล้ว`, 'success');
       },
-      error: (err) => {
-        console.error(`❌ Download failed for ${doc.fileName}`, err);
+      error: () => {
         Swal.fire('ผิดพลาด', 'ไม่สามารถดาวน์โหลดไฟล์ได้', 'error');
       }
     });

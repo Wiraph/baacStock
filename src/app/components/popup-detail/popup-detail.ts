@@ -14,6 +14,7 @@ import { ApproveService } from '../../services/approve';
   templateUrl: './popup-detail.html',
   styleUrl: './popup-detail.css'
 })
+/** ป๊อปอัปรายละเอียดใบหุ้น: แสดงข้อมูลรายการ และยืนยันอนุมัติ/ยกเลิก */
 export class PopupDetail implements OnInit {
   titleHead = '';
   titleContent = '';
@@ -41,36 +42,33 @@ export class PopupDetail implements OnInit {
     private readonly approveServie: ApproveService
   ) { }
 
+  /** โหลดรายละเอียดเมื่อเปิดป๊อปอัป */
   ngOnInit(): void {
-    console.log("StkNotePopup", this.data.stkNote, this.data.stkStatus);
     this.stkStatus = this.data.stkStatus;
     this.loading = true;
     this.action = this.data.action;
-    console.log("Action", this.action);
     this.onloadDetail(this.data.stkNote);
   }
 
+  /** เรียก API เพื่อโหลดรายละเอียดใบหุ้นตาม stkNote */
   onloadDetail(stkNote: string) {
     stkNote = this.transformStkNote(stkNote);
-    const payload = {
-      stkNote: stkNote
-    };
+    const payload = { stkNote };
 
     this.stockService.detailApprove(payload).subscribe({
       next: (res) => {
-        this.AllData = res;
+        this.AllData = Array.isArray(res) ? res : [];
         this.setDetail(this.AllData);
         this.loading = false;
-        console.log("AllData", this.AllData);
         this.cd.detectChanges();
-      }, error: (err) => {
+      }, error: () => {
         this.loading = false;
-        console.log("ไม่สามารถดึงข้อมูลรายละเอียดได้", err);
+        Swal.fire({ icon: 'error', title: 'ไม่สามารถดึงข้อมูลรายละเอียดได้', text: 'โปรดลองใหม่' });
       }
     })
   }
 
-  // ฟังก์ชันเงือนไขการแสดงของรายละเอียด
+  /** ตั้งค่าข้อมูลรายละเอียดสำหรับแสดงผล */
   setDetail(item: any) {
     if (item[0].LiSTi == "100") {
       this.cusNAME0 = `${item[0].titleABBR}${item[0].cusFName} ${item[0].cusLName}`;
@@ -81,7 +79,6 @@ export class PopupDetail implements OnInit {
       this.lvlDesc0 = item[1].Approve_LVLDesc;
       this.lvlCode0 = item[1].Approve_LVLCode;
       this.titleHead = item[1].staDESCstk;
-      // กำหนดค่า owner จากข้อมูลที่ได้รับ
       this.owner = item[1];
     } else {
       this.dateTime0 = item[0].Approve_DATETIMEUP;
@@ -91,20 +88,18 @@ export class PopupDetail implements OnInit {
       this.lvlDesc0 = item[0].Approve_LVLDesc;
       this.lvlCode0 = item[0].Approve_LVLCode;
       this.titleHead = this.parseStaDESCstk(item[0].staDESCstk);
-      // กำหนดค่า owner จากข้อมูลที่ได้รับ
       this.owner = item[0];
     }
-    console.log("TitleHead", this.titleHead);
-    console.log("Owner", this.owner);
     this.cd.detectChanges();
   }
 
-  // ฟังก์ชันเปลี่ยน stkNote ก่อนส่ง
+  /** ปรับรูปแบบค่า stkNote ก่อนส่ง */
   transformStkNote(note: string): string {
     if (!note) return '';
     return note.replace(/MORE$/, 'REGN');
   }
 
+  /** ชื่อผู้ถือหุ้นแสดงผล */
   getCusName(item: any): string {
     let name = '';
     if (item.titleCode !== 'JUR') name += item.titleABBR + ' ';
@@ -119,8 +114,8 @@ export class PopupDetail implements OnInit {
     return name;
   }
 
+  /** ยืนยันอนุมัติ/ยกเลิกรายการ */
   approve(status: string) {
-    console.log("Status", status);
     let msgAction = '';
     if (this.action === "APPROVE") {
       msgAction = 'รายการ';
@@ -150,8 +145,7 @@ export class PopupDetail implements OnInit {
       confirmButtonText:  status === 'YES' ? "อนุมัติ" : "ยกเลิกรายการ",
       confirmButtonColor: '#32CD32'
     }).then((result) => {
-      if (!result.isConfirmed && status === 'YES') return; // ถ้าไม่ confirm แต่ status YES ก็ไม่ส่ง
-      if (!result.isConfirmed && status === 'NO') return;
+      if (!result.isConfirmed) return;
 
       const payload = {
         stkNOTEis: this.owner?.stkNOTE || '',
@@ -160,43 +154,32 @@ export class PopupDetail implements OnInit {
       };
 
       this.approveServie.confirmStock(payload).subscribe({
-        next: (res:any) => {
-          console.log("Result", res);
-          Swal.fire({
-            icon: "success",
-            title: status === 'YES' ? "อนุมัติสำเร็จ" : "ยกเลิกรายการสำเร็จ",
-            showConfirmButton: false,
-            timer: 1500
-          }).then(() => {
-            this.dialogRef.close("PASS");
-          });
+        next: () => {
+          Swal.fire({ icon: "success", title: status === 'YES' ? "อนุมัติสำเร็จ" : "ยกเลิกรายการสำเร็จ", showConfirmButton: false, timer: 1500 })
+            .then(() => { this.dialogRef.close("PASS"); });
         },
-        error: (err) => {
-          console.error(err);
-          Swal.fire({
-            icon: "error",
-            title: "ไม่สำเร็จ",
-            text: "โปรดติดต่อผู้พัฒนา"
-          });
+        error: () => {
+          Swal.fire({ icon: "error", title: "ไม่สำเร็จ", text: "โปรดติดต่อผู้พัฒนา" });
         }
       });
     });
   }
 
-
+  /** ปิดป๊อปอัป */
   close(result: boolean) {
     this.dialogRef.close(result);
   }
 
+  /** วันที่แบบไทยจากรูปแบบ YYYYMMDD */
   formatDateThai(dateStr: string): string {
     if (!dateStr) return '-';
 
-    const year = parseInt(dateStr.substring(0, 4)); // ค.ศ. → พ.ศ.
+    const year = parseInt(dateStr.substring(0, 4));
     const month = dateStr.substring(4, 6);
     const day = dateStr.substring(6, 8);
 
     const thaiMonths = [
-      '', // index 0 ไม่ใช้
+      '',
       'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
       'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
     ];
@@ -206,33 +189,32 @@ export class PopupDetail implements OnInit {
     return `${parseInt(day, 10)} ${monthName} ${year}`;
   }
 
-
+  /** HH:mm:ss จากสตริง DATETIMEUP */
   extractTime(raw: string): string {
     if (!raw || raw.length < 15) return "";
     try {
-      const timePart = raw.substring(9); // "132524"
+      const timePart = raw.substring(9);
       const hour = timePart.substring(0, 2);
       const minute = timePart.substring(2, 4);
       const second = timePart.substring(4, 6);
 
       return `${hour}:${minute}:${second}`;
-    } catch (e) {
-      console.error("❌ Error extracting time:", raw, e);
+    } catch {
       return "";
     }
   }
 
-  // แปลง staDESCstk
+  /** ตัดคำอธิบายสถานะแบบสั้น */
   formatStaDesc(staDESCstk: string): string {
     if (!staDESCstk) return '';
     let parts = staDESCstk.split(':');
     let last = parts[parts.length - 1];
     last = last.split('(')[0].trim();
-    last = last.replace(/^การ/, ''); // remove leading "การ"
+    last = last.replace(/^การ/, '');
     return last;
   }
 
-  // ตรวจว่าเป็น "ผู้ถือหุ้น / ใบหุ้น"
+  /** ข้อความระบุบทบาทผู้ถือหุ้น/โอน/รับโอน */
   getHolderMsg(index: number, item: any, rowCount: number): string {
     if (rowCount === 1 || item.stkREMCode === '0040') {
       return 'ผู้ถือหุ้น / ใบหุ้น';
@@ -241,22 +223,13 @@ export class PopupDetail implements OnInit {
     }
   }
 
-  // สำหรับหัวข้อของรายการอนุมัติ
+  /** หัวข้อของรายการอนุมัติ (ตัด "การ" และส่วนท้ายในวงเล็บ) */
   parseStaDESCstk(input: string): string {
     if (!input) return '';
-
-    // 1. แยกด้วย ":"
     const parts = input.split(':');
-
-    // 2. เอาตัวสุดท้าย
     let lastPart = parts[parts.length - 1];
-
-    // 3. แยกด้วย "(" และเอาตัวแรก
     lastPart = lastPart.split('(')[0];
-
-    // 4. trim space และลบ "การ" ข้างหน้า
     lastPart = lastPart.trim().replace(/^การ/, '');
-
     return lastPart;
   }
 }

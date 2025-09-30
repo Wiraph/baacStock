@@ -19,6 +19,11 @@ import Swal from 'sweetalert2';
   templateUrl: './search-edit.html',
   styleUrls: ['./search-edit.css']
 })
+/**
+ * ค้นหา/แก้ไขข้อมูลลูกค้าและใบหุ้น (SearchEdit)
+ * - ค้นหาจากเลขบัตร/ชื่อ/เลขใบหุ้น พร้อมแบ่งหน้า
+ * - ส่ง event ไปหน้าอื่นตามสถานะที่ตั้งจาก `DataTransfer`
+ */
 export class SearchEditComponent implements OnInit {
   @Output() statusView = new EventEmitter<{ view: string; cusId: string; }>();
   // @Output() cusId = new EventEmitter<{cusid: string}>();
@@ -58,6 +63,7 @@ export class SearchEditComponent implements OnInit {
     @Inject(PLATFORM_ID) private readonly platformId: Object
   ) { }
 
+  /** ไปหน้าถัดไปเมื่อมีข้อมูลครบตาม pageSize */
   nextPage() {
     if (this.customerStocks.length == this.pageSize) {
       this.pageNumber++;
@@ -67,6 +73,7 @@ export class SearchEditComponent implements OnInit {
     }
   }
 
+  /** ย้อนกลับหน้าก่อนหน้าถ้ายังมากกว่า 1 */
   prevPage() {
     if (this.pageNumber > 1) {
       this.pageNumber--;
@@ -76,6 +83,7 @@ export class SearchEditComponent implements OnInit {
     }
   }
 
+  /** ตั้งค่าหน้าปัจจุบันและค่าที่เลือกเมื่อเปลี่ยนมุมมอง */
   setView(view: string, stockNotes?: string[], cusId?: string, fullName?: string, stockList?: any[], statusDesc?: string) {
     this.activeView = view;
     this.selectedStockNotes = stockNotes ?? [];
@@ -86,6 +94,7 @@ export class SearchEditComponent implements OnInit {
   }
 
 
+  /** โหลดค่าเบื้องต้น, อ่านสาขาจาก cookie (เฉพาะ browser), โหลด user ปัจจุบัน */
   ngOnInit(): void {
     this.statusPage = this.dataTrasfer.getPageStatus();
     this.onloadStart();
@@ -100,6 +109,7 @@ export class SearchEditComponent implements OnInit {
     this.currentUser = this.userService.getCurrentUser();
   }
 
+  /** อ่าน cookie โดยชื่อ */
   getCookie(name: string): string | null {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -107,6 +117,7 @@ export class SearchEditComponent implements OnInit {
     return null;
   }
 
+  /** submit ฟอร์มค้นหา */
   onSubmit(event: Event) {
     event.preventDefault();
     this.onSearch(this.pageNumber, this.pageSize);
@@ -114,6 +125,7 @@ export class SearchEditComponent implements OnInit {
     this.cd.detectChanges();
   }
 
+  /** ค้นหาลูกค้า/ใบหุ้น เรียก API แบ่งหน้า */
   onSearch(pgNum: number, PGSize: number) {
     this.loading = true;
     const requestPayload = {
@@ -129,23 +141,21 @@ export class SearchEditComponent implements OnInit {
     this.cd.detectChanges();
     this.customerService.searchCustomerStk(requestPayload).subscribe({
       next: data => {
-        this.customerStocks = data;
+        this.customerStocks = Array.isArray(data) ? data : [];
         this.loading = false;
+        this.searched = true;
         this.cd.detectChanges();
       },
-      error: err => {
-        console.error('❌ เกิดข้อผิดพลาดจาก API:', err);
+      error: () => {
         this.searched = true;
         this.loading = false;
         this.cd.detectChanges();
+        Swal.fire({ icon: 'error', title: 'ค้นหาข้อมูลไม่สำเร็จ', text: 'โปรดลองใหม่' });
       }
     });
-
-    setTimeout(() => {
-
-    }, 0);
   }
 
+  /** ตั้งค่า title/icon ตามสถานะหน้าปัจจุบัน */
   onloadStart() {
     if (this.statusPage == '1') {
       this.icon = "📝";
@@ -168,6 +178,7 @@ export class SearchEditComponent implements OnInit {
     }
   }
 
+  /** ล้างค่าฟอร์มและผลลัพธ์ */
   onReset() {
     this.criteria = {
       cusId: '',
@@ -178,8 +189,10 @@ export class SearchEditComponent implements OnInit {
     this.customerStocks = [];
     this.table = false;
     this.searched = false;
+    this.cd.detectChanges();
   }
 
+  /** ส่งต่อไปหน้าฟังก์ชันตามเมนู */
   onHandle(cusId: string) {
     if (this.statusPage == '1') {
       this.activeView = 'edit';
@@ -199,6 +212,7 @@ export class SearchEditComponent implements OnInit {
     }
   }
 
+  /** แสดงตารางใบหุ้นของลูกค้า */
   onViewStock(cusId: string) {
     this.cusId = cusId;
     this.activeView = 'stock';
@@ -273,6 +287,7 @@ export class SearchEditComponent implements OnInit {
     }
   }
 
+  /** แสดงเตือนแบบมาตรฐาน */
   alert(msg: string) {
     Swal.fire({
       icon: 'warning',
