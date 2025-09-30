@@ -1,4 +1,6 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
+import { canViewReport } from '../../../services/permission-report';
+import { UserService } from '../../../services/user';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Report1Transfer } from './report-1-transfer/report-1-transfer';
@@ -144,13 +146,14 @@ export class ReportsComponent {
   ];
 
   /*
-  *🌸 ระบบเสร็จสิ้นแล้ว
+  *🌸 ระบบเสร็จแล้ว
   *⚠️ ระบบยังไม่เสร็จ
   *❌ ระบบไม่มีตัวอย่างจากเว็บเดิม
   */
 
   constructor(
-    private readonly cd: ChangeDetectorRef
+    private readonly cd: ChangeDetectorRef,
+    private readonly userService: UserService
   ) { }
 
   /** เมื่อผู้ใช้คลิกรายงาน: เปิดมุมมองรายงานและตั้งค่ารายงานที่เลือก */
@@ -185,7 +188,8 @@ export class ReportsComponent {
   }
 
   get filteredReports(): ReportItem[] {
-    let filtered = this.normalReports;
+    const userLevel = this.userService.getCurrentUser()?.level || '';
+    let filtered = this.normalReports.filter(r => canViewReport(r.id, userLevel));
 
     // Filter by search term
     if (this.searchTerm.trim()) {

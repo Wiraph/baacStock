@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
-import {
-  trigger, transition, style, animate
-} from '@angular/animations';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { UserService } from '../../services/user';
 import { PermissionService } from '../../services/permission.service';
 import { Login } from '../../services/login';
 import { PasswordStatusService, PasswordStatus } from '../../services/password-status.service';
+import Swal from 'sweetalert2';
 
 /** โครงสร้างเมนูในแผงควบคุมผู้ดูแล */
 interface MenuItem {
@@ -187,10 +186,20 @@ export class AdminDashboardComponent implements OnInit {
     );
   }
 
-  /** ออกจากระบบและกลับไปหน้าเข้าสู่ระบบ */
+  /** ออกจากระบบและกลับไปหน้าเข้าสู่ระบบ (ยืนยันก่อน) */
   logout() {
-    sessionStorage.clear();
-    this.router.navigate(['/login']);
+    Swal.fire({
+      icon: 'question',
+      title: 'ยืนยันที่จะออกจากระบบ?',
+      showCancelButton: true,
+      confirmButtonText: 'ยืนยัน',
+      cancelButtonText: 'ยกเลิก',
+      confirmButtonColor: '#d33'
+    }).then(result => {
+      if (!result.isConfirmed) return;
+      sessionStorage.clear();
+      this.router.navigate(['/login']);
+    });
   }
 
   /** แปลงรหัสระดับผู้ใช้เป็นชื่อแสดงผล */

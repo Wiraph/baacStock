@@ -93,30 +93,30 @@
             </label>
           </div>
           <div class="col-span-9">
-            <div class="flex items-center gap-2 flex-nowrap overflow-x-auto">
+            <div class="flex items-center gap-2 flex-nowrap overflow-x-auto" [ngClass]="{ 'opacity-50': dateMode !== '1' }">
               <span class="min-w-fit text-sm text-gray-600">จาก</span>
-              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="issdateSt">
+              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="issdateSt" [disabled]="dateMode !== '1'">
                 <option value="">วัน</option>
                 <option *ngFor="let d of days" [value]="d">{{ d }}</option>
               </select>
-              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="issmonthSt">
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="issmonthSt" [disabled]="dateMode !== '1'">
                 <option value="">เดือน</option>
                 <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
               </select>
-              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="issyearSt">
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="issyearSt" [disabled]="dateMode !== '1'">
                 <option value="">ปี</option>
                 <option *ngFor="let y of years" [value]="y">{{ y }}</option>
               </select>
               <span class="min-w-fit ml-2 text-sm text-gray-600">ถึง</span>
-              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="issdateEn">
+              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="issdateEn" [disabled]="dateMode !== '1'">
                 <option value="">วัน</option>
                 <option *ngFor="let d of days" [value]="d">{{ d }}</option>
               </select>
-              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="issmonthEn">
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="issmonthEn" [disabled]="dateMode !== '1'">
                 <option value="">เดือน</option>
                 <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
               </select>
-              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="issyearEn">
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="issyearEn" [disabled]="dateMode !== '1'">
                 <option value="">ปี</option>
                 <option *ngFor="let y of years" [value]="y">{{ y }}</option>
               </select>
@@ -132,30 +132,30 @@
             </label>
           </div>
           <div class="col-span-9">
-            <div class="flex items-center gap-2 flex-nowrap overflow-x-auto">
+            <div class="flex items-center gap-2 flex-nowrap overflow-x-auto" [ngClass]="{ 'opacity-50': dateMode !== '2' }">
               <span class="min-w-fit text-sm text-gray-600">จาก</span>
-              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="effdateSt">
+              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="effdateSt" [disabled]="dateMode !== '2'">
                 <option value="">วัน</option>
                 <option *ngFor="let d of days" [value]="d">{{ d }}</option>
               </select>
-              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="effmonthSt">
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="effmonthSt" [disabled]="dateMode !== '2'">
                 <option value="">เดือน</option>
                 <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
               </select>
-              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="effyearSt">
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="effyearSt" [disabled]="dateMode !== '2'">
                 <option value="">ปี</option>
                 <option *ngFor="let y of years" [value]="y">{{ y }}</option>
               </select>
               <span class="min-w-fit ml-2 text-sm text-gray-600">ถึง</span>
-              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="effdateEn">
+              <select class="w-20 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="effdateEn" [disabled]="dateMode !== '2'">
                 <option value="">วัน</option>
                 <option *ngFor="let d of days" [value]="d">{{ d }}</option>
               </select>
-              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="effmonthEn">
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="effmonthEn" [disabled]="dateMode !== '2'">
                 <option value="">เดือน</option>
                 <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
               </select>
-              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="effyearEn">
+              <select class="w-24 border rounded px-2 py-1.5 text-center text-sm" [(ngModel)]="effyearEn" [disabled]="dateMode !== '2'">
                 <option value="">ปี</option>
                 <option *ngFor="let y of years" [value]="y">{{ y }}</option>
               </select>
