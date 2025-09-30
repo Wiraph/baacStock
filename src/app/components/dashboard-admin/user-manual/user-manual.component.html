@@ -34,7 +34,7 @@
                 </span>
                 <div class="flex-1">
                   <div class="flex items-center space-x-2 mb-1">
-                    <p class="font-medium text-gray-800">{{ manual.fileName }}</p>
+                    <p class="font-medium text-gray-800">{{ manual.displayName }}</p>
                     <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
                       📖 คู่มือ
                     </span>
@@ -43,9 +43,6 @@
                     <span>📅 {{ manual.uploadDate | date:'dd/MM/yyyy' }}</span>
                     <span>📏 {{ formatFileSize(manual.fileSize) }}</span>
                   </div>
-                  <p *ngIf="manual.description" class="text-sm text-gray-600 mt-1">
-                    {{ manual.description }}
-                  </p>
                 </div>
               </div>
             </td>

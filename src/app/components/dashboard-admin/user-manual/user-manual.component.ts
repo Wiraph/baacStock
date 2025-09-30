@@ -1,16 +1,53 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
+import { ManualService } from '../../../services/manual';
 
 interface Manual {
-  id: string;
+  displayName: string;
   fileName: string;
-  category: string;
   uploadDate: Date;
   fileSize: number;
   downloadUrl: string;
-  description?: string;
 }
+
+const fileMapping: Record<string, string> = {
+  'user.doc': 'คู่มือผู้ใช้งานระบบ (สำนักงานใหญ่)',
+  'userBranch.doc': 'คู่มือผู้ใช้งานระบบ (สาขา)',
+  'FlowDivident2554.doc': 'ขั้นตอนการจ่ายเงินปันผล',
+  'searchedit.doc': 'คู่มือค้นหา/แก้ไข',
+  'printstock.doc': 'คู่มือพิมพ์คำขอซื้อหุ้น',
+  'salestock.doc': 'คู่มือขายหุ้นสามัญ',
+  'newstockloss.doc': 'คู่มือออกหุ้นใบใหม่แทนใบที่ชำรุด/สูญหาย',
+  'transfer.doc': 'คู่มือโอนเปลี่ยนมือ',
+  'dividendCash_Stock_PAiD.doc': 'คู่มือจำเงินปันผล 2555 (DOC)',
+  'dividendCash_Stock_PAiD.pdf': 'คู่มือจำเงินปันผล 2555 (PDF)',
+  'reportsalestock.doc': 'คู่มือรายงานการขายหุ้น/โอนหุ้น',
+  'reportconcludebyday.doc': 'คู่มือรายงานสรุปผลการโอนหุ้นประจำวันแยกตามประเภทผู้ถือหุ้น',
+  'reportdividentRate.doc': 'คู่มือรายงานข้อมูลอัตราเงินปันผล',
+  'reportregisterstock.doc': 'คู่มือทะเบียนผู้ถือหุ้น',
+  'reportdetailstock.doc': 'คู่มือรายละเอียดผู้ถือหุ้น',
+  'reportseparate.doc': 'คู่มือยอดสรุปการจ่ายเงินปันผลแยกตามสาขา สนจ ประเทศ',
+  'reportpd2.doc': 'คู่มือใบแนบภ.ง.ด.2',
+  'reportpayin.doc': 'คู่มือใบสำคัญจ่าย',
+  'reporttax.doc': 'คู่มือหนังสือรับรองการหักภาษี ณ ที่จ่าย',
+  '1-approvestock.doc': 'คู่มือ อนุมัติรายการ',
+  '1-approvestock2.doc': 'คู่มือ อนุมัติออกใบหุ้น',
+  '1-printstock.doc': 'คู่มือพิมพ์ใบหุ้น',
+  '1-blockstock.doc': 'คู่มือบล็อค/ยกเลิกบล็อคใบหุ้น',
+  '1-textfile.doc': 'คู่มือสร้าง textfile',
+  '1-shapestock.doc': 'คู่มือรายงานสัดส่วนผู้ถือหุ้น',
+  '1-ratestock.doc' : 'คู่มือรายงานการจัดลำดับผู้ถือหุ้น',
+  '1-creditstock.doc' : 'คู่มือรายงานสรุปยอดคงเหลือแยกตามประเภทผู้ถือหุ้น',
+  '1-confirmstock.doc': 'คู่มือหนังสือยืนยันยอดหุ้น',
+  '1-reportconclude.doc' : 'คู่มือรายงานสรุปการขาย/โอนหุ้นสามัญแยกตามประเภทผู้ถือหุ้น',
+  '1-summary.doc' : 'คู่มือสรุปรายละเอียดการจ่ายเงินปันผลหุ้นสามัญ',
+  '1-informdividend.doc': 'คู่มือหนังสือแจ้งการจ่ายเงินปันผลหุ้นสามัญ',
+  '1-control.doc': 'คู่มือควบคุมระบบ',
+  '1-upload-download.doc' : 'คู่มือUpload/Download เอกสาร',
+  'การแสดงผล PDF ใน Browser.doc' : 'การกำหนดตัวเลือกการแสดงผล PDF ใน Browser (DOC)',
+  'การแสดงผล PDF ใน Browser.pdf' : 'การกำหนดตัวเลือกการแสดงผล PDF ใน Browser (PDF)'
+};
 
 @Component({
   selector: 'app-user-manual',
@@ -19,11 +56,13 @@ interface Manual {
   templateUrl: './user-manual.component.html'
 })
 export class UserManualComponent implements OnInit {
-
   manuals: Manual[] = [];
   loading = false;
 
-  constructor(private readonly cd: ChangeDetectorRef) { }
+  constructor(
+    private readonly cd: ChangeDetectorRef,
+    private readonly manualService: ManualService
+  ) { }
 
   ngOnInit(): void {
     this.loadManuals();
@@ -32,147 +71,54 @@ export class UserManualComponent implements OnInit {
   // Load Manuals (Mock Data)
   private loadManuals() {
     this.loading = true;
-    this.cd.markForCheck(); // Force UI update
-    
-    // Load data immediately without delay
-    this.manuals = [
-      {
-        id: 'manual-01',
-        fileName: 'คู่มือใช้งานระบบ (สำหรับงานใหม่)',
-        category: 'คู่มือ - เอกสาร',
-        uploadDate: new Date(2025, 3, 8), // 2025-04-08
-        fileSize: 2048000, // 2MB
-        downloadUrl: '/manuals/คู่มือใช้งานระบบ-งานใหม่.pdf',
-        description: 'คู่มือการใช้งานระบบสำหรับพนักงานใหม่'
+    this.manualService.getFileList().subscribe({
+      next: files => {
+        this.manuals = Object.keys(fileMapping)   // 1️⃣ ใช้ลำดับตาม key ใน mapping
+          .map(fileName => {
+            const file = files.find(f => f.fileName === fileName);
+            if (!file) return null;  // ถ้า API ไม่มีไฟล์นี้ จะไม่เอา
+            return {
+              fileName: file.fileName,
+              displayName: fileMapping[file.fileName],
+              uploadDate: new Date(file.created),
+              fileSize: file.fileSize,
+              downloadUrl: file.fileName
+            };
+          })
+          .filter(f => f !== null) as Manual[];
+        this.loading = false;
+        this.cd.markForCheck();
       },
-      {
-        id: 'manual-02',
-        fileName: 'คู่มือใช้งานระบบ (สาขา)',
-        category: 'คู่มือ - เอกสาร',
-        uploadDate: new Date(2025, 3, 8),
-        fileSize: 1536000, // 1.5MB
-        downloadUrl: '/manuals/คู่มือใช้งานระบบ-สาขา.pdf',
-        description: 'คู่มือการใช้งานระบบสำหรับสาขา'
-      },
-      {
-        id: 'manual-03',
-        fileName: 'ขั้นตอนการขายเงินปันผล',
-        category: 'คู่มือ - เอกสาร',
-        uploadDate: new Date(2025, 3, 8),
-        fileSize: 1024000, // 1MB
-        downloadUrl: '/manuals/ขั้นตอนการขายเงินปันผล.pdf',
-        description: 'คู่มือขั้นตอนการขายเงินปันผล'
-      },
-      {
-        id: 'manual-04',
-        fileName: 'คู่มือหน้าแกไฟล์',
-        category: 'คู่มือ - เอกสาร',
-        uploadDate: new Date(2025, 3, 8),
-        fileSize: 768000, // 768KB
-        downloadUrl: '/manuals/คู่มือหน้าแกไฟล์.pdf',
-        description: 'คู่มือการแก้ไฟล์ในระบบ'
-      },
-      {
-        id: 'manual-05',
-        fileName: 'คู่มือพิมพ์คำขอซื้อหุ้น',
-        category: 'คู่มือ - เอกสาร',
-        uploadDate: new Date(2025, 3, 8),
-        fileSize: 896000, // 896KB
-        downloadUrl: '/manuals/คู่มือพิมพ์คำขอซื้อหุ้น.pdf',
-        description: 'คู่มือการพิมพ์คำขอซื้อหุ้น'
-      },
-      {
-        id: 'manual-06',
-        fileName: 'คู่มือขายหุ้นราคาใหม่',
-        category: 'คู่มือ - เอกสาร',
-        uploadDate: new Date(2025, 3, 8),
-        fileSize: 1280000, // 1.25MB
-        downloadUrl: '/manuals/คู่มือขายหุ้นราคาใหม่.pdf',
-        description: 'คู่มือการขายหุ้นราคาใหม่'
-      },
-      {
-        id: 'manual-07',
-        fileName: 'คู่มือออกหุ้นใบใหม่แทนใบที่ชำรุด/สูญหาย',
-        category: 'คู่มือ - เอกสาร',
-        uploadDate: new Date(2025, 3, 8),
-        fileSize: 1152000, // 1.1MB
-        downloadUrl: '/manuals/คู่มือออกหุ้นใบใหม่.pdf',
-        description: 'คู่มือการออกหุ้นใบใหม่แทนใบที่ชำรุด/สูญหาย'
-      },
-      {
-        id: 'manual-08',
-        fileName: 'คู่มือโอนเปลี่ยนชื่อ',
-        category: 'คู่มือ - เอกสาร',
-        uploadDate: new Date(2025, 3, 8),
-        fileSize: 1024000, // 1MB
-        downloadUrl: '/manuals/คู่มือโอนเปลี่ยนชื่อ.pdf',
-        description: 'คู่มือการโอนเปลี่ยนชื่อผู้ถือหุ้น'
-      },
-      {
-        id: 'manual-09',
-        fileName: 'คู่มือจำเงินปันผล 2555 (DOC)',
-        category: 'คู่มือ - เอกสาร',
-        uploadDate: new Date(2025, 3, 8),
-        fileSize: 640000, // 640KB
-        downloadUrl: '/manuals/คู่มือจำเงินปันผล2555.doc',
-        description: 'คู่มือการจำเงินปันผล ปี 2555 (รูปแบบ DOC)'
-      },
-      {
-        id: 'manual-10',
-        fileName: 'คู่มือจำเงินปันผล 2555 (PDF)',
-        category: 'คู่มือ - เอกสาร',
-        uploadDate: new Date(2025, 3, 8),
-        fileSize: 896000, // 896KB
-        downloadUrl: '/manuals/คู่มือจำเงินปันผล2555.pdf',
-        description: 'คู่มือการจำเงินปันผล ปี 2555 (รูปแบบ PDF)'
-      },
-      {
-        id: 'manual-11',
-        fileName: 'คู่มือรายงานการขายหุ้น/โอนหุ้น',
-        category: 'คู่มือ - เอกสาร',
-        uploadDate: new Date(2025, 3, 8),
-        fileSize: 1024000, // 1MB
-        downloadUrl: '/manuals/คู่มือรายงานการขายหุ้น.pdf',
-        description: 'คู่มือการทำรายงานการขายหุ้น/โอนหุ้น'
-      },
-      {
-        id: 'manual-12',
-        fileName: 'คู่มือรายงานสรุปสมาชิกใหม่หุ้นใหม่และระดับการประกันภัยโดยอำเภอ',
-        category: 'คู่มือ - เอกสาร',
-        uploadDate: new Date(2025, 3, 8),
-        fileSize: 1536000, // 1.5MB
-        downloadUrl: '/manuals/คู่มือรายงานสรุปสมาชิก.pdf',
-        description: 'คู่มือการทำรายงานสรุปสมาชิกใหม่หุ้นใหม่และระดับการประกันภัยโดยอำเภอ'
-      },
-      {
-        id: 'manual-13',
-        fileName: 'คู่มือรายงานข้อมูลสมาชิกเงินปันผล',
-        category: 'คู่มือ - เอกสาร',
-        uploadDate: new Date(2025, 3, 8),
-        fileSize: 768000, // 768KB
-        downloadUrl: '/manuals/คู่มือรายงานข้อมูลสมาชิก.pdf',
-        description: 'คู่มือการทำรายงานข้อมูลสมาชิกเงินปันผล'
+      error: err => {
+        console.error(err);
+        this.loading = false;
       }
-    ];
-    
-    this.loading = false;
-    this.cd.markForCheck(); // Force UI update after data loaded
+    });
   }
 
   // Download Manual
   downloadManual(manual: Manual) {
-    console.log('📥 Downloading manual:', manual.fileName);
-    
-    // Mock download - ในระบบจริงจะเรียก API
-    Swal.fire({
-      icon: 'info',
-      title: 'กำลังดาวน์โหลด',
-      text: `กำลังดาวน์โหลดไฟล์ "${manual.fileName}"`,
-      timer: 2000,
-      showConfirmButton: false,
-      timerProgressBar: true
-    });
-
+    this.manualService.downloadFile(manual.fileName).subscribe({
+      next: blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = manual.fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        console.log('Download initiated for:', manual.fileName);
+      }, error: err => {
+        console.error('Download failed for:', manual.fileName, err);
+        Swal.fire({
+          icon: `error`,
+          title: `ดาวน์โหลดไม่สำเร็จ`,
+          text: `ไม่สามารถดาวน์โหลดไฟล์ "${manual.fileName}" ได้ โปรดลองใหม่อีกครั้ง`,
+          confirmButtonText: 'ตกลง',
+        })
+      }
+    })
     // Simulate download
     setTimeout(() => {
       // ในระบบจริงจะใช้ window.open หรือ download link
